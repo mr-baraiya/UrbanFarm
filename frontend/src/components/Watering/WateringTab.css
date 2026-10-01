@@ -1,0 +1,273 @@
+/* Watering Tab */
+.watering-tab {
+  padding: 1.5rem;
+  background: var(--surface-primary, #ffffff);
+  border-radius: var(--radius-lg, 20px);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  box-shadow: 0 4px 24px rgba(44, 36, 33, 0.02);
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.watering-tab:hover {
+  box-shadow: 0 6px 28px rgba(44, 36, 33, 0.04);
+}
+
+.watering-tab h2 {
+  color: var(--text-main, #2c2421);
+  margin-bottom: 0.2rem;
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.watering-tab .subtitle {
+  color: var(--text-muted, #7c6f66);
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.watering-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 1024px) {
+  .watering-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .watering-layout {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.watering-left {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.watering-generate-section {
+  background: var(--bg-primary, #fbf9f7);
+  padding: 1.5rem;
+  border-radius: var(--radius-md, 12px);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+}
+
+.watering-generate-section p {
+  color: var(--text-muted, #7c6f66);
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.plant-selector {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.plant-selector label {
+  font-weight: 500;
+  color: var(--text-main, #2c2421);
+  font-size: 0.95rem;
+}
+
+.plant-selector select {
+  flex: 1;
+  padding: 0.5rem 1.2rem;
+  border-radius: 30px;
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  background: var(--surface-primary, #ffffff);
+  color: var(--text-main, #2c2421);
+  font-size: 1rem;
+  min-width: 150px;
+  cursor: pointer;
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237c6f66' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 12px;
+  padding-right: 2.5rem;
+}
+
+.plant-selector select:focus {
+  outline: none;
+  border-color: var(--accent-lavender, #a8a2bc);
+  box-shadow: 0 0 0 3px rgba(168, 162, 188, 0.15);
+}
+
+.bulk-controls {
+  background: var(--bg-primary, #fbf9f7);
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius-md, 12px);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.controls-label {
+  font-weight: 500;
+  color: var(--text-main, #2c2421);
+  font-size: 0.9rem;
+}
+
+.control-btn {
+  padding: 0.3rem 1.2rem;
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  border-radius: 30px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+  font-weight: 500;
+  background: var(--surface-primary, #ffffff);
+  color: var(--text-main, #2c2421);
+}
+
+.control-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(44, 36, 33, 0.06);
+}
+
+.control-btn.hot {
+  background: rgba(223, 177, 155, 0.15);
+  color: #dfb19b;
+  border-color: rgba(223, 177, 155, 0.3);
+}
+
+.control-btn.hot:hover {
+  background: rgba(223, 177, 155, 0.25);
+}
+
+.control-btn.rain {
+  background: rgba(176, 196, 222, 0.15);
+  color: var(--accent-blue, #b0c4de);
+  border-color: rgba(176, 196, 222, 0.3);
+}
+
+.control-btn.rain:hover {
+  background: rgba(176, 196, 222, 0.25);
+}
+
+.watering-schedule-section {
+  background: var(--bg-primary, #fbf9f7);
+  padding: 1.5rem;
+  border-radius: var(--radius-md, 12px);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+}
+
+.watering-history-detail {
+  background: var(--bg-primary, #fbf9f7);
+  padding: 1.5rem;
+  border-radius: var(--radius-md, 12px);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+}
+
+.watering-history-detail .btn-secondary {
+  margin-top: 1rem;
+  background: var(--bg-primary, #fbf9f7);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  padding: 0.4rem 1.5rem;
+  border-radius: 30px;
+  color: var(--text-main, #2c2421);
+  cursor: pointer;
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.watering-history-detail .btn-secondary:hover {
+  background: var(--surface-primary, #ffffff);
+  border-color: var(--accent-lavender, #a8a2bc);
+  transform: translateY(-1px);
+}
+
+/* Right Column - History */
+.watering-right {
+  background: var(--bg-primary, #fbf9f7);
+  padding: 1.5rem;
+  border-radius: var(--radius-md, 12px);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  max-height: 800px;
+  overflow-y: auto;
+}
+
+.watering-right::-webkit-scrollbar {
+  width: 6px;
+}
+
+.watering-right::-webkit-scrollbar-track {
+  background: var(--bg-primary, #fbf9f7);
+  border-radius: 10px;
+}
+
+.watering-right::-webkit-scrollbar-thumb {
+  background: rgba(220, 210, 200, 0.6);
+  border-radius: 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .watering-tab {
+    padding: 1rem;
+  }
+
+  .watering-tab h2 {
+    font-size: 1.3rem;
+  }
+
+  .watering-generate-section {
+    padding: 1rem;
+  }
+
+  .watering-schedule-section {
+    padding: 1rem;
+  }
+
+  .watering-history-detail {
+    padding: 1rem;
+  }
+
+  .watering-right {
+    padding: 1rem;
+    max-height: 500px;
+  }
+}
+
+@media (max-width: 480px) {
+  .watering-tab {
+    padding: 0.75rem;
+  }
+
+  .watering-tab h2 {
+    font-size: 1.1rem;
+  }
+
+  .plant-selector {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .plant-selector select {
+    min-width: unset;
+  }
+
+  .bulk-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .control-btn {
+    text-align: center;
+  }
+}

@@ -1,0 +1,196 @@
+.content-moderation {
+  background: #ffffff;
+  padding: 1.8rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(160, 140, 120, 0.08);
+}
+
+.moderation-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: #6b5e52;
+}
+
+.moderation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.moderation-header h3 {
+  color: #4a3f3a;
+  margin: 0;
+}
+
+.moderation-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.filter-btn {
+  padding: 0.3rem 1rem;
+  border: 1.5px solid #e5dbd1;
+  border-radius: 20px;
+  background: none;
+  color: #6b5e52;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: 0.2s;
+}
+
+.filter-btn:hover {
+  border-color: #b8a9c9;
+  background: #faf6f0;
+}
+
+.filter-btn.active {
+  border-color: #b8a9c9;
+  background: #b8a9c9;
+  color: white;
+}
+
+.post-count {
+  font-size: 0.85rem;
+  color: #9a8a7a;
+}
+
+.no-posts {
+  text-align: center;
+  padding: 3rem 0;
+  color: #9a8a7a;
+}
+
+.no-posts span {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.moderation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.mod-item {
+  background: #faf6f0;
+  padding: 1.2rem 1.5rem;
+  border-radius: 16px;
+  border-left: 4px solid #d4c5b2;
+}
+
+.mod-item.flagged {
+  border-left-color: #e8b4b4;
+  background: #fdf5f5;
+}
+
+.mod-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.mod-item-header h4 {
+  color: #4a3f3a;
+  margin: 0;
+}
+
+.mod-status {
+  font-size: 0.8rem;
+  padding: 0.1rem 0.8rem;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.mod-content {
+  color: #6b5e52;
+  margin: 0.5rem 0;
+  line-height: 1.5;
+}
+
+.mod-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: #9a8a7a;
+  margin-bottom: 0.5rem;
+}
+
+.mod-image {
+  margin: 0.5rem 0;
+  max-width: 300px;
+}
+
+.mod-image img {
+  width: 100%;
+  border-radius: 8px;
+  max-height: 200px;
+  object-fit: cover;
+}
+
+.mod-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.mod-actions button {
+  padding: 0.3rem 1.2rem;
+  border: none;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.mod-actions .mod-approve {
+  background: #a8d5ba;
+  color: #2a4a3a;
+}
+
+.mod-actions .mod-approve:hover {
+  background: #8ac4a0;
+}
+
+.mod-actions .mod-flag {
+  background: #f0d5c0;
+  color: #5a4a3a;
+}
+
+.mod-actions .mod-flag:hover {
+  background: #e8c4a8;
+}
+
+.mod-actions .mod-unflag {
+  background: #d6eaf8;
+  color: #2a4a5a;
+}
+
+.mod-actions .mod-unflag:hover {
+  background: #b8d8e8;
+}
+
+.mod-actions .mod-delete {
+  background: #f0c0c0;
+  color: #5a3a3a;
+}
+
+.mod-actions .mod-delete:hover {
+  background: #e8a8a8;
+}

@@ -1,0 +1,295 @@
+/* Garden Card */
+.garden-card {
+  background: var(--surface-primary, #ffffff);
+  border-radius: var(--radius-lg, 20px);
+  padding: 1.5rem;
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  box-shadow: 0 4px 24px rgba(44, 36, 33, 0.02);
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+  position: relative;
+}
+
+.garden-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 28px rgba(44, 36, 33, 0.04);
+}
+
+.garden-card.list {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .garden-card.list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Card Header */
+.garden-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.8rem;
+}
+
+.garden-header-left {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.garden-type-badge {
+  font-size: 0.75rem;
+  background: var(--bg-primary, #fbf9f7);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  padding: 0.15rem 0.8rem;
+  border-radius: 20px;
+  color: var(--text-muted, #7c6f66);
+  font-weight: 500;
+}
+
+.garden-health-badge {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.8rem;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.garden-health-badge.healthy {
+  background: rgba(142, 168, 157, 0.15);
+  color: var(--accent-sage, #8ea89d);
+  border: 1px solid rgba(142, 168, 157, 0.3);
+}
+
+.garden-health-badge.warning {
+  background: rgba(223, 177, 155, 0.15);
+  color: #dfb19b;
+  border: 1px solid rgba(223, 177, 155, 0.3);
+}
+
+.garden-health-badge.unhealthy {
+  background: rgba(200, 150, 140, 0.15);
+  color: #c8968c;
+  border: 1px solid rgba(200, 150, 140, 0.3);
+}
+
+.garden-header-right {
+  position: relative;
+}
+
+.menu-btn {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  color: var(--text-muted, #7c6f66);
+  cursor: pointer;
+  padding: 0 0.2rem;
+  line-height: 1;
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.menu-btn:hover {
+  color: var(--text-main, #2c2421);
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: var(--surface-primary, #ffffff);
+  border-radius: var(--radius-md, 12px);
+  box-shadow: 0 8px 24px rgba(44, 36, 33, 0.1);
+  padding: 0.3rem;
+  min-width: 150px;
+  z-index: 10;
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+}
+
+.menu-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border: none;
+  background: none;
+  text-align: left;
+  border-radius: var(--radius-md, 12px);
+  color: var(--text-main, #2c2421);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.menu-dropdown button:hover {
+  background: var(--bg-primary, #fbf9f7);
+}
+
+.menu-dropdown button.danger {
+  color: #c8968c;
+}
+
+.menu-dropdown button.danger:hover {
+  background: rgba(200, 150, 140, 0.08);
+}
+
+/* Garden Name */
+.garden-name {
+  color: var(--text-main, #2c2421);
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin: 0 0 0.8rem 0;
+}
+
+/* Details Grid */
+.garden-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 1.5rem;
+  margin-bottom: 0.8rem;
+}
+
+@media (max-width: 400px) {
+  .garden-details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--text-muted, #7c6f66);
+}
+
+.detail-icon {
+  font-size: 0.9rem;
+}
+
+.detail-text {
+  font-size: 0.85rem;
+}
+
+/* Description */
+.garden-description {
+  color: var(--text-muted, #7c6f66);
+  font-size: 0.9rem;
+  margin: 0 0 0.8rem 0;
+  line-height: 1.5;
+}
+
+/* Weather & Water Status */
+.garden-weather-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0.8rem;
+  background: var(--bg-primary, #fbf9f7);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  border-radius: var(--radius-md, 12px);
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.weather-mini {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-main, #2c2421);
+}
+
+.weather-emoji {
+  font-size: 1.2rem;
+}
+
+.weather-temp {
+  font-weight: 600;
+  color: var(--text-main, #2c2421);
+}
+
+.weather-condition {
+  color: var(--text-muted, #7c6f66);
+  text-transform: capitalize;
+}
+
+.weather-loading {
+  color: var(--text-muted, #7c6f66);
+  font-size: 0.8rem;
+}
+
+.weather-na {
+  color: var(--text-muted, #7c6f66);
+  font-size: 0.85rem;
+}
+
+.water-status {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-main, #2c2421);
+}
+
+/* Actions */
+.garden-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.btn-secondary-small {
+  background: var(--bg-primary, #fbf9f7);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  padding: 0.4rem 1.2rem;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  color: var(--text-main, #2c2421);
+  cursor: pointer;
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+  font-weight: 500;
+}
+
+.btn-secondary-small:hover {
+  background: var(--surface-primary, #ffffff);
+  border-color: var(--accent-lavender, #a8a2bc);
+}
+
+.btn-primary-small {
+  background: var(--accent-lavender, #a8a2bc);
+  border: none;
+  padding: 0.4rem 1.2rem;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  color: #ffffff;
+  cursor: pointer;
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+  font-weight: 500;
+}
+
+.btn-primary-small:hover {
+  background: #9a87b1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(168, 162, 188, 0.3);
+}
+
+/* Footer */
+.garden-footer {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  font-size: 0.75rem;
+  color: var(--text-muted, #7c6f66);
+}
+
+.garden-footer span {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}

@@ -1,0 +1,228 @@
+/* Garden Form Modal */
+.garden-form .modal-content {
+  max-width: 560px;
+  padding: 2.5rem;
+  background: var(--surface-primary, #ffffff);
+  border-radius: var(--radius-lg, 20px);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  box-shadow: 0 8px 40px rgba(44, 36, 33, 0.1);
+}
+
+/* Form Title */
+.garden-form .form-title {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-main, #2c2421);
+  font-size: 1.4rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.garden-form .form-subtitle {
+  margin: 0 0 1.75rem 0;
+  color: var(--text-muted, #7c6f66);
+  font-size: 0.95rem;
+}
+
+/* Form Group */
+.garden-form .form-group {
+  margin-bottom: 1.25rem;
+}
+
+.garden-form label {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: var(--text-main, #2c2421);
+  font-weight: 500;
+  font-size: 0.9rem;
+  letter-spacing: -0.01em;
+}
+
+.garden-form label .required {
+  color: #c8968c;
+  margin-left: 0.2rem;
+}
+
+.garden-form input,
+.garden-form select,
+.garden-form textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  border-radius: var(--radius-md, 12px);
+  font-size: 0.95rem;
+  background: var(--bg-primary, #fbf9f7);
+  color: var(--text-main, #2c2421);
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.garden-form input:focus,
+.garden-form select:focus,
+.garden-form textarea:focus {
+  outline: none;
+  border-color: var(--accent-lavender, #a8a2bc);
+  background: var(--surface-primary, #ffffff);
+  box-shadow: 0 0 0 3px rgba(168, 162, 188, 0.15);
+}
+
+.garden-form input::placeholder,
+.garden-form textarea::placeholder {
+  color: var(--text-muted, #7c6f66);
+  opacity: 0.7;
+}
+
+.garden-form textarea {
+  resize: vertical;
+  min-height: 90px;
+  line-height: 1.5;
+}
+
+.garden-form select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237c6f66' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 12px;
+  padding-right: 2.5rem;
+  cursor: pointer;
+}
+
+.garden-form select:hover {
+  border-color: var(--accent-lavender, #a8a2bc);
+}
+
+/* Form Row - Two Column Layout */
+.garden-form .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 450px) {
+  .garden-form .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+
+/* Form Actions */
+.garden-form .form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  justify-content: flex-end;
+}
+
+.garden-form .btn-secondary {
+  background: var(--bg-primary, #fbf9f7);
+  border: 1.5px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  padding: 0.7rem 1.8rem;
+  border-radius: var(--radius-md, 12px);
+  color: var(--text-main, #2c2421);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+  font-weight: 500;
+}
+
+.garden-form .btn-secondary:hover {
+  background: var(--surface-primary, #ffffff);
+  border-color: var(--accent-lavender, #a8a2bc);
+  transform: translateY(-1px);
+}
+
+.garden-form .btn-primary {
+  background: var(--accent-lavender, #a8a2bc);
+  border: none;
+  padding: 0.7rem 2rem;
+  border-radius: var(--radius-md, 12px);
+  color: #ffffff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+  font-weight: 500;
+  min-width: 100px;
+}
+
+.garden-form .btn-primary:hover {
+  background: #9a87b1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(168, 162, 188, 0.3);
+}
+
+.garden-form .btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Error States */
+.garden-form .form-group.error input,
+.garden-form .form-group.error select,
+.garden-form .form-group.error textarea {
+  border-color: #c8968c;
+  background: rgba(200, 150, 140, 0.05);
+}
+
+.garden-form .form-group.error label {
+  color: #c8968c;
+}
+
+.garden-form .error-message {
+  color: #c8968c;
+  font-size: 0.8rem;
+  margin-top: 0.3rem;
+  display: block;
+}
+
+/* Helper Text */
+.garden-form .helper-text {
+  color: var(--text-muted, #7c6f66);
+  font-size: 0.8rem;
+  margin-top: 0.3rem;
+  display: block;
+  opacity: 0.8;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 600px) {
+  .garden-form .modal-content {
+    padding: 1.75rem;
+    max-width: 100%;
+    margin: 0.5rem;
+  }
+
+  .garden-form .form-title {
+    font-size: 1.2rem;
+  }
+
+  .garden-form .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .garden-form .form-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .garden-form .btn-primary {
+    min-width: unset;
+  }
+}
+
+@media (max-width: 400px) {
+  .garden-form .modal-content {
+    padding: 1.25rem;
+  }
+
+  .garden-form input,
+  .garden-form select,
+  .garden-form textarea {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+  }
+}

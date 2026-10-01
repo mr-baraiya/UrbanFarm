@@ -1,0 +1,100 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 76px;
+  background: rgba(246, 255, 248, 0.84);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(1rem, 4vw, 3rem);
+  z-index: 200;
+  box-shadow: 0 4px 18px rgba(31, 58, 48, 0.06);
+  backdrop-filter: blur(14px);
+}
+
+.navbar-left .logo {
+  font-family: "Fraunces", serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  letter-spacing: -0.03em;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.navbar-right .user-name {
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.navbar-right .logout-btn {
+  background: none;
+  border: 1px solid var(--border);
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  background: transparent;
+  font-weight: 600;
+  transition:
+    transform var(--transition),
+    background var(--transition),
+    border-color var(--transition);
+  font-size: 0.9rem;
+}
+
+.navbar-right .logout-btn:hover {
+  background: var(--mist);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.theme-toggle {
+  background: none;
+  border: none;
+  font-size: 0.8rem;
+  color: var(--ink);
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition:
+    transform var(--transition),
+    background var(--transition),
+    border-color var(--transition);
+}
+
+.theme-toggle:hover {
+  color: var(--ink);
+  background: var(--mist);
+  border-color: var(--accent);
+}
+
+/* Mobile hamburger placeholder – you can add if needed */
+.mobile-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  color: #4a3f3a;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .mobile-toggle {
+    display: block;
+  }
+  .navbar-right .user-name {
+    display: none;
+  }
+}

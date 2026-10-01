@@ -1,0 +1,153 @@
+/* Bulk Actions */
+.bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: rgba(168, 162, 188, 0.1);
+  padding: 0.3rem 1rem 0.3rem 1.2rem;
+  border-radius: 30px;
+  border: 2px solid var(--accent-lavender, #a8a2bc);
+  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.bulk-count {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main, #2c2421);
+}
+
+.bulk-buttons {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.bulk-btn {
+  padding: 0.2rem 0.6rem;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+  background: none;
+  color: var(--text-muted, #7c6f66);
+  font-weight: 500;
+}
+
+.bulk-btn:hover {
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--text-main, #2c2421);
+}
+
+.bulk-btn.water:hover {
+  color: var(--accent-sage, #8ea89d);
+  background: rgba(142, 168, 157, 0.1);
+}
+
+.bulk-btn.move:hover {
+  color: var(--accent-blue, #b0c4de);
+  background: rgba(176, 196, 222, 0.1);
+}
+
+.bulk-btn.delete:hover {
+  color: #c8968c;
+  background: rgba(200, 150, 140, 0.1);
+}
+
+.bulk-btn.cancel {
+  color: var(--text-muted, #7c6f66);
+}
+
+.bulk-btn.cancel:hover {
+  color: var(--text-main, #2c2421);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.bulk-move-wrapper {
+  position: relative;
+}
+
+.move-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--surface-primary, #ffffff);
+  border-radius: var(--radius-md, 12px);
+  box-shadow: 0 8px 24px rgba(44, 36, 33, 0.1);
+  padding: 0.3rem;
+  min-width: 150px;
+  z-index: 10;
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  margin-top: 0.2rem;
+  animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.move-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 0.4rem 1rem;
+  border: none;
+  background: none;
+  text-align: left;
+  border-radius: var(--radius-md, 12px);
+  color: var(--text-main, #2c2421);
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.move-dropdown button:hover {
+  background: var(--bg-primary, #fbf9f7);
+}
+
+.move-dropdown button .garden-name {
+  color: var(--text-muted, #7c6f66);
+  font-size: 0.8rem;
+  margin-left: 0.3rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .bulk-actions {
+    flex-wrap: wrap;
+    padding: 0.4rem 0.8rem;
+    gap: 0.5rem;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .bulk-count {
+    font-size: 0.8rem;
+  }
+
+  .bulk-btn {
+    font-size: 0.8rem;
+    padding: 0.15rem 0.5rem;
+  }
+
+  .bulk-buttons {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}

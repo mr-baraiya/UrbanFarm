@@ -1,0 +1,21 @@
+.plant-form .modal-content {
+  max-width: 500px;
+}
+
+.plant-form .form-group textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+.plant-form .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 450px) {
+  .plant-form .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}

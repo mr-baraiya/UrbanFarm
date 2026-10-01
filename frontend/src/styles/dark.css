@@ -1,0 +1,8 @@
+:root.dark {
+  --background: #2b4a3d;
+  --surface: #385b4d;
+  --surface-strong: #1f3a30;
+  --text: #f6fff8;
+  --text-secondary: #cce3de;
+  --border: rgba(204, 227, 222, 0.28);
+}

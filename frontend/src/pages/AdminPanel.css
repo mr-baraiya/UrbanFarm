@@ -1,0 +1,10 @@
+.admin-panel {
+  padding: 2rem;
+  background: var(--background, #faf6f0);
+  border-top: 4px solid var(--pastel-lavender, #e8d5f0);
+}
+
+.admin-panel h2 {
+  color: #4a3f3a;
+  margin-bottom: 1.5rem;
+}

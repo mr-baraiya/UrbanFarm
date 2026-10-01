@@ -1,0 +1,157 @@
+:root {
+  --bg-primary: #fbf9f7;
+  --surface-primary: #ffffff;
+  --text-main: #2c2421;
+  --text-muted: #7c6f66;
+  --border-light: rgba(220, 210, 200, 0.4);
+  --accent-sage: #8ea89d;
+  --accent-lavender: #a8a2bc;
+  --accent-sand: #e6d7c3;
+  --accent-blue: #b0c4de;
+  --radius-lg: 20px;
+  --radius-md: 12px;
+  --transition-smooth: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dashboard {
+  padding: 2.5rem 3rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  background-color: var(--bg-primary);
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text-main);
+}
+
+.dashboard-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 1.2rem;
+  background-color: var(--bg-primary);
+  color: var(--text-muted);
+}
+
+.loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(184, 169, 201, 0.2);
+  border-top: 3px solid var(--accent-lavender);
+  border-radius: 50%;
+  animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Dashboard Header */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 1.5rem;
+}
+
+.header-left h1 {
+  color: var(--text-main);
+  font-size: 2rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.4rem;
+}
+
+.header-subtitle {
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Stats Grid - FIXED to use 4 equal columns */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* Changed from auto-fit to exactly 4 columns */
+  gap: 1.25rem;
+  margin: 2rem 0;
+  width: 100%; /* Ensure it takes full width */
+}
+
+/* Main Content Layout */
+.dashboard-main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-main {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 1.25rem;
+  }
+  
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .header-left h1 {
+    font-size: 1.5rem;
+  }
+
+  /* Stats grid - 2 columns on tablet */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Stats grid - 1 column on mobile */
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
+.dashboard-left,
+.dashboard-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Recent Activity Section */
+.recent-activity-section {
+  background: var(--surface-primary);
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: 0 4px 24px rgba(44, 36, 33, 0.02);
+  transition: var(--transition-smooth);
+}
+
+.recent-activity-section:hover {
+  box-shadow: 0 6px 28px rgba(44, 36, 33, 0.04);
+}
+
+.recent-activity-section h3 {
+  color: var(--text-main);
+  font-size: 1.05rem;
+  font-weight: 500;
+  margin: 0 0 1.25rem 0;
+  letter-spacing: -0.01em;
+}

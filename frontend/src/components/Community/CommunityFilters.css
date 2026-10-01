@@ -1,0 +1,193 @@
+/* Community Filters */
+.community-filters {
+  background: var(--surface-primary, #ffffff);
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-lg, 20px);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  box-shadow: 0 4px 24px rgba(44, 36, 33, 0.02);
+  margin-bottom: 1.5rem;
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.community-filters:hover {
+  box-shadow: 0 6px 28px rgba(44, 36, 33, 0.04);
+}
+
+.filters-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.8rem;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.filter-tab {
+  padding: 0.3rem 1rem;
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  border-radius: 30px;
+  background: none;
+  color: var(--text-muted, #7c6f66);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+  white-space: nowrap;
+}
+
+.filter-tab:hover {
+  background: var(--bg-primary, #fbf9f7);
+  border-color: var(--accent-lavender, #a8a2bc);
+  color: var(--text-main, #2c2421);
+}
+
+.filter-tab.active {
+  background: var(--accent-lavender, #a8a2bc);
+  border-color: var(--accent-lavender, #a8a2bc);
+  color: #ffffff;
+}
+
+.search-bar {
+  position: relative;
+  min-width: 200px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted, #7c6f66);
+  pointer-events: none;
+}
+
+.search-bar input {
+  padding: 0.4rem 1rem 0.4rem 2.5rem;
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  border-radius: var(--radius-md, 12px);
+  font-size: 0.85rem;
+  width: 100%;
+  min-width: 150px;
+  background: var(--bg-primary, #fbf9f7);
+  color: var(--text-main, #2c2421);
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-color: var(--accent-lavender, #a8a2bc);
+  background: var(--surface-primary, #ffffff);
+  box-shadow: 0 0 0 3px rgba(168, 162, 188, 0.15);
+}
+
+.search-bar input::placeholder {
+  color: var(--text-muted, #7c6f66);
+}
+
+.filters-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.region-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.region-label {
+  font-size: 0.8rem;
+  color: var(--text-muted, #7c6f66);
+  font-weight: 500;
+}
+
+.region-select {
+  padding: 0.25rem 1.2rem;
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  border-radius: 30px;
+  background: var(--surface-primary, #ffffff);
+  color: var(--text-main, #2c2421);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%237c6f66' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.8rem center;
+  background-size: 10px;
+  padding-right: 2.2rem;
+}
+
+.region-select:focus {
+  outline: none;
+  border-color: var(--accent-lavender, #a8a2bc);
+  box-shadow: 0 0 0 3px rgba(168, 162, 188, 0.15);
+}
+
+.post-count {
+  font-size: 0.8rem;
+  color: var(--text-muted, #7c6f66);
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .community-filters {
+    padding: 1rem 1.25rem;
+  }
+
+  .filters-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-tabs {
+    justify-content: center;
+  }
+
+  .search-bar {
+    min-width: unset;
+  }
+}
+
+@media (max-width: 480px) {
+  .community-filters {
+    padding: 0.75rem 1rem;
+  }
+
+  .filter-tabs {
+    gap: 0.2rem;
+  }
+
+  .filter-tab {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.7rem;
+  }
+
+  .filters-bottom {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .region-filter {
+    justify-content: center;
+  }
+
+  .region-select {
+    flex: 1;
+  }
+
+  .post-count {
+    text-align: center;
+  }
+}

@@ -1,0 +1,309 @@
+/* Task Card */
+.task-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  background: var(--surface-primary, #ffffff);
+  border-radius: var(--radius-md, 12px);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  margin-bottom: 0.5rem;
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.task-card:hover {
+  box-shadow: 0 4px 12px rgba(44, 36, 33, 0.06);
+  transform: translateY(-1px);
+}
+
+.task-card.completed {
+  opacity: 0.6;
+  border-color: var(--border-light, rgba(220, 210, 200, 0.4));
+}
+
+.task-card.completed .task-title {
+  text-decoration: line-through;
+  color: var(--text-muted, #7c6f66);
+}
+
+.task-card.overdue {
+  border-color: rgba(200, 150, 140, 0.4);
+  background: rgba(200, 150, 140, 0.04);
+}
+
+.task-card-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.complete-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  background: none;
+  color: var(--text-muted, #7c6f66);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.complete-btn:hover {
+  border-color: var(--accent-sage, #8ea89d);
+  color: var(--accent-sage, #8ea89d);
+}
+
+.complete-btn.checked {
+  border-color: var(--accent-sage, #8ea89d);
+  background: var(--accent-sage, #8ea89d);
+  color: #ffffff;
+}
+
+.task-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.task-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.task-title {
+  font-weight: 500;
+  color: var(--text-main, #2c2421);
+  font-size: 0.95rem;
+  word-break: break-word;
+}
+
+.task-title.strikethrough {
+  text-decoration: line-through;
+  color: var(--text-muted, #7c6f66);
+}
+
+.priority-badge {
+  font-size: 0.65rem;
+  padding: 0.05rem 0.6rem;
+  border-radius: 10px;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+
+.priority-badge.high {
+  color: #c8968c;
+  background: rgba(200, 150, 140, 0.1);
+  border-color: rgba(200, 150, 140, 0.2);
+}
+
+.priority-badge.medium {
+  color: #dfb19b;
+  background: rgba(223, 177, 155, 0.1);
+  border-color: rgba(223, 177, 155, 0.2);
+}
+
+.priority-badge.low {
+  color: var(--accent-sage, #8ea89d);
+  background: rgba(142, 168, 157, 0.1);
+  border-color: rgba(142, 168, 157, 0.2);
+}
+
+.task-description {
+  font-size: 0.85rem;
+  color: var(--text-muted, #7c6f66);
+  margin: 0.2rem 0 0.3rem 0;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-muted, #7c6f66);
+}
+
+.task-type {
+  background: var(--bg-primary, #fbf9f7);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  padding: 0.05rem 0.5rem;
+  border-radius: var(--radius-md, 12px);
+}
+
+.task-plant {
+  background: rgba(142, 168, 157, 0.08);
+  border: 1px solid rgba(142, 168, 157, 0.2);
+  padding: 0.05rem 0.5rem;
+  border-radius: var(--radius-md, 12px);
+  color: var(--accent-sage, #8ea89d);
+}
+
+.task-garden {
+  background: rgba(176, 196, 222, 0.08);
+  border: 1px solid rgba(176, 196, 222, 0.2);
+  padding: 0.05rem 0.5rem;
+  border-radius: var(--radius-md, 12px);
+  color: var(--accent-blue, #b0c4de);
+}
+
+.task-due {
+  background: var(--bg-primary, #fbf9f7);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  padding: 0.05rem 0.5rem;
+  border-radius: var(--radius-md, 12px);
+}
+
+.task-due.overdue {
+  background: rgba(200, 150, 140, 0.08);
+  border-color: rgba(200, 150, 140, 0.3);
+  color: #c8968c;
+}
+
+.task-recurring {
+  background: rgba(168, 162, 188, 0.08);
+  border: 1px solid rgba(168, 162, 188, 0.2);
+  padding: 0.05rem 0.5rem;
+  border-radius: var(--radius-md, 12px);
+  color: var(--accent-lavender, #a8a2bc);
+}
+
+.task-card-right {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.snooze-btn {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: var(--radius-md, 12px);
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+  color: var(--text-muted, #7c6f66);
+}
+
+.snooze-btn:hover {
+  background: var(--bg-primary, #fbf9f7);
+  color: var(--text-main, #2c2421);
+}
+
+.task-menu {
+  position: relative;
+}
+
+.menu-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: var(--text-muted, #7c6f66);
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: var(--radius-md, 12px);
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.menu-btn:hover {
+  background: var(--bg-primary, #fbf9f7);
+  color: var(--text-main, #2c2421);
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: var(--surface-primary, #ffffff);
+  border-radius: var(--radius-md, 12px);
+  box-shadow: 0 8px 24px rgba(44, 36, 33, 0.1);
+  padding: 0.3rem;
+  min-width: 140px;
+  z-index: 10;
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.menu-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 0.4rem 1rem;
+  border: none;
+  background: none;
+  text-align: left;
+  border-radius: var(--radius-md, 12px);
+  color: var(--text-main, #2c2421);
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.menu-dropdown button:hover {
+  background: var(--bg-primary, #fbf9f7);
+}
+
+.menu-dropdown button.danger {
+  color: #c8968c;
+}
+
+.menu-dropdown button.danger:hover {
+  background: rgba(200, 150, 140, 0.08);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .task-card {
+    flex-wrap: wrap;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .task-card-left {
+    width: 100%;
+  }
+
+  .task-card-right {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 0.3rem;
+    padding-top: 0.3rem;
+    border-top: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  }
+
+  .task-header {
+    flex-wrap: wrap;
+  }
+
+  .task-title {
+    font-size: 0.9rem;
+  }
+
+  .task-meta {
+    font-size: 0.65rem;
+  }
+}

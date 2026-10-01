@@ -1,0 +1,49 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap");
+
+:root {
+  --sage: #6b9080;
+  --sage-light: #a4c3b2;
+  --mist: #cce3de;
+  --ice: #eaf4f4;
+  --cream: #f6fff8;
+  --ink: #1f3a30;
+  --accent: #3fa88a;
+  --primary: var(--sage);
+  --primary-light: var(--sage-light);
+  --primary-dark: var(--ink);
+  --background: var(--cream);
+  --surface: var(--ice);
+  --surface-strong: var(--cream);
+  --text: var(--ink);
+  --text-secondary: #385b4d;
+  --border: rgba(107, 144, 128, 0.28);
+  --shadow-soft:
+    0 8px 24px rgba(31, 58, 48, 0.08), 0 2px 5px rgba(107, 144, 128, 0.12);
+  --shadow-lift:
+    0 14px 32px rgba(31, 58, 48, 0.12), 0 4px 8px rgba(107, 144, 128, 0.16);
+  --radius-sm: 6px;
+  --radius-md: 14px;
+  --radius-lg: 28px;
+  --transition: 200ms ease-out;
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 48px;
+  --accent-lavender: var(--accent);
+  --pastel-lavender: var(--mist);
+  --pastel-gray: var(--ice);
+  --pastel-mint: var(--sage-light);
+}
+
+body {
+  background: linear-gradient(
+    135deg,
+    var(--cream) 0%,
+    var(--mist) 46%,
+    var(--sage-light) 76%,
+    var(--sage) 100%
+  );
+  color: var(--text);
+  font-family: "DM Sans", sans-serif;
+}

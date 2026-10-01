@@ -1,0 +1,50 @@
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(
+    135deg,
+    var(--cream),
+    var(--mist),
+    var(--sage-light)
+  );
+}
+
+/* Regular layout with sidebar */
+.main-content {
+  display: flex;
+  flex: 1;
+  padding-top: 76px;
+}
+
+.page-content {
+  flex: 1;
+  padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 4vw, 3.5rem) 3rem;
+  margin-left: 220px;
+  min-height: calc(100vh - 76px - 60px);
+}
+
+/* Admin layout without sidebar */
+.admin-layout .main-content {
+  padding-top: 76px;
+}
+
+.admin-layout .page-content {
+  margin-left: 0;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .page-content {
+    margin-left: 0;
+    padding: 1.25rem;
+  }
+
+  .admin-layout .page-content {
+    padding: 1rem;
+  }
+}

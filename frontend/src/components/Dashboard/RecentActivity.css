@@ -1,0 +1,50 @@
+/* Recent Activity List */
+.activity-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.activity-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 0.2rem;
+  border-bottom: 1px solid var(--border-light);
+  transition: var(--transition-smooth);
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-icon {
+  font-size: 1rem;
+  width: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.activity-text {
+  flex: 1;
+  color: var(--text-main);
+  font-size: 0.9rem;
+}
+
+.activity-date {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  padding: 0.15rem 0.65rem;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.no-activity {
+  color: var(--text-muted);
+  font-style: normal;
+  text-align: center;
+  padding: 1.5rem 0;
+  font-size: 0.9rem;
+}

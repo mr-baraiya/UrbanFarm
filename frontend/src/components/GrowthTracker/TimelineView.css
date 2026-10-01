@@ -1,0 +1,73 @@
+.timeline-view {
+  margin-top: 1.8rem;
+  padding-top: 1.5rem;
+  border-top: 2px dashed #f0e8dc;
+}
+
+.timeline-view h3 {
+  color: #4a3f3a;
+  font-weight: 500;
+  margin-bottom: 0.8rem;
+}
+
+.timeline-entries {
+  background: #faf6f0;
+  padding: 0.8rem 1.2rem;
+  border-radius: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+
+.timeline-entry {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem 1.5rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid #f0e8dc;
+  font-size: 0.9rem;
+}
+
+.timeline-entry:last-child {
+  border-bottom: none;
+}
+
+.entry-date {
+  color: #6b5e52;
+  min-width: 90px;
+}
+
+.entry-height {
+  font-weight: 500;
+  color: #4a3f3a;
+}
+
+.entry-notes {
+  color: #5a4f47;
+  font-style: italic;
+}
+
+.add-entry-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.add-entry-form input {
+  padding: 0.4rem 1rem;
+  border: 1px solid #e5dbd1;
+  border-radius: 30px;
+  background: white;
+  flex: 1;
+  min-width: 120px;
+}
+
+.add-entry-form input:focus {
+  outline: none;
+  border-color: #b8a9c9;
+}
+
+.add-entry-form .btn-primary {
+  padding: 0.4rem 1.6rem;
+}

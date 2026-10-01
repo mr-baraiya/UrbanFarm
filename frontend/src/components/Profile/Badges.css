@@ -1,0 +1,241 @@
+/* Badges Section */
+.badges-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 2px dashed var(--border-light, rgba(220, 210, 200, 0.4));
+}
+
+.badges-loading {
+  text-align: center;
+  padding: 1rem;
+  color: var(--text-muted, #7c6f66);
+  font-size: 0.95rem;
+}
+
+.badges-section h3 {
+  color: var(--text-main, #2c2421);
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+  font-size: 1.1rem;
+  letter-spacing: -0.01em;
+}
+
+.badges-subtitle {
+  color: var(--text-muted, #7c6f66);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.badge-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  background: var(--bg-primary, #fbf9f7);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  border-radius: var(--radius-md, 12px);
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.badge-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(44, 36, 33, 0.06);
+}
+
+.badge-item.unlocked {
+  background: rgba(168, 162, 188, 0.06);
+  border-color: var(--accent-lavender, #a8a2bc);
+}
+
+.badge-item.unlocked:hover {
+  background: rgba(168, 162, 188, 0.1);
+}
+
+.badge-item.locked {
+  opacity: 0.6;
+}
+
+.badge-item.locked .badge-icon {
+  filter: grayscale(0.7);
+}
+
+.badge-icon-container {
+  position: relative;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge-icon {
+  font-size: 2rem;
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.badge-item.unlocked .badge-icon {
+  animation: badgeGlow 2s ease-in-out infinite;
+}
+
+@keyframes badgeGlow {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.badge-check {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  font-size: 0.8rem;
+  color: var(--accent-sage, #8ea89d);
+}
+
+.badge-lock {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  font-size: 0.7rem;
+  color: var(--text-muted, #7c6f66);
+}
+
+.badge-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.badge-name {
+  color: var(--text-main, #2c2421);
+  margin: 0 0 0.1rem 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.badge-item.locked .badge-name {
+  color: var(--text-muted, #7c6f66);
+}
+
+.badge-description {
+  color: var(--text-muted, #7c6f66);
+  font-size: 0.8rem;
+  margin: 0 0 0.2rem 0;
+  line-height: 1.3;
+}
+
+.badge-requirement {
+  color: var(--text-muted, #7c6f66);
+  font-size: 0.7rem;
+  margin: 0;
+  opacity: 0.8;
+}
+
+.badge-progress {
+  margin-top: 0.3rem;
+}
+
+.badge-progress .progress-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--bg-primary, #fbf9f7);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+}
+
+.badge-progress .progress-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.badge-progress .progress-fill.unlocked {
+  background: var(--accent-sage, #8ea89d);
+}
+
+.badge-progress .progress-fill.partial {
+  background: var(--accent-lavender, #a8a2bc);
+}
+
+.badge-progress .progress-text {
+  font-size: 0.65rem;
+  color: var(--text-muted, #7c6f66);
+  display: block;
+  margin-top: 0.1rem;
+  font-weight: 500;
+}
+
+/* Badge Categories */
+.badge-category {
+  margin-bottom: 1.5rem;
+}
+
+.badge-category:last-child {
+  margin-bottom: 0;
+}
+
+.badge-category-title {
+  color: var(--text-main, #2c2421);
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+}
+
+.badges-empty {
+  text-align: center;
+  padding: 2rem 0;
+  color: var(--text-muted, #7c6f66);
+}
+
+.badges-empty span {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.badges-empty small {
+  display: block;
+  font-size: 0.8rem;
+  opacity: 0.7;
+  margin-top: 0.2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .badges-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .badges-section h3 {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .badge-item {
+    padding: 0.8rem 1rem;
+  }
+
+  .badge-icon-container {
+    width: 40px;
+    height: 40px;
+  }
+
+  .badge-icon {
+    font-size: 1.6rem;
+  }
+
+  .badge-name {
+    font-size: 0.85rem;
+  }
+
+  .badge-description {
+    font-size: 0.75rem;
+  }
+}

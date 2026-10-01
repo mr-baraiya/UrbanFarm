@@ -1,0 +1,15 @@
+{
+  "name": "Urban Farming Assistant",
+  "short_name": "FarmAssist",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f0e1",
+  "theme_color": "#f8f0e1",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "64x64",
+      "type": "image/svg+xml"
+    }
+  ]
+}
