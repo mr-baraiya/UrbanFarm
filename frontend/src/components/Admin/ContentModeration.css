@@ -11,42 +11,42 @@
 }
 
 .post-has-image {
-  color: #3b82f6;
+  color: #2a6fb5;
   font-size: 0.9rem;
   flex-shrink: 0;
 }
 
 .category-tag {
   padding: 0.2rem 0.55rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: capitalize;
 }
 
 .category-tag.question {
-  background: rgba(59, 130, 246, 0.12);
-  color: #3b82f6;
+  background: rgba(59, 130, 200, 0.12);
+  color: #2a6fb5;
 }
 
 .category-tag.tip {
-  background: rgba(16, 185, 129, 0.12);
-  color: #10b981;
+  background: rgba(107, 144, 128, 0.12);
+  color: var(--sage);
 }
 
 .category-tag.showcase {
-  background: rgba(139, 92, 246, 0.12);
-  color: #8b5cf6;
+  background: rgba(100, 80, 160, 0.12);
+  color: #6450a0;
 }
 
 .category-tag.event {
-  background: rgba(245, 158, 11, 0.12);
-  color: #f59e0b;
+  background: rgba(217, 155, 11, 0.12);
+  color: #b47a08;
 }
 
 .category-tag.general {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text-secondary, #94a3b8);
+  background: rgba(107, 144, 128, 0.08);
+  color: var(--text-secondary);
 }
 
 .mod-status-badge {
@@ -60,20 +60,20 @@
 }
 
 .mod-status-badge.flagged {
-  background: rgba(239, 68, 68, 0.12);
-  color: #ef4444;
+  background: rgba(192, 57, 43, 0.12);
+  color: #c0392b;
 }
 
 .mod-status-badge.approved {
-  background: rgba(16, 185, 129, 0.12);
-  color: #10b981;
+  background: rgba(107, 144, 128, 0.12);
+  color: var(--sage);
 }
 
 .mod-status-badge.pending {
-  background: rgba(245, 158, 11, 0.12);
-  color: #f59e0b;
+  background: rgba(217, 155, 11, 0.12);
+  color: #b47a08;
 }
 
 .row-flagged {
-  background: rgba(239, 68, 68, 0.04) !important;
+  background: rgba(192, 57, 43, 0.04) !important;
 }

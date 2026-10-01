@@ -3,6 +3,7 @@ import { getGardens, createGarden, deleteGarden, updateGarden } from '../../serv
 import { getWeather } from '../../services/weatherService';
 import { useNotification } from '../../hooks/useNotification';
 import { useAuth } from '../../hooks/useAuth';
+import ConfirmModal from '../Common/ConfirmModal';
 import GardenForm from './GardenForm';
 import GardenCard from './GardenCard';
 import GardenFilters from './GardenFilters';
@@ -109,15 +110,29 @@ const Gardens = () => {
     }
   };
 
-  const handleDeleteGarden = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this garden? This action cannot be undone.')) return;
-    try {
-      await deleteGarden(id);
-      setGardens(gardens.filter(g => g._id !== id));
-      addNotification('Garden deleted', 'success');
-    } catch (error) {
-      addNotification('Failed to delete garden', 'error');
-    }
+  // Custom Confirm Modal state
+  const [confirmConfig, setConfirmConfig] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
+  const promptDeleteGarden = (id) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: 'Delete Garden Space',
+      message: 'Are you sure you want to delete this garden space? All associated plant logs will be removed.',
+      onConfirm: async () => {
+        try {
+          await deleteGarden(id);
+          setGardens(gardens.filter((g) => g._id !== id));
+          addNotification('Garden deleted successfully', 'success');
+        } catch (error) {
+          addNotification('Failed to delete garden', 'error');
+        }
+      },
+    });
   };
 
   const getGardenWeather = (gardenId) => {
@@ -134,6 +149,13 @@ const Gardens = () => {
 
   return (
     <div className="gardens-page">
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        onConfirm={confirmConfig.onConfirm}
+        onClose={() => setConfirmConfig({ ...confirmConfig, isOpen: false })}
+      />
       {/* Header */}
       <div className="gardens-header">
         <div className="header-left">
@@ -173,7 +195,7 @@ const Gardens = () => {
               garden={garden}
               viewMode={viewMode}
               onEdit={() => setEditingGarden(garden)}
-              onDelete={() => handleDeleteGarden(garden._id)}
+              onDelete={() => promptDeleteGarden(garden._id)}
               weather={getGardenWeather(garden._id)}
               weatherLoading={weatherLoading}
             />

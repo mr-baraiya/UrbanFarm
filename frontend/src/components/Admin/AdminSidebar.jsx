@@ -7,17 +7,22 @@ import {
   FaShieldAlt,
   FaHistory,
   FaCog,
-  FaArrowLeft,
+  FaSignOutAlt,
   FaLeaf,
+  FaAddressBook,
 } from 'react-icons/fa';
+import { useAuth } from '../../hooks/useAuth';
 import './AdminSidebar.css';
 
 const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
+  const { logout } = useAuth();
+
   const navItems = [
     { path: '/admin', label: 'Dashboard', icon: <FaChartLine />, end: true },
     { path: '/admin/users', label: 'User Management', icon: <FaUsers /> },
     { path: '/admin/gardens', label: 'Gardens & Plants', icon: <FaSeedling /> },
     { path: '/admin/moderation', label: 'Moderation Hub', icon: <FaShieldAlt /> },
+    { path: '/admin/leads', label: 'Guest Leads', icon: <FaAddressBook /> },
     { path: '/admin/logs', label: 'Audit Trail', icon: <FaHistory /> },
     { path: '/admin/settings', label: 'System Settings', icon: <FaCog /> },
   ];
@@ -57,13 +62,14 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
       </nav>
 
       <div className="admin-sidebar-footer">
-        <NavLink to="/app" className="admin-exit-btn">
-          <FaArrowLeft />
-          {!isCollapsed && <span>Switch to Farmer View</span>}
-        </NavLink>
+        <button onClick={logout} className="admin-exit-btn" title="Logout">
+          <FaSignOutAlt />
+          {!isCollapsed && <span>Logout</span>}
+        </button>
       </div>
     </aside>
   );
 };
 
 export default AdminSidebar;
+

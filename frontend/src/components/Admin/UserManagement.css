@@ -14,7 +14,7 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: linear-gradient(135deg, var(--sage), var(--accent));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -26,46 +26,47 @@
 
 .role-select-inline {
   padding: 0.3rem 0.5rem;
-  border-radius: 6px;
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.15));
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-primary, #f8fafc);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
+  font-family: inherit;
 }
 
 .role-select-inline.admin {
-  border-color: rgba(139, 92, 246, 0.4);
-  color: #8b5cf6;
+  border-color: rgba(107, 144, 128, 0.5);
+  color: var(--sage);
 }
 
 .role-select-inline.user {
-  border-color: rgba(59, 130, 246, 0.4);
-  color: #3b82f6;
+  border-color: rgba(59, 130, 200, 0.4);
+  color: #2a6fb5;
 }
 
 .level-badge {
   padding: 0.2rem 0.55rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: capitalize;
 }
 
 .level-badge.beginner {
-  background: rgba(16, 185, 129, 0.12);
-  color: #10b981;
+  background: rgba(107, 144, 128, 0.12);
+  color: var(--sage);
 }
 
 .level-badge.intermediate {
-  background: rgba(245, 158, 11, 0.12);
-  color: #f59e0b;
+  background: rgba(217, 155, 11, 0.12);
+  color: #b47a08;
 }
 
 .level-badge.advanced {
-  background: rgba(139, 92, 246, 0.12);
-  color: #8b5cf6;
+  background: rgba(100, 80, 160, 0.12);
+  color: #6450a0;
 }
 
 .status-toggle {
@@ -78,17 +79,18 @@
   cursor: pointer;
   font-size: 0.78rem;
   font-weight: 600;
-  transition: all 0.2s;
+  transition: all var(--transition);
+  font-family: inherit;
 }
 
 .status-toggle.active {
-  background: rgba(16, 185, 129, 0.12);
-  color: #10b981;
+  background: rgba(107, 144, 128, 0.12);
+  color: var(--sage);
 }
 
 .status-toggle.suspended {
-  background: rgba(239, 68, 68, 0.12);
-  color: #ef4444;
+  background: rgba(192, 57, 43, 0.12);
+  color: #c0392b;
 }
 
 .status-toggle:hover {
@@ -96,7 +98,7 @@
 }
 
 .row-suspended {
-  opacity: 0.6;
+  opacity: 0.55;
 }
 
 .action-btns {

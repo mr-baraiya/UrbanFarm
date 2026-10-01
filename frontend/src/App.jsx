@@ -5,7 +5,12 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import Home from "./pages/Home";
+import GuestLayout from "./components/Guest/GuestLayout";
+import LandingPage from "./pages/Guest/LandingPage";
+import AboutPage from "./pages/Guest/AboutPage";
+import FeaturesPage from "./pages/Guest/FeaturesPage";
+import ContactPage from "./pages/Guest/ContactPage";
+import FaqPage from "./pages/Guest/FaqPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import MainApp from "./pages/MainApp";
@@ -27,21 +32,27 @@ function App() {
           alignItems: "center",
           height: "100vh",
           fontSize: "1.2rem",
-          color: "#4a3f3a",
+          color: "var(--sage, #4a3f3a)",
         }}
       >
-        Loading your garden...
+        Loading your urban farm...
       </div>
     );
   }
 
-  console.log("👤 App - Current user:", user);
-  console.log("👑 App - User role:", user?.role);
-
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
+        {/* Guest Public Routes */}
+        <Route element={<GuestLayout />}>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/features" element={<FeaturesPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/faq" element={<FaqPage />} />
+        </Route>
+
+        {/* Auth Routes */}
         <Route
           path="/login"
           element={
@@ -92,6 +103,9 @@ function App() {
             </AdminRoute>
           }
         />
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

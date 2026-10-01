@@ -1,7 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
-import { FaHistory, FaSearch, FaFileCsv, FaShieldAlt } from 'react-icons/fa';
+import { FaSearch, FaFileCsv, FaClock } from 'react-icons/fa';
 import './AdminAuditLogs.css';
+
+const ACTION_LABELS = {
+  create_user: { label: 'Created User', color: 'green' },
+  update_user: { label: 'Updated User', color: 'blue' },
+  update_user_role: { label: 'Changed Role', color: 'purple' },
+  delete_user: { label: 'Deleted User', color: 'red' },
+  delete_garden: { label: 'Deleted Garden', color: 'red' },
+  delete_plant: { label: 'Deleted Plant', color: 'red' },
+  delete_post: { label: 'Deleted Post', color: 'red' },
+  moderate_post: { label: 'Moderated Post', color: 'orange' },
+  export_users_csv: { label: 'Exported Users', color: 'teal' },
+  export_gardens_csv: { label: 'Exported Gardens', color: 'teal' },
+  export_plants_csv: { label: 'Exported Plants', color: 'teal' },
+  export_posts_csv: { label: 'Exported Posts', color: 'teal' },
+  export_logs_csv: { label: 'Exported Logs', color: 'teal' },
+};
 
 const AdminAuditLogs = () => {
   const [logs, setLogs] = useState([]);
@@ -27,9 +43,7 @@ const AdminAuditLogs = () => {
 
   const handleExportCSV = async () => {
     try {
-      const response = await api.get('/admin/export/logs', {
-        responseType: 'blob',
-      });
+      const response = await api.get('/admin/export/logs', { responseType: 'blob' });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -52,6 +66,45 @@ const AdminAuditLogs = () => {
       log.targetType.toLowerCase().includes(search.toLowerCase());
     return matchesAction && matchesSearch;
   });
+
+  const renderDetails = (details) => {
+    if (!details || Object.keys(details).length === 0) {
+      return <span className="text-muted">—</span>;
+    }
+    return (
+      <div className="log-detail-pills">
+        {Object.entries(details).map(([key, value]) => {
+          const displayValue = typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value);
+          const pillColor =
+            key === 'newRole' || key === 'role' ? 'purple' :
+            key === 'isActive' ? (value ? 'green' : 'red') :
+            key === 'isApproved' ? (value ? 'green' : 'orange') :
+            key === 'isFlagged' ? (value ? 'red' : 'green') :
+            key === 'email' ? 'blue' : 'default';
+          const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase());
+          return (
+            <span key={key} className={`detail-pill pill-${pillColor}`}>
+              <span className="detail-key">{label}:</span>
+              <span className="detail-value">{displayValue}</span>
+            </span>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const truncateId = (id) => {
+    if (!id) return '—';
+    const str = String(id);
+    return str.length > 10 ? `${str.slice(0, 6)}…${str.slice(-4)}` : str;
+  };
+
+  const formatTimestamp = (dateStr) => {
+    const d = new Date(dateStr);
+    const date = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    const time = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    return { date, time };
+  };
 
   return (
     <div className="audit-logs-container">
@@ -77,19 +130,16 @@ const AdminAuditLogs = () => {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-
         <div className="admin-filters">
           <div className="filter-group">
             <label>Action Category:</label>
-            <select
-              value={filterAction}
-              onChange={(e) => setFilterAction(e.target.value)}
-            >
+            <select value={filterAction} onChange={(e) => setFilterAction(e.target.value)}>
               <option value="all">All Actions</option>
-              <option value="user">User Actions (create/update/delete)</option>
+              <option value="user">User Actions</option>
               <option value="role">Role Updates</option>
               <option value="moderate">Post Moderation</option>
               <option value="export">CSV Exports</option>
+              <option value="delete">Deletions</option>
             </select>
           </div>
         </div>
@@ -103,47 +153,60 @@ const AdminAuditLogs = () => {
             <thead>
               <tr>
                 <th>Timestamp</th>
-                <th>Admin / User</th>
+                <th>Admin</th>
                 <th>Action</th>
-                <th>Target Type</th>
-                <th>Target ID</th>
-                <th>Details</th>
+                <th>Target</th>
+                <th>Changes / Details</th>
               </tr>
             </thead>
             <tbody>
               {filteredLogs.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="text-center py-4">
-                    No logs recorded matching query.
-                  </td>
+                  <td colSpan="5" className="text-center py-4">No logs recorded matching query.</td>
                 </tr>
               ) : (
-                filteredLogs.map((log) => (
-                  <tr key={log._id}>
-                    <td>
-                      <small>{new Date(log.createdAt).toLocaleString()}</small>
-                    </td>
-                    <td>
-                      <strong>{log.adminId?.name || 'System Admin'}</strong>
-                      <br />
-                      <small className="text-muted">{log.adminId?.email || 'N/A'}</small>
-                    </td>
-                    <td>
-                      <span className="log-action-tag">{log.action}</span>
-                    </td>
-                    <td>
-                      <span className="badge badge-secondary">{log.targetType}</span>
-                    </td>
-                    <td>
-                      <small>{log.targetId || 'N/A'}</small>
-                    </td>
-                    <td>
-                      <pre className="log-details-json">
-                        {JSON.stringify(log.details || {}, null, 2)}
-                      </pre>
-                    </td>
-                  </tr>
-                ))
+                filteredLogs.map((log) => {
+                  const actionMeta = ACTION_LABELS[log.action] || { label: log.action, color: 'default' };
+                  const ts = formatTimestamp(log.createdAt);
+                  return (
+                    <tr key={log._id}>
+                      <td>
+                        <div className="log-timestamp">
+                          <FaClock className="log-ts-icon" />
+                          <div>
+                            <span className="log-date">{ts.date}</span>
+                            <span className="log-time">{ts.time}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="log-admin-cell">
+                          <span className="log-admin-avatar">
+                            {(log.adminId?.name || 'S').charAt(0).toUpperCase()}
+                          </span>
+                          <div>
+                            <strong>{log.adminId?.name || 'System'}</strong>
+                            <small>{log.adminId?.email || ''}</small>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span className={`log-action-chip chip-${actionMeta.color}`}>
+                          {actionMeta.label}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="log-target-cell">
+                          <span className="badge badge-secondary">{log.targetType}</span>
+                          <small className="log-target-id" title={log.targetId || ''}>
+                            {truncateId(log.targetId)}
+                          </small>
+                        </div>
+                      </td>
+                      <td>{renderDetails(log.details)}</td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

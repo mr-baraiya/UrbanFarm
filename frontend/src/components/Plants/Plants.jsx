@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { getPlants, getGardens, addPlant, deletePlant, updatePlant } from '../../services/plantService';
 import { useNotification } from '../../hooks/useNotification';
+import ConfirmModal from '../Common/ConfirmModal';
 import PlantCard from './PlantCard';
 import PlantForm from '../GrowthTracker/PlantForm';
 import PlantFilters from './PlantFilters';
@@ -28,6 +29,15 @@ const Plants = () => {
   const [sortBy, setSortBy] = useState('recent');
   const [selectedPlants, setSelectedPlants] = useState([]);
   const [selectMode, setSelectMode] = useState(false);
+
+  // Custom Confirm Modal state
+  const [confirmConfig, setConfirmConfig] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
   const { addNotification } = useNotification();
 
   useEffect(() => {
@@ -58,12 +68,10 @@ const Plants = () => {
   const applyFiltersAndSort = () => {
     let filtered = [...plants];
     
-    // Garden filter
     if (selectedGarden) {
       filtered = filtered.filter(p => p.gardenId?._id === selectedGarden || p.gardenId === selectedGarden);
     }
     
-    // Search filter
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(p => 
@@ -73,18 +81,10 @@ const Plants = () => {
       );
     }
     
-    // Status filter
     if (filterStatus !== 'all') {
       filtered = filtered.filter(p => p.status === filterStatus);
     }
     
-    // Type filter (if we had a type field, but we'll use variety or status)
-    if (filterType !== 'all') {
-      // This could filter by plant type/category
-      // For now, we'll skip this or implement based on available data
-    }
-    
-    // Sort
     switch (sortBy) {
       case 'name':
         filtered.sort((a, b) => a.name.localeCompare(b.name));
@@ -129,33 +129,44 @@ const Plants = () => {
     }
   };
 
-  const handleDeletePlant = async (id) => {
-    if (!window.confirm('Delete this plant?')) return;
-    try {
-      await deletePlant(id);
-      setPlants(plants.filter(p => p._id !== id));
-      addNotification('Plant deleted', 'success');
-    } catch (error) {
-      addNotification('Failed to delete plant', 'error');
-    }
+  const promptDeletePlant = (id) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: 'Delete Plant Record',
+      message: 'Are you sure you want to delete this plant from your garden?',
+      onConfirm: async () => {
+        try {
+          await deletePlant(id);
+          setPlants(plants.filter((p) => p._id !== id));
+          addNotification('Plant deleted successfully', 'success');
+        } catch (error) {
+          addNotification('Failed to delete plant', 'error');
+        }
+      },
+    });
   };
 
   const handleBulkAction = async (action, data) => {
     switch (action) {
       case 'delete':
-        if (!window.confirm(`Delete ${selectedPlants.length} plants?`)) return;
-        try {
-          await Promise.all(selectedPlants.map(id => deletePlant(id)));
-          setPlants(plants.filter(p => !selectedPlants.includes(p._id)));
-          addNotification(`Deleted ${selectedPlants.length} plants`, 'success');
-          setSelectedPlants([]);
-          setSelectMode(false);
-        } catch (error) {
-          addNotification('Bulk delete failed', 'error');
-        }
+        setConfirmConfig({
+          isOpen: true,
+          title: 'Bulk Delete Plants',
+          message: `Are you sure you want to delete ${selectedPlants.length} selected plants?`,
+          onConfirm: async () => {
+            try {
+              await Promise.all(selectedPlants.map((id) => deletePlant(id)));
+              setPlants(plants.filter((p) => !selectedPlants.includes(p._id)));
+              addNotification(`Deleted ${selectedPlants.length} plants`, 'success');
+              setSelectedPlants([]);
+              setSelectMode(false);
+            } catch (error) {
+              addNotification('Bulk delete failed', 'error');
+            }
+          },
+        });
         break;
       case 'water':
-        // Log watering for selected plants
         addNotification(`Watered ${selectedPlants.length} plants`, 'success');
         setSelectedPlants([]);
         setSelectMode(false);
@@ -183,9 +194,7 @@ const Plants = () => {
 
   const handleQuickWater = async (plantId) => {
     try {
-      // Log watering - you can implement this with a watering log
       addNotification('💧 Watering logged!', 'success');
-      // You could also update lastWatered timestamp here
     } catch (error) {
       addNotification('Failed to log watering', 'error');
     }
@@ -210,6 +219,14 @@ const Plants = () => {
 
   return (
     <div className="plants-page">
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        onConfirm={confirmConfig.onConfirm}
+        onClose={() => setConfirmConfig({ ...confirmConfig, isOpen: false })}
+      />
+
       {/* Header */}
       <div className="plants-header">
         <div className="header-left">
@@ -288,7 +305,7 @@ const Plants = () => {
                 }
               }}
               onEdit={() => setEditingPlant(plant)}
-              onDelete={() => handleDeletePlant(plant._id)}
+              onDelete={() => promptDeletePlant(plant._id)}
               onViewDetails={() => handleViewDetails(plant._id)}
               onQuickWater={() => handleQuickWater(plant._id)}
               onQuickDiagnose={() => handleQuickDiagnose(plant._id)}

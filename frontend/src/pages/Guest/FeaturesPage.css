@@ -1,0 +1,193 @@
+.features-page {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+  padding-bottom: 3rem;
+}
+
+.features-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  width: 100%;
+}
+
+.features-hero {
+  padding: 4.5rem 1.5rem 2.5rem;
+  background: radial-gradient(circle at 50% 10%, rgba(107, 144, 128, 0.15) 0%, transparent 65%);
+}
+
+.features-hero h1 {
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--text);
+  margin: 0.5rem 0 1rem;
+  letter-spacing: -0.03em;
+}
+
+.features-hero-subtitle {
+  font-size: 1.15rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 750px;
+  margin: 0 auto;
+}
+
+/* Feature Breakdown Cards */
+.features-breakdown-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+}
+
+.feature-breakdown-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3.5rem;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 3rem;
+  box-shadow: var(--shadow-lift);
+}
+
+.feature-breakdown-card.reverse {
+  direction: rtl;
+}
+
+.feature-breakdown-card.reverse > * {
+  direction: ltr;
+}
+
+.feature-badge {
+  display: inline-block;
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.8rem;
+}
+
+.breakdown-info h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 0.8rem;
+  letter-spacing: -0.02em;
+}
+
+.breakdown-summary {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.breakdown-details-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.breakdown-details-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.breakdown-details-list .check-icon {
+  font-size: 1.1rem;
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+}
+
+.breakdown-visual {
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+
+.visual-header {
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 1rem;
+}
+
+.visual-icon {
+  font-size: 1.4rem;
+}
+
+.visual-preview-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.preview-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+}
+
+.preview-mini-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+/* CTA Banner */
+.features-cta-banner {
+  background: var(--surface-strong);
+  border-y: 1px solid var(--border);
+  padding: 4rem 1.5rem;
+}
+
+.features-cta-banner h2 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 0.6rem;
+}
+
+.features-cta-banner p {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  margin: 0 0 2rem;
+}
+
+.features-cta-group {
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 900px) {
+  .feature-breakdown-card,
+  .feature-breakdown-card.reverse {
+    grid-template-columns: 1fr;
+    direction: ltr;
+  }
+}

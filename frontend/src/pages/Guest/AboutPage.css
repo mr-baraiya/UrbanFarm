@@ -1,0 +1,229 @@
+.about-page {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+  padding-bottom: 3rem;
+}
+
+.about-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  width: 100%;
+}
+
+/* About Hero */
+.about-hero {
+  padding: 4.5rem 1.5rem 2.5rem;
+  background: radial-gradient(circle at 50% 10%, rgba(107, 144, 128, 0.15) 0%, transparent 65%);
+}
+
+.about-hero h1 {
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--text);
+  margin: 0.5rem 0 1rem;
+  letter-spacing: -0.03em;
+}
+
+.about-hero-subtitle {
+  font-size: 1.15rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 750px;
+  margin: 0 auto;
+}
+
+/* Story Grid */
+.story-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+}
+
+.story-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
+  box-shadow: var(--shadow-lift);
+}
+
+.story-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: rgba(107, 144, 128, 0.15);
+  color: var(--sage);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  margin-bottom: 1.2rem;
+}
+
+.story-card h2 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 0.8rem;
+}
+
+.story-card p {
+  font-size: 0.98rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Pillars */
+.pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.pillar-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  text-align: center;
+  transition: transform var(--transition);
+}
+
+.pillar-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--sage);
+}
+
+.pillar-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(39, 174, 96, 0.12);
+  color: #27ae60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin: 0 auto 1.2rem;
+}
+
+.pillar-card h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 0.6rem;
+  color: var(--text);
+}
+
+.pillar-card p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Team Grid */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.team-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.team-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+}
+
+.team-card h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 0.2rem;
+}
+
+.team-role {
+  font-size: 0.82rem;
+  color: var(--sage);
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+  display: block;
+}
+
+.team-card p {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0 0 1.2rem;
+  flex: 1;
+}
+
+.team-socials {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.team-socials a {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  transition: color var(--transition);
+}
+
+.team-socials a:hover {
+  color: var(--sage);
+}
+
+/* Impact Banner */
+.about-impact-banner {
+  background: var(--surface-strong);
+  border-y: 1px solid var(--border);
+  padding: 4rem 1.5rem;
+}
+
+.about-impact-banner h2 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 0.6rem;
+}
+
+.about-impact-banner p {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  margin: 0 0 2rem;
+}
+
+.about-cta-group {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 800px) {
+  .story-grid { grid-template-columns: 1fr; }
+  .about-hero h1 { font-size: 2.3rem; }
+}

@@ -16,16 +16,19 @@
 }
 
 .health-badge.healthy {
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
+  background: rgba(39, 174, 96, 0.15);
+  color: #27ae60;
+  border: 1px solid rgba(39, 174, 96, 0.3);
 }
 
 .health-badge.warning {
-  background: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
+  background: rgba(243, 156, 18, 0.15);
+  color: #f39c12;
+  border: 1px solid rgba(243, 156, 18, 0.3);
 }
 
 .health-badge.unhealthy {
-  background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
+  background: rgba(231, 76, 60, 0.15);
+  color: #e74c3c;
+  border: 1px solid rgba(231, 76, 60, 0.3);
 }

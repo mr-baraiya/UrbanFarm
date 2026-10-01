@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getTasks, completeTask, deleteTask, createTask, updateTask } from '../../services/plantService';
 import { getPlants, getGardens } from '../../services/plantService';
 import { useNotification } from '../../hooks/useNotification';
+import ConfirmModal from '../Common/ConfirmModal';
 import TaskCard from './TaskCard';
 import TaskForm from './TaskForm';
 import CalendarView from './CalendarView';
@@ -133,15 +134,30 @@ const ScheduleTab = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this task?')) return;
-    try {
-      await deleteTask(id);
-      setTasks(tasks.filter(t => t._id !== id));
-      addNotification('Task deleted', 'success');
-    } catch (error) {
-      addNotification('Failed to delete task', 'error');
-    }
+  // Custom Confirm Modal state
+  const [confirmConfig, setConfirmConfig] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
+  const promptDeleteTask = (id) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: 'Delete Task',
+      message: 'Are you sure you want to delete this scheduled task?',
+      onConfirm: async () => {
+        try {
+          await deleteTask(id);
+          setTasks(tasks.filter((t) => t._id !== id));
+          setCompletedTasks(completedTasks.filter((t) => t._id !== id));
+          addNotification('Task deleted', 'success');
+        } catch (error) {
+          addNotification('Failed to delete task', 'error');
+        }
+      },
+    });
   };
 
   const handleRestore = async (id) => {
@@ -169,6 +185,13 @@ const ScheduleTab = () => {
 
   return (
     <div className="schedule-tab">
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        onConfirm={confirmConfig.onConfirm}
+        onClose={() => setConfirmConfig({ ...confirmConfig, isOpen: false })}
+      />
       {/* Header */}
       <div className="schedule-header">
         <div className="header-left">
@@ -293,7 +316,7 @@ const ScheduleTab = () => {
             onComplete={handleComplete}
             onSnooze={handleSnooze}
             onEdit={setEditingTask}
-            onDelete={handleDelete}
+            onDelete={promptDeleteTask}
           />
         ) : viewMode === 'kanban' ? (
           <div className="kanban-board">
@@ -306,7 +329,7 @@ const ScheduleTab = () => {
                   onComplete={handleComplete}
                   onSnooze={handleSnooze}
                   onEdit={setEditingTask}
-                  onDelete={handleDelete}
+                  onDelete={promptDeleteTask}
                   plants={plants}
                   gardens={gardens}
                 />
@@ -324,7 +347,7 @@ const ScheduleTab = () => {
                   onComplete={handleComplete}
                   onSnooze={handleSnooze}
                   onEdit={setEditingTask}
-                  onDelete={handleDelete}
+                  onDelete={promptDeleteTask}
                   onRestore={handleRestore}
                   plants={plants}
                   gardens={gardens}
@@ -350,7 +373,7 @@ const ScheduleTab = () => {
                     onComplete={handleComplete}
                     onSnooze={handleSnooze}
                     onEdit={setEditingTask}
-                    onDelete={handleDelete}
+                    onDelete={promptDeleteTask}
                     plants={plants}
                     gardens={gardens}
                   />

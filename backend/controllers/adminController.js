@@ -258,6 +258,71 @@ exports.deleteGarden = async (req, res, next) => {
   }
 };
 
+// @desc    Update garden details (admin)
+// @route   PUT /api/admin/gardens/:id
+exports.updateGarden = async (req, res, next) => {
+  try {
+    const { name, description, location, size, isActive } = req.body;
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (description !== undefined) updateData.description = description;
+    if (location !== undefined) updateData.location = location;
+    if (size !== undefined) updateData.size = size;
+    if (isActive !== undefined) updateData.isActive = isActive;
+
+    const garden = await Garden.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+      runValidators: true,
+    }).populate('userId', 'name email').populate('plants');
+
+    if (!garden) {
+      return res.status(404).json({ success: false, message: 'Garden not found' });
+    }
+
+    await AdminLog.create({
+      adminId: req.user.id,
+      action: 'update_garden',
+      targetType: 'garden',
+      targetId: garden._id,
+      details: updateData,
+    });
+
+    res.status(200).json({ success: true, garden });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Create new garden (admin)
+// @route   POST /api/admin/gardens
+exports.createGarden = async (req, res, next) => {
+  try {
+    const { name, description, location, size, userId } = req.body;
+    if (!name) {
+      return res.status(400).json({ success: false, message: 'Garden name is required' });
+    }
+    const garden = await Garden.create({
+      name,
+      description: description || '',
+      location: location || '',
+      size: parseFloat(size) || 0,
+      userId: userId || req.user.id,
+    });
+
+    await AdminLog.create({
+      adminId: req.user.id,
+      action: 'create_garden',
+      targetType: 'garden',
+      targetId: garden._id,
+      details: { gardenName: garden.name },
+    });
+
+    res.status(201).json({ success: true, garden });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Get all plants across platform (admin)
 // @route   GET /api/admin/plants
 exports.getAllPlants = async (req, res, next) => {
@@ -315,6 +380,89 @@ exports.deletePlant = async (req, res, next) => {
     });
 
     res.status(200).json({ success: true, message: 'Plant deleted' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update plant details (admin)
+// @route   PUT /api/admin/plants/:id
+exports.updatePlant = async (req, res, next) => {
+  try {
+    const { name, scientificName, variety, status, health, notes, sunlight, waterFrequency } = req.body;
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (scientificName !== undefined) updateData.scientificName = scientificName;
+    if (variety !== undefined) updateData.variety = variety;
+    if (status !== undefined) updateData.status = status;
+    if (health !== undefined) updateData.health = health;
+    if (notes !== undefined) updateData.notes = notes;
+    if (sunlight !== undefined) updateData.sunlight = sunlight;
+    if (waterFrequency !== undefined) updateData.waterFrequency = waterFrequency;
+
+    const plant = await Plant.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+      runValidators: true,
+    }).populate('userId', 'name email').populate('gardenId', 'name');
+
+    if (!plant) {
+      return res.status(404).json({ success: false, message: 'Plant not found' });
+    }
+
+    await AdminLog.create({
+      adminId: req.user.id,
+      action: 'update_plant',
+      targetType: 'plant',
+      targetId: plant._id,
+      details: updateData,
+    });
+
+    res.status(200).json({ success: true, plant });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Create new plant (admin)
+// @route   POST /api/admin/plants
+exports.createPlant = async (req, res, next) => {
+  try {
+    const { name, scientificName, variety, gardenId, health, status, sunlight, waterFrequency, notes } = req.body;
+    if (!name || !gardenId) {
+      return res.status(400).json({ success: false, message: 'Plant name and garden selection are required' });
+    }
+
+    const garden = await Garden.findById(gardenId);
+    if (!garden) {
+      return res.status(404).json({ success: false, message: 'Selected garden space not found' });
+    }
+
+    const plant = await Plant.create({
+      name,
+      scientificName: scientificName || '',
+      variety: variety || '',
+      gardenId,
+      userId: garden.userId || req.user.id,
+      health: health || 'healthy',
+      status: status || 'seedling',
+      sunlight: sunlight || 'full',
+      waterFrequency: parseInt(waterFrequency) || 3,
+      notes: notes || '',
+    });
+
+    await Garden.findByIdAndUpdate(gardenId, {
+      $push: { plants: plant._id },
+    });
+
+    await AdminLog.create({
+      adminId: req.user.id,
+      action: 'create_plant',
+      targetType: 'plant',
+      targetId: plant._id,
+      details: { plantName: plant.name },
+    });
+
+    res.status(201).json({ success: true, plant });
   } catch (error) {
     next(error);
   }
@@ -411,6 +559,39 @@ exports.moderatePost = async (req, res, next) => {
     });
 
     res.status(200).json({ success: true, post });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Create community announcement/post (admin)
+// @route   POST /api/admin/posts
+exports.createPost = async (req, res, next) => {
+  try {
+    const { title, content, category, imageUrl } = req.body;
+    if (!title || !content) {
+      return res.status(400).json({ success: false, message: 'Title and content are required' });
+    }
+
+    const post = await CommunityPost.create({
+      title,
+      content,
+      category: category || 'general',
+      imageUrl: imageUrl || '',
+      userId: req.user.id,
+      isApproved: true,
+      isFlagged: false,
+    });
+
+    await AdminLog.create({
+      adminId: req.user.id,
+      action: 'create_post',
+      targetType: 'post',
+      targetId: post._id,
+      details: { postTitle: post.title },
+    });
+
+    res.status(201).json({ success: true, post });
   } catch (error) {
     next(error);
   }

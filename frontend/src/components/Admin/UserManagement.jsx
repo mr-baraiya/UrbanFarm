@@ -1,18 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useNotification } from '../../hooks/useNotification';
+import ConfirmModal from '../Common/ConfirmModal';
 import {
   FaUsers,
   FaSearch,
   FaFileCsv,
   FaTrash,
   FaEdit,
+  FaEye,
   FaUserPlus,
   FaFilter,
   FaToggleOn,
   FaToggleOff,
   FaTimes,
   FaCheck,
+  FaUserTag,
+  FaEnvelope,
+  FaCalendarAlt,
+  FaIdBadge,
 } from 'react-icons/fa';
 import './UserManagement.css';
 
@@ -25,6 +31,7 @@ const UserManagement = () => {
   const [levelFilter, setLevelFilter] = useState('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [viewingUser, setViewingUser] = useState(null);
   const { addNotification } = useNotification();
 
   // Create User Form State
@@ -77,14 +84,22 @@ const UserManagement = () => {
     }
   };
 
-  const handleUpdateUser = async (userId, updateData) => {
+  const handleSaveEditUser = async (e) => {
+    e.preventDefault();
+    if (!editingUser) return;
     try {
-      await api.put(`/admin/users/${userId}`, updateData);
-      addNotification('User updated successfully!', 'success');
+      await api.put(`/admin/users/${editingUser._id}`, {
+        name: editingUser.name,
+        email: editingUser.email,
+        role: editingUser.role,
+        isActive: editingUser.isActive,
+        gardeningLevel: editingUser.gardeningLevel,
+      });
+      addNotification('User details updated successfully!', 'success');
       setEditingUser(null);
       loadUsers();
     } catch (error) {
-      addNotification('Failed to update user', 'error');
+      addNotification(error.response?.data?.message || 'Failed to update user', 'error');
     }
   };
 
@@ -108,15 +123,29 @@ const UserManagement = () => {
     }
   };
 
-  const handleDelete = async (userId, userName) => {
-    if (!window.confirm(`Are you sure you want to permanently delete user "${userName}"? This action cannot be undone.`)) return;
-    try {
-      await api.delete(`/admin/users/${userId}`);
-      addNotification('User deleted successfully', 'success');
-      loadUsers();
-    } catch (error) {
-      addNotification('Failed to delete user', 'error');
-    }
+  // Confirm modal state
+  const [confirmConfig, setConfirmConfig] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
+  const promptDeleteUser = (userId, userName) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: 'Delete User Account',
+      message: `Are you sure you want to permanently delete user "${userName}"? This action cannot be undone.`,
+      onConfirm: async () => {
+        try {
+          await api.delete(`/admin/users/${userId}`);
+          addNotification('User deleted successfully', 'success');
+          loadUsers();
+        } catch (error) {
+          addNotification('Failed to delete user', 'error');
+        }
+      },
+    });
   };
 
   const handleExportCSV = async () => {
@@ -137,10 +166,17 @@ const UserManagement = () => {
 
   return (
     <div className="user-mgmt-container">
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        onConfirm={confirmConfig.onConfirm}
+        onClose={() => setConfirmConfig({ ...confirmConfig, isOpen: false })}
+      />
       <div className="admin-page-header">
         <div>
           <h2>User Management Console</h2>
-          <p>Create, search, filter, edit roles, suspend accounts, and export user records.</p>
+          <p>Create, search, filter, view, edit roles, suspend accounts, and export user records.</p>
         </div>
         <div className="admin-header-actions">
           <button className="admin-btn admin-btn-primary" onClick={() => setShowCreateModal(true)}>
@@ -168,7 +204,7 @@ const UserManagement = () => {
           <div className="filter-group">
             <FaFilter />
             <label>Role:</label>
-            <select value={roleFilter} onChange={(e) => { setRoleFilter(e.target.value); }}>
+            <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
               <option value="all">All Roles</option>
               <option value="user">User</option>
               <option value="admin">Admin</option>
@@ -176,7 +212,7 @@ const UserManagement = () => {
           </div>
           <div className="filter-group">
             <label>Status:</label>
-            <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); }}>
+            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
               <option value="all">All Status</option>
               <option value="active">Active</option>
               <option value="suspended">Suspended</option>
@@ -184,7 +220,7 @@ const UserManagement = () => {
           </div>
           <div className="filter-group">
             <label>Level:</label>
-            <select value={levelFilter} onChange={(e) => { setLevelFilter(e.target.value); }}>
+            <select value={levelFilter} onChange={(e) => setLevelFilter(e.target.value)}>
               <option value="all">All Levels</option>
               <option value="beginner">Beginner</option>
               <option value="intermediate">Intermediate</option>
@@ -255,9 +291,23 @@ const UserManagement = () => {
                     <td>
                       <div className="action-btns">
                         <button
+                          className="admin-action-icon approve"
+                          title="View User Details"
+                          onClick={() => setViewingUser(u)}
+                        >
+                          <FaEye />
+                        </button>
+                        <button
+                          className="admin-action-icon edit"
+                          title="Edit User Details"
+                          onClick={() => setEditingUser({ ...u })}
+                        >
+                          <FaEdit />
+                        </button>
+                        <button
                           className="admin-action-icon delete"
                           title="Delete User"
-                          onClick={() => handleDelete(u._id, u.name)}
+                          onClick={() => promptDeleteUser(u._id, u.name)}
                           disabled={u.role === 'admin' && users.filter((us) => us.role === 'admin').length === 1}
                         >
                           <FaTrash />
@@ -269,6 +319,174 @@ const UserManagement = () => {
               )}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* View User Details Modal */}
+      {viewingUser && (
+        <div className="admin-modal-overlay" onClick={() => setViewingUser(null)}>
+          <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="admin-modal-header">
+              <h3><FaEye /> User Profile Details</h3>
+              <button className="modal-close" onClick={() => setViewingUser(null)}>
+                <FaTimes />
+              </button>
+            </div>
+            <div className="admin-modal-form">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
+                <div style={{
+                  width: '56px',
+                  height: '56px',
+                  borderRadius: '50%',
+                  background: 'var(--primary)',
+                  color: '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '1.5rem',
+                  fontWeight: '700'
+                }}>
+                  {viewingUser.name?.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--text)' }}>{viewingUser.name}</h4>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{viewingUser.email}</span>
+                </div>
+              </div>
+
+              <div className="admin-modal-details-grid" style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '1rem',
+                padding: '1rem',
+                background: 'var(--surface)',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--border)'
+              }}>
+                <div>
+                  <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block' }}>USER ID</label>
+                  <code style={{ fontSize: '0.8rem' }}>{viewingUser._id}</code>
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block' }}>ROLE</label>
+                  <span className={`role-select-inline ${viewingUser.role}`} style={{ padding: '0.2rem 0.6rem' }}>
+                    {viewingUser.role.toUpperCase()}
+                  </span>
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block' }}>ACCOUNT STATUS</label>
+                  <span style={{ fontWeight: '600', color: viewingUser.isActive ? '#27ae60' : '#e74c3c' }}>
+                    {viewingUser.isActive ? 'Active' : 'Suspended'}
+                  </span>
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block' }}>GARDENING LEVEL</label>
+                  <span className={`level-badge ${viewingUser.gardeningLevel}`}>
+                    {viewingUser.gardeningLevel || 'beginner'}
+                  </span>
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block' }}>JOINED DATE</label>
+                  <span style={{ fontSize: '0.85rem' }}>{new Date(viewingUser.createdAt).toLocaleString()}</span>
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block' }}>LAST UPDATED</label>
+                  <span style={{ fontSize: '0.85rem' }}>{new Date(viewingUser.updatedAt || viewingUser.createdAt).toLocaleString()}</span>
+                </div>
+              </div>
+
+              <div className="admin-modal-footer" style={{ marginTop: '0.5rem' }}>
+                <button
+                  type="button"
+                  className="admin-btn admin-btn-outline"
+                  onClick={() => {
+                    setEditingUser({ ...viewingUser });
+                    setViewingUser(null);
+                  }}
+                >
+                  <FaEdit /> Edit Profile
+                </button>
+                <button type="button" className="admin-btn admin-btn-primary" onClick={() => setViewingUser(null)}>
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit User Modal */}
+      {editingUser && (
+        <div className="admin-modal-overlay" onClick={() => setEditingUser(null)}>
+          <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="admin-modal-header">
+              <h3><FaEdit /> Edit User Details</h3>
+              <button className="modal-close" onClick={() => setEditingUser(null)}>
+                <FaTimes />
+              </button>
+            </div>
+            <form onSubmit={handleSaveEditUser} className="admin-modal-form">
+              <div className="form-group">
+                <label>Full Name</label>
+                <input
+                  type="text"
+                  required
+                  value={editingUser.name}
+                  onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label>Email Address</label>
+                <input
+                  type="email"
+                  required
+                  value={editingUser.email}
+                  onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                />
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>System Role</label>
+                  <select
+                    value={editingUser.role}
+                    onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value })}
+                  >
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Gardening Level</label>
+                  <select
+                    value={editingUser.gardeningLevel || 'beginner'}
+                    onChange={(e) => setEditingUser({ ...editingUser, gardeningLevel: e.target.value })}
+                  >
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                  </select>
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Account Status</label>
+                <select
+                  value={editingUser.isActive ? 'active' : 'suspended'}
+                  onChange={(e) => setEditingUser({ ...editingUser, isActive: e.target.value === 'active' })}
+                >
+                  <option value="active">Active (Can log in)</option>
+                  <option value="suspended">Suspended (Blocked from system)</option>
+                </select>
+              </div>
+              <div className="admin-modal-footer">
+                <button type="button" className="admin-btn admin-btn-outline" onClick={() => setEditingUser(null)}>
+                  Cancel
+                </button>
+                <button type="submit" className="admin-btn admin-btn-primary">
+                  <FaCheck /> Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
