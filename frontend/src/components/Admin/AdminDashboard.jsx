@@ -1,18 +1,29 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
+import {
+  FaUsers,
+  FaSeedling,
+  FaTree,
+  FaComments,
+  FaFlag,
+  FaShieldAlt,
+  FaHistory,
+  FaChartLine,
+  FaFileCsv,
+  FaUserPlus,
+  FaLeaf,
+  FaExclamationTriangle,
+  FaCheckCircle,
+  FaArrowRight,
+} from 'react-icons/fa';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
-  const [stats, setStats] = useState({
-    users: 0,
-    posts: 0,
-    diagnoses: 0,
-    plants: 0,
-    gardens: 0,
-    pendingModeration: 0,
-  });
+  const navigate = useNavigate();
+  const [stats, setStats] = useState(null);
   const [recentUsers, setRecentUsers] = useState([]);
   const [recentPosts, setRecentPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,188 +35,260 @@ const AdminDashboard = () => {
   const loadDashboardData = async () => {
     setLoading(true);
     try {
-      // Get users
-      const userRes = await api.get('/admin/users');
-      const users = userRes.data.users || [];
-      
-      // Get posts
-      const postRes = await api.get('/community');
-      const posts = postRes.data.posts || [];
-      
-      // Get flagged posts
-      const flaggedRes = await api.get('/admin/flagged-posts');
-      const flaggedPosts = flaggedRes.data.posts || [];
-      
-      // Get diagnoses (you might need to add this endpoint)
-      // For now, we'll use mock data
-      const diagnoses = [];
-      
-      // Get plants and gardens (you might need to add these endpoints)
-      // For now, we'll use mock data
-      const plants = [];
-      const gardens = [];
+      const [statsRes, usersRes, postsRes] = await Promise.all([
+        api.get('/admin/stats'),
+        api.get('/admin/users'),
+        api.get('/admin/posts'),
+      ]);
 
-      setStats({
-        users: users.length,
-        posts: posts.length,
-        diagnoses: diagnoses.length || 0,
-        plants: plants.length || 0,
-        gardens: gardens.length || 0,
-        pendingModeration: flaggedPosts.length || 0,
-      });
-
-      // Get recent users (last 5)
-      setRecentUsers(users.slice(0, 5));
-      
-      // Get recent posts (last 5)
-      setRecentPosts(posts.slice(0, 5));
-      
+      setStats(statsRes.data.stats);
+      setRecentUsers((usersRes.data.users || []).slice(0, 5));
+      setRecentPosts((postsRes.data.posts || []).slice(0, 5));
     } catch (error) {
-      console.error('Failed to load admin data:', error);
+      console.error('Failed to load admin dashboard data:', error);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleExportCSV = async (type) => {
+    try {
+      const response = await api.get(`/admin/export/${type}`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `urbanfarm_${type}_export.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('CSV export failed:', error);
+    }
+  };
+
+  if (loading || !stats) {
+    return <div className="admin-loading-spinner">Loading admin dashboard...</div>;
+  }
+
   const statCards = [
-    { 
-      key: 'users', 
-      icon: '👥', 
-      label: 'Total Users', 
-      value: stats.users,
-      color: '#b8a9c9'
+    {
+      icon: <FaUsers />,
+      label: 'Total Users',
+      value: stats.totalUsers,
+      sub: `${stats.activeUsers} active`,
+      color: '#6366f1',
+      bg: 'rgba(99, 102, 241, 0.12)',
     },
-    { 
-      key: 'posts', 
-      icon: '📝', 
-      label: 'Community Posts', 
-      value: stats.posts,
-      color: '#a8d5ba'
+    {
+      icon: <FaShieldAlt />,
+      label: 'Admins',
+      value: stats.totalAdmins,
+      sub: 'Platform admins',
+      color: '#8b5cf6',
+      bg: 'rgba(139, 92, 246, 0.12)',
     },
-    { 
-      key: 'diagnoses', 
-      icon: '🔬', 
-      label: 'Diagnoses Run', 
-      value: stats.diagnoses,
-      color: '#d6eaf8'
+    {
+      icon: <FaTree />,
+      label: 'Total Gardens',
+      value: stats.totalGardens,
+      sub: 'Across all users',
+      color: '#10b981',
+      bg: 'rgba(16, 185, 129, 0.12)',
     },
-    { 
-      key: 'plants', 
-      icon: '🌱', 
-      label: 'Plants Growing', 
-      value: stats.plants,
-      color: '#f0d5c0'
+    {
+      icon: <FaSeedling />,
+      label: 'Plants Growing',
+      value: stats.totalPlants,
+      sub: `${stats.plantHealth?.healthy || 0} healthy`,
+      color: '#14b8a6',
+      bg: 'rgba(20, 184, 166, 0.12)',
     },
-    { 
-      key: 'gardens', 
-      icon: '🌿', 
-      label: 'Active Gardens', 
-      value: stats.gardens,
-      color: '#d4c5b2'
+    {
+      icon: <FaComments />,
+      label: 'Community Posts',
+      value: stats.totalPosts,
+      sub: 'Published posts',
+      color: '#3b82f6',
+      bg: 'rgba(59, 130, 246, 0.12)',
     },
-    { 
-      key: 'pendingModeration', 
-      icon: '⚠️', 
-      label: 'Pending Moderation', 
-      value: stats.pendingModeration,
-      color: '#e8b4b4'
+    {
+      icon: <FaFlag />,
+      label: 'Flagged Posts',
+      value: stats.flaggedPosts,
+      sub: 'Needs review',
+      color: stats.flaggedPosts > 0 ? '#ef4444' : '#10b981',
+      bg: stats.flaggedPosts > 0 ? 'rgba(239, 68, 68, 0.12)' : 'rgba(16, 185, 129, 0.12)',
     },
   ];
 
-  if (loading) {
-    return <div className="admin-loading">Loading admin dashboard...</div>;
-  }
-
   return (
     <div className="admin-dashboard">
-      <div className="admin-header">
-        <h2>🛡️ Admin Dashboard</h2>
-        <span className="admin-welcome">Welcome back, {user?.name}!</span>
+      <div className="admin-page-header">
+        <div>
+          <h2>Admin Dashboard</h2>
+          <p>
+            Welcome back, <strong>{user?.name}</strong>. Here is your platform overview.
+          </p>
+        </div>
+        <div className="admin-header-actions">
+          <button className="admin-btn admin-btn-outline" onClick={() => handleExportCSV('users')}>
+            <FaFileCsv /> Export Users
+          </button>
+          <button className="admin-btn admin-btn-outline" onClick={() => handleExportCSV('plants')}>
+            <FaFileCsv /> Export Plants
+          </button>
+        </div>
       </div>
 
       {/* Stats Grid */}
       <div className="admin-stats-grid">
-        {statCards.map((stat) => (
-          <div key={stat.key} className="admin-stat-card" style={{ borderLeftColor: stat.color }}>
-            <div className="stat-icon" style={{ color: stat.color }}>{stat.icon}</div>
+        {statCards.map((stat, idx) => (
+          <div key={idx} className="admin-stat-card">
+            <div className="stat-icon-box" style={{ background: stat.bg, color: stat.color }}>
+              {stat.icon}
+            </div>
             <div className="stat-content">
               <span className="stat-value">{stat.value}</span>
               <span className="stat-label">{stat.label}</span>
+              <span className="stat-sub">{stat.sub}</span>
             </div>
           </div>
         ))}
       </div>
 
+      {/* Plant Health Distribution */}
+      <div className="admin-card plant-health-card">
+        <div className="admin-card-header">
+          <h3><FaLeaf /> Plant Health Distribution</h3>
+        </div>
+        <div className="health-bar-container">
+          <div className="health-bar">
+            {stats.totalPlants > 0 ? (
+              <>
+                <div
+                  className="health-segment healthy"
+                  style={{ width: `${(stats.plantHealth.healthy / stats.totalPlants) * 100}%` }}
+                  title={`Healthy: ${stats.plantHealth.healthy}`}
+                />
+                <div
+                  className="health-segment warning"
+                  style={{ width: `${(stats.plantHealth.warning / stats.totalPlants) * 100}%` }}
+                  title={`Warning: ${stats.plantHealth.warning}`}
+                />
+                <div
+                  className="health-segment unhealthy"
+                  style={{ width: `${(stats.plantHealth.unhealthy / stats.totalPlants) * 100}%` }}
+                  title={`Unhealthy: ${stats.plantHealth.unhealthy}`}
+                />
+              </>
+            ) : (
+              <div className="health-segment empty" style={{ width: '100%' }} />
+            )}
+          </div>
+          <div className="health-legend">
+            <span className="legend-item">
+              <FaCheckCircle style={{ color: '#10b981' }} /> Healthy: {stats.plantHealth?.healthy || 0}
+            </span>
+            <span className="legend-item">
+              <FaExclamationTriangle style={{ color: '#f59e0b' }} /> Warning: {stats.plantHealth?.warning || 0}
+            </span>
+            <span className="legend-item">
+              <FaExclamationTriangle style={{ color: '#ef4444' }} /> Unhealthy: {stats.plantHealth?.unhealthy || 0}
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* Recent Activity */}
       <div className="admin-recent-grid">
-        {/* Recent Users */}
-        <div className="admin-recent-card">
-          <h4>👥 Recent Users</h4>
-          {recentUsers.length === 0 ? (
-            <p className="no-data">No users registered yet</p>
-          ) : (
-            <ul className="recent-list">
-              {recentUsers.map((u) => (
-                <li key={u._id}>
-                  <span className="user-name">{u.name}</span>
-                  <span className="user-email">{u.email}</span>
-                  <span className={`user-role ${u.role}`}>{u.role}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-          {recentUsers.length > 0 && (
-            <button 
-              className="view-all-btn"
-              onClick={() => window.location.href = '/admin/users'}
-            >
-              View All Users →
+        <div className="admin-card">
+          <div className="admin-card-header">
+            <h3><FaUsers /> Recent Users</h3>
+            <button className="admin-btn-link" onClick={() => navigate('/admin/users')}>
+              View All <FaArrowRight />
             </button>
+          </div>
+          {recentUsers.length === 0 ? (
+            <p className="admin-empty-msg">No users registered yet.</p>
+          ) : (
+            <div className="recent-list">
+              {recentUsers.map((u) => (
+                <div key={u._id} className="recent-item">
+                  <div className="recent-avatar">{u.name?.charAt(0).toUpperCase()}</div>
+                  <div className="recent-info">
+                    <strong>{u.name}</strong>
+                    <small>{u.email}</small>
+                  </div>
+                  <span className={`role-badge ${u.role}`}>{u.role}</span>
+                </div>
+              ))}
+            </div>
           )}
         </div>
 
-        {/* Recent Posts */}
-        <div className="admin-recent-card">
-          <h4>📝 Recent Posts</h4>
-          {recentPosts.length === 0 ? (
-            <p className="no-data">No posts yet</p>
-          ) : (
-            <ul className="recent-list">
-              {recentPosts.map((p) => (
-                <li key={p._id}>
-                  <span className="post-title">{p.title}</span>
-                  <span className="post-author">by {p.userId?.name || 'Anonymous'}</span>
-                  <span className={`post-category ${p.category}`}>{p.category}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-          {recentPosts.length > 0 && (
-            <button 
-              className="view-all-btn"
-              onClick={() => window.location.href = '/admin/moderation'}
-            >
-              View All Posts →
+        <div className="admin-card">
+          <div className="admin-card-header">
+            <h3><FaComments /> Recent Posts</h3>
+            <button className="admin-btn-link" onClick={() => navigate('/admin/moderation')}>
+              View All <FaArrowRight />
             </button>
+          </div>
+          {recentPosts.length === 0 ? (
+            <p className="admin-empty-msg">No posts created yet.</p>
+          ) : (
+            <div className="recent-list">
+              {recentPosts.map((p) => (
+                <div key={p._id} className="recent-item">
+                  <div className="recent-post-indicator">
+                    {p.isFlagged ? (
+                      <FaFlag style={{ color: '#ef4444' }} />
+                    ) : p.isApproved ? (
+                      <FaCheckCircle style={{ color: '#10b981' }} />
+                    ) : (
+                      <FaHistory style={{ color: '#f59e0b' }} />
+                    )}
+                  </div>
+                  <div className="recent-info">
+                    <strong>{p.title}</strong>
+                    <small>by {p.userId?.name || 'Anonymous'} · {p.category}</small>
+                  </div>
+                  <span className={`category-badge ${p.category}`}>{p.category}</span>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </div>
 
       {/* Quick Actions */}
-      <div className="admin-quick-actions">
-        <h4>⚡ Quick Actions</h4>
+      <div className="admin-card">
+        <div className="admin-card-header">
+          <h3><FaChartLine /> Quick Actions</h3>
+        </div>
         <div className="quick-actions-grid">
-          <button className="quick-action-btn" onClick={() => window.location.href = '/admin/users'}>
-            👥 Manage Users
+          <button className="quick-action-card" onClick={() => navigate('/admin/users')}>
+            <FaUserPlus />
+            <span>Manage Users</span>
           </button>
-          <button className="quick-action-btn" onClick={() => window.location.href = '/admin/moderation'}>
-            📝 Moderate Posts
+          <button className="quick-action-card" onClick={() => navigate('/admin/gardens')}>
+            <FaTree />
+            <span>Gardens & Plants</span>
           </button>
-          <button className="quick-action-btn" onClick={() => window.location.href = '/admin/logs'}>
-            📋 View Logs
+          <button className="quick-action-card" onClick={() => navigate('/admin/moderation')}>
+            <FaShieldAlt />
+            <span>Moderation Hub</span>
           </button>
-          <button className="quick-action-btn" onClick={() => window.location.href = '/app'}>
-            🌱 Go to App
+          <button className="quick-action-card" onClick={() => navigate('/admin/logs')}>
+            <FaHistory />
+            <span>Audit Trail</span>
+          </button>
+          <button className="quick-action-card" onClick={() => navigate('/admin/settings')}>
+            <FaFileCsv />
+            <span>Export & Settings</span>
+          </button>
+          <button className="quick-action-card exit" onClick={() => navigate('/app')}>
+            <FaLeaf />
+            <span>Switch to Farmer View</span>
           </button>
         </div>
       </div>

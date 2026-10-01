@@ -1,34 +1,54 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useNotification } from '../../hooks/useNotification';
+import {
+  FaShieldAlt,
+  FaSearch,
+  FaFileCsv,
+  FaTrash,
+  FaCheck,
+  FaFlag,
+  FaUndoAlt,
+  FaFilter,
+  FaEye,
+  FaImage,
+} from 'react-icons/fa';
 import './ContentModeration.css';
 
 const ContentModeration = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('flagged'); // 'flagged', 'all', 'pending'
+  const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [viewMode, setViewMode] = useState('all'); // 'all', 'flagged', 'pending'
   const { addNotification } = useNotification();
 
   useEffect(() => {
     loadPosts();
-  }, [filter]);
+  }, [viewMode]);
 
   const loadPosts = async () => {
     setLoading(true);
     try {
-      let endpoint = '/community';
-      if (filter === 'flagged') {
+      let endpoint;
+      if (viewMode === 'flagged') {
         endpoint = '/admin/flagged-posts';
-      }
-      const res = await api.get(endpoint);
-      const allPosts = res.data.posts || [];
-      
-      // If filter is 'pending', show unmoderated posts
-      if (filter === 'pending') {
-        setPosts(allPosts.filter(p => !p.isApproved && !p.isFlagged));
       } else {
-        setPosts(allPosts);
+        const params = new URLSearchParams();
+        if (search) params.append('search', search);
+        if (categoryFilter !== 'all') params.append('category', categoryFilter);
+        if (viewMode === 'flagged') params.append('flagged', 'true');
+        endpoint = `/admin/posts?${params.toString()}`;
       }
+
+      const res = await api.get(endpoint);
+      let allPosts = res.data.posts || [];
+
+      if (viewMode === 'pending') {
+        allPosts = allPosts.filter((p) => !p.isApproved && !p.isFlagged);
+      }
+
+      setPosts(allPosts);
     } catch (error) {
       console.error('Failed to load posts:', error);
       addNotification('Failed to load posts', 'error');
@@ -37,124 +57,220 @@ const ContentModeration = () => {
     }
   };
 
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    loadPosts();
+  };
+
   const handleModerate = async (postId, action) => {
     try {
-      await api.put(`/admin/posts/${postId}/moderate`, { 
+      await api.put(`/admin/posts/${postId}/moderate`, {
         isApproved: action === 'approve',
-        isFlagged: action === 'flag'
+        isFlagged: action === 'flag',
       });
-      addNotification(`Post ${action === 'approve' ? 'approved' : 'flagged'}!`, 'success');
+      addNotification(
+        `Post ${action === 'approve' ? 'approved' : 'flagged'} successfully!`,
+        'success'
+      );
       loadPosts();
     } catch (error) {
-      addNotification('Moderation failed', 'error');
+      addNotification('Moderation action failed', 'error');
     }
   };
 
-  const handleDelete = async (postId) => {
-    if (!window.confirm('Delete this post permanently?')) return;
+  const handleDelete = async (postId, postTitle) => {
+    if (!window.confirm(`Permanently delete post "${postTitle}"?`)) return;
     try {
-      await api.delete(`/community/${postId}`);
-      addNotification('Post deleted', 'success');
+      await api.delete(`/admin/posts/${postId}`);
+      addNotification('Post deleted successfully', 'success');
       loadPosts();
     } catch (error) {
       addNotification('Failed to delete post', 'error');
     }
   };
 
-  if (loading) {
-    return <div className="moderation-loading">Loading posts...</div>;
-  }
+  const handleExportCSV = async () => {
+    try {
+      const response = await api.get('/admin/export/posts', { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'urbanfarm_posts_export.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      addNotification('Posts CSV exported!', 'success');
+    } catch (error) {
+      addNotification('Failed to export CSV', 'error');
+    }
+  };
 
   return (
-    <div className="content-moderation">
-      <div className="moderation-header">
-        <h3>⚠️ Content Moderation</h3>
-        <div className="moderation-controls">
-          <div className="filter-buttons">
-            <button 
-              className={`filter-btn ${filter === 'flagged' ? 'active' : ''}`}
-              onClick={() => setFilter('flagged')}
-            >
-              🚩 Flagged
-            </button>
-            <button 
-              className={`filter-btn ${filter === 'pending' ? 'active' : ''}`}
-              onClick={() => setFilter('pending')}
-            >
-              ⏳ Pending
-            </button>
-            <button 
-              className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
-              onClick={() => setFilter('all')}
-            >
-              📋 All
-            </button>
-          </div>
-          <span className="post-count">{posts.length} posts</span>
+    <div className="moderation-container">
+      <div className="admin-page-header">
+        <div>
+          <h2>Content Moderation Hub</h2>
+          <p>Review, approve, flag, or remove user-generated community posts and content.</p>
+        </div>
+        <div className="admin-header-actions">
+          <button className="admin-btn admin-btn-outline" onClick={handleExportCSV}>
+            <FaFileCsv /> Export Posts CSV
+          </button>
         </div>
       </div>
 
-      {posts.length === 0 ? (
-        <div className="no-posts">
-          <span>✅</span>
-          <p>No posts to moderate</p>
-          <small>All content is clean!</small>
+      {/* View Mode Tabs */}
+      <div className="admin-tab-row">
+        <button
+          className={`admin-tab-btn ${viewMode === 'all' ? 'active' : ''}`}
+          onClick={() => setViewMode('all')}
+        >
+          <FaEye /> All Posts ({posts.length})
+        </button>
+        <button
+          className={`admin-tab-btn ${viewMode === 'flagged' ? 'active' : ''}`}
+          onClick={() => setViewMode('flagged')}
+        >
+          <FaFlag /> Flagged
+        </button>
+        <button
+          className={`admin-tab-btn ${viewMode === 'pending' ? 'active' : ''}`}
+          onClick={() => setViewMode('pending')}
+        >
+          <FaShieldAlt /> Pending Review
+        </button>
+      </div>
+
+      {/* Filters */}
+      <div className="admin-filter-bar">
+        <form onSubmit={handleSearchSubmit} className="admin-search-box">
+          <FaSearch className="search-icon" />
+          <input
+            type="text"
+            placeholder="Search posts by title or content..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <button type="submit" className="admin-btn admin-btn-sm">Search</button>
+        </form>
+        <div className="admin-filters">
+          <div className="filter-group">
+            <FaFilter />
+            <label>Category:</label>
+            <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+              <option value="all">All Categories</option>
+              <option value="question">Question</option>
+              <option value="tip">Tip</option>
+              <option value="showcase">Showcase</option>
+              <option value="event">Event</option>
+              <option value="general">General</option>
+            </select>
+          </div>
+          <button className="admin-btn admin-btn-sm" onClick={loadPosts}>Apply</button>
         </div>
+      </div>
+
+      {/* Posts Table */}
+      {loading ? (
+        <div className="admin-loading-spinner">Loading posts...</div>
       ) : (
-        <div className="moderation-list">
-          {posts.map((post) => (
-            <div key={post._id} className={`mod-item ${post.isFlagged ? 'flagged' : ''}`}>
-              <div className="mod-item-header">
-                <h4>{post.title}</h4>
-                <span className="mod-status">
-                  {post.isFlagged ? '🚩 Flagged' : post.isApproved ? '✅ Approved' : '⏳ Pending'}
-                </span>
-              </div>
-              <p className="mod-content">{post.content}</p>
-              <div className="mod-meta">
-                <span className="mod-author">👤 {post.userId?.name || 'Anonymous'}</span>
-                <span className="mod-date">📅 {new Date(post.createdAt).toLocaleDateString()}</span>
-                <span className="mod-category">{post.category}</span>
-              </div>
-              {post.imageUrl && (
-                <div className="mod-image">
-                  <img src={post.imageUrl} alt="Post" />
-                </div>
+        <div className="admin-table-wrapper">
+          <table className="admin-data-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Likes</th>
+                <th>Comments</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {posts.length === 0 ? (
+                <tr>
+                  <td colSpan="8" className="text-center py-4">
+                    {viewMode === 'flagged'
+                      ? 'No flagged posts. All content is clean!'
+                      : viewMode === 'pending'
+                      ? 'No posts pending review.'
+                      : 'No posts found.'}
+                  </td>
+                </tr>
+              ) : (
+                posts.map((post) => (
+                  <tr key={post._id} className={post.isFlagged ? 'row-flagged' : ''}>
+                    <td>
+                      <div className="post-title-cell">
+                        {post.imageUrl && <FaImage className="post-has-image" />}
+                        <strong>{post.title}</strong>
+                      </div>
+                    </td>
+                    <td>
+                      <small>{post.userId?.name || 'Anonymous'}</small>
+                      <br />
+                      <small className="text-muted">{post.userId?.email || ''}</small>
+                    </td>
+                    <td>
+                      <span className={`category-tag ${post.category}`}>{post.category}</span>
+                    </td>
+                    <td>
+                      {post.isFlagged ? (
+                        <span className="mod-status-badge flagged"><FaFlag /> Flagged</span>
+                      ) : post.isApproved ? (
+                        <span className="mod-status-badge approved"><FaCheck /> Approved</span>
+                      ) : (
+                        <span className="mod-status-badge pending">Pending</span>
+                      )}
+                    </td>
+                    <td>{post.likes?.length || 0}</td>
+                    <td>{post.comments?.length || 0}</td>
+                    <td><small>{new Date(post.createdAt).toLocaleDateString()}</small></td>
+                    <td>
+                      <div className="action-btns">
+                        {!post.isApproved && !post.isFlagged && (
+                          <button
+                            className="admin-action-icon approve"
+                            title="Approve Post"
+                            onClick={() => handleModerate(post._id, 'approve')}
+                          >
+                            <FaCheck />
+                          </button>
+                        )}
+                        {post.isFlagged && (
+                          <button
+                            className="admin-action-icon approve"
+                            title="Unflag & Approve"
+                            onClick={() => handleModerate(post._id, 'approve')}
+                          >
+                            <FaUndoAlt />
+                          </button>
+                        )}
+                        {!post.isFlagged && (
+                          <button
+                            className="admin-action-icon warn"
+                            title="Flag Post"
+                            onClick={() => handleModerate(post._id, 'flag')}
+                          >
+                            <FaFlag />
+                          </button>
+                        )}
+                        <button
+                          className="admin-action-icon delete"
+                          title="Delete Post"
+                          onClick={() => handleDelete(post._id, post.title)}
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
               )}
-              <div className="mod-actions">
-                {!post.isApproved && !post.isFlagged && (
-                  <button 
-                    className="btn-primary mod-approve"
-                    onClick={() => handleModerate(post._id, 'approve')}
-                  >
-                    ✅ Approve
-                  </button>
-                )}
-                {post.isFlagged && (
-                  <button 
-                    className="btn-secondary mod-unflag"
-                    onClick={() => handleModerate(post._id, 'approve')}
-                  >
-                    ↩️ Unflag
-                  </button>
-                )}
-                {!post.isFlagged && (
-                  <button 
-                    className="btn-warning mod-flag"
-                    onClick={() => handleModerate(post._id, 'flag')}
-                  >
-                    🚩 Flag
-                  </button>
-                )}
-                <button 
-                  className="btn-danger mod-delete"
-                  onClick={() => handleDelete(post._id)}
-                >
-                  🗑️ Delete
-                </button>
-              </div>
-            </div>
-          ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
