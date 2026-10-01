@@ -211,3 +211,8 @@ node scripts/create-admin.js admin@example.com AdminPassword123 "Admin User" adm
 - Community: `/api/community` (posts, comments, likes, leaderboard)
 - Admin: `/api/admin` (moderation and content management)
 - Uploads: `/api/upload` (media handling via Cloudinary)
+
+## License
+
+This project is licensed under the [MIT License](LICENSE) - see the [LICENSE](LICENSE) file for details.
+
