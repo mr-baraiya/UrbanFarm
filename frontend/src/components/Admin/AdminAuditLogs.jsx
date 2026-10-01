@@ -173,7 +173,7 @@ const AdminAuditLogs = () => {
                       <td>
                         <div className="log-timestamp">
                           <FaClock className="log-ts-icon" />
-                          <div>
+                          <div className="log-ts-text">
                             <span className="log-date">{ts.date}</span>
                             <span className="log-time">{ts.time}</span>
                           </div>
@@ -184,7 +184,7 @@ const AdminAuditLogs = () => {
                           <span className="log-admin-avatar">
                             {(log.adminId?.name || 'S').charAt(0).toUpperCase()}
                           </span>
-                          <div>
+                          <div className="log-admin-info">
                             <strong>{log.adminId?.name || 'System'}</strong>
                             <small>{log.adminId?.email || ''}</small>
                           </div>
@@ -197,10 +197,12 @@ const AdminAuditLogs = () => {
                       </td>
                       <td>
                         <div className="log-target-cell">
-                          <span className="badge badge-secondary">{log.targetType}</span>
-                          <small className="log-target-id" title={log.targetId || ''}>
-                            {truncateId(log.targetId)}
-                          </small>
+                          <span className="log-target-badge">{log.targetType}</span>
+                          {log.targetId && (
+                            <small className="log-target-id" title={log.targetId}>
+                              {truncateId(log.targetId)}
+                            </small>
+                          )}
                         </div>
                       </td>
                       <td>{renderDetails(log.details)}</td>

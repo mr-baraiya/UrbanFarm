@@ -7,12 +7,12 @@
 .user-cell {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.65rem;
 }
 
 .user-avatar-sm {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--sage), var(--accent));
   display: flex;
@@ -20,52 +20,72 @@
   justify-content: center;
   color: #ffffff;
   font-weight: 700;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(107, 144, 128, 0.25);
 }
 
 .role-select-inline {
-  padding: 0.3rem 0.5rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--surface);
+  padding: 0.35rem 0.8rem;
+  border-radius: 20px;
+  border: none;
+  background-color: var(--surface);
   color: var(--text);
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.82rem;
+  font-weight: 700;
   cursor: pointer;
   font-family: inherit;
+  outline: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all var(--transition);
+  appearance: none;
+  -webkit-appearance: none;
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  background-size: 0.6em;
+  padding-right: 1.6rem;
 }
 
 .role-select-inline.admin {
-  border-color: rgba(107, 144, 128, 0.5);
+  background-color: rgba(107, 144, 128, 0.15);
   color: var(--sage);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234d7c66' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 }
 
 .role-select-inline.user {
-  border-color: rgba(59, 130, 200, 0.4);
-  color: #2a6fb5;
+  background-color: rgba(59, 130, 246, 0.12);
+  color: #2563eb;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+.role-select-inline:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .level-badge {
-  padding: 0.2rem 0.55rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  font-weight: 600;
+  display: inline-block;
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border: none;
   text-transform: capitalize;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
 .level-badge.beginner {
-  background: rgba(107, 144, 128, 0.12);
+  background: rgba(107, 144, 128, 0.14);
   color: var(--sage);
 }
 
 .level-badge.intermediate {
-  background: rgba(217, 155, 11, 0.12);
+  background: rgba(217, 155, 11, 0.14);
   color: #b47a08;
 }
 
 .level-badge.advanced {
-  background: rgba(100, 80, 160, 0.12);
+  background: rgba(100, 80, 160, 0.14);
   color: #6450a0;
 }
 
@@ -73,28 +93,30 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.3rem 0.65rem;
+  padding: 0.35rem 0.8rem;
   border-radius: 20px;
   border: none;
   cursor: pointer;
-  font-size: 0.78rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 700;
   transition: all var(--transition);
   font-family: inherit;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
 .status-toggle.active {
-  background: rgba(107, 144, 128, 0.12);
-  color: var(--sage);
+  background: rgba(39, 174, 96, 0.14);
+  color: #27ae60;
 }
 
 .status-toggle.suspended {
-  background: rgba(192, 57, 43, 0.12);
-  color: #c0392b;
+  background: rgba(235, 87, 87, 0.14);
+  color: #eb5757;
 }
 
 .status-toggle:hover {
-  opacity: 0.8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
 .row-suspended {
@@ -103,5 +125,5 @@
 
 .action-btns {
   display: flex;
-  gap: 0.4rem;
+  gap: 0.45rem;
 }

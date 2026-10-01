@@ -8,27 +8,26 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.25rem 0.65rem;
+  padding: 0.3rem 0.75rem;
   border-radius: 20px;
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: 700;
+  border: none;
   text-transform: capitalize;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
 .health-badge.healthy {
-  background: rgba(39, 174, 96, 0.15);
+  background: rgba(39, 174, 96, 0.14);
   color: #27ae60;
-  border: 1px solid rgba(39, 174, 96, 0.3);
 }
 
 .health-badge.warning {
-  background: rgba(243, 156, 18, 0.15);
+  background: rgba(243, 156, 18, 0.14);
   color: #f39c12;
-  border: 1px solid rgba(243, 156, 18, 0.3);
 }
 
 .health-badge.unhealthy {
-  background: rgba(231, 76, 60, 0.15);
+  background: rgba(231, 76, 60, 0.14);
   color: #e74c3c;
-  border: 1px solid rgba(231, 76, 60, 0.3);
 }

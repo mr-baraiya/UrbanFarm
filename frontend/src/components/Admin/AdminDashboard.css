@@ -15,28 +15,29 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1.25rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-soft);
+  padding: 1.35rem 1.25rem;
+  background: var(--surface-strong);
+  border: none;
+  border-radius: 24px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
   transition: transform var(--transition), box-shadow var(--transition);
 }
 
 .admin-stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lift);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.07);
 }
 
 .stat-icon-box {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 50px;
+  height: 50px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.3rem;
+  font-size: 1.35rem;
   flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
 }
 
 .stat-content {
@@ -45,7 +46,7 @@
 }
 
 .stat-value {
-  font-size: 1.6rem;
+  font-size: 1.65rem;
   font-weight: 800;
   color: var(--text);
   line-height: 1.2;
@@ -61,12 +62,12 @@
 .stat-sub {
   font-size: 0.75rem;
   color: var(--text-secondary);
-  opacity: 0.7;
+  opacity: 0.75;
 }
 
 /* Plant Health Bar */
 .plant-health-card {
-  padding: 1.25rem;
+  padding: 1.5rem;
 }
 
 .health-bar-container {
@@ -78,9 +79,10 @@
   width: 100%;
   border-radius: 10px;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: none;
   display: flex;
   overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
 .health-segment {
@@ -129,7 +131,7 @@
 .recent-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.55rem;
   margin-top: 0.75rem;
 }
 
@@ -137,15 +139,18 @@
   display: flex;
   align-items: center;
   gap: 0.85rem;
-  padding: 0.65rem 0.85rem;
+  padding: 0.75rem 1rem;
   background: var(--surface-strong);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  transition: background var(--transition);
+  border: none;
+  border-radius: 20px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+  transition: all var(--transition);
 }
 
 .recent-item:hover {
   background: var(--surface);
+  transform: translateX(3px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
 }
 
 .recent-avatar {
@@ -160,12 +165,13 @@
   font-weight: 700;
   font-size: 0.9rem;
   flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(107, 144, 128, 0.25);
 }
 
 .recent-post-indicator {
   width: 36px;
   height: 36px;
-  border-radius: var(--radius-sm);
+  border-radius: 12px;
   background: var(--surface);
   display: flex;
   align-items: center;
@@ -194,12 +200,13 @@
 }
 
 .role-badge {
-  padding: 0.2rem 0.6rem;
+  padding: 0.25rem 0.65rem;
   border-radius: 20px;
   font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  border: none;
 }
 
 .role-badge.admin {
@@ -213,13 +220,14 @@
 }
 
 .category-badge {
-  padding: 0.2rem 0.55rem;
-  border-radius: var(--radius-sm);
+  padding: 0.25rem 0.6rem;
+  border-radius: 16px;
   font-size: 0.72rem;
   font-weight: 600;
   background: rgba(107, 144, 128, 0.1);
   color: var(--text-secondary);
   text-transform: capitalize;
+  border: none;
 }
 
 /* Quick Actions */
@@ -235,23 +243,23 @@
   flex-direction: column;
   align-items: center;
   gap: 0.65rem;
-  padding: 1.25rem 1rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
+  padding: 1.35rem 1rem;
+  border-radius: 20px;
+  border: none;
   background: var(--surface-strong);
   color: var(--text);
   cursor: pointer;
   transition: all var(--transition);
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   font-family: inherit;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
 }
 
 .quick-action-card:hover {
-  background: rgba(107, 144, 128, 0.1);
-  border-color: var(--sage);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-soft);
+  background: var(--surface);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 22px rgba(107, 144, 128, 0.15);
 }
 
 .quick-action-card svg {
@@ -260,12 +268,14 @@
 }
 
 .quick-action-card.exit {
-  border-color: rgba(192, 57, 43, 0.2);
+  background: rgba(192, 57, 43, 0.08);
+  color: #c0392b;
 }
 
 .quick-action-card.exit:hover {
-  background: rgba(192, 57, 43, 0.06);
-  border-color: rgba(192, 57, 43, 0.35);
+  background: rgba(192, 57, 43, 0.16);
+  color: #a93226;
+  box-shadow: 0 8px 22px rgba(192, 57, 43, 0.15);
 }
 
 .quick-action-card.exit svg {
