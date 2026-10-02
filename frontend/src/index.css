@@ -205,3 +205,34 @@ textarea.input-error,
   flex-shrink: 0;
   font-size: 0.85rem;
 }
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Modal & Form Responsive Utilities */
+@media (max-width: 600px) {
+  .modal-content {
+    padding: 20px 16px;
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .form-actions button,
+  .form-actions a {
+    width: 100%;
+  }
+}
+
+

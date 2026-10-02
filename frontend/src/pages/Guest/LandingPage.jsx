@@ -119,19 +119,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Impact / Stats Section */}
-      <section className="landing-stats-section">
-        <div className="landing-container">
-          <div className="stats-grid">
-            {stats.map((s, idx) => (
-              <div key={idx} className="stat-card">
-                <h3 className="stat-number">{s.number}</h3>
-                <p className="stat-label">{s.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Project Introduction */}
       <section className="landing-intro-section">

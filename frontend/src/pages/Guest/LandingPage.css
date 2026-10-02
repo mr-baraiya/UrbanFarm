@@ -1,6 +1,7 @@
 .landing-page {
   display: flex;
   flex-direction: column;
+  align-items: stretch;
   gap: 4rem;
   padding-bottom: 3rem;
 }
@@ -175,45 +176,63 @@
 
 /* Stats */
 .landing-stats-section {
-  background: var(--surface);
-  border-y: 1px solid var(--border);
-  padding: 2.5rem 0;
+  background: var(--background);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 3rem 0;
+  width: 100%;
+  align-self: stretch;
 }
 
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
+  gap: 1.25rem;
   text-align: center;
+  width: 100%;
 }
 
 .stat-card {
-  padding: 1.5rem 1rem;
+  padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  border-color: var(--primary-light);
 }
 
 .stat-number {
-  font-size: 2.5rem;
+  font-size: 2.6rem;
   font-weight: 900;
   color: var(--primary);
-  margin: 0 0 0.4rem;
-  letter-spacing: -0.02em;
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.03em;
+  line-height: 1;
   white-space: nowrap;
 }
 
 .stat-label {
-  font-size: 0.85rem;
+  font-size: 0.83rem;
   color: var(--text-secondary);
   margin: 0;
-  font-weight: 500;
-  line-height: 1.4;
+  font-weight: 600;
+  line-height: 1.45;
   word-wrap: break-word;
   overflow-wrap: break-word;
   max-width: 100%;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 @media (max-width: 768px) {
@@ -594,7 +613,8 @@
 /* Final CTA */
 .landing-final-cta {
   background: linear-gradient(135deg, rgba(107, 144, 128, 0.15), rgba(74, 93, 85, 0.25));
-  border-y: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
   padding: 4.5rem 1.5rem;
 }
 
@@ -619,9 +639,62 @@
   flex-wrap: wrap;
 }
 
-/* Responsive */
-@media (max-width: 850px) {
-  .hero-title { font-size: 2.4rem; }
-  .intro-grid { grid-template-columns: 1fr; }
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .intro-grid { grid-template-columns: 1fr; gap: 2rem; }
   .preview-card-grid { grid-template-columns: 1fr; }
+  .landing-features-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 768px) {
+  .landing-page { gap: 2.5rem; }
+
+  /* Hero */
+  .landing-hero { padding: 3.5rem 1rem 2rem; }
+  .hero-title { font-size: 2rem; letter-spacing: -0.02em; }
+  .hero-subtitle { font-size: 1rem; }
+  .hero-cta-group { flex-direction: column; align-items: center; }
+  .hero-badges { flex-wrap: wrap; gap: 0.5rem; }
+
+  /* Intro */
+  .intro-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+  .intro-content h2 { font-size: 1.6rem; }
+  .smart-care-card { padding: 1.25rem; }
+  .smart-status-item { flex-direction: column; gap: 0.5rem; }
+
+  /* Features */
+  .landing-features-grid { grid-template-columns: 1fr; }
+  .landing-feature-card { padding: 1.25rem; }
+
+  /* Preview */
+  .preview-card-grid { grid-template-columns: 1fr; }
+
+  /* Testimonials */
+  .testimonials-grid { grid-template-columns: 1fr; }
+
+  /* Final CTA */
+  .landing-final-cta { padding: 3rem 1rem; }
+  .landing-final-cta h2 { font-size: 1.8rem; }
+  .cta-btn-wrapper { flex-direction: column; align-items: center; }
+
+  /* Sections */
+  .landing-features-section,
+  .landing-preview-section,
+  .landing-testimonials-section { padding: 2.5rem 1rem; }
+  .landing-intro-section { padding: 2rem 1rem; }
+
+  /* Section headers */
+  .section-header h2 { font-size: 1.7rem; }
+}
+
+@media (max-width: 480px) {
+  .hero-title { font-size: 1.7rem; }
+  .landing-hero { padding: 2.5rem 1rem 1.5rem; }
+  .section-header h2 { font-size: 1.5rem; }
+  .intro-content h2 { font-size: 1.4rem; }
+  .landing-final-cta h2 { font-size: 1.5rem; }
+  .landing-btn { width: 100%; justify-content: center; }
+  .landing-features-section,
+  .landing-preview-section,
+  .landing-testimonials-section { padding: 2rem 0.75rem; }
 }

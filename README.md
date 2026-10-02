@@ -1,45 +1,45 @@
-# 🌱 UrbanFarm — AI-Powered Urban Farming Assistant
+# UrbanFarm — AI-Powered Urban Farming Assistant
 
 > Manage your urban garden with AI plant disease diagnosis, smart irrigation, growth tracking, and a thriving community — all in one place.
 
-## 🌐 Live Deployment
+## Live Deployment
 
 | | URL |
 |---|---|
-| **🖥️ Frontend** | [https://urbanfarm.baraiyavishalbhai32.workers.dev](https://urbanfarm.baraiyavishalbhai32.workers.dev) |
-| **⚙️ Backend API** | [https://urbanfarm-server.vercel.app](https://urbanfarm-server.vercel.app) |
-| **❤️ Health Check** | [https://urbanfarm-server.vercel.app/health](https://urbanfarm-server.vercel.app/health) |
+| **Frontend** | [https://urbanfarm.baraiyavishalbhai32.workers.dev](https://urbanfarm.baraiyavishalbhai32.workers.dev) |
+| **Backend API** | [https://urbanfarm-server.vercel.app](https://urbanfarm-server.vercel.app) |
+| **Health Check** | [https://urbanfarm-server.vercel.app/health](https://urbanfarm-server.vercel.app/health) |
 
 > **Frontend** hosted on **Cloudflare Workers** · **Backend** hosted on **Vercel Serverless**
 
 ---
 
-## ✨ Features
+## Features
 
-### 🤖 AI Plant Disease Diagnosis
+### AI Plant Disease Diagnosis
 - Upload a leaf photo for instant disease detection with 98.4% accuracy.
 - Supports 30+ urban crop species including tomatoes, peppers, herbs & spinach.
 - Provides organic treatment protocols and recovery tracking.
 
-### 🌧️ Weather-Based Smart Irrigation
+### Weather-Based Smart Irrigation
 - Auto-adjusts watering schedules based on live local weather forecasts.
 - Skips sessions when rain is predicted, saving up to 40% water usage.
 
-### 🪴 Garden & Plant Management
+### Garden & Plant Management
 - Track individual plants with planting dates, growth stages, and harvest windows.
 - Visual growth logs with photo timelines and health history.
 
-### 💬 Community Knowledge & Seed Swaps
+### Community Knowledge & Seed Swaps
 - Q&A forum with agronomist-verified expert badges.
 - Local seed exchange locator for rare heirloom varieties.
 
-### 🛡️ Admin Panel
+### Admin Panel
 - Review flagged content, moderate posts, and manage users.
 - Full analytics dashboard with platform activity overview.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
 - **React 18** + **Vite**
@@ -64,7 +64,7 @@
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 UrbanFarm/
@@ -102,7 +102,7 @@ UrbanFarm/
 
 ---
 
-## ⚙️ Environment Setup
+## Environment Setup
 
 ### Backend (`backend/.env`)
 
@@ -139,7 +139,7 @@ VITE_API_URL=http://localhost:5000/api
 
 ---
 
-## 🚀 Getting Started (Local Development)
+## Getting Started (Local Development)
 
 ### Prerequisites
 - **Node.js** v18+
@@ -167,11 +167,11 @@ npm install
 ```bash
 # Backend
 cp backend/.env.example backend/.env
-# → Edit backend/.env with your credentials
+# Edit backend/.env with your credentials
 
 # Frontend
 cp frontend/.env.example frontend/.env
-# → Default points to http://localhost:5000/api
+# Default points to http://localhost:5000/api
 ```
 
 ### Run Locally
@@ -202,16 +202,16 @@ node scripts/create-admin.js admin@example.com AdminPassword123 "Admin User" adm
 
 ---
 
-## 🌍 Deployment
+## Deployment
 
-### Backend → Vercel
+### Backend — Vercel
 
 1. Push code to GitHub.
 2. Import project on [vercel.com](https://vercel.com), set **Root Directory** to `backend`.
 3. Add environment variables from `backend/.env`.
 4. Deploy — live at `https://urbanfarm-server.vercel.app`.
 
-### Frontend → Cloudflare Workers
+### Frontend — Cloudflare Workers
 
 1. Push code to GitHub (includes `frontend/wrangler.toml`).
 2. Create a Workers project on [dash.cloudflare.com](https://dash.cloudflare.com).
@@ -221,7 +221,7 @@ node scripts/create-admin.js admin@example.com AdminPassword123 "Admin User" adm
 
 ---
 
-## 📡 API Endpoint Reference
+## API Endpoint Reference
 
 | Group | Base Path | Description |
 |---|---|---|
@@ -239,6 +239,6 @@ node scripts/create-admin.js admin@example.com AdminPassword123 "Admin User" adm
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the [MIT License](LICENSE).

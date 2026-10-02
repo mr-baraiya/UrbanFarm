@@ -196,34 +196,95 @@
   color: var(--sage);
 }
 
-/* Impact Banner */
+/* Also fix border-y */
 .about-impact-banner {
   background: var(--surface-strong);
-  border-y: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
   padding: 4rem 1.5rem;
 }
 
-.about-impact-banner h2 {
-  font-size: 2.2rem;
-  font-weight: 800;
-  color: var(--text);
-  margin: 0 0 0.6rem;
+@media (max-width: 900px) {
+  .story-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .pillars-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .team-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
-.about-impact-banner p {
-  font-size: 1.05rem;
-  color: var(--text-secondary);
-  margin: 0 0 2rem;
+@media (max-width: 768px) {
+  .about-hero {
+    padding: 3.5rem 1rem 2rem;
+  }
+
+  .about-hero h1 {
+    font-size: 2.2rem;
+  }
+
+  .about-hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .story-card {
+    padding: 1.75rem;
+  }
+
+  .story-card h2 {
+    font-size: 1.35rem;
+  }
+
+  .about-impact-banner {
+    padding: 3rem 1rem;
+  }
+
+  .about-impact-banner h2 {
+    font-size: 1.7rem;
+  }
+
+  .about-cta-group {
+    flex-direction: column;
+    align-items: center;
+  }
 }
 
-.about-cta-group {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  flex-wrap: wrap;
+@media (max-width: 600px) {
+  .pillars-grid,
+  .team-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .about-impact-banner h2 {
+    font-size: 1.5rem;
+  }
 }
 
-@media (max-width: 800px) {
-  .story-grid { grid-template-columns: 1fr; }
-  .about-hero h1 { font-size: 2.3rem; }
+@media (max-width: 480px) {
+  .about-hero {
+    padding: 2.5rem 1rem 1.5rem;
+  }
+
+  .about-hero h1 {
+    font-size: 1.6rem;
+    letter-spacing: -0.02em;
+  }
+
+  .about-page {
+    gap: 2.5rem;
+  }
+
+  .story-card {
+    padding: 1.25rem;
+  }
 }
+

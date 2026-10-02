@@ -1,26 +1,26 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { 
-  RiDashboardLine, 
-  RiPlantLine, 
+import {
+  RiDashboardLine,
+  RiPlantLine,
   RiSeedlingLine,
-  RiMicroscopeLine, 
-  RiSparklingLine, 
-  RiDropLine, 
-  RiCalendarEventLine, 
-  RiTeamLine, 
-  RiUser3Line 
+  RiMicroscopeLine,
+  RiSparklingLine,
+  RiDropLine,
+  RiCalendarEventLine,
+  RiTeamLine,
+  RiUser3Line,
+  RiMenuLine,
+  RiCloseLine,
 } from "react-icons/ri";
 import { useAuth } from "../../hooks/useAuth";
 import "./Sidebar.css";
 
 const Sidebar = () => {
   const { user } = useAuth();
+  const [open, setOpen] = useState(false);
 
-  // Hide the regular sidebar completely for admin users
-  if (user?.role === "admin") {
-    return null;
-  }
+  if (user?.role === "admin") return null;
 
   const links = [
     { to: "/app/dashboard", label: "Dashboard", icon: <RiDashboardLine /> },
@@ -35,21 +35,41 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="sidebar">
-      <ul>
-        {links.map((link) => (
-          <li key={link.to}>
-            <NavLink
-              to={link.to}
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              <span className="icon">{link.icon}</span>
-              <span className="label">{link.label}</span>
-            </NavLink>
-          </li>
-        ))}
-      </ul>
-    </aside>
+    <>
+      {/* Mobile hamburger floating button */}
+      <button
+        className="sidebar-mobile-toggle"
+        onClick={() => setOpen(o => !o)}
+        aria-label="Toggle sidebar"
+      >
+        {open ? <RiCloseLine /> : <RiMenuLine />}
+      </button>
+
+      {/* Backdrop */}
+      {open && <div className="sidebar-backdrop" onClick={() => setOpen(false)} />}
+
+      <aside className={`sidebar ${open ? "open" : ""}`}>
+        <div className="sidebar-close-row">
+          <button className="sidebar-close-btn" onClick={() => setOpen(false)} aria-label="Close menu">
+            <RiCloseLine />
+          </button>
+        </div>
+        <ul>
+          {links.map((link) => (
+            <li key={link.to}>
+              <NavLink
+                to={link.to}
+                className={({ isActive }) => (isActive ? "active" : "")}
+                onClick={() => setOpen(false)}
+              >
+                <span className="icon">{link.icon}</span>
+                <span className="label">{link.label}</span>
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </aside>
+    </>
   );
 };
 
