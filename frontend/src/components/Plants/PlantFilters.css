@@ -42,20 +42,21 @@
 .search-bar input {
   width: 100%;
   padding: 0.6rem 1rem 0.6rem 2.5rem;
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
-  border-radius: var(--radius-md, 12px);
+  border: 1.5px solid var(--border-light, rgba(107, 144, 128, 0.35));
+  border-radius: 30px;
   font-size: 0.95rem;
-  background: var(--bg-primary, #fbf9f7);
-  color: var(--text-main, #2c2421);
-  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+  background: var(--surface-primary, #ffffff);
+  color: var(--text-main, #1f3a30);
+  transition: var(--transition-smooth, all 0.2s cubic-bezier(0.16, 1, 0.3, 1));
   box-sizing: border-box;
+  box-shadow: 0 2px 6px rgba(31, 58, 48, 0.04);
 }
 
 .search-bar input:focus {
   outline: none;
-  border-color: var(--accent-lavender, #a8a2bc);
+  border-color: var(--sage, #6b9080);
   background: var(--surface-primary, #ffffff);
-  box-shadow: 0 0 0 3px rgba(168, 162, 188, 0.3);
+  box-shadow: 0 0 0 3px rgba(107, 144, 128, 0.2);
 }
 
 .search-bar input::placeholder {
@@ -79,8 +80,8 @@
 }
 
 .clear-search:hover {
-  background: var(--bg-primary, #fbf9f7);
-  color: var(--text-main, #2c2421);
+  background: rgba(107, 144, 128, 0.1);
+  color: var(--text-main, #1f3a30);
 }
 
 .filters-actions {
@@ -90,26 +91,28 @@
 }
 
 .select-mode-btn {
-  padding: 0.4rem 1.2rem;
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  padding: 0.45rem 1.2rem;
+  border: 1.5px solid var(--border-light, rgba(107, 144, 128, 0.35));
   border-radius: 30px;
-  background: none;
-  color: var(--text-muted, #7c6f66);
+  background: var(--surface-primary, #ffffff);
+  color: var(--text-muted, #385b4d);
   cursor: pointer;
   font-size: 0.85rem;
-  font-weight: 500;
-  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(31, 58, 48, 0.04);
+  transition: var(--transition-smooth, all 0.2s cubic-bezier(0.16, 1, 0.3, 1));
 }
 
 .select-mode-btn:hover {
-  border-color: var(--accent-lavender, #a8a2bc);
-  background: var(--bg-primary, #fbf9f7);
-  color: var(--text-main, #2c2421);
+  border-color: var(--sage, #6b9080);
+  background: var(--surface-primary, #ffffff);
+  color: var(--text-main, #1f3a30);
+  box-shadow: 0 4px 12px rgba(31, 58, 48, 0.08);
 }
 
 .select-mode-btn.active {
-  border-color: var(--accent-lavender, #a8a2bc);
-  background: var(--accent-lavender, #a8a2bc);
+  border-color: var(--sage, #6b9080);
+  background: var(--sage, #6b9080);
   color: #ffffff;
 }
 
@@ -128,28 +131,35 @@
 }
 
 .filter-select {
-  padding: 0.3rem 1.2rem;
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  padding: 0.45rem 1.2rem;
+  border: 1.5px solid var(--border-light, rgba(107, 144, 128, 0.35));
   border-radius: 30px;
-  background: var(--bg-primary, #fbf9f7);
-  color: var(--text-main, #2c2421);
-  font-size: 0.85rem;
-  font-weight: 500;
+  background: var(--surface-primary, #ffffff);
+  color: var(--text-main, #1f3a30);
+  font-size: 0.88rem;
+  font-weight: 600;
   cursor: pointer;
   outline: none;
-  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+  transition: var(--transition-smooth, all 0.2s cubic-bezier(0.16, 1, 0.3, 1));
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%237c6f66' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%23385b4d' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 0.8rem center;
+  background-position: right 0.9rem center;
   background-size: 10px;
-  padding-right: 2.2rem;
+  padding-right: 2.3rem;
+  box-shadow: 0 2px 6px rgba(31, 58, 48, 0.04);
+}
+
+.filter-select:hover {
+  border-color: var(--sage, #6b9080);
+  background-color: var(--surface-primary, #ffffff);
+  box-shadow: 0 4px 12px rgba(31, 58, 48, 0.08);
 }
 
 .filter-select:focus {
-  border-color: var(--accent-lavender, #a8a2bc);
+  border-color: var(--sage, #6b9080);
   background-color: var(--surface-primary, #ffffff);
-  box-shadow: 0 0 0 3px rgba(168, 162, 188, 0.15);
+  box-shadow: 0 0 0 3px rgba(107, 144, 128, 0.2);
 }
 
 .sort-select {

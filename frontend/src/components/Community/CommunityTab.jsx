@@ -1,4 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { 
+  RiTeamLine, 
+  RiTrophyLine, 
+  RiAddLine, 
+  RiArrowLeftSLine, 
+  RiArrowRightSLine, 
+  RiMedalLine, 
+  RiLeafLine, 
+  RiSeedlingLine 
+} from 'react-icons/ri';
+import { TbPlant2 } from 'react-icons/tb';
 import { getCommunityPosts, createPost, updatePost, deletePost, deleteComment, toggleLike, getLeaderboard, addComment } from '../../services/plantService';
 import { useAuth } from '../../hooks/useAuth';
 import { useNotification } from '../../hooks/useNotification';
@@ -88,18 +99,33 @@ const CommunityTab = () => {
 
   const handleLike = async (postId) => {
     try {
-      const updated = await toggleLike(postId);
-      setPosts(posts.map(p => 
-        p._id === postId 
-          ? { 
-              ...p, 
-              likes: updated.likes || [],
-              likeCount: updated.likes?.length || 0
-            } 
-          : p
-      ));
+      const res = await toggleLike(postId);
+      const currentUserId = user?._id || user?.id;
+      setPosts(prevPosts => prevPosts.map(p => {
+        if (p._id !== postId) return p;
+        const currentLikes = Array.isArray(p.likes) ? p.likes : [];
+        let newLikes;
+        if (Array.isArray(res.likes)) {
+          newLikes = res.likes;
+        } else if (res.liked !== undefined) {
+          if (res.liked) {
+            newLikes = currentLikes.some(id => (id?.toString() === currentUserId?.toString()))
+              ? currentLikes 
+              : [...currentLikes, currentUserId];
+          } else {
+            newLikes = currentLikes.filter(id => id?.toString() !== currentUserId?.toString());
+          }
+        } else {
+          newLikes = currentLikes;
+        }
+        return {
+          ...p,
+          likes: newLikes,
+          likeCount: typeof res.likeCount === 'number' ? res.likeCount : newLikes.length
+        };
+      }));
     } catch (error) {
-      addNotification('Failed to like', 'error');
+      addNotification('Failed to update like', 'error');
     }
   };
 
@@ -143,7 +169,7 @@ const CommunityTab = () => {
   };
 
   const getUserLevel = (userData) => {
-    if (!userData) return { level: '🌰 Seedling', points: 0 };
+    if (!userData) return { level: 'Seedling', icon: <RiSeedlingLine style={{ color: '#65a30d' }} />, points: 0 };
     
     const postCount = posts.filter(p => p.userId?._id === userData._id).length;
     const likeCount = posts.reduce((acc, p) => {
@@ -156,10 +182,10 @@ const CommunityTab = () => {
     
     const totalPoints = postCount * 10 + likeCount * 2;
     
-    if (totalPoints > 100) return { level: '🌟 Master Gardener', points: totalPoints };
-    if (totalPoints > 50) return { level: '🌿 Green Thumb', points: totalPoints };
-    if (totalPoints > 20) return { level: '🌱 Urban Farmer', points: totalPoints };
-    return { level: '🌰 Seedling', points: totalPoints };
+    if (totalPoints > 100) return { level: 'Master Gardener', icon: <RiMedalLine style={{ color: '#eab308' }} />, points: totalPoints };
+    if (totalPoints > 50) return { level: 'Green Thumb', icon: <RiLeafLine style={{ color: '#16a34a' }} />, points: totalPoints };
+    if (totalPoints > 20) return { level: 'Urban Farmer', icon: <TbPlant2 style={{ color: '#2c5e3b' }} />, points: totalPoints };
+    return { level: 'Seedling', icon: <RiSeedlingLine style={{ color: '#65a30d' }} />, points: totalPoints };
   };
 
   const userLevel = user ? getUserLevel(user) : null;
@@ -187,10 +213,12 @@ const CommunityTab = () => {
       {/* Header */}
       <div className="community-header">
         <div className="header-left">
-          <h2>👥 Community</h2>
+          <h2>
+            <RiTeamLine className="header-icon" /> Community
+          </h2>
           {userLevel && (
-            <span className="user-level">
-              {userLevel.level} • {userLevel.points} pts
+            <span className="user-level" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+              {userLevel.icon} {userLevel.level} • {userLevel.points} pts
             </span>
           )}
         </div>
@@ -198,11 +226,16 @@ const CommunityTab = () => {
           <button 
             className="btn-secondary leaderboard-btn"
             onClick={() => setShowLeaderboard(!showLeaderboard)}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
           >
-            🏆 Leaderboard
+            <RiTrophyLine style={{ color: '#d97706' }} /> Leaderboard
           </button>
-          <button className="btn-primary" onClick={() => { setEditingPost(null); setShowForm(true); }}>
-            + Share
+          <button 
+            className="btn-primary" 
+            onClick={() => { setEditingPost(null); setShowForm(true); }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+          >
+            <RiAddLine /> Share
           </button>
         </div>
       </div>
@@ -230,11 +263,17 @@ const CommunityTab = () => {
       <div className="posts-feed">
         {filteredPosts.length === 0 ? (
           <div className="empty-feed">
-            <span className="empty-icon">🌱</span>
+            <span className="empty-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+              <TbPlant2 />
+            </span>
             <h3>No posts yet</h3>
             <p>Be the first to share your urban farming journey!</p>
-            <button className="btn-primary" onClick={() => { setEditingPost(null); setShowForm(true); }}>
-              Share Your First Post
+            <button 
+              className="btn-primary" 
+              onClick={() => { setEditingPost(null); setShowForm(true); }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+            >
+              <RiAddLine /> Share Your First Post
             </button>
           </div>
         ) : (
@@ -255,13 +294,14 @@ const CommunityTab = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="pagination-bar" style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '1.5rem' }}>
+              <div className="pagination-bar" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', marginTop: '1.5rem' }}>
                 <button 
                   className="btn-secondary" 
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
                 >
-                  ◀ Prev
+                  <RiArrowLeftSLine /> Prev
                 </button>
                 <span style={{ display: 'flex', alignItems: 'center', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
                   Page {currentPage} of {totalPages}
@@ -270,8 +310,9 @@ const CommunityTab = () => {
                   className="btn-secondary" 
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
                 >
-                  Next ▶
+                  Next <RiArrowRightSLine />
                 </button>
               </div>
             )}
@@ -298,4 +339,4 @@ const CommunityTab = () => {
   );
 };
 
-export default CommunityTab;
+export default CommunityTab;

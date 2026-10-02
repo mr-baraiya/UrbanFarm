@@ -11,15 +11,26 @@ import {
   RiMistLine, 
   RiDropLine, 
   RiWindyLine, 
-  RiLightbulbLine,
   RiLeafLine,
-  RiAlertLine
+  RiAlertLine,
+  RiLoader4Line
 } from 'react-icons/ri';
 import './WeatherWidget.css';
 
 const WeatherWidget = ({ weather, forecast, loading }) => {
   if (loading) {
-    return <div className="weather-widget loading">Loading weather...</div>;
+    return (
+      <div className="weather-widget weather-loading-card">
+        <div className="weather-loader-header">
+          <RiLoader4Line className="spin weather-spin-icon" />
+          <div className="weather-loader-text">
+            <span className="weather-loader-title">Fetching Real-Time Weather...</span>
+            <span className="weather-loader-sub">Analyzing local climate & forecast data</span>
+          </div>
+        </div>
+        <div className="weather-shimmer-bar"></div>
+      </div>
+    );
   }
 
   if (!weather) {
@@ -111,9 +122,6 @@ const WeatherWidget = ({ weather, forecast, loading }) => {
         </div>
       </div>
       <div className="weather-advice">
-        <span className="advice-icon" style={{ display: 'inline-flex', alignItems: 'center' }}>
-          <RiLightbulbLine style={{ color: '#eab308' }} />
-        </span>
         <span className="advice-text" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
           {adviceObj.icon} {adviceObj.text}
         </span>

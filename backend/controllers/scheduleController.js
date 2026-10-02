@@ -1,4 +1,5 @@
 const ScheduleTask = require('../models/ScheduleTask');
+const WateringSchedule = require('../models/WateringSchedule');
 
 // @desc    Create a task
 // @route   POST /api/schedule
@@ -44,10 +45,56 @@ exports.createTask = async (req, res, next) => {
   }
 };
 
-// @desc    Get all tasks for user
+// @desc    Get all tasks for user (auto-syncing active watering schedule events)
 // @route   GET /api/schedule
 exports.getTasks = async (req, res, next) => {
   try {
+    // 🔄 Auto-sync active WateringSchedules into ScheduleTask collection if not already synced
+    try {
+      const activeWateringSchedules = await WateringSchedule.find({
+        userId: req.user.id,
+        isActive: true,
+      }).populate('plantId', 'name');
+
+      for (const ws of activeWateringSchedules) {
+        if (!ws.plantId || !ws.schedule || ws.schedule.length === 0) continue;
+
+        for (const event of ws.schedule) {
+          if (!event.amount) continue;
+          const amt = event.amount.toLowerCase().trim();
+          if (amt === '0ml' || amt === '0l' || amt === '0' || amt === 'none') continue;
+
+          const eventDate = new Date(event.date);
+          const startOfDay = new Date(eventDate);
+          startOfDay.setHours(0, 0, 0, 0);
+          const endOfDay = new Date(eventDate);
+          endOfDay.setHours(23, 59, 59, 999);
+
+          const existingTask = await ScheduleTask.findOne({
+            userId: req.user.id,
+            plantId: ws.plantId._id,
+            type: 'watering',
+            dueDate: { $gte: startOfDay, $lte: endOfDay },
+          });
+
+          if (!existingTask) {
+            await ScheduleTask.create({
+              userId: req.user.id,
+              plantId: ws.plantId._id,
+              title: `Water ${ws.plantId.name} (${event.amount})`,
+              description: event.notes || `Scheduled watering (${event.timeOfDay || 'morning'}) - ${event.amount}`,
+              type: 'watering',
+              priority: 'medium',
+              dueDate: eventDate,
+              completed: event.completed || false,
+            });
+          }
+        }
+      }
+    } catch (syncErr) {
+      console.error('⚠️ Error auto-syncing watering tasks:', syncErr);
+    }
+
     const { completed, type, startDate, endDate } = req.query;
     const filter = { userId: req.user.id };
 
@@ -111,6 +158,42 @@ exports.completeTask = async (req, res, next) => {
     if (!task) {
       return res.status(404).json({ success: false, message: 'Task not found' });
     }
+
+    // 💧 If this is a watering task, sync completion back to the active WateringSchedule
+    if (task.type === 'watering' && task.plantId) {
+      try {
+        const taskDate = new Date(task.dueDate);
+        const startOfDay = new Date(taskDate);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(taskDate);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        const ws = await WateringSchedule.findOne({
+          userId: req.user.id,
+          plantId: task.plantId,
+          isActive: true,
+        });
+
+        if (ws && ws.schedule) {
+          let updated = false;
+          ws.schedule.forEach(ev => {
+            const ed = new Date(ev.date);
+            if (ed >= startOfDay && ed <= endOfDay) {
+              ev.completed = true;
+              ev.completedAt = new Date();
+              updated = true;
+            }
+          });
+          if (updated) {
+            ws.isCompleted = ws.schedule.every(ev => ev.completed);
+            await ws.save();
+          }
+        }
+      } catch (wsErr) {
+        console.error('⚠️ Error syncing completion to WateringSchedule:', wsErr);
+      }
+    }
+
     res.status(200).json({ success: true, task });
   } catch (error) {
     next(error);
@@ -125,6 +208,42 @@ exports.deleteTask = async (req, res, next) => {
     if (!task) {
       return res.status(404).json({ success: false, message: 'Task not found' });
     }
+
+    // 💧 If this was a watering task, also clear/update the corresponding event in WateringSchedule
+    // so it doesn't get auto-recreated on next getTasks sync
+    if (task.type === 'watering' && task.plantId) {
+      try {
+        const taskDate = new Date(task.dueDate);
+        const startOfDay = new Date(taskDate);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(taskDate);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        const ws = await WateringSchedule.findOne({
+          userId: req.user.id,
+          plantId: task.plantId,
+          isActive: true,
+        });
+
+        if (ws && ws.schedule) {
+          let modified = false;
+          ws.schedule.forEach(ev => {
+            const ed = new Date(ev.date);
+            if (ed >= startOfDay && ed <= endOfDay) {
+              ev.amount = '0ml';
+              ev.notes = 'Cancelled / Deleted from schedule';
+              modified = true;
+            }
+          });
+          if (modified) {
+            await ws.save();
+          }
+        }
+      } catch (wsErr) {
+        console.error('⚠️ Error syncing deletion to WateringSchedule:', wsErr);
+      }
+    }
+
     res.status(200).json({ success: true, message: 'Task deleted' });
   } catch (error) {
     next(error);

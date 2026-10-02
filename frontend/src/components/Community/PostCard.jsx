@@ -7,7 +7,12 @@ import {
   RiMoreFill, 
   RiEditLine, 
   RiDeleteBinLine,
-  RiCheckLine
+  RiCheckLine,
+  RiShoppingBasketLine,
+  RiQuestionLine,
+  RiLightbulbLine,
+  RiCalendarEventLine,
+  RiCloseLine
 } from 'react-icons/ri';
 import { formatDate, getInitials } from '../../utils/helpers';
 import { useNotification } from '../../hooks/useNotification';
@@ -32,11 +37,11 @@ const PostCard = ({
 
   const getCategoryLabel = (category) => {
     const map = {
-      'question': { label: '🆘 Plant Help', color: '#d6eaf8' },
-      'tip': { label: '💡 Urban Tip', color: '#f0d5c0' },
-      'showcase': { label: '🍅 Harvest Showcase', color: '#a8d5ba' },
-      'event': { label: '📅 Community Event', color: '#b8a9c9' },
-      'general': { label: '💬 General', color: '#f5ede4' },
+      'question': { label: 'Plant Help', icon: <RiQuestionLine />, color: '#0284c7' },
+      'tip': { label: 'Urban Tip', icon: <RiLightbulbLine />, color: '#d97706' },
+      'showcase': { label: 'Harvest Showcase', icon: <RiShoppingBasketLine />, color: '#16a34a' },
+      'event': { label: 'Community Event', icon: <RiCalendarEventLine />, color: '#7e22ce' },
+      'general': { label: 'General', icon: <RiChat3Line />, color: '#64748b' },
     };
     return map[category] || map.general;
   };
@@ -44,9 +49,14 @@ const PostCard = ({
   const category = getCategoryLabel(post.category);
   
   // Handle likes as array or number
+  const currentUserId = (user?._id || user?.id)?.toString();
   const likesArray = Array.isArray(post.likes) ? post.likes : [];
-  const isLiked = likesArray.some(id => id === user?._id) || false;
-  const likeCount = likesArray.length || post.likeCount || 0;
+  const isLiked = (currentUserId && likesArray.some(id => {
+    if (!id) return false;
+    const idStr = typeof id === 'object' ? (id._id || id.id || id.userId)?.toString() : id.toString();
+    return idStr === currentUserId;
+  })) || Boolean(post.isLiked);
+  const likeCount = typeof post.likeCount === 'number' ? post.likeCount : likesArray.length;
   const commentCount = Array.isArray(post.comments) ? post.comments.length : (post.commentCount || 0);
 
   const isOwner = user && (
@@ -56,6 +66,10 @@ const PostCard = ({
   );
 
   const handleLike = async () => {
+    if (!user) {
+      addNotification('Please login to like posts', 'info');
+      return;
+    }
     if (isLiking) return;
     setIsLiking(true);
     try {
@@ -93,7 +107,7 @@ const PostCard = ({
 
   const handleShare = async () => {
     const postUrl = `${window.location.origin}/app/community#${post._id}`;
-    const shareText = `🌱 "${post.title || 'Community Post'}" by ${userName} on UrbanFarm:\n${(post.content || '').slice(0, 140)}...\n${postUrl}`;
+    const shareText = `"${post.title || 'Community Post'}" by ${userName} on UrbanFarm:\n${(post.content || '').slice(0, 140)}...\n${postUrl}`;
 
     if (navigator.share) {
       try {
@@ -147,13 +161,15 @@ const PostCard = ({
             <span className="user-name">
               {userName}
               {userLevel && post.userId?._id === user?._id && (
-                <span className="user-badge"> • {userLevel.level}</span>
+                <span className="user-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                  • {userLevel.icon} {userLevel.level}
+                </span>
               )}
             </span>
             <div className="post-meta">
               <span className="post-date">{post.createdAt ? formatDate(post.createdAt) : 'Recently'}</span>
-              <span className="post-category" style={{ background: category.color + '33', color: category.color }}>
-                {category.label}
+              <span className="post-category" style={{ background: category.color + '18', color: category.color, display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                {category.icon} {category.label}
               </span>
             </div>
           </div>
@@ -215,35 +231,35 @@ const PostCard = ({
       {/* Actions */}
       <div className="post-actions">
         <button 
-          className={`action-btn like-btn ${isLiked ? 'liked' : ''}`}
+          className={`post-action-btn like-btn ${isLiked ? 'liked' : ''}`}
           onClick={handleLike}
           disabled={isLiking}
         >
-          <span className="action-icon" style={{ display: 'inline-flex', alignItems: 'center' }}>
+          <span className="post-action-icon">
             {isLiked ? <RiHeartFill style={{ color: '#ef4444' }} /> : <RiHeartLine />}
           </span>
-          <span className="action-count">{likeCount}</span>
-          <span className="action-label">Likes</span>
+          <span className="post-action-count">{likeCount}</span>
+          <span className="post-action-label">Likes</span>
         </button>
         <button 
-          className="action-btn comment-btn"
+          className="post-action-btn comment-btn"
           onClick={() => setShowComments(!showComments)}
         >
-          <span className="action-icon" style={{ display: 'inline-flex', alignItems: 'center' }}>
+          <span className="post-action-icon">
             <RiChat3Line />
           </span>
-          <span className="action-count">{commentCount}</span>
-          <span className="action-label">Comments</span>
+          <span className="post-action-count">{commentCount}</span>
+          <span className="post-action-label">Comments</span>
         </button>
         <button 
-          className="action-btn share-btn"
+          className="post-action-btn share-btn"
           onClick={handleShare}
-          style={copied ? { color: '#2d6a4f' } : {}}
+          style={copied ? { color: '#2c5e3b' } : {}}
         >
-          <span className="action-icon" style={{ display: 'inline-flex', alignItems: 'center' }}>
-            {copied ? <RiCheckLine style={{ color: '#2d6a4f' }} /> : <RiShareLine />}
+          <span className="post-action-icon">
+            {copied ? <RiCheckLine style={{ color: '#2c5e3b' }} /> : <RiShareLine />}
           </span>
-          <span className="action-label">{copied ? 'Copied!' : 'Share'}</span>
+          <span className="post-action-label">{copied ? 'Copied!' : 'Share'}</span>
         </button>
       </div>
 
@@ -279,8 +295,9 @@ const PostCard = ({
                             className="btn-delete-comment"
                             onClick={() => onDeleteComment(post._id, comment._id)}
                             title="Delete comment"
+                            aria-label="Delete comment"
                           >
-                            ✕
+                            <RiCloseLine />
                           </button>
                         )}
                       </div>
@@ -313,4 +330,4 @@ const PostCard = ({
   );
 };
 
-export default PostCard;
+export default PostCard;

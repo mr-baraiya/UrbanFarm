@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import {
   FaChartLine,
   FaUsers,
@@ -10,12 +10,18 @@ import {
   FaSignOutAlt,
   FaLeaf,
   FaAddressBook,
+  FaHome,
 } from 'react-icons/fa';
 import { useAuth } from '../../hooks/useAuth';
 import './AdminSidebar.css';
 
 const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
   const { logout } = useAuth();
+
+  const publicLinks = [
+    { path: '/', label: 'Home (Landing)', icon: <FaHome /> },
+    { path: '/app', label: 'User App', icon: <FaSeedling /> },
+  ];
 
   const navItems = [
     { path: '/admin', label: 'Dashboard', icon: <FaChartLine />, end: true },
@@ -30,12 +36,12 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
   return (
     <aside className={`admin-sidebar ${isCollapsed ? 'collapsed' : ''}`}>
       <div className="admin-sidebar-header">
-        <div className="admin-brand">
+        <Link to="/admin" className="admin-brand">
           <div className="admin-brand-icon">
             <FaLeaf />
           </div>
           {!isCollapsed && <span className="admin-brand-text">UrbanFarm Admin</span>}
-        </div>
+        </Link>
         <button
           className="admin-sidebar-toggle"
           onClick={toggleSidebar}
@@ -46,6 +52,26 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
       </div>
 
       <nav className="admin-sidebar-nav">
+        <div className="admin-nav-section-label">
+          {!isCollapsed && <span>Quick Links</span>}
+        </div>
+        {publicLinks.map((item) => (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            className="admin-nav-link public-nav-link"
+            title={item.label}
+          >
+            <span className="nav-icon">{item.icon}</span>
+            {!isCollapsed && <span className="nav-label">{item.label}</span>}
+          </NavLink>
+        ))}
+
+        <div className="admin-nav-divider" />
+
+        <div className="admin-nav-section-label">
+          {!isCollapsed && <span>Management</span>}
+        </div>
         {navItems.map((item) => (
           <NavLink
             key={item.path}
@@ -54,6 +80,7 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
             className={({ isActive }) =>
               `admin-nav-link ${isActive ? 'active' : ''}`
             }
+            title={item.label}
           >
             <span className="nav-icon">{item.icon}</span>
             {!isCollapsed && <span className="nav-label">{item.label}</span>}

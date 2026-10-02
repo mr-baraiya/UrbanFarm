@@ -1,4 +1,4 @@
-/* Watering Schedule - Modern Botanical Redesign */
+/* Watering Schedule - Matched to AI Crop Recommendations Design */
 .watering-schedule {
   width: 100%;
 }
@@ -9,7 +9,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.85rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
 }
@@ -17,25 +17,25 @@
 .schedule-header h3 {
   color: var(--text-main, #2c2421);
   margin: 0;
-  font-weight: 700;
-  font-size: 1.1rem;
+  font-weight: 600;
+  font-size: 1.05rem;
   display: flex;
   align-items: center;
   gap: 0.4rem;
 }
 
 .schedule-header-icon {
-  color: #0284c7;
-  font-size: 1.25rem;
+  color: var(--sage, #2c5e3b);
+  font-size: 1.2rem;
 }
 
 .weather-adjusted-badge {
   font-size: 0.75rem;
-  background: #f0fdf4;
-  padding: 0.25rem 0.75rem;
-  border-radius: 999px;
+  background: rgba(44, 94, 59, 0.08);
+  padding: 0.2rem 0.75rem;
+  border-radius: 6px;
   color: var(--sage, #2c5e3b);
-  border: 1px solid #bbf7d0;
+  border: 1px solid rgba(44, 94, 59, 0.2);
   font-weight: 600;
   display: inline-flex;
   align-items: center;
@@ -45,10 +45,9 @@
 /* Soil Moisture Card */
 .soil-moisture {
   background: var(--surface-primary, #ffffff);
-  padding: 0.9rem 1.1rem;
-  border-radius: var(--radius-md, 14px);
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.45));
-  box-shadow: 0 2px 10px rgba(44, 36, 33, 0.02);
+  padding: 0.85rem 1.1rem;
+  border-radius: var(--radius-md, 12px);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
   margin-bottom: 0.85rem;
 }
 
@@ -69,6 +68,10 @@
   color: var(--text-main, #2c2421);
 }
 
+.moisture-label svg {
+  color: var(--sage, #2c5e3b);
+}
+
 .moisture-value {
   font-weight: 700;
   display: inline-flex;
@@ -81,33 +84,34 @@
 }
 
 .moisture-value.good {
-  color: #16a34a;
+  color: var(--sage, #2c5e3b);
 }
 
 .moisture-bar {
   width: 100%;
-  height: 6px;
-  background: var(--bg-primary, #f3ede6);
-  border-radius: 999px;
+  height: 5px;
+  background: var(--bg-primary, #fbf9f7);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  border-radius: 10px;
   overflow: hidden;
 }
 
 .moisture-fill {
   height: 100%;
-  border-radius: 999px;
+  border-radius: 10px;
   transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .moisture-fill.dry {
-  background: linear-gradient(90deg, #f87171, #ef4444);
+  background: #dc2626;
 }
 
 .moisture-fill.medium {
-  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+  background: #f59e0b;
 }
 
 .moisture-fill.good {
-  background: linear-gradient(90deg, #34d399, #10b981);
+  background: var(--sage, #2c5e3b);
 }
 
 .moisture-warning {
@@ -184,10 +188,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: var(--bg-primary, #fbf9f7);
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.45));
+  background: var(--surface-primary, #ffffff);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
   border-radius: var(--radius-md, 12px);
-  padding: 0.5rem 0.85rem;
+  padding: 0.55rem 0.9rem;
   margin-bottom: 0.85rem;
   font-size: 0.82rem;
   color: var(--text-main, #2c2421);
@@ -230,22 +234,21 @@
   gap: 0.85rem;
   padding: 0.75rem 1rem;
   background: var(--surface-primary, #ffffff);
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.45));
+  border: 1.5px solid var(--border-light, rgba(220, 210, 200, 0.4));
   border-radius: var(--radius-md, 12px);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: var(--transition-smooth, all 0.2s cubic-bezier(0.16, 1, 0.3, 1));
   position: relative;
 }
 
 .ws-day-card:hover {
   border-color: var(--sage, #2c5e3b);
-  box-shadow: 0 4px 16px rgba(44, 36, 33, 0.05);
   transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(44, 36, 33, 0.05);
 }
 
 .ws-day-card.today {
-  border-color: var(--sage, #2c5e3b);
-  background: rgba(44, 94, 59, 0.02);
-  border-left: 4px solid var(--sage, #2c5e3b);
+  border: 1.5px solid var(--sage, #2c5e3b);
+  background: rgba(44, 94, 59, 0.04);
 }
 
 .ws-day-card.missed {
@@ -254,12 +257,12 @@
 }
 
 .ws-day-card.completed {
-  opacity: 0.7;
+  opacity: 0.65;
   background: var(--bg-primary, #fbf9f7);
 }
 
 .ws-day-card.rest-day {
-  background: rgba(251, 249, 247, 0.6);
+  background: rgba(255, 255, 255, 0.7);
 }
 
 /* Left Column: Date & Day */
@@ -347,36 +350,33 @@
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 700;
+  padding: 0.18rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  background: var(--bg-primary, #fbf9f7);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.5));
+  color: var(--text-main, #2c2421);
   transition: all 0.15s ease;
 }
 
 .ws-amount-pill.active {
-  background: #e0f2fe;
-  color: #0369a1;
-  border: 1px solid #bae6fd;
   cursor: pointer;
 }
 
 .ws-amount-pill.active:hover {
-  background: #bae6fd;
-  transform: translateY(-1px);
+  border-color: var(--sage, #2c5e3b);
+  color: var(--sage, #2c5e3b);
+  background: #ffffff;
 }
 
 .ws-amount-pill.rest {
-  background: var(--bg-primary, #fbf9f7);
   color: var(--text-muted, #7c6f66);
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.6));
-  font-weight: 600;
-  font-size: 0.75rem;
 }
 
 .pill-water-icon {
-  color: #0284c7;
-  font-size: 0.9rem;
+  color: var(--sage, #2c5e3b);
+  font-size: 0.85rem;
 }
 
 .pill-leaf-icon {
@@ -386,7 +386,7 @@
 
 .pill-edit-icon {
   font-size: 0.75rem;
-  opacity: 0.6;
+  color: var(--text-muted, #7c6f66);
   margin-left: 2px;
 }
 
@@ -394,34 +394,28 @@
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  background: #fef3c7;
-  color: #92400e;
-  border: 1px solid #fde68a;
-  padding: 0.18rem 0.5rem;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 600;
+  background: var(--bg-primary, #fbf9f7);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.5));
+  color: var(--text-muted, #7c6f66);
+  padding: 0.18rem 0.55rem;
+  border-radius: 8px;
+  font-size: 0.74rem;
+  font-weight: 500;
   text-transform: capitalize;
 }
 
 .ws-time-icon {
   font-size: 0.8rem;
-}
-
-.ws-time-icon.morning {
-  color: #d97706;
-}
-
-.ws-time-icon.evening {
-  color: #6366f1;
+  color: var(--sage, #2c5e3b);
 }
 
 .ws-reason-pill {
   font-size: 0.7rem;
   color: var(--sage, #2c5e3b);
   background: rgba(44, 94, 59, 0.08);
-  padding: 0.15rem 0.45rem;
-  border-radius: 999px;
+  border: 1px solid rgba(44, 94, 59, 0.2);
+  padding: 0.12rem 0.5rem;
+  border-radius: 8px;
   font-weight: 500;
 }
 
@@ -452,7 +446,7 @@
 
 .ws-inline-edit input:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(44, 94, 59, 0.2);
+  box-shadow: 0 0 0 2px rgba(44, 94, 59, 0.15);
 }
 
 .btn-edit-save,
@@ -476,16 +470,16 @@
 }
 
 .btn-edit-cancel {
-  background: var(--bg-primary, #fbf9f7);
+  background: var(--surface-primary, #ffffff);
   color: var(--text-muted, #7c6f66);
-  border: 1px solid var(--border-light, #e0d6cb);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.5));
 }
 
 .btn-edit-cancel:hover {
-  background: var(--surface-primary, #ffffff);
+  background: var(--bg-primary, #fbf9f7);
 }
 
-/* Right Column: Custom Check Button */
+/* Right Column: Checkbox Action Button */
 .ws-card-right {
   display: flex;
   flex-direction: column;
@@ -494,24 +488,24 @@
 }
 
 .ws-action-check-btn {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  border: 2px solid var(--border-light, #d1d5db);
-  background: var(--bg-primary, #fbf9f7);
+  border: 1.5px solid var(--border-light, rgba(220, 210, 200, 0.6));
+  background: var(--surface-primary, #ffffff);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   color: transparent;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: var(--transition-smooth, all 0.2s cubic-bezier(0.16, 1, 0.3, 1));
   padding: 0;
 }
 
 .ws-action-check-btn:hover:not(:disabled) {
   border-color: var(--sage, #2c5e3b);
-  background: rgba(44, 94, 59, 0.08);
   color: var(--sage, #2c5e3b);
+  background: rgba(44, 94, 59, 0.05);
   transform: scale(1.06);
 }
 
@@ -527,7 +521,7 @@
 }
 
 .check-svg-icon {
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .ws-completed-timestamp {
@@ -540,7 +534,7 @@
 /* Legend */
 .ws-schedule-legend {
   display: flex;
-  gap: 1rem;
+  gap: 1.25rem;
   margin-top: 1rem;
   padding-top: 0.75rem;
   border-top: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
@@ -569,12 +563,12 @@
 }
 
 .ws-legend-chip.completed {
-  background: #10b981;
+  background: rgba(44, 94, 59, 0.4);
 }
 
 .ws-legend-chip.pending {
-  background: #e2e8f0;
-  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  border: 1px solid rgba(220, 210, 200, 0.6);
 }
 
 .ws-legend-chip.missed {
@@ -593,7 +587,7 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid var(--border-light, rgba(220, 210, 200, 0.3));
+    border-bottom: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
     padding-bottom: 0.35rem;
   }
 

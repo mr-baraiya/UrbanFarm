@@ -1,11 +1,12 @@
-/* Gardens Page */
 .gardens-page {
-  padding: 2.5rem 3rem;
+  padding: 2.25rem 2.5rem 3rem;
   max-width: 1400px;
   margin: 0 auto;
-  background-color: var(--bg-primary, #fbf9f7);
-  min-height: 100vh;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--surface-primary, #ffffff);
+  border-radius: var(--radius-lg, 24px);
+  border: 1px solid var(--border-light, rgba(107, 144, 128, 0.22));
+  box-shadow: 0 12px 40px rgba(31, 58, 48, 0.06);
+  font-family: "DM Sans", system-ui, sans-serif;
   color: var(--text-main, #2c2421);
 }
 
@@ -110,7 +111,8 @@
 /* Responsive */
 @media (max-width: 768px) {
   .gardens-page {
-    padding: 1.25rem;
+    padding: 1.25rem 1.25rem 2rem;
+    border-radius: var(--radius-md, 16px);
   }
 
   .gardens-header {

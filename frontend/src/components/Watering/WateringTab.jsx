@@ -28,20 +28,16 @@ const WateringTab = () => {
   const [filteredHistory, setFilteredHistory] = useState([]);
   const [selectedHistory, setSelectedHistory] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
   const [weatherData, setWeatherData] = useState(null);
   const [forecastData, setForecastData] = useState(null);
-  const [loadingWeather, setLoadingWeather] = useState(false);
+  const [loadingWeather, setLoadingWeather] = useState(true);
   const [filterStatus, setFilterStatus] = useState('all');
   const { addNotification } = useNotification();
 
   useEffect(() => {
     loadData();
-  }, []);
-
-  useEffect(() => {
-    if (user?.location?.city) {
-      fetchWeather();
-    }
+    fetchWeather();
   }, [user]);
 
   useEffect(() => {
@@ -49,6 +45,7 @@ const WateringTab = () => {
   }, [history, filterStatus]);
 
   const loadData = async () => {
+    setLoadingData(true);
     try {
       const [plantsData, schedulesData] = await Promise.all([
         getPlants(),
@@ -61,6 +58,8 @@ const WateringTab = () => {
     } catch (error) {
       console.error('Failed to load data:', error);
       addNotification('Failed to load data', 'error');
+    } finally {
+      setLoadingData(false);
     }
   };
 
@@ -266,23 +265,29 @@ const WateringTab = () => {
           <div className="watering-generate-section">
             <div className="plant-selector">
               <label>Select Plant:</label>
-              <select 
-                value={selectedPlant?._id || ''} 
-                onChange={(e) => {
-                  const plant = plants.find(p => p._id === e.target.value);
-                  setSelectedPlant(plant);
-                  setSchedule(null);
-                  setSelectedHistory(null);
-                }}
-              >
-                {plants.map(p => (
-                  <option key={p._id} value={p._id}>{p.name}</option>
-                ))}
-              </select>
+              {loadingData ? (
+                <div className="plant-selector-skeleton">
+                  <RiLoader4Line className="spin" /> Loading plants...
+                </div>
+              ) : (
+                <select 
+                  value={selectedPlant?._id || ''} 
+                  onChange={(e) => {
+                    const plant = plants.find(p => p._id === e.target.value);
+                    setSelectedPlant(plant);
+                    setSchedule(null);
+                    setSelectedHistory(null);
+                  }}
+                >
+                  {plants.map(p => (
+                    <option key={p._id} value={p._id}>{p.name}</option>
+                  ))}
+                </select>
+              )}
               <button 
                 className="btn-primary" 
                 onClick={handleGenerate} 
-                disabled={!selectedPlant || loading}
+                disabled={!selectedPlant || loading || loadingData}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
               >
                 {loading ? (
@@ -366,6 +371,7 @@ const WateringTab = () => {
             filterStatus={filterStatus}
             onFilterChange={setFilterStatus}
             getPlantName={getPlantName}
+            loading={loadingData}
           />
         </div>
       </div>

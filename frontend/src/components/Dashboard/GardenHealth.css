@@ -1,38 +1,39 @@
 /* Garden Health Component */
 .garden-health {
-  background: var(--surface-primary);
-  padding: 1.5rem;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-light);
-  box-shadow: 0 4px 24px rgba(44, 36, 33, 0.02);
+  background: var(--surface-primary, #ffffff);
+  padding: 1.35rem 1.6rem;
+  border-radius: var(--radius-lg, 24px);
+  border: 1px solid var(--border-light, rgba(107, 144, 128, 0.2));
+  box-shadow: 0 8px 24px rgba(31, 58, 48, 0.04);
   margin-bottom: 1.5rem;
-  transition: var(--transition-smooth);
+  transition: var(--transition-smooth, all 0.25s ease);
 }
 
 .garden-health:hover {
-  box-shadow: 0 6px 28px rgba(44, 36, 33, 0.04);
+  box-shadow: 0 12px 30px rgba(31, 58, 48, 0.07);
 }
 
 .health-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.75rem;
 }
 
 .health-label {
+  font-family: "Fraunces", serif;
   font-weight: 600;
-  color: var(--text-main);
-  font-size: 0.95rem;
+  color: var(--text-main, #1f3a30);
+  font-size: 1.05rem;
   letter-spacing: -0.01em;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
 }
 
 .health-header-icon {
-  font-size: 1.15rem;
-  color: #2d6a4f;
+  font-size: 1.25rem;
+  color: var(--sage, #6b9080);
 }
 
 .health-status {
@@ -40,32 +41,32 @@
   font-size: 0.85rem;
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.35rem;
 }
 
 .health-status-icon {
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 
 .health-bar {
   width: 100%;
-  height: 6px;
-  background: var(--bg-primary);
-  border-radius: 10px;
+  height: 8px;
+  background: rgba(107, 144, 128, 0.12);
+  border-radius: 20px;
   overflow: hidden;
-  margin-bottom: 0.5rem;
-  border: 1px solid var(--border-light);
+  margin-bottom: 0.4rem;
+  border: none;
 }
 
 .health-fill {
   height: 100%;
-  border-radius: 10px;
+  border-radius: 20px;
   transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .health-score {
   text-align: right;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--text-muted, #385b4d);
+  font-weight: 700;
 }

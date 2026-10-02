@@ -167,11 +167,13 @@ const CalendarView = ({ tasks, onComplete, onSnooze, onEdit, onDelete }) => {
             const dayTasks = getTasksForDate(dateObj);
             const hasTasks = dayTasks.length > 0;
             const isTodayDay = isToday(dateObj);
+            const dayOfWeek = (firstDayOfMonth + i) % 7;
+            const isRightAligned = dayOfWeek >= 4;
 
             return (
               <div 
                 key={dayNum} 
-                className={`calendar-day ${isTodayDay ? 'today' : ''} ${hasTasks ? 'has-tasks' : ''} ${selectedDate === dayNum ? 'selected' : ''}`}
+                className={`calendar-day ${isTodayDay ? 'today' : ''} ${hasTasks ? 'has-tasks' : ''} ${selectedDate === dayNum ? 'selected' : ''} ${isRightAligned ? 'align-popup-right' : ''}`}
                 onClick={() => setSelectedDate(selectedDate === dayNum ? null : dayNum)}
               >
                 <div className="calendar-day-header">
@@ -186,7 +188,7 @@ const CalendarView = ({ tasks, onComplete, onSnooze, onEdit, onDelete }) => {
                     {dayTasks.slice(0, 3).map((task) => (
                       <div 
                         key={task._id || task.title} 
-                        className={`cal-task-chip ${task.priority || 'medium'} ${task.completed ? 'completed' : ''}`}
+                        className={`cal-task-chip type-${task.type || 'other'} ${task.priority || 'medium'} ${task.completed ? 'completed' : ''}`}
                         onClick={(e) => {
                           e.stopPropagation();
                           if (onEdit) onEdit(task);
@@ -233,7 +235,7 @@ const CalendarView = ({ tasks, onComplete, onSnooze, onEdit, onDelete }) => {
                     </div>
                     <div className="popup-tasks-list">
                       {dayTasks.map(task => (
-                        <div key={task._id || task.title} className={`popup-task-item ${task.priority || 'medium'} ${task.completed ? 'completed' : ''}`}>
+                        <div key={task._id || task.title} className={`popup-task-item type-${task.type || 'other'} ${task.priority || 'medium'} ${task.completed ? 'completed' : ''}`}>
                           <span className="popup-task-icon">{getTypeIcon(task.type)}</span>
                           <div className="popup-task-info">
                             <span className="popup-task-title">{task.title}</span>
@@ -283,7 +285,7 @@ const CalendarView = ({ tasks, onComplete, onSnooze, onEdit, onDelete }) => {
                   {dayTasks.map(task => (
                     <div 
                       key={task._id} 
-                      className={`week-task-card ${task.priority || 'medium'} ${task.completed ? 'completed' : ''}`}
+                      className={`week-task-card type-${task.type || 'other'} ${task.priority || 'medium'} ${task.completed ? 'completed' : ''}`}
                       onClick={() => onEdit && onEdit(task)}
                     >
                       <span className="task-type-badge">{getTypeIcon(task.type)}</span>

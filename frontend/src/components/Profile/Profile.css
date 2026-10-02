@@ -1,10 +1,9 @@
-/* Profile Page */
 .profile-page {
   background: var(--surface-primary, #ffffff);
-  padding: 2rem 2.5rem;
-  border-radius: var(--radius-lg, 20px);
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
-  box-shadow: 0 4px 24px rgba(44, 36, 33, 0.02);
+  padding: 2.25rem 2.5rem 3rem;
+  border-radius: var(--radius-lg, 24px);
+  border: 1px solid var(--border-light, rgba(107, 144, 128, 0.22));
+  box-shadow: 0 12px 40px rgba(31, 58, 48, 0.06);
   max-width: 900px;
   margin: 0 auto;
   transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
@@ -271,7 +270,8 @@
 /* Responsive */
 @media (max-width: 768px) {
   .profile-page {
-    padding: 1.25rem;
+    padding: 1.25rem 1.25rem 2rem;
+    border-radius: var(--radius-md, 16px);
   }
 
   .profile-header h2 {

@@ -1,10 +1,11 @@
-/* Community Tab */
 .community-tab {
   max-width: 900px;
   margin: 0 auto;
-  padding: 2rem;
-  background: var(--bg-primary, #fbf9f7);
-  min-height: 100vh;
+  padding: 2.25rem 2.5rem 3rem;
+  background: var(--surface-primary, #ffffff);
+  border-radius: var(--radius-lg, 24px);
+  border: 1px solid var(--border-light, rgba(107, 144, 128, 0.22));
+  box-shadow: 0 12px 40px rgba(31, 58, 48, 0.06);
 }
 
 .community-loading {
@@ -55,6 +56,14 @@
   font-size: 1.5rem;
   font-weight: 500;
   letter-spacing: -0.01em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header-left h2 .header-icon {
+  color: var(--accent-sage, #5a7d65);
+  font-size: 1.6rem;
 }
 
 .user-level {
@@ -62,19 +71,23 @@
   color: var(--text-muted, #7c6f66);
   background: var(--bg-primary, #fbf9f7);
   border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
-  padding: 0.2rem 1rem;
+  padding: 0.25rem 0.9rem;
   border-radius: 20px;
   font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .header-actions {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
 }
 
 .leaderboard-btn {
   font-size: 0.85rem;
-  padding: 0.4rem 1.2rem;
+  padding: 0.45rem 1.1rem;
   background: var(--bg-primary, #fbf9f7);
   border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
   border-radius: 30px;
@@ -82,12 +95,21 @@
   cursor: pointer;
   transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
   font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .leaderboard-btn:hover {
   background: var(--surface-primary, #ffffff);
   border-color: var(--accent-lavender, #a8a2bc);
   transform: translateY(-1px);
+}
+
+.create-post-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 .posts-feed {
@@ -124,7 +146,8 @@
 /* Responsive */
 @media (max-width: 768px) {
   .community-tab {
-    padding: 1.25rem;
+    padding: 1.25rem 1.25rem 2rem;
+    border-radius: var(--radius-md, 16px);
   }
 
   .community-header {

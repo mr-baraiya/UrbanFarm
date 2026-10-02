@@ -10,8 +10,8 @@
   align-items: center;
   gap: 1rem;
   padding: 0.85rem 0.2rem;
-  border-bottom: 1px solid var(--border-light);
-  transition: var(--transition-smooth);
+  border-bottom: 1px solid var(--border-light, rgba(107, 144, 128, 0.15));
+  transition: var(--transition-smooth, all 0.25s ease);
 }
 
 .activity-item:last-child {
@@ -20,47 +20,48 @@
 
 .activity-icon {
   font-size: 1.15rem;
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: var(--bg-primary);
+  background: var(--bg-primary, rgba(142, 168, 157, 0.08));
+  border: 1px solid var(--border-light, rgba(107, 144, 128, 0.18));
 }
 
 .act-icon-plant {
-  color: #2d6a4f;
+  color: var(--sage, #6b9080);
 }
 
 .act-icon-diag {
-  color: #7c3aed;
+  color: #0284c7;
 }
 
 .act-icon-task {
-  color: #0284c7;
+  color: #d97706;
 }
 
 .activity-text {
   flex: 1;
-  color: var(--text-main);
+  color: var(--text-main, #1f3a30);
   font-size: 0.9rem;
   font-weight: 500;
 }
 
 .activity-date {
   font-size: 0.72rem;
-  color: var(--text-muted);
-  background: var(--bg-primary);
-  border: 1px solid var(--border-light);
+  color: var(--text-muted, #385b4d);
+  background: var(--bg-primary, rgba(142, 168, 157, 0.08));
+  border: 1px solid var(--border-light, rgba(107, 144, 128, 0.18));
   padding: 0.15rem 0.65rem;
   border-radius: 20px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .no-activity {
-  color: var(--text-muted);
+  color: var(--text-muted, #385b4d);
   font-style: normal;
   text-align: center;
   padding: 1.5rem 0;

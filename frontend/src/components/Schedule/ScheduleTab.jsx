@@ -9,7 +9,8 @@ import {
   RiDashboardLine, 
   RiCheckDoubleLine, 
   RiCheckLine,
-  RiTimeLine
+  RiTimeLine,
+  RiLoader4Line
 } from 'react-icons/ri';
 import { getTasks, completeTask, deleteTask, createTask, updateTask } from '../../services/plantService';
 import { getPlants, getGardens } from '../../services/plantService';
@@ -24,6 +25,7 @@ const ScheduleTab = () => {
   const [tasks, setTasks] = useState([]);
   const [filteredTasks, setFilteredTasks] = useState([]);
   const [completedTasks, setCompletedTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [viewMode, setViewMode] = useState('list'); // 'list', 'calendar', 'kanban'
@@ -45,6 +47,7 @@ const ScheduleTab = () => {
   }, [tasks, filterStatus, filterPriority, filterType, searchTerm]);
 
   const loadData = async () => {
+    setLoading(true);
     try {
       const [tasksData, plantsData, gardensData] = await Promise.all([
         getTasks(),
@@ -62,6 +65,8 @@ const ScheduleTab = () => {
     } catch (error) {
       console.error('Failed to load tasks:', error);
       addNotification('Failed to load tasks', 'error');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -141,7 +146,7 @@ const ScheduleTab = () => {
       if (task) {
         setCompletedTasks([...completedTasks, { ...task, completed: true }]);
       }
-      addNotification('Task completed! ✅', 'success');
+      addNotification('Task completed successfully', 'success');
     } catch (error) {
       addNotification('Failed to complete task', 'error');
     }
@@ -158,7 +163,7 @@ const ScheduleTab = () => {
       await updateTask(id, { dueDate: newDate.toISOString() });
       task.dueDate = newDate.toISOString();
       setTasks([...tasks]);
-      addNotification('⏰ Task snoozed for 1 day', 'info');
+      addNotification('Task snoozed for 1 day', 'info');
     } catch (error) {
       addNotification('Failed to snooze task', 'error');
     }
@@ -247,10 +252,16 @@ const ScheduleTab = () => {
           <span className="stat-value">{stats.completed}</span>
           <span className="stat-label">Completed</span>
         </div>
-        <div className="stat-card warning">
+        <div className={`stat-card ${stats.overdue > 0 ? 'warning' : ''}`}>
           <span className="stat-value">{stats.overdue}</span>
-          <span className="stat-label" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: '#ef4444' }}>
-            <RiAlertLine /> Overdue
+          <span className="stat-label">
+            {stats.overdue > 0 ? (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: '#dc2626', fontWeight: 600 }}>
+                <RiAlertLine /> Overdue
+              </span>
+            ) : (
+              'Overdue'
+            )}
           </span>
         </div>
         <div className="stat-card">
@@ -347,7 +358,12 @@ const ScheduleTab = () => {
 
       {/* Task Views */}
       <div className="schedule-content">
-        {viewMode === 'calendar' ? (
+        {loading ? (
+          <div className="schedule-loading">
+            <RiLoader4Line className="schedule-spin-icon" />
+            <p>Loading tasks & schedule...</p>
+          </div>
+        ) : viewMode === 'calendar' ? (
            <CalendarView 
             tasks={getCalendarTasks()}
             onComplete={handleComplete}

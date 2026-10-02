@@ -264,49 +264,70 @@
 
 .post-actions {
   display: flex;
+  align-items: center;
   gap: 1.5rem;
   border-top: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
   padding-top: 0.8rem;
   margin-top: 0.5rem;
 }
 
-.action-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  background: none;
-  border: none;
+.post-action-btn {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 0.45rem;
+  background: none !important;
+  border: none !important;
   color: var(--text-muted, #7c6f66);
   cursor: pointer;
   transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
   font-size: 0.9rem;
-  padding: 0.2rem 0.5rem;
+  padding: 0.3rem 0.6rem !important;
   border-radius: var(--radius-md, 12px);
+  box-shadow: none !important;
+  transform: none !important;
+  font-family: inherit;
+  white-space: nowrap;
 }
 
-.action-btn:hover {
-  color: var(--text-main, #2c2421);
-  background: var(--bg-primary, #fbf9f7);
+.post-action-btn:hover {
+  color: var(--text-main, #2c2421) !important;
+  background: var(--bg-primary, #fbf9f7) !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
-.action-btn.like-btn.liked {
-  color: #c8968c;
+.post-action-btn.like-btn.liked {
+  color: #ef4444 !important;
 }
 
-.action-btn.like-btn.liked:hover {
-  background: rgba(200, 150, 140, 0.08);
+.post-action-btn.like-btn.liked .post-action-icon,
+.post-action-btn.like-btn.liked .post-action-count,
+.post-action-btn.like-btn.liked .post-action-label,
+.post-action-btn.like-btn.liked svg {
+  color: #ef4444 !important;
+  fill: #ef4444;
 }
 
-.action-icon {
-  font-size: 1.1rem;
+.post-action-btn.like-btn.liked:hover {
+  background: rgba(239, 68, 68, 0.08) !important;
 }
 
-.action-count {
+.post-action-icon {
+  font-size: 1.15rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.post-action-count {
   font-weight: 600;
+  font-size: 0.9rem;
 }
 
-.action-label {
-  font-size: 0.8rem;
+.post-action-label {
+  font-size: 0.85rem;
 }
 
 .post-comments {
@@ -489,9 +510,9 @@
     gap: 0.5rem;
   }
 
-  .action-btn {
+  .post-action-btn {
     font-size: 0.8rem;
-    padding: 0.15rem 0.4rem;
+    padding: 0.2rem 0.4rem !important;
   }
 
   .comment-form {

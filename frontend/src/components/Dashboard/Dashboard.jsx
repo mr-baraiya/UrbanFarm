@@ -148,51 +148,53 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard">
-      {/* Header with Welcome and Weather */}
-      <div className="dashboard-header">
-        <div className="header-left">
-          <h1>Welcome back{user?.name ? `, ${user.name}` : ''}!</h1>
-          <p className="header-subtitle">Here's what's happening in your urban garden today</p>
-        </div>
-        <div className="header-right">
-          <WeatherWidget weather={weather} loading={loadingWeather} />
-        </div>
-      </div>
-
-      {/* Garden Health Score */}
-      <GardenHealth score={healthScore} />
-
-      {/* Stats Grid */}
-      <div className="stats-grid">
-        <StatsCard title="Gardens" value={stats.gardens} icon={<RiPlantLine />} color="#b8a9c9" />
-        <StatsCard title="Plants" value={stats.plants} icon={<TbPlant2 />} color="#52b788" />
-        <StatsCard title="Pending Tasks" value={stats.tasks} icon={<RiCalendarEventLine />} color="#f59e0b" />
-        <StatsCard title="Diagnoses" value={stats.diagnoses} icon={<RiMicroscopeLine />} color="#8b5cf6" />
-      </div>
-
-      {/* Two-column layout for main content */}
-      <div className="dashboard-main">
-        {/* Left Column */}
-        <div className="dashboard-left">
-          {/* Quick Actions */}
-          <QuickActions onActionComplete={fetchDashboardData} />
-
-          {/* AI Insights */}
-          <AIInsights plants={plants} weather={weather} />
-
-          {/* Plant Gallery */}
-          <PlantGallery plants={plants} />
+      <div className="dashboard-container">
+        {/* Header with Welcome and Weather */}
+        <div className="dashboard-header">
+          <div className="header-left">
+            <h1>Welcome back{user?.name ? `, ${user.name}` : ''}!</h1>
+            <p className="header-subtitle">Here's what's happening in your urban garden today</p>
+          </div>
+          <div className="header-right">
+            <WeatherWidget weather={weather} loading={loadingWeather} />
+          </div>
         </div>
 
-        {/* Right Column */}
-        <div className="dashboard-right">
-          {/* Today's Tasks */}
-          <TodayTasks tasks={tasks} onTaskUpdate={fetchDashboardData} />
+        {/* Garden Health Score */}
+        <GardenHealth score={healthScore} />
 
-          {/* Recent Activity */}
-          <div className="recent-activity-section">
-            <h3><RiHistoryLine className="section-title-icon" /> Recent Activity</h3>
-            <RecentActivity activities={activities} />
+        {/* Stats Grid */}
+        <div className="stats-grid">
+          <StatsCard title="Gardens" value={stats.gardens} icon={<RiPlantLine />} color="#6b9080" />
+          <StatsCard title="Plants" value={stats.plants} icon={<TbPlant2 />} color="#2d6a4f" />
+          <StatsCard title="Pending Tasks" value={stats.tasks} icon={<RiCalendarEventLine />} color="#d97706" />
+          <StatsCard title="Diagnoses" value={stats.diagnoses} icon={<RiMicroscopeLine />} color="#0284c7" />
+        </div>
+
+        {/* Two-column layout for main content */}
+        <div className="dashboard-main">
+          {/* Left Column */}
+          <div className="dashboard-left">
+            {/* Quick Actions */}
+            <QuickActions onActionComplete={fetchDashboardData} />
+
+            {/* AI Insights */}
+            <AIInsights plants={plants} weather={weather} />
+
+            {/* Plant Gallery */}
+            <PlantGallery plants={plants} />
+          </div>
+
+          {/* Right Column */}
+          <div className="dashboard-right">
+            {/* Today's Tasks */}
+            <TodayTasks tasks={tasks} onTaskUpdate={fetchDashboardData} />
+
+            {/* Recent Activity */}
+            <div className="recent-activity-section">
+              <h3><RiHistoryLine className="section-title-icon" /> Recent Activity</h3>
+              <RecentActivity activities={activities} />
+            </div>
           </div>
         </div>
       </div>

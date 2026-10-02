@@ -45,20 +45,21 @@
 .search-bar input {
   width: 100%;
   padding: 0.6rem 1rem 0.6rem 2.4rem;
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
-  border-radius: var(--radius-md, 12px);
+  border: 1.5px solid var(--border-light, rgba(107, 144, 128, 0.35));
+  border-radius: 30px;
   font-size: 0.95rem;
-  background: var(--bg-primary, #fbf9f7);
-  color: var(--text-main, #2c2421);
-  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+  background: var(--surface-primary, #ffffff);
+  color: var(--text-main, #1f3a30);
+  transition: var(--transition-smooth, all 0.2s cubic-bezier(0.16, 1, 0.3, 1));
   box-sizing: border-box;
+  box-shadow: 0 2px 6px rgba(31, 58, 48, 0.04);
 }
 
 .search-bar input:focus {
   outline: none;
-  border-color: var(--accent-lavender, #a8a2bc);
+  border-color: var(--sage, #6b9080);
   background: var(--surface-primary, #ffffff);
-  box-shadow: 0 0 0 3px rgba(168, 162, 188, 0.3);
+  box-shadow: 0 0 0 3px rgba(107, 144, 128, 0.2);
 }
 
 .search-bar input::placeholder {
@@ -85,44 +86,45 @@
 }
 
 .clear-search:hover {
-  background: var(--bg-primary, #fbf9f7);
-  color: var(--text-main, #2c2421);
+  background: rgba(107, 144, 128, 0.1);
+  color: var(--text-main, #1f3a30);
 }
 
 /* View toggle */
 .view-toggle {
   display: flex;
-  gap: 0.3rem;
-  background: var(--bg-primary, #fbf9f7);
-  padding: 0.25rem;
-  border-radius: var(--radius-md, 12px);
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  gap: 0.2rem;
+  background: var(--surface-primary, #ffffff);
+  padding: 0.2rem;
+  border-radius: 30px;
+  border: 1.5px solid var(--border-light, rgba(107, 144, 128, 0.35));
+  box-shadow: 0 2px 6px rgba(31, 58, 48, 0.04);
   flex-shrink: 0;
 }
 
 .view-btn {
-  padding: 0.45rem 0.75rem;
+  padding: 0.35rem 0.75rem;
   border: none;
   background: none;
-  border-radius: var(--radius-md, 10px);
+  border-radius: 20px;
   color: var(--text-muted, #7c6f66);
   cursor: pointer;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+  transition: var(--transition-smooth, all 0.2s cubic-bezier(0.16, 1, 0.3, 1));
 }
 
 .view-btn.active {
-  background: var(--surface-primary, #ffffff);
-  color: #2d6a4f;
-  box-shadow: 0 2px 8px rgba(44, 36, 33, 0.06);
+  background: var(--sage, #6b9080);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(107, 144, 128, 0.25);
 }
 
 .view-btn:hover:not(.active) {
-  background: rgba(255, 255, 255, 0.5);
-  color: var(--text-main, #2c2421);
+  background: rgba(107, 144, 128, 0.1);
+  color: var(--text-main, #1f3a30);
 }
 
 .filters-bottom {
@@ -140,35 +142,38 @@
 }
 
 .filter-pill {
-  padding: 0.35rem 0.95rem;
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.5));
+  padding: 0.4rem 1rem;
+  border: 1.5px solid var(--border-light, rgba(107, 144, 128, 0.35));
   border-radius: 30px;
-  background: var(--bg-primary, #fbf9f7);
-  color: var(--text-muted, #7c6f66);
-  font-size: 0.85rem;
-  font-weight: 500;
+  background: var(--surface-primary, #ffffff);
+  color: var(--text-muted, #385b4d);
+  font-size: 0.88rem;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  transition: var(--transition-smooth, all 0.25s cubic-bezier(0.16, 1, 0.3, 1));
+  gap: 0.4rem;
+  box-shadow: 0 2px 6px rgba(31, 58, 48, 0.04);
+  transition: var(--transition-smooth, all 0.2s cubic-bezier(0.16, 1, 0.3, 1));
 }
 
 .pill-icon {
   font-size: 0.95rem;
-  color: #2d6a4f;
+  color: var(--sage, #6b9080);
 }
 
 .filter-pill:hover {
-  border-color: #2d6a4f;
+  border-color: var(--sage, #6b9080);
   background: var(--surface-primary, #ffffff);
-  color: var(--text-main, #2c2421);
+  color: var(--text-main, #1f3a30);
+  box-shadow: 0 4px 12px rgba(31, 58, 48, 0.08);
 }
 
 .filter-pill.active {
-  border-color: #2d6a4f;
-  background: #2d6a4f;
+  border-color: var(--sage, #6b9080);
+  background: var(--sage, #6b9080);
   color: #ffffff;
+  box-shadow: 0 4px 14px rgba(107, 144, 128, 0.35);
 }
 
 .filter-pill.active .pill-icon {

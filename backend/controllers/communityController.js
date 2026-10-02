@@ -108,15 +108,24 @@ exports.toggleLike = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Post not found' });
     }
 
-    const index = post.likes.indexOf(req.user.id);
+    const userIdStr = (req.user._id || req.user.id).toString();
+    const index = post.likes.findIndex(id => id.toString() === userIdStr);
+    let liked = false;
     if (index > -1) {
       post.likes.splice(index, 1);
+      liked = false;
     } else {
-      post.likes.push(req.user.id);
+      post.likes.push(req.user._id || req.user.id);
+      liked = true;
     }
     await post.save();
 
-    res.status(200).json({ success: true, likes: post.likes.length, liked: index === -1 });
+    res.status(200).json({ 
+      success: true, 
+      likes: post.likes, 
+      likeCount: post.likes.length, 
+      liked 
+    });
   } catch (error) {
     next(error);
   }

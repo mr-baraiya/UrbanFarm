@@ -226,10 +226,9 @@ const CropRecommendation = () => {
               </h4>
               <button 
                 type="button" 
-                className="btn-secondary location-btn"
+                className="location-btn"
                 onClick={handleUseLocation}
                 disabled={loadingLocation}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
               >
                 {loadingLocation ? (
                   <><RiLoader4Line className="spin" /> Detecting Location...</>

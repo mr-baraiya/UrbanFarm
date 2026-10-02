@@ -29,7 +29,10 @@
 }
 
 .filter-tab {
-  padding: 0.3rem 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.35rem 0.9rem;
   border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
   border-radius: 30px;
   background: none;
@@ -39,6 +42,10 @@
   cursor: pointer;
   transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
   white-space: nowrap;
+}
+
+.filter-tab svg {
+  font-size: 1rem;
 }
 
 .filter-tab:hover {

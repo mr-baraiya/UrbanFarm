@@ -82,11 +82,27 @@
 
 .admin-sidebar-nav {
   flex: 1;
-  padding: 1.2rem 0.85rem;
+  padding: 1rem 0.85rem;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.35rem;
   overflow-y: auto;
+}
+
+.admin-nav-section-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  opacity: 0.6;
+  padding: 0.4rem 0.85rem 0.15rem;
+}
+
+.admin-nav-divider {
+  height: 1px;
+  background: rgba(107, 144, 128, 0.1);
+  margin: 0.4rem 0.5rem;
 }
 
 /* Pill Nav Link - Frameless Design */
@@ -94,15 +110,25 @@
   display: flex;
   align-items: center;
   gap: 0.85rem;
-  padding: 0.75rem 1.1rem;
+  padding: 0.65rem 1rem;
   border-radius: 30px;
   color: var(--text-secondary);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 500;
   transition: all var(--transition);
   white-space: nowrap;
   border: none;
+}
+
+.admin-nav-link.public-nav-link {
+  color: var(--text-secondary);
+  background: rgba(107, 144, 128, 0.05);
+}
+
+.admin-nav-link.public-nav-link:hover {
+  color: var(--sage);
+  background: rgba(107, 144, 128, 0.15);
 }
 
 .admin-nav-link .nav-icon {

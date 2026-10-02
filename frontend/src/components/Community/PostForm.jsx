@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPost, updatePost } from '../../services/plantService';
 import { getPlants, getGardens } from '../../services/plantService';
 import { useNotification } from '../../hooks/useNotification';
+import { RiImageAddLine, RiCloseLine } from 'react-icons/ri';
 import './PostForm.css';
 
 const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
@@ -86,7 +87,7 @@ const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
           category: formData.category,
           tags: formData.tags,
         });
-        addNotification('Post updated successfully! 🌿', 'success');
+        addNotification('Post updated successfully!', 'success');
         if (onPostSaved) onPostSaved(updated);
       } else {
         // Create new post
@@ -100,7 +101,7 @@ const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
         if (image) data.append('image', image);
 
         const newPost = await createPost(data);
-        addNotification('Post shared successfully! 🌱', 'success');
+        addNotification('Post shared successfully!', 'success');
         if (onPostSaved) onPostSaved(newPost);
       }
       onClose();
@@ -112,11 +113,11 @@ const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
   };
 
   const categories = [
-    { value: 'showcase', label: '🍅 Harvest Showcase' },
-    { value: 'question', label: '🆘 Plant Help / Diagnose Request' },
-    { value: 'tip', label: '💡 Urban Tip / DIY' },
-    { value: 'event', label: '📅 Community Event' },
-    { value: 'general', label: '💬 General' },
+    { value: 'showcase', label: 'Harvest Showcase' },
+    { value: 'question', label: 'Plant Help / Diagnose Request' },
+    { value: 'tip', label: 'Urban Tip / DIY' },
+    { value: 'event', label: 'Community Event' },
+    { value: 'general', label: 'General Discussion' },
   ];
 
   return (
@@ -124,28 +125,28 @@ const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
       <div className="modal-content post-form" onClick={(e) => e.stopPropagation()}>
         <h3>{post ? 'Edit Post' : 'Share with the Community'}</h3>
         <form onSubmit={handleSubmit}>
-          {/* Category */}
-          <div className="form-group">
-            <label>Category *</label>
-            <select name="category" value={formData.category} onChange={handleChange} required>
-              {categories.map((cat) => (
-                <option key={cat.value} value={cat.value}>
-                  {cat.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Title */}
-          <div className="form-group">
-            <label>Title *</label>
-            <input
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              placeholder="What's your post about?"
-              required
-            />
+          {/* Category & Title Row */}
+          <div className="form-row">
+            <div className="form-group">
+              <label>Category *</label>
+              <select name="category" value={formData.category} onChange={handleChange} required>
+                {categories.map((cat) => (
+                  <option key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Title *</label>
+              <input
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                placeholder="What's your post about?"
+                required
+              />
+            </div>
           </div>
 
           {/* Content */}
@@ -156,7 +157,7 @@ const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
               value={formData.content}
               onChange={handleChange}
               placeholder="Share your urban farming experience..."
-              rows="4"
+              rows="2"
               required
             />
           </div>
@@ -170,7 +171,7 @@ const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
                   <img src={imagePreview} alt="Preview" className="image-preview" />
                 ) : (
                   <div className="upload-placeholder">
-                    <span>📸</span>
+                    <RiImageAddLine style={{ fontSize: '28px', color: '#7c6f66', marginBottom: '4px' }} />
                     <span>Click to upload a photo</span>
                     <span className="upload-sub">(Optional)</span>
                   </div>
@@ -234,7 +235,7 @@ const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
                 {formData.tags.map((tag) => (
                   <span key={tag} className="tag-item">
                     #{tag}
-                    <button type="button" onClick={() => handleRemoveTag(tag)}>✕</button>
+                    <button type="button" onClick={() => handleRemoveTag(tag)} aria-label="Remove tag"><RiCloseLine /></button>
                   </span>
                 ))}
               </div>

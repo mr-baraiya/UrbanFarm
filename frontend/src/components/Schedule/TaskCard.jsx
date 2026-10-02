@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   RiDropLine, 
   RiShoppingBasketLine, 
@@ -11,7 +11,6 @@ import {
   RiAlertLine, 
   RiRepeatLine, 
   RiTimerLine, 
-  RiMoreFill, 
   RiEditLine, 
   RiDeleteBinLine 
 } from 'react-icons/ri';
@@ -30,8 +29,6 @@ const TaskCard = ({
   gardens,
   isCompleted 
 }) => {
-  const [showMenu, setShowMenu] = useState(false);
-
   const getTypeIcon = (type) => {
     switch (type) {
       case 'watering':
@@ -147,29 +144,30 @@ const TaskCard = ({
       <div className="task-card-right">
         {!isCompleted && (
           <button 
-            className="snooze-btn"
+            className="action-icon-btn snooze-btn"
             onClick={() => onSnooze(task._id)}
             title="Snooze +1 day"
-            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+            aria-label="Snooze +1 day"
           >
             <RiTimerLine />
           </button>
         )}
-        <div className="task-menu">
-          <button className="menu-btn" onClick={() => setShowMenu(!showMenu)} aria-label="More actions">
-            <RiMoreFill />
-          </button>
-          {showMenu && (
-            <div className="menu-dropdown">
-              <button onClick={() => { onEdit(task); setShowMenu(false); }} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <RiEditLine /> Edit
-              </button>
-              <button onClick={() => { onDelete(task._id); setShowMenu(false); }} className="danger" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <RiDeleteBinLine /> Delete
-              </button>
-            </div>
-          )}
-        </div>
+        <button 
+          className="action-icon-btn edit-btn" 
+          onClick={() => onEdit(task)}
+          title="Edit Task"
+          aria-label="Edit Task"
+        >
+          <RiEditLine />
+        </button>
+        <button 
+          className="action-icon-btn delete-btn" 
+          onClick={() => onDelete(task._id)}
+          title="Delete Task"
+          aria-label="Delete Task"
+        >
+          <RiDeleteBinLine />
+        </button>
       </div>
     </div>
   );

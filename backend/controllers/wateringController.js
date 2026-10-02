@@ -1,5 +1,6 @@
 const WateringSchedule = require('../models/WateringSchedule');
 const Plant = require('../models/Plant');
+const ScheduleTask = require('../models/ScheduleTask');
 const { getForecast } = require('../services/weatherService');
 const { generateSchedule } = require('../services/aiWateringService');
 
@@ -42,6 +43,41 @@ exports.generateWateringSchedule = async (req, res, next) => {
       weatherAdjusted: !!weatherData,
       nextWateringDate: scheduleEvents.length > 0 ? new Date(scheduleEvents[0].date) : null,
     });
+
+    // ✅ Automatically sync active watering events into the User's Tasks & Schedule
+    try {
+      // Remove any previously scheduled uncompleted watering tasks for this plant
+      await ScheduleTask.deleteMany({
+        userId: req.user.id,
+        plantId: plant._id,
+        type: 'watering',
+        completed: false
+      });
+
+      const activeWateringEvents = scheduleEvents.filter(e => {
+        if (!e.amount) return false;
+        const amt = e.amount.toLowerCase().trim();
+        return amt !== '0ml' && amt !== '0l' && amt !== '0' && amt !== 'none';
+      });
+
+      if (activeWateringEvents.length > 0) {
+        const tasksToCreate = activeWateringEvents.map(e => ({
+          userId: req.user.id,
+          plantId: plant._id,
+          title: `Water ${plant.name} (${e.amount})`,
+          description: e.notes || `Scheduled watering (${e.timeOfDay || 'morning'}) - ${e.amount}`,
+          type: 'watering',
+          priority: 'medium',
+          dueDate: new Date(e.date),
+          completed: e.completed || false,
+        }));
+
+        await ScheduleTask.insertMany(tasksToCreate);
+        console.log(`🌱 Created ${tasksToCreate.length} tasks in Tasks & Schedule for ${plant.name}`);
+      }
+    } catch (taskErr) {
+      console.error('⚠️ Failed to sync tasks from watering schedule:', taskErr);
+    }
 
     // ✅ Populate the plant data before sending response
     const populatedSchedule = await WateringSchedule.findById(wateringSchedule._id)

@@ -15,6 +15,12 @@
   backdrop-filter: blur(14px);
 }
 
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
 .navbar-left .logo {
   font-family: "Fraunces", serif;
   font-size: 1.5rem;
@@ -24,6 +30,47 @@
   display: flex;
   align-items: center;
   letter-spacing: -0.03em;
+}
+
+.nav-landing-link,
+.nav-admin-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 20px;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary, #7c6f66);
+  background: var(--bg-primary, rgba(142, 168, 157, 0.08));
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-landing-link svg,
+.nav-admin-link svg {
+  font-size: 1rem;
+}
+
+.nav-landing-link:hover {
+  color: var(--text-main, #2c2421);
+  background: var(--surface-primary, #ffffff);
+  border-color: var(--accent-sage, #5a7d65);
+  transform: translateY(-1px);
+}
+
+.nav-admin-link {
+  color: #2563eb;
+  background: rgba(37, 99, 235, 0.08);
+  border-color: rgba(37, 99, 235, 0.2);
+}
+
+.nav-admin-link:hover {
+  color: #1d4ed8;
+  background: rgba(37, 99, 235, 0.15);
+  border-color: rgba(37, 99, 235, 0.4);
+  transform: translateY(-1px);
 }
 
 .navbar-right {

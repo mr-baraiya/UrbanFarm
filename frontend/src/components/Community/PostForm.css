@@ -1,37 +1,41 @@
 /* Post Form Modal */
+.post-form.modal-content,
 .post-form .modal-content {
-  max-width: 560px;
-  padding: 2rem;
+  max-width: 540px;
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 1.25rem 1.5rem;
   background: var(--surface-primary, #ffffff);
   border-radius: var(--radius-lg, 20px);
   border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
   box-shadow: 0 8px 40px rgba(44, 36, 33, 0.08);
 }
 
+.post-form h3,
 .post-form .form-title {
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.85rem 0;
   color: var(--text-main, #2c2421);
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   font-weight: 500;
   letter-spacing: -0.01em;
 }
 
 .post-form .form-subtitle {
-  margin: 0 0 1.75rem 0;
+  margin: 0 0 1rem 0;
   color: var(--text-muted, #7c6f66);
-  font-size: 0.95rem;
+  font-size: 0.85rem;
 }
 
 .post-form .form-group {
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.65rem;
 }
 
 .post-form label {
   display: block;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.25rem;
   color: var(--text-main, #2c2421);
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   letter-spacing: -0.01em;
 }
 
@@ -44,10 +48,10 @@
 .post-form select,
 .post-form textarea {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.45rem 0.75rem;
   border: 1.5px solid var(--border-light, rgba(220, 210, 200, 0.4));
-  border-radius: var(--radius-md, 12px);
-  font-size: 0.95rem;
+  border-radius: var(--radius-md, 10px);
+  font-size: 0.88rem;
   background: var(--bg-primary, #fbf9f7);
   color: var(--text-main, #2c2421);
   transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
@@ -72,17 +76,17 @@
 
 .post-form textarea {
   resize: vertical;
-  min-height: 100px;
-  line-height: 1.5;
+  min-height: 55px;
+  line-height: 1.4;
 }
 
 .post-form select {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237c6f66' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 12px;
-  padding-right: 2.5rem;
+  background-position: right 0.8rem center;
+  background-size: 10px;
+  padding-right: 2rem;
   cursor: pointer;
 }
 
@@ -93,7 +97,7 @@
 .post-form .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 @media (max-width: 450px) {
@@ -105,13 +109,13 @@
 
 /* Image Upload */
 .image-upload-area {
-  border: 2px dashed var(--border-light, rgba(220, 210, 200, 0.4));
-  border-radius: var(--radius-md, 12px);
-  padding: 1.5rem;
+  border: 1.5px dashed var(--border-light, rgba(220, 210, 200, 0.5));
+  border-radius: var(--radius-md, 10px);
+  padding: 0.65rem 1rem;
   text-align: center;
   cursor: pointer;
   transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
-  min-height: 120px;
+  min-height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -130,22 +134,20 @@
 }
 
 .image-preview {
-  max-height: 200px;
+  max-height: 120px;
   max-width: 100%;
-  border-radius: var(--radius-md, 12px);
+  border-radius: var(--radius-md, 10px);
   display: block;
 }
 
 .upload-placeholder {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 0.2rem;
+  justify-content: center;
+  gap: 0.5rem;
   color: var(--text-muted, #7c6f66);
-}
-
-.upload-placeholder span:first-child {
-  font-size: 2.5rem;
+  font-size: 0.85rem;
 }
 
 .upload-sub {
@@ -157,15 +159,15 @@
 /* Tags */
 .tag-input-group {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
 .tag-input-group input {
   flex: 1;
-  padding: 0.4rem 0.8rem;
+  padding: 0.35rem 0.75rem;
   border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
   border-radius: 30px;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   background: var(--bg-primary, #fbf9f7);
   color: var(--text-main, #2c2421);
   transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
@@ -179,7 +181,7 @@
 
 .add-tag-btn {
   font-size: 0.8rem;
-  padding: 0.3rem 1.2rem;
+  padding: 0.3rem 1rem;
   background: var(--accent-lavender, #a8a2bc);
   border: none;
   border-radius: 30px;
@@ -198,19 +200,19 @@
 .tag-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.3rem;
-  margin-top: 0.5rem;
+  gap: 0.25rem;
+  margin-top: 0.35rem;
 }
 
 .tag-item {
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.25rem;
   background: var(--bg-primary, #fbf9f7);
   border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
-  padding: 0.1rem 0.6rem;
+  padding: 0.1rem 0.5rem;
   border-radius: 12px;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--text-main, #2c2421);
   font-weight: 500;
   animation: tagAppear 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -232,24 +234,24 @@
   border: none;
   color: var(--text-muted, #7c6f66);
   cursor: pointer;
-  font-size: 0.7rem;
-  padding: 0.1rem 0.2rem;
+  font-size: 0.75rem;
+  padding: 0;
   margin-left: 0.1rem;
-  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
   transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
 }
 
 .tag-item button:hover {
   color: #c8968c;
-  background: rgba(200, 150, 140, 0.08);
 }
 
 /* Form Actions */
 .post-form .form-actions {
   display: flex;
-  gap: 0.75rem;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
+  gap: 0.6rem;
+  margin-top: 0.85rem;
+  padding-top: 0.75rem;
   border-top: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
   justify-content: flex-end;
 }
@@ -257,10 +259,10 @@
 .post-form .btn-secondary {
   background: var(--bg-primary, #fbf9f7);
   border: 1.5px solid var(--border-light, rgba(220, 210, 200, 0.4));
-  padding: 0.7rem 1.8rem;
-  border-radius: var(--radius-md, 12px);
+  padding: 0.45rem 1.3rem;
+  border-radius: var(--radius-md, 10px);
   color: var(--text-main, #2c2421);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   cursor: pointer;
   transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
   font-weight: 500;
@@ -275,14 +277,14 @@
 .post-form .btn-primary {
   background: var(--accent-lavender, #a8a2bc);
   border: none;
-  padding: 0.7rem 2rem;
-  border-radius: var(--radius-md, 12px);
+  padding: 0.45rem 1.5rem;
+  border-radius: var(--radius-md, 10px);
   color: #ffffff;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   cursor: pointer;
   transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
   font-weight: 500;
-  min-width: 100px;
+  min-width: 90px;
 }
 
 .post-form .btn-primary:hover {
