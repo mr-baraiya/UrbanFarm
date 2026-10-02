@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { RiRepeatLine } from 'react-icons/ri';
 import { TASK_TYPES, TASK_PRIORITIES } from '../../utils/constants';
 import { useNotification } from '../../hooks/useNotification';
 import './TaskForm.css';
@@ -80,9 +81,15 @@ const TaskForm = ({ task, onClose, onSubmit, plants, gardens }) => {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content task-form" onClick={(e) => e.stopPropagation()}>
-        <h3>{task ? 'Edit Task' : 'Create New Task'}</h3>
-        <form onSubmit={handleSubmit}>
+      <div className="modal-content task-form-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="task-form-header">
+          <h3>{task ? 'Edit Task' : 'Create New Task'}</h3>
+          <button className="task-modal-close" onClick={onClose} type="button" aria-label="Close">
+            ×
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="task-compact-form">
           <div className="form-group">
             <label>Task Title *</label>
             <input
@@ -101,7 +108,7 @@ const TaskForm = ({ task, onClose, onSubmit, plants, gardens }) => {
               value={formData.description}
               onChange={handleChange}
               placeholder="Add details..."
-              rows="2"
+              rows="1"
             />
           </div>
 
@@ -128,60 +135,62 @@ const TaskForm = ({ task, onClose, onSubmit, plants, gardens }) => {
             </div>
           </div>
 
-          <div className="form-group">
-            <label>Due Date *</label>
-            <input
-              type="date"
-              name="dueDate"
-              value={formData.dueDate}
-              onChange={handleChange}
-              required
-              min={new Date().toISOString().split('T')[0]}
-            />
-          </div>
-
-          {gardens && gardens.length > 0 && (
+          <div className="form-row">
             <div className="form-group">
               <label>Garden (optional)</label>
               <select name="gardenId" value={formData.gardenId} onChange={handleChange}>
                 <option value="">None</option>
-                {gardens.map((g) => (
+                {gardens?.map((g) => (
                   <option key={g._id} value={g._id}>
                     {g.name}
                   </option>
                 ))}
               </select>
             </div>
-          )}
 
-          {plants && plants.length > 0 && (
             <div className="form-group">
               <label>Plant (optional)</label>
               <select name="plantId" value={formData.plantId} onChange={handleChange}>
                 <option value="">None</option>
-                {plants.map((p) => (
+                {plants?.map((p) => (
                   <option key={p._id} value={p._id}>
                     {p.name}
                   </option>
                 ))}
               </select>
             </div>
-          )}
+          </div>
 
-          <div className="form-group recurring-group">
-            <label className="checkbox-label">
+          <div className="form-row form-row-align-end">
+            <div className="form-group">
+              <label>Due Date *</label>
               <input
-                type="checkbox"
-                name="recurring"
-                checked={formData.recurring}
+                type="date"
+                name="dueDate"
+                value={formData.dueDate}
                 onChange={handleChange}
+                required
+                min={new Date().toISOString().split('T')[0]}
               />
-              <span>🔄 Recurring Task</span>
-            </label>
+            </div>
+
+            <div className="form-group">
+              <label className="checkbox-label recurring-checkbox-card">
+                <input
+                  type="checkbox"
+                  name="recurring"
+                  checked={formData.recurring}
+                  onChange={handleChange}
+                />
+                <span className="recurring-label-text">
+                  <RiRepeatLine /> Recurring Task
+                </span>
+              </label>
+            </div>
           </div>
 
           {formData.recurring && (
-            <div className="form-row">
+            <div className="form-row recurring-config-row">
               <div className="form-group">
                 <label>Repeat Every</label>
                 <input

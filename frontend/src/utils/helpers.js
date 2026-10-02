@@ -47,13 +47,13 @@ export const truncate = (text, maxLength = 100) => {
  */
 export const getStatusColor = (status) => {
   const map = {
-    seedling: '#b8a9c9',
-    growing: '#a8d5ba',
-    mature: '#f0d5c0',
-    harvested: '#d4b8a0',
-    dead: '#c9b0a0',
+    seedling: '#52b788',
+    growing: '#2d6a4f',
+    mature: '#d97706',
+    harvested: '#ea580c',
+    dead: '#6b7280',
   };
-  return map[status] || '#b8a9c9';
+  return map[status] || '#52b788';
 };
 
 /**
@@ -61,44 +61,44 @@ export const getStatusColor = (status) => {
  */
 export const getPriorityColor = (priority) => {
   const map = {
-    low: '#a8d5ba',
-    medium: '#f0d5c0',
-    high: '#e8b4b4',
+    low: '#10b981',
+    medium: '#f59e0b',
+    high: '#ef4444',
   };
-  return map[priority] || '#b8a9c9';
+  return map[priority] || '#6b7280';
 };
 
 /**
- * Get confidence emoji
+ * Get confidence level label
  */
 export const getConfidenceEmoji = (conf) => {
-  if (conf >= 0.8) return '🟢';
-  if (conf >= 0.5) return '🟡';
-  return '🔴';
+  if (conf >= 0.8) return 'High';
+  if (conf >= 0.5) return 'Moderate';
+  return 'Low';
 };
 
 /**
- * ✅ Get health indicator emoji based on health status
+ * Get health indicator class
  */
 export const getHealthIndicator = (health) => {
   const map = {
-    healthy: '🟢',
-    warning: '🟡',
-    unhealthy: '🔴',
+    healthy: 'healthy',
+    warning: 'warning',
+    unhealthy: 'unhealthy',
   };
-  return map[health] || '🟢';
+  return map[health] || 'healthy';
 };
 
 /**
- * ✅ Get health status label and color
+ * Get health status label and color
  */
 export const getHealthStatus = (health) => {
   const map = {
-    healthy: { label: 'Healthy', color: '#a8d5ba', icon: '🟢' },
-    warning: { label: 'Needs Attention', color: '#f0d5c0', icon: '🟡' },
-    unhealthy: { label: 'At Risk', color: '#e8b4b4', icon: '🔴' },
+    healthy: { label: 'Healthy', color: '#10b981' },
+    warning: { label: 'Needs Attention', color: '#f59e0b' },
+    unhealthy: { label: 'At Risk', color: '#ef4444' },
   };
-  return map[health] || { label: 'Unknown', color: '#9a8a7a', icon: '⚪' };
+  return map[health] || { label: 'Unknown', color: '#6b7280' };
 };
 
 /**
@@ -152,17 +152,17 @@ export const capitalizeWords = (str) => {
 };
 
 /**
- * Get growth stage label
+ * Get growth stage clean label
  */
 export const getGrowthStageLabel = (status) => {
   const map = {
-    seedling: '🌱 Seedling',
-    growing: '🌿 Growing',
-    mature: '🌾 Mature',
-    harvested: '🍅 Harvesting',
-    dead: '💀 Ended',
+    seedling: 'Seedling',
+    growing: 'Growing',
+    mature: 'Mature',
+    harvested: 'Harvesting',
+    dead: 'Ended',
   };
-  return map[status] || '🌱 Growing';
+  return map[status] || 'Growing';
 };
 
 /**
@@ -180,16 +180,62 @@ export const getGrowthProgress = (status) => {
 };
 
 /**
- * Get plant type emoji
+ * Get plant type label
  */
 export const getPlantTypeEmoji = (type) => {
   const map = {
-    vegetable: '🥬',
-    fruit: '🍎',
-    herb: '🌿',
-    flower: '🌸',
-    tree: '🌳',
-    succulent: '🌵',
+    vegetable: 'Vegetable',
+    fruit: 'Fruit',
+    herb: 'Herb',
+    flower: 'Flower',
+    tree: 'Tree',
+    succulent: 'Succulent',
   };
-  return map[type] || '🌱';
+  return map[type] || 'Plant';
+};
+
+/**
+ * Get realistic plant photography image or fallback
+ */
+export const getPlantImage = (plant) => {
+  if (plant?.imageUrl && typeof plant.imageUrl === 'string' && plant.imageUrl.trim().length > 0) {
+    return plant.imageUrl;
+  }
+  
+  const name = (plant?.name || '').toLowerCase();
+  const variety = (plant?.variety || '').toLowerCase();
+  const search = `${name} ${variety}`;
+
+  if (search.includes('pepper') || search.includes('capsicum') || search.includes('chilli') || search.includes('chili')) {
+    return 'https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=600&auto=format&fit=crop&q=80';
+  }
+  if (search.includes('mint') || search.includes('spearmint') || search.includes('pudina')) {
+    return 'https://images.unsplash.com/photo-1628556270448-4d4e4148e1b1?w=600&auto=format&fit=crop&q=80';
+  }
+  if (search.includes('tomato')) {
+    return 'https://images.unsplash.com/photo-1592841200221-a6898f307baa?w=600&auto=format&fit=crop&q=80';
+  }
+  if (search.includes('basil') || search.includes('tulsi')) {
+    return 'https://images.unsplash.com/photo-1608686207856-001b95cf60ca?w=600&auto=format&fit=crop&q=80';
+  }
+  if (search.includes('lettuce') || search.includes('salad') || search.includes('greens')) {
+    return 'https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?w=600&auto=format&fit=crop&q=80';
+  }
+  if (search.includes('spinach') || search.includes('palak')) {
+    return 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=600&auto=format&fit=crop&q=80';
+  }
+  if (search.includes('strawberr') || search.includes('berry')) {
+    return 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=600&auto=format&fit=crop&q=80';
+  }
+  if (search.includes('rosemary')) {
+    return 'https://images.unsplash.com/photo-1515586000433-a5bc720b3622?w=600&auto=format&fit=crop&q=80';
+  }
+  if (search.includes('cucumber')) {
+    return 'https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?w=600&auto=format&fit=crop&q=80';
+  }
+  if (search.includes('coriander') || search.includes('cilantro') || search.includes('parsley')) {
+    return 'https://images.unsplash.com/photo-1533038590840-1cde6e668a91?w=600&auto=format&fit=crop&q=80';
+  }
+
+  return 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=600&auto=format&fit=crop&q=80';
 };

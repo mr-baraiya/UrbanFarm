@@ -1,12 +1,20 @@
 import React from 'react';
+import { 
+  RiFlashlightLine, 
+  RiBuildingLine, 
+  RiSunLine, 
+  RiHomeSmileLine,
+  RiInboxArchiveLine
+} from 'react-icons/ri';
+import { TbPlant2 } from 'react-icons/tb';
 import './UrbanPresets.css';
 
 const UrbanPresets = ({ onSelect, currentPreset }) => {
   const presets = [
     {
       id: 'container',
-      label: '🏙️ Balcony / Container Garden',
-      icon: '🪴',
+      label: 'Balcony / Container Garden',
+      icon: <TbPlant2 />,
       description: 'Pots, planters, and containers',
       inputs: {
         soilType: 'Potting Mix',
@@ -21,8 +29,8 @@ const UrbanPresets = ({ onSelect, currentPreset }) => {
     },
     {
       id: 'raised_bed',
-      label: '📦 Raised Bed',
-      icon: '📦',
+      label: 'Raised Bed',
+      icon: <RiInboxArchiveLine />,
       description: 'Elevated garden beds',
       inputs: {
         soilType: 'Loam',
@@ -37,8 +45,8 @@ const UrbanPresets = ({ onSelect, currentPreset }) => {
     },
     {
       id: 'rooftop',
-      label: '☀️ Rooftop Sunny Spot',
-      icon: '🏢',
+      label: 'Rooftop Sunny Spot',
+      icon: <RiSunLine />,
       description: 'Full sun, wind exposure',
       inputs: {
         soilType: 'Sandy Loam',
@@ -53,8 +61,8 @@ const UrbanPresets = ({ onSelect, currentPreset }) => {
     },
     {
       id: 'indoor',
-      label: '🪴 Indoor / Windowsill',
-      icon: '🏠',
+      label: 'Indoor / Windowsill',
+      icon: <RiHomeSmileLine />,
       description: 'Indoor growing, limited light',
       inputs: {
         soilType: 'Potting Mix',
@@ -71,11 +79,14 @@ const UrbanPresets = ({ onSelect, currentPreset }) => {
 
   return (
     <div className="urban-presets">
-      <h4>🚀 Quick Presets</h4>
+      <h4>
+        <RiFlashlightLine className="header-icon" /> Quick Presets
+      </h4>
       <div className="presets-grid">
         {presets.map((preset) => (
           <button
             key={preset.id}
+            type="button"
             className={`preset-btn ${currentPreset === preset.id ? 'active' : ''}`}
             onClick={() => onSelect(preset)}
           >

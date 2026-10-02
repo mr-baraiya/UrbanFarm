@@ -1,5 +1,20 @@
 import React, { useState } from 'react';
-import { getStatusColor, getHealthIndicator, getHealthStatus, getGrowthStageLabel, getGrowthProgress } from '../../utils/helpers';
+import { 
+  RiEyeLine, 
+  RiDropLine, 
+  RiMicroscopeLine, 
+  RiShoppingBasketLine, 
+  RiQrCodeLine, 
+  RiEditLine, 
+  RiDeleteBinLine, 
+  RiMapPin2Line, 
+  RiCalendarEventLine, 
+  RiSunLine, 
+  RiSunCloudyLine,
+  RiMoreFill
+} from 'react-icons/ri';
+import { TbPlant2 } from 'react-icons/tb';
+import { getStatusColor, getHealthStatus, getGrowthStageLabel, getGrowthProgress, getPlantImage } from '../../utils/helpers';
 import './PlantCard.css';
 
 const PlantCard = ({ 
@@ -11,15 +26,18 @@ const PlantCard = ({
   onDelete, 
   onViewDetails, 
   onQuickWater,
-  onQuickDiagnose 
+  onQuickDiagnose,
+  onShowQR,
+  onLogHarvest,
 }) => {
   const [showMenu, setShowMenu] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   const health = getHealthStatus(plant.health);
   const growthProgress = getGrowthProgress(plant.status);
   const growthLabel = getGrowthStageLabel(plant.status);
   const statusColor = getStatusColor(plant.status);
+  const plantImgUrl = getPlantImage(plant);
 
   // Calculate days since planting
   const getDaysSincePlanting = () => {
@@ -32,47 +50,56 @@ const PlantCard = ({
 
   return (
     <div className={`plant-card ${isSelected ? 'selected' : ''}`}>
-      {/* Selection checkbox */}
-      {selectMode && (
-        <div className="plant-select">
-          <input
-            type="checkbox"
-            checked={isSelected}
-            onChange={() => onSelect(plant._id)}
-          />
-        </div>
-      )}
-
-      {/* Menu */}
-      <div className="plant-menu">
-        <button className="menu-btn" onClick={() => setShowMenu(!showMenu)}>
-          ⋮
-        </button>
-        {showMenu && (
-          <div className="menu-dropdown">
-            <button onClick={() => { onEdit(); setShowMenu(false); }}>
-              ✏️ Edit
-            </button>
-            <button onClick={() => { onDelete(); setShowMenu(false); }} className="danger">
-              🗑️ Delete
-            </button>
+      {/* Image container with menu & select overlays */}
+      <div className="plant-image-container">
+        {selectMode && (
+          <div className="plant-select">
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={() => onSelect(plant._id)}
+            />
           </div>
         )}
-      </div>
 
-      {/* Image */}
-      <div className="plant-image" style={{ background: statusColor + '44' }}>
-        {plant.imageUrl ? (
-          <img 
-            src={plant.imageUrl} 
-            alt={plant.name}
-            onLoad={() => setImageLoaded(true)}
-            style={{ display: imageLoaded ? 'block' : 'none' }}
-          />
-        ) : null}
-        {(!plant.imageUrl || !imageLoaded) && (
-          <span className="plant-emoji-large">🌱</span>
-        )}
+        <div className="plant-menu">
+          <button className="menu-btn" onClick={() => setShowMenu(!showMenu)} aria-label="Menu">
+            <RiMoreFill />
+          </button>
+          {showMenu && (
+            <div className="menu-dropdown">
+              {onLogHarvest && (
+                <button onClick={() => { onLogHarvest(plant); setShowMenu(false); }}>
+                  <RiShoppingBasketLine /> Log Harvest
+                </button>
+              )}
+              {onShowQR && (
+                <button onClick={() => { onShowQR(plant); setShowMenu(false); }}>
+                  <RiQrCodeLine /> QR Code
+                </button>
+              )}
+              <button onClick={() => { onEdit(); setShowMenu(false); }}>
+                <RiEditLine /> Edit
+              </button>
+              <button onClick={() => { onDelete(); setShowMenu(false); }} className="danger">
+                <RiDeleteBinLine /> Delete
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="plant-image" style={{ background: statusColor + '22' }}>
+          {!imgError && plantImgUrl ? (
+            <img 
+              src={plantImgUrl} 
+              alt={plant.name}
+              onError={() => setImgError(true)}
+              loading="lazy"
+            />
+          ) : (
+            <TbPlant2 className="plant-svg-placeholder" />
+          )}
+        </div>
       </div>
 
       {/* Name & Details */}
@@ -89,13 +116,15 @@ const PlantCard = ({
       {/* Health & Status */}
       <div className="plant-badges">
         <span className="health-badge" style={{ color: health.color }}>
-          {health.icon} {health.label}
+          <span className={`health-dot ${plant.health || 'healthy'}`} /> {health.label}
         </span>
-        <span className="status-badge" style={{ background: statusColor + '33', color: statusColor }}>
+        <span className="status-badge" style={{ background: statusColor + '22', color: statusColor }}>
           {growthLabel}
         </span>
         {daysOld !== null && (
-          <span className="age-badge">📅 {daysOld} days</span>
+          <span className="age-badge">
+            <RiCalendarEventLine className="badge-icon-sm" /> {daysOld} days
+          </span>
         )}
       </div>
 
@@ -116,12 +145,20 @@ const PlantCard = ({
       {/* Garden & Water info */}
       <div className="plant-meta">
         {plant.gardenId?.name && (
-          <span className="plant-garden">📍 {plant.gardenId.name}</span>
+          <span className="plant-garden">
+            <RiMapPin2Line className="meta-icon" /> {plant.gardenId.name}
+          </span>
         )}
-        <span className="plant-water">💧 every {plant.waterFrequency || 3} days</span>
+        <span className="plant-water">
+          <RiDropLine className="meta-icon water" /> every {plant.waterFrequency || 3}d
+        </span>
         {plant.sunlight && (
-          <span className="plant-sunlight">
-            {plant.sunlight === 'full' ? '☀️' : plant.sunlight === 'partial' ? '⛅' : '🌥️'}
+          <span className="plant-sunlight" title={`Sunlight: ${plant.sunlight}`}>
+            {plant.sunlight === 'full' ? (
+              <RiSunLine className="meta-icon sun" />
+            ) : (
+              <RiSunCloudyLine className="meta-icon shade" />
+            )}
           </span>
         )}
       </div>
@@ -129,14 +166,24 @@ const PlantCard = ({
       {/* Quick Actions */}
       <div className="plant-actions">
         <button className="action-btn view" onClick={onViewDetails} title="View Details">
-          👁️
+          <RiEyeLine />
         </button>
         <button className="action-btn water" onClick={onQuickWater} title="Quick Water">
-          💧
+          <RiDropLine />
         </button>
         <button className="action-btn diagnose" onClick={onQuickDiagnose} title="Quick Diagnose">
-          🔬
+          <RiMicroscopeLine />
         </button>
+        {onLogHarvest && (
+          <button className="action-btn harvest" onClick={() => onLogHarvest(plant)} title="Record Harvest">
+            <RiShoppingBasketLine />
+          </button>
+        )}
+        {onShowQR && (
+          <button className="action-btn qr" onClick={() => onShowQR(plant)} title="QR Code">
+            <RiQrCodeLine />
+          </button>
+        )}
       </div>
     </div>
   );

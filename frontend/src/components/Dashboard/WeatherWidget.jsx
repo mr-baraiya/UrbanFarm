@@ -1,7 +1,121 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { 
+  RiSunLine, 
+  RiMoonLine, 
+  RiSunCloudyLine, 
+  RiCloudLine, 
+  RiRainyLine, 
+  RiThunderstormsLine, 
+  RiSnowyLine, 
+  RiMistLine, 
+  RiDropLine, 
+  RiWindyLine, 
+  RiMapPin2Line, 
+  RiCalendar2Line, 
+  RiCloseLine,
+  RiCheckLine
+} from 'react-icons/ri';
+import { TbPlant2 } from 'react-icons/tb';
+import { getForecast } from '../../services/weatherService';
 import './WeatherWidget.css';
 
-const WeatherWidget = ({ weather, loading }) => {
+const WeatherWidget = ({ weather, loading, city }) => {
+  const [showForecast, setShowForecast] = useState(false);
+  const [forecastData, setForecastData] = useState(null);
+  const [loadingForecast, setLoadingForecast] = useState(false);
+
+  // Get modern weather SVG icon based on openweather icon code
+  const getWeatherIcon = (iconCode) => {
+    switch (iconCode) {
+      case '01d':
+        return <RiSunLine className="weather-svg-icon sunny" />;
+      case '01n':
+        return <RiMoonLine className="weather-svg-icon night" />;
+      case '02d':
+      case '02n':
+        return <RiSunCloudyLine className="weather-svg-icon partly-cloudy" />;
+      case '03d':
+      case '03n':
+      case '04d':
+      case '04n':
+        return <RiCloudLine className="weather-svg-icon cloudy" />;
+      case '09d':
+      case '09n':
+      case '10d':
+      case '10n':
+        return <RiRainyLine className="weather-svg-icon rainy" />;
+      case '11d':
+      case '11n':
+        return <RiThunderstormsLine className="weather-svg-icon storm" />;
+      case '13d':
+      case '13n':
+        return <RiSnowyLine className="weather-svg-icon snowy" />;
+      case '50d':
+      case '50n':
+        return <RiMistLine className="weather-svg-icon mist" />;
+      default:
+        return <RiSunCloudyLine className="weather-svg-icon partly-cloudy" />;
+    }
+  };
+
+  // Get weather advice based on conditions
+  const getWeatherAdvice = (temp, condition, humidity) => {
+    if (temp > 30) {
+      return (
+        <>
+          <RiSunLine className="weather-advice-icon heat" />
+          <span>High heat! Water plants in early morning or evening.</span>
+        </>
+      );
+    }
+    if (condition && condition.toLowerCase().includes('rain')) {
+      return (
+        <>
+          <RiRainyLine className="weather-advice-icon rain" />
+          <span>Rain expected. Skip automated watering today.</span>
+        </>
+      );
+    }
+    if (temp < 5) {
+      return (
+        <>
+          <RiSnowyLine className="weather-advice-icon frost" />
+          <span>Frost risk! Protect sensitive plants.</span>
+        </>
+      );
+    }
+    if (humidity < 30) {
+      return (
+        <>
+          <RiWindyLine className="weather-advice-icon dry" />
+          <span>Low humidity. Consider misting leafy plants.</span>
+        </>
+      );
+    }
+    return (
+      <>
+        <TbPlant2 className="weather-advice-icon optimal" />
+        <span>Ideal conditions for outdoor garden growth!</span>
+      </>
+    );
+  };
+
+  const handleOpenForecast = async () => {
+    setShowForecast(true);
+    if (!forecastData) {
+      setLoadingForecast(true);
+      try {
+        const cityName = city || weather?.name || 'London';
+        const res = await getForecast(cityName);
+        setForecastData(res);
+      } catch (err) {
+        console.error('Failed to load forecast:', err);
+      } finally {
+        setLoadingForecast(false);
+      }
+    }
+  };
+
   if (loading) {
     return <div className="weather-widget loading">Loading weather...</div>;
   }
@@ -9,7 +123,9 @@ const WeatherWidget = ({ weather, loading }) => {
   if (!weather) {
     return (
       <div className="weather-widget">
-        <span className="weather-icon">🌤️</span>
+        <div className="weather-icon-wrap">
+          <RiSunCloudyLine className="weather-svg-icon partly-cloudy" />
+        </div>
         <div className="weather-info">
           <span className="weather-temp">--°C</span>
           <span className="weather-condition">Weather unavailable</span>
@@ -19,71 +135,101 @@ const WeatherWidget = ({ weather, loading }) => {
   }
 
   const temp = Math.round(weather.main?.temp || 0);
-  const condition = weather.weather?.[0]?.description || 'Unknown';
+  const condition = weather.weather?.[0]?.description || 'Clear';
   const humidity = weather.main?.humidity || 0;
   const windSpeed = weather.wind?.speed || 0;
   const icon = weather.weather?.[0]?.icon || '01d';
 
-  // Get weather emoji based on condition
-  const getWeatherEmoji = (iconCode) => {
-    const map = {
-      '01d': '☀️',
-      '01n': '🌙',
-      '02d': '⛅',
-      '02n': '☁️',
-      '03d': '☁️',
-      '03n': '☁️',
-      '04d': '☁️',
-      '04n': '☁️',
-      '09d': '🌧️',
-      '09n': '🌧️',
-      '10d': '🌦️',
-      '10n': '🌧️',
-      '11d': '⛈️',
-      '11n': '⛈️',
-      '13d': '❄️',
-      '13n': '❄️',
-      '50d': '🌫️',
-      '50n': '🌫️',
-    };
-    return map[iconCode] || '🌤️';
-  };
-
-  // Get weather advice based on conditions
-  const getWeatherAdvice = (temp, condition, humidity) => {
-    if (temp > 30) {
-      return '☀️ High heat! Water plants in the morning or evening.';
-    }
-    if (condition.toLowerCase().includes('rain')) {
-      return '🌧️ Rain expected. Skip watering today.';
-    }
-    if (temp < 5) {
-      return '❄️ Frost risk! Protect sensitive plants.';
-    }
-    if (humidity < 30) {
-      return '💨 Low humidity. Consider misting your plants.';
-    }
-    if (condition.toLowerCase().includes('clear') && temp > 25) {
-      return '☀️ High UV today! Water tomatoes in the morning.';
-    }
-    return '🌱 Perfect conditions for your garden!';
-  };
-
   return (
-    <div className="weather-widget">
-      <div className="weather-main">
-        <span className="weather-emoji">{getWeatherEmoji(icon)}</span>
-        <div className="weather-temp-info">
-          <span className="weather-temp">{temp}°C</span>
-          <span className="weather-condition">{condition}</span>
+    <>
+      <div className="weather-widget">
+        <div className="weather-main">
+          <div className="weather-icon-wrap">
+            {getWeatherIcon(icon)}
+          </div>
+          <div className="weather-temp-info">
+            <span className="weather-temp">{temp}°C</span>
+            <span className="weather-condition">{condition}</span>
+          </div>
+          <button 
+            className="btn-forecast-toggle" 
+            onClick={handleOpenForecast} 
+            title="View 7-Day Forecast"
+          >
+            <RiCalendar2Line className="btn-icon" /> 7-Day
+          </button>
+        </div>
+        <div className="weather-details">
+          <span className="weather-humidity">
+            <RiDropLine className="detail-icon blue" /> {humidity}%
+          </span>
+          <span className="weather-wind">
+            <RiWindyLine className="detail-icon cyan" /> {windSpeed} m/s
+          </span>
+          {weather.name && (
+            <span className="weather-city">
+              <RiMapPin2Line className="detail-icon red" /> {weather.name}
+            </span>
+          )}
+        </div>
+        <div className="weather-advice">
+          {getWeatherAdvice(temp, condition, humidity)}
         </div>
       </div>
-      <div className="weather-details">
-        <span className="weather-humidity">💧 {humidity}%</span>
-        <span className="weather-wind">💨 {windSpeed} m/s</span>
-      </div>
-      <div className="weather-advice">{getWeatherAdvice(temp, condition, humidity)}</div>
-    </div>
+
+      {showForecast && (
+        <div className="forecast-modal-overlay" onClick={() => setShowForecast(false)}>
+          <div className="forecast-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="forecast-modal-header">
+              <h3>
+                <RiSunCloudyLine className="forecast-header-icon" /> 7-Day Weather & Gardening Forecast ({city || weather?.name || 'Local'})
+              </h3>
+              <button className="forecast-close-btn" onClick={() => setShowForecast(false)} aria-label="Close">
+                <RiCloseLine />
+              </button>
+            </div>
+            <div className="forecast-modal-body">
+              {loadingForecast ? (
+                <div className="forecast-loading">Loading 7-day forecast...</div>
+              ) : forecastData?.list ? (
+                <div className="forecast-list">
+                  {forecastData.list.slice(0, 7).map((item, idx) => {
+                    const fTemp = Math.round(item.main?.temp || 0);
+                    const fCond = item.weather?.[0]?.description || 'Clear';
+                    const fIcon = item.weather?.[0]?.icon || '01d';
+                    const fHum = item.main?.humidity || 0;
+                    const fLabel = item.dt_txt || `Day ${idx + 1}`;
+
+                    return (
+                      <div key={idx} className="forecast-day-card">
+                        <div className="f-day-name">{fLabel}</div>
+                        <div className="f-icon-wrap">{getWeatherIcon(fIcon)}</div>
+                        <div className="f-temp">{fTemp}°C</div>
+                        <div className="f-condition">{fCond}</div>
+                        <div className="f-humidity">
+                          <RiDropLine className="f-hum-icon" /> {fHum}%
+                        </div>
+                        <div className="f-advice">
+                          {fTemp > 28 ? (
+                            <span className="advice-pill heat"><RiDropLine /> Water heavy</span>
+                          ) : fCond.includes('rain') ? (
+                            <span className="advice-pill rain"><RiRainyLine /> Natural rain</span>
+                          ) : (
+                            <span className="advice-pill optimal"><RiCheckLine /> Optimal</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="forecast-empty">Forecast data currently unavailable.</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

@@ -1,4 +1,15 @@
 import React from 'react';
+import { 
+  RiFileList3Line, 
+  RiCheckLine, 
+  RiCloseLine, 
+  RiSkipForwardLine, 
+  RiDropLine, 
+  RiAlertLine,
+  RiSunCloudyLine,
+  RiTimeLine
+} from 'react-icons/ri';
+import { TbPlant2 } from 'react-icons/tb';
 import './WateringHistory.css';
 
 const WateringHistory = ({ 
@@ -11,9 +22,9 @@ const WateringHistory = ({
 }) => {
   const filterOptions = [
     { value: 'all', label: 'All' },
-    { value: 'completed', label: '✅ Completed' },
-    { value: 'missed', label: '❌ Missed' },
-    { value: 'skipped', label: '⏭️ Skipped' },
+    { value: 'completed', label: 'Completed', icon: <RiCheckLine /> },
+    { value: 'missed', label: 'Missed', icon: <RiCloseLine /> },
+    { value: 'skipped', label: 'Skipped', icon: <RiSkipForwardLine /> },
   ];
 
   // Calculate stats
@@ -24,7 +35,9 @@ const WateringHistory = ({
   return (
     <div className="watering-history">
       <div className="history-header">
-        <h3>📋 Watering History</h3>
+        <h3>
+          <RiFileList3Line className="history-header-icon" /> Watering History
+        </h3>
         <span className="history-count">{history.length} sessions</span>
       </div>
 
@@ -52,7 +65,9 @@ const WateringHistory = ({
               key={option.value}
               className={`filter-pill ${filterStatus === option.value ? 'active' : ''}`}
               onClick={() => onFilterChange(option.value)}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
             >
+              {option.icon}
               {option.label}
             </button>
           ))}
@@ -62,7 +77,9 @@ const WateringHistory = ({
       {/* History List */}
       {history.length === 0 ? (
         <div className="no-history">
-          <span className="no-history-icon">💧</span>
+          <span className="no-history-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+            <RiDropLine style={{ color: '#0ea5e9' }} />
+          </span>
           <p>No watering schedules yet.</p>
           <p className="sub-text">Generate a schedule for your plants!</p>
         </div>
@@ -78,19 +95,19 @@ const WateringHistory = ({
             }).length;
             const skipped = events.filter(e => e.skipped).length;
             
-            let statusIcon = '🟢';
+            let statusIcon = <RiCheckLine style={{ color: '#10b981' }} />;
             let statusLabel = 'Completed';
             if (missed > 0) {
-              statusIcon = '🔴';
+              statusIcon = <RiAlertLine style={{ color: '#ef4444' }} />;
               statusLabel = 'Missed';
             } else if (skipped > 0) {
-              statusIcon = '⏭️';
+              statusIcon = <RiSkipForwardLine style={{ color: '#64748b' }} />;
               statusLabel = 'Skipped';
             } else if (completed === events.length && events.length > 0) {
-              statusIcon = '✅';
+              statusIcon = <RiCheckLine style={{ color: '#10b981' }} />;
               statusLabel = 'All Done';
             } else if (completed > 0) {
-              statusIcon = '🟡';
+              statusIcon = <RiTimeLine style={{ color: '#f59e0b' }} />;
               statusLabel = 'In Progress';
             }
 
@@ -101,8 +118,8 @@ const WateringHistory = ({
                 onClick={() => onItemClick(item)}
               >
                 <div className="history-header-row">
-                  <span className="history-plant-name">
-                    🌱 {getPlantName(item.plantId)}
+                  <span className="history-plant-name" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <TbPlant2 /> {getPlantName(item.plantId)}
                   </span>
                   <span className="history-date">
                     {new Date(item.createdAt).toLocaleDateString()}
@@ -110,14 +127,16 @@ const WateringHistory = ({
                 </div>
                 
                 <div className="history-details">
-                  <span className={`history-status ${statusLabel.toLowerCase().replace(' ', '')}`}>
+                  <span className={`history-status ${statusLabel.toLowerCase().replace(' ', '')}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                     {statusIcon} {statusLabel}
                   </span>
                   <span className="history-events">
                     {completed}/{events.length} events
                   </span>
                   {item.weatherAdjusted && (
-                    <span className="history-weather">🌤️ Weather adjusted</span>
+                    <span className="history-weather" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                      <RiSunCloudyLine /> Weather adjusted
+                    </span>
                   )}
                   {item.skipReason && (
                     <span className="history-skip">{item.skipReason}</span>

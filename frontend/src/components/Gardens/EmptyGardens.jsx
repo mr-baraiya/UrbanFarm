@@ -1,4 +1,6 @@
 import React from 'react';
+import { RiPlantLine, RiAddLine, RiDashboardLine, RiLightbulbLine } from 'react-icons/ri';
+import { TbPlant2 } from 'react-icons/tb';
 import './EmptyGardens.css';
 
 const EmptyGardens = ({ onCreateClick }) => {
@@ -6,11 +8,13 @@ const EmptyGardens = ({ onCreateClick }) => {
     <div className="empty-gardens">
       <div className="empty-content">
         <div className="empty-illustration">
-          <span className="empty-icon">🌱</span>
+          <div className="empty-icon-wrap">
+            <RiPlantLine className="main-empty-svg" />
+          </div>
           <div className="plant-pots">
-            <span className="pot">🪴</span>
-            <span className="pot">🪴</span>
-            <span className="pot">🪴</span>
+            <TbPlant2 className="pot-svg" />
+            <TbPlant2 className="pot-svg center" />
+            <TbPlant2 className="pot-svg" />
           </div>
         </div>
         <h2>You haven't added any gardens yet</h2>
@@ -20,14 +24,16 @@ const EmptyGardens = ({ onCreateClick }) => {
         </p>
         <div className="empty-actions">
           <button className="btn-primary" onClick={onCreateClick}>
-            + Create First Garden
+            <RiAddLine /> Create First Garden
           </button>
           <button className="btn-secondary" onClick={() => window.location.href = '/app/dashboard'}>
-            Go to Dashboard
+            <RiDashboardLine /> Go to Dashboard
           </button>
         </div>
         <div className="empty-tips">
-          <h4>💡 Tips for your first garden:</h4>
+          <h4>
+            <RiLightbulbLine className="tip-icon" /> Tips for your first garden:
+          </h4>
           <ul>
             <li>Start small with a balcony or windowsill garden</li>
             <li>Choose plants that match your sunlight conditions</li>

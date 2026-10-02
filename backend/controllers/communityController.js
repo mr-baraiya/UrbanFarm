@@ -173,3 +173,75 @@ exports.getLeaderboard = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Update post
+// @route   PUT /api/community/:id
+exports.updatePost = async (req, res, next) => {
+  try {
+    const post = await CommunityPost.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({ success: false, message: 'Post not found' });
+    }
+    if (post.userId.toString() !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Not authorized to edit this post' });
+    }
+    const { title, content, category, tags } = req.body;
+    if (title) post.title = title;
+    if (content) post.content = content;
+    if (category) post.category = category;
+    if (tags) post.tags = tags;
+    await post.save();
+    
+    const updated = await CommunityPost.findById(post._id)
+      .populate('userId', 'name profilePicture gardeningLevel')
+      .populate('comments.userId', 'name profilePicture');
+    res.status(200).json({ success: true, post: updated });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete post
+// @route   DELETE /api/community/:id
+exports.deletePost = async (req, res, next) => {
+  try {
+    const post = await CommunityPost.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({ success: false, message: 'Post not found' });
+    }
+    if (post.userId.toString() !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Not authorized to delete this post' });
+    }
+    await post.deleteOne();
+    res.status(200).json({ success: true, message: 'Post deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete comment
+// @route   DELETE /api/community/:id/comments/:commentId
+exports.deleteComment = async (req, res, next) => {
+  try {
+    const post = await CommunityPost.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({ success: false, message: 'Post not found' });
+    }
+    const comment = post.comments.id(req.params.commentId);
+    if (!comment) {
+      return res.status(404).json({ success: false, message: 'Comment not found' });
+    }
+    if (comment.userId.toString() !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Not authorized to delete this comment' });
+    }
+    comment.deleteOne();
+    await post.save();
+
+    const updated = await CommunityPost.findById(req.params.id)
+      .populate('userId', 'name profilePicture gardeningLevel')
+      .populate('comments.userId', 'name profilePicture');
+    res.status(200).json({ success: true, post: updated });
+  } catch (error) {
+    next(error);
+  }
+};

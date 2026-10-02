@@ -1,5 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { RiPlantLine, RiAddLine } from 'react-icons/ri';
+import { TbPlant2 } from 'react-icons/tb';
+import { getPlantImage } from '../../utils/helpers';
 import './PlantGallery.css';
 
 const PlantGallery = ({ plants }) => {
@@ -8,12 +11,16 @@ const PlantGallery = ({ plants }) => {
   if (!plants || plants.length === 0) {
     return (
       <div className="plant-gallery">
-        <h3>🌱 Your Plants</h3>
+        <h3>
+          <TbPlant2 className="gallery-header-icon" /> Your Plants
+        </h3>
         <div className="empty-gallery">
-          <span className="empty-icon">🌱</span>
+          <div className="empty-icon-wrap">
+            <TbPlant2 />
+          </div>
           <p>No plants yet. Add your first plant!</p>
           <button className="btn-primary" onClick={() => navigate('/app/plants')}>
-            Add Plant
+            <RiAddLine /> Add Plant
           </button>
         </div>
       </div>
@@ -23,29 +30,21 @@ const PlantGallery = ({ plants }) => {
   // Get status color
   const getStatusColor = (status) => {
     const map = {
-      seedling: '#f0e8dc',
-      growing: '#a8d5ba',
-      mature: '#f0d5c0',
-      harvested: '#d4b8a0',
-      dead: '#c9b0a0',
+      seedling: 'rgba(240, 232, 220, 0.8)',
+      growing: 'rgba(168, 213, 186, 0.6)',
+      mature: 'rgba(240, 213, 192, 0.7)',
+      harvested: 'rgba(212, 184, 160, 0.7)',
+      dead: 'rgba(201, 176, 160, 0.5)',
     };
-    return map[status] || '#b8a9c9';
-  };
-
-  // Get health indicator
-  const getHealthIndicator = (health) => {
-    const map = {
-      healthy: '🟢',
-      warning: '🟡',
-      unhealthy: '🔴',
-    };
-    return map[health] || '🟢';
+    return map[status] || 'rgba(184, 169, 201, 0.5)';
   };
 
   return (
     <div className="plant-gallery">
       <div className="gallery-header">
-        <h3>🌱 Your Plants</h3>
+        <h3>
+          <TbPlant2 className="gallery-header-icon" /> Your Plants
+        </h3>
         <span className="plant-count">{plants.length} plants</span>
       </div>
       <div className="gallery-scroll">
@@ -56,17 +55,20 @@ const PlantGallery = ({ plants }) => {
             onClick={() => navigate(`/app/plants?plant=${plant._id}`)}
           >
             <div className="plant-thumbnail" style={{ background: getStatusColor(plant.status) }}>
-              {plant.imageUrl ? (
-                <img src={plant.imageUrl} alt={plant.name} />
+              {getPlantImage(plant) ? (
+                <img src={getPlantImage(plant)} alt={plant.name} loading="lazy" />
               ) : (
-                <span className="plant-emoji">🌱</span>
+                <TbPlant2 className="plant-svg-thumb" />
               )}
             </div>
             <div className="plant-info">
               <span className="plant-name">{plant.name}</span>
               <div className="plant-meta">
                 <span className="plant-status">{plant.status}</span>
-                <span className="plant-health">{getHealthIndicator(plant.health)}</span>
+                <span 
+                  className={`plant-health-dot ${plant.health || 'healthy'}`} 
+                  title={`Health: ${plant.health || 'healthy'}`} 
+                />
               </div>
             </div>
           </div>

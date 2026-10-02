@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { RiCloseLine, RiPlantLine } from 'react-icons/ri';
 import './GardenForm.css';
 
 const GardenForm = ({ garden, onClose, onSubmit }) => {
@@ -14,28 +15,28 @@ const GardenForm = ({ garden, onClose, onSubmit }) => {
   const [loading, setLoading] = useState(false);
 
   const gardenTypes = [
-    { value: 'balcony', label: '🏠 Balcony' },
-    { value: 'rooftop', label: '🏢 Rooftop' },
-    { value: 'terrace', label: '🏡 Terrace' },
-    { value: 'indoor', label: '🪴 Indoor' },
-    { value: 'backyard', label: '🌳 Backyard' },
-    { value: 'community', label: '👥 Community' },
+    { value: 'balcony', label: 'Balcony' },
+    { value: 'rooftop', label: 'Rooftop' },
+    { value: 'terrace', label: 'Terrace' },
+    { value: 'indoor', label: 'Indoor Window / Room' },
+    { value: 'backyard', label: 'Backyard Garden' },
+    { value: 'community', label: 'Community Garden' },
   ];
 
   const sunlightOptions = [
-    { value: 'full', label: '☀️ Full Sun (6-8 hrs)' },
-    { value: 'partial', label: '⛅ Partial Shade (3-6 hrs)' },
-    { value: 'shade', label: '🌥️ Shade (<3 hrs)' },
+    { value: 'full', label: 'Full Sun (6-8 hrs/day)' },
+    { value: 'partial', label: 'Partial Shade (3-6 hrs/day)' },
+    { value: 'shade', label: 'Shade (<3 hrs/day)' },
   ];
 
   const soilOptions = [
-    { value: 'potting_mix', label: '🪴 Potting Mix' },
-    { value: 'hydroponics', label: '💧 Hydroponics' },
-    { value: 'raised_bed', label: '📦 Raised Bed' },
-    { value: 'coco_peat', label: '🥥 Coco Peat' },
-    { value: 'loam', label: '🌱 Loam' },
-    { value: 'clay', label: '🏺 Clay' },
-    { value: 'sandy', label: '🏖️ Sandy' },
+    { value: 'potting_mix', label: 'Standard Potting Mix' },
+    { value: 'hydroponics', label: 'Hydroponics / Aquaponics' },
+    { value: 'raised_bed', label: 'Raised Bed Garden Mix' },
+    { value: 'coco_peat', label: 'Coco Peat / Perlite' },
+    { value: 'loam', label: 'Loam Soil' },
+    { value: 'clay', label: 'Clay Soil' },
+    { value: 'sandy', label: 'Sandy Loam' },
   ];
 
   const handleChange = (e) => {
@@ -60,7 +61,14 @@ const GardenForm = ({ garden, onClose, onSubmit }) => {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content garden-form" onClick={(e) => e.stopPropagation()}>
-        <h3>{garden ? 'Edit Garden' : 'Create New Garden'}</h3>
+        <div className="form-header">
+          <h3>
+            <RiPlantLine className="form-header-icon" /> {garden ? 'Edit Garden' : 'Create New Garden'}
+          </h3>
+          <button className="close-btn" onClick={onClose} aria-label="Close">
+            <RiCloseLine />
+          </button>
+        </div>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Garden Name *</label>
@@ -68,7 +76,7 @@ const GardenForm = ({ garden, onClose, onSubmit }) => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              placeholder="e.g., Backyard Garden"
+              placeholder="e.g., Rooftop Herb Haven"
               required
             />
           </div>
@@ -96,12 +104,12 @@ const GardenForm = ({ garden, onClose, onSubmit }) => {
               </select>
             </div>
             <div className="form-group">
-              <label>Location</label>
+              <label>Location / City</label>
               <input
                 name="location"
                 value={formData.location}
                 onChange={handleChange}
-                placeholder="e.g., New York, NY"
+                placeholder="e.g., Mumbai, India"
               />
             </div>
           </div>
@@ -120,7 +128,7 @@ const GardenForm = ({ garden, onClose, onSubmit }) => {
               />
             </div>
             <div className="form-group">
-              <label>Sunlight</label>
+              <label>Sunlight Exposure</label>
               <select name="sunlight" value={formData.sunlight} onChange={handleChange}>
                 {sunlightOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -132,7 +140,7 @@ const GardenForm = ({ garden, onClose, onSubmit }) => {
           </div>
 
           <div className="form-group">
-            <label>Soil / Medium Type</label>
+            <label>Soil / Growing Medium</label>
             <select name="soilType" value={formData.soilType} onChange={handleChange}>
               {soilOptions.map((option) => (
                 <option key={option.value} value={option.value}>

@@ -7,38 +7,49 @@ const { identifyDisease } = require('../services/aiPlantDiseaseService');
 // @route   POST /api/disease/diagnose
 exports.diagnosePlant = async (req, res, next) => {
   try {
-    const { plantId } = req.body;
+    const { plantId, imageUrl: bodyImageUrl } = req.body;
     const file = req.file;
 
     console.log('📸 Diagnose request received');
     console.log('  Plant ID:', plantId);
     console.log('  File:', file ? `${file.originalname} (${file.size} bytes)` : 'No file');
+    console.log('  Image URL:', bodyImageUrl || 'None');
 
-    if (!file) {
-      return res.status(400).json({ success: false, message: 'Please upload an image' });
+    let finalImageUrl = bodyImageUrl;
+
+    if (file) {
+      try {
+        console.log('☁️ Uploading to Cloudinary...');
+        const b64 = Buffer.from(file.buffer).toString('base64');
+        const dataURI = `data:${file.mimetype};base64,${b64}`;
+
+        const uploadResult = await cloudinary.uploader.upload(dataURI, {
+          folder: 'diagnoses',
+          resource_type: 'image',
+        });
+        finalImageUrl = uploadResult.secure_url;
+        console.log('✅ Cloudinary upload successful:', finalImageUrl);
+      } catch (cloudErr) {
+        console.warn('⚠️ Cloudinary upload failed, falling back to dataURI/local buffer:', cloudErr.message);
+        const b64 = Buffer.from(file.buffer).toString('base64');
+        finalImageUrl = `data:${file.mimetype};base64,${b64}`;
+      }
     }
 
-    // 1. Upload image to Cloudinary
-    console.log('☁️ Uploading to Cloudinary...');
-    const b64 = Buffer.from(file.buffer).toString('base64');
-    const dataURI = `data:${file.mimetype};base64,${b64}`;
-
-    const uploadResult = await cloudinary.uploader.upload(dataURI, {
-      folder: 'diagnoses',
-      resource_type: 'image',
-    });
-    console.log('✅ Cloudinary upload successful:', uploadResult.secure_url);
+    if (!finalImageUrl) {
+      return res.status(400).json({ success: false, message: 'Please provide or upload an image' });
+    }
 
     // 2. Call Plant.id API for diagnosis
-    console.log('🔬 Calling Plant.id API...');
-    const diagnosisResult = await identifyDisease(uploadResult.secure_url);
+    console.log('🔬 Calling Plant.id API with:', finalImageUrl?.substring?.(0, 100));
+    const diagnosisResult = await identifyDisease(finalImageUrl);
     console.log('✅ Diagnosis complete:', diagnosisResult);
 
     // 3. Save diagnosis to database
     const diagnosis = new Diagnosis({
       userId: req.user.id,
       plantId: plantId || null,
-      imageUrl: uploadResult.secure_url,
+      imageUrl: finalImageUrl,
       diseaseName: diagnosisResult.disease,
       confidence: diagnosisResult.confidence,
       treatment: diagnosisResult.treatment,
@@ -51,27 +62,29 @@ exports.diagnosePlant = async (req, res, next) => {
     if (plantId) {
       const plant = await Plant.findOne({ _id: plantId, userId: req.user.id });
       if (plant) {
-        plant.health = diagnosisResult.confidence > 0.7 ? 'unhealthy' : 'warning';
+        plant.health = diagnosisResult.isHealthy
+          ? 'healthy'
+          : diagnosisResult.confidence > 0.7
+          ? 'unhealthy'
+          : 'warning';
         await plant.save();
         console.log('🌱 Plant health updated:', plant.health);
       }
     }
 
-    // In backend/controllers/diseaseController.js - update the response
-
-  res.status(201).json({
-    success: true,
-    diagnosis: {
-      id: diagnosis._id,
-      disease: diagnosis.diseaseName,
-      confidence: diagnosis.confidence,
-      treatment: diagnosis.treatment,
-      description: diagnosis.description,
-      imageUrl: diagnosis.imageUrl,
-      isHealthy: diagnosisResult.isHealthy || false,
-      allDiseases: diagnosisResult.allDiseases || [],
-    },
-  });
+    res.status(201).json({
+      success: true,
+      diagnosis: {
+        id: diagnosis._id,
+        disease: diagnosis.diseaseName,
+        confidence: diagnosis.confidence,
+        treatment: diagnosis.treatment,
+        description: diagnosis.description,
+        imageUrl: diagnosis.imageUrl,
+        isHealthy: diagnosisResult.isHealthy || false,
+        allDiseases: diagnosisResult.allDiseases || [],
+      },
+    });
   } catch (error) {
     console.error('❌ Diagnosis error:', error);
     next(error);

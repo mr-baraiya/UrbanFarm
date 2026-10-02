@@ -7,6 +7,9 @@ const {
   addComment,
   toggleLike,
   getLeaderboard,
+  updatePost,
+  deletePost,
+  deleteComment,
 } = require('../controllers/communityController');
 const { protect } = require('../middleware/authMiddleware');
 const { uploadSingle, handleUploadError } = require('../middleware/uploadMiddleware');
@@ -17,8 +20,13 @@ router.route('/')
   .get(getPosts);
 
 router.get('/leaderboard', getLeaderboard);
-router.get('/:id', getPostById);
+router.route('/:id')
+  .get(getPostById)
+  .put(protect, updatePost)
+  .delete(protect, deletePost);
+
 router.post('/:id/comments', protect, addComment);
+router.delete('/:id/comments/:commentId', protect, deleteComment);
 router.put('/:id/like', protect, toggleLike);
 
 module.exports = router;

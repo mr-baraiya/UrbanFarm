@@ -37,6 +37,15 @@ export const addPlant = async (data) => {
   return res.data.plant;
 };
 
+export const uploadImage = async (file) => {
+  const formData = new FormData();
+  formData.append('image', file);
+  const res = await api.post('/upload/image', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return res.data.imageUrl;
+};
+
 export const updatePlant = async (id, data) => {
   const res = await api.put(`/plants/${id}`, data);
   return res.data.plant;
@@ -166,7 +175,20 @@ export const createPost = async (data) => {
   return res.data.post;
 };
 
+export const updatePost = async (postId, data) => {
+  const res = await api.put(`/community/${postId}`, data);
+  return res.data.post;
+};
 
+export const deletePost = async (postId) => {
+  const res = await api.delete(`/community/${postId}`);
+  return res.data;
+};
+
+export const deleteComment = async (postId, commentId) => {
+  const res = await api.delete(`/community/${postId}/comments/${commentId}`);
+  return res.data.post;
+};
 
 export const toggleLike = async (postId) => {
   const res = await api.put(`/community/${postId}/like`);

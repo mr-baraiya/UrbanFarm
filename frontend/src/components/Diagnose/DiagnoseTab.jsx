@@ -1,7 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { 
+  RiMicroscopeLine, 
+  RiCameraLine, 
+  RiCameraSwitchLine,
+  RiFolderUploadLine, 
+  RiSparklingLine, 
+  RiPlantLine, 
+  RiCheckLine,
+  RiAlertLine,
+  RiCloseLine
+} from 'react-icons/ri';
+import { TbPlant2 } from 'react-icons/tb';
 import { diagnosePlant, getDiagnosisHistory, getPlants } from '../../services/plantService';
 import { useNotification } from '../../hooks/useNotification';
+import { getPlantImage } from '../../utils/helpers';
 import DiseaseResult from './DiseaseResult';
 import DiagnosisHistory from './DiagnosisHistory';
 import './DiagnoseTab.css';
@@ -30,8 +43,18 @@ const DiagnoseTab = () => {
   }, []);
 
   useEffect(() => {
-    applyFilters();
-  }, [history, filterStatus, searchTerm]);
+    if (selectedPlant && plants.length > 0) {
+      const match = plants.find(p => p._id === selectedPlant);
+      if (match) {
+        const plantImg = getPlantImage(match);
+        if (plantImg && !image) {
+          setPreview(plantImg);
+        }
+      }
+    } else if (!selectedPlant && !image) {
+      setPreview(null);
+    }
+  }, [selectedPlant, plants, image]);
 
   const loadData = async () => {
     try {
@@ -42,6 +65,18 @@ const DiagnoseTab = () => {
       setHistory(historyData || []);
       setFilteredHistory(historyData || []);
       setPlants(plantsData || []);
+
+      if (plantIdParam) {
+        setSelectedPlant(plantIdParam);
+        const targetPlant = (plantsData || []).find(p => p._id === plantIdParam);
+        if (targetPlant) {
+          const autoImg = getPlantImage(targetPlant);
+          if (autoImg) {
+            setPreview(autoImg);
+          }
+          addNotification(`Selected ${targetPlant.name} for disease diagnosis`, 'info');
+        }
+      }
     } catch (error) {
       console.error('Failed to load data:', error);
     }
@@ -54,7 +89,7 @@ const DiagnoseTab = () => {
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(h => 
-        h.diseaseName.toLowerCase().includes(term) ||
+        (h.diseaseName && h.diseaseName.toLowerCase().includes(term)) ||
         (h.plantId?.name && h.plantId.name.toLowerCase().includes(term))
       );
     }
@@ -62,9 +97,11 @@ const DiagnoseTab = () => {
     // Status filter
     if (filterStatus !== 'all') {
       filtered = filtered.filter(h => {
+        const isHealthy = h.isHealthy || h.diseaseName?.toLowerCase().includes('healthy');
+        if (filterStatus === 'healthy') return isHealthy;
         if (filterStatus === 'resolved') return h.isResolved;
-        if (filterStatus === 'critical') return h.confidence > 0.7 && !h.isResolved;
-        if (filterStatus === 'monitoring') return h.confidence <= 0.7 && !h.isResolved;
+        if (filterStatus === 'critical') return !isHealthy && !h.isResolved && h.confidence > 0.7;
+        if (filterStatus === 'monitoring') return !isHealthy && !h.isResolved && h.confidence <= 0.7;
         return true;
       });
     }
@@ -98,41 +135,127 @@ const DiagnoseTab = () => {
     if (file) {
       handleImageFile(file);
     }
+    e.target.value = '';
   };
 
   const handleImageFile = (file) => {
     setImage(file);
     setPreview(URL.createObjectURL(file));
+    setSelectedPlant(''); // Auto move to "-- No specific plant (General Diagnosis) --"
     setResult(null);
     setSelectedHistory(null);
   };
 
-  const handleCameraCapture = async () => {
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [cameraStream, setCameraStream] = useState(null);
+  const [facingMode, setFacingMode] = useState('environment');
+  const videoRef = useRef(null);
+
+  const startCamera = async (mode = 'environment') => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      // For now, we'll use a file input with capture attribute
-      // A more robust solution would use a video element and canvas
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-      input.capture = 'environment';
-      input.click();
-      input.onchange = (e) => {
-        if (e.target.files[0]) {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: mode, width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: false
+      });
+      setCameraStream(stream);
+      setIsCameraOpen(true);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (err) {
+      console.warn('Webcam stream error, falling back to camera input picker:', err);
+      // Fallback to direct device camera input
+      const cameraInput = document.createElement('input');
+      cameraInput.type = 'file';
+      cameraInput.accept = 'image/*';
+      cameraInput.capture = 'environment';
+      cameraInput.onchange = (e) => {
+        if (e.target.files && e.target.files[0]) {
           handleImageFile(e.target.files[0]);
         }
       };
-    } catch (error) {
-      addNotification('Camera access denied. Please upload an image.', 'error');
+      cameraInput.click();
+    }
+  };
+
+  const stopCamera = () => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+      setCameraStream(null);
+    }
+    setIsCameraOpen(false);
+  };
+
+  const handleCameraCapture = () => {
+    startCamera(facingMode);
+  };
+
+  const handleSnapPhoto = () => {
+    if (!videoRef.current) return;
+    const video = videoRef.current;
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const file = new File([blob], `leaf_photo_${Date.now()}.jpg`, { type: 'image/jpeg' });
+        handleImageFile(file);
+        stopCamera();
+        addNotification('Leaf photo captured successfully!', 'success');
+      }
+    }, 'image/jpeg', 0.92);
+  };
+
+  const handleSwitchCamera = () => {
+    const nextMode = facingMode === 'environment' ? 'user' : 'environment';
+    setFacingMode(nextMode);
+    startCamera(nextMode);
+  };
+
+  useEffect(() => {
+    if (isCameraOpen && videoRef.current && cameraStream) {
+      videoRef.current.srcObject = cameraStream;
+    }
+    return () => {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [isCameraOpen, cameraStream]);
+
+  const handlePlantSelect = (e) => {
+    const plantId = e.target.value;
+    setSelectedPlant(plantId);
+    setImage(null);
+    if (plantId) {
+      const targetPlant = plants.find(p => p._id === plantId);
+      if (targetPlant) {
+        setPreview(getPlantImage(targetPlant));
+      }
+    } else {
+      setPreview(null);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!image) return;
+    if (!image && !preview) {
+      addNotification('Please select a plant or provide an image for diagnosis', 'error');
+      return;
+    }
     setLoading(true);
     const formData = new FormData();
-    formData.append('image', image);
+    if (image) {
+      formData.append('image', image);
+    } else if (preview) {
+      formData.append('imageUrl', preview);
+    }
     if (selectedPlant) {
       formData.append('plantId', selectedPlant);
     }
@@ -156,7 +279,6 @@ const DiagnoseTab = () => {
   };
 
   const handleAddToSchedule = (diagnosis) => {
-    // Navigate to schedule with pre-filled data
     const taskData = {
       title: `Treatment: ${diagnosis.disease}`,
       description: diagnosis.treatment || 'Follow treatment plan',
@@ -165,33 +287,50 @@ const DiagnoseTab = () => {
       dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       plantId: diagnosis.plantId || selectedPlant || '',
     };
-    // Store in sessionStorage for the schedule page to pick up
     sessionStorage.setItem('quickTask', JSON.stringify(taskData));
     window.location.href = '/app/schedule';
   };
 
+  const activePlantObj = plants.find(p => p._id === selectedPlant);
+
   return (
     <div className="diagnose-tab">
-      <h2>🔬 Plant Disease Diagnosis</h2>
+      <h2>
+        <RiMicroscopeLine className="header-icon" /> Plant Disease Diagnosis
+      </h2>
       
       <div className="diagnose-layout">
         {/* Left Column - Upload & Results */}
         <div className="diagnose-left">
           <div className="diagnose-upload-section">
-            <p>Upload a photo of your plant's leaf to detect diseases.</p>
+            <p>Upload a clear photo of your plant's leaves or select a plant to run AI disease detection.</p>
             
             {/* Plant selector */}
             <div className="plant-selector">
-              <label>Link to Plant (optional):</label>
-              <select 
-                value={selectedPlant} 
-                onChange={(e) => setSelectedPlant(e.target.value)}
-              >
-                <option value="">None</option>
-                {plants.map(p => (
-                  <option key={p._id} value={p._id}>{p.name}</option>
-                ))}
-              </select>
+              <label>Select Plant for Context:</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', width: '100%' }}>
+                {activePlantObj && (
+                  <div style={{ width: '38px', height: '38px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, border: '1px solid var(--border-light, rgba(0,0,0,0.1))' }}>
+                    <img 
+                      src={getPlantImage(activePlantObj)} 
+                      alt={activePlantObj.name} 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                    />
+                  </div>
+                )}
+                <select 
+                  value={selectedPlant} 
+                  onChange={handlePlantSelect}
+                  style={{ flex: 1 }}
+                >
+                  <option value="">-- No specific plant (General Diagnosis) --</option>
+                  {plants.map(p => (
+                    <option key={p._id} value={p._id}>
+                      {p.name} {p.variety ? `(${p.variety})` : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* Upload area with drag & drop */}
@@ -203,12 +342,16 @@ const DiagnoseTab = () => {
               onClick={() => fileInputRef.current?.click()}
             >
               {preview ? (
-                <img src={preview} alt="Preview" className="preview-image" />
+                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <img src={preview} alt="Preview" className="preview-image" style={{ maxHeight: '240px', borderRadius: '12px', objectFit: 'contain' }} />
+                </div>
               ) : (
                 <div className="upload-placeholder">
-                  <span className="upload-icon">📸</span>
-                  <span className="upload-text">Click or drag to upload</span>
-                  <span className="upload-subtext">Supports JPG, PNG, GIF</span>
+                  <span className="upload-icon">
+                    <RiCameraLine />
+                  </span>
+                  <span className="upload-text">Click or drag image to upload</span>
+                  <span className="upload-subtext">Supports JPG, PNG, WEBP</span>
                 </div>
               )}
               <input
@@ -226,22 +369,28 @@ const DiagnoseTab = () => {
                 className="btn-secondary"
                 onClick={handleCameraCapture}
               >
-                📷 Take Photo
+                <RiCameraLine /> Take Photo
               </button>
               <button 
                 type="button" 
                 className="btn-secondary"
                 onClick={() => fileInputRef.current?.click()}
               >
-                📁 Browse Files
+                <RiFolderUploadLine /> Browse Files
               </button>
               <button 
                 type="submit" 
                 className="btn-primary" 
                 onClick={handleSubmit}
-                disabled={!image || loading}
+                disabled={(!image && !preview) || loading}
               >
-                {loading ? 'Analyzing...' : '🔬 Diagnose'}
+                {loading ? (
+                  'Analyzing...'
+                ) : (
+                  <>
+                    <RiSparklingLine /> Run Diagnosis
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -280,6 +429,34 @@ const DiagnoseTab = () => {
           />
         </div>
       </div>
+
+      {/* Live Camera Viewfinder Modal */}
+      {isCameraOpen && (
+        <div className="camera-modal-overlay" onClick={stopCamera}>
+          <div className="camera-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="camera-modal-header">
+              <h3>
+                <RiCameraLine /> Live Plant Leaf Camera
+              </h3>
+              <button className="camera-close-btn" onClick={stopCamera} aria-label="Close Camera">
+                <RiCloseLine />
+              </button>
+            </div>
+            <div className="camera-viewport">
+              <video ref={videoRef} autoPlay playsInline muted className="camera-video" />
+              <div className="camera-guide-box" />
+            </div>
+            <div className="camera-modal-actions">
+              <button type="button" className="btn-secondary" onClick={handleSwitchCamera}>
+                <RiCameraSwitchLine /> Switch Camera
+              </button>
+              <button type="button" className="btn-primary camera-snap-btn" onClick={handleSnapPhoto}>
+                <RiCameraLine /> Capture Photo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

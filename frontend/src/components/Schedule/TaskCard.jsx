@@ -1,4 +1,21 @@
 import React, { useState } from 'react';
+import { 
+  RiDropLine, 
+  RiShoppingBasketLine, 
+  RiScissorsCutLine, 
+  RiBugLine, 
+  RiCalendarEventLine, 
+  RiCheckLine, 
+  RiRestartLine, 
+  RiMapPinLine, 
+  RiAlertLine, 
+  RiRepeatLine, 
+  RiTimerLine, 
+  RiMoreFill, 
+  RiEditLine, 
+  RiDeleteBinLine 
+} from 'react-icons/ri';
+import { TbPlant2, TbFlask } from 'react-icons/tb';
 import { formatDate } from '../../utils/helpers';
 import './TaskCard.css';
 
@@ -16,23 +33,30 @@ const TaskCard = ({
   const [showMenu, setShowMenu] = useState(false);
 
   const getTypeIcon = (type) => {
-    const map = {
-      watering: '💧',
-      fertilizing: '🧪',
-      planting: '🌱',
-      harvesting: '🍅',
-      pruning: '✂️',
-      pest_check: '🐛',
-      other: '📋',
-    };
-    return map[type] || '📋';
+    switch (type) {
+      case 'watering':
+        return <RiDropLine style={{ color: '#0ea5e9' }} />;
+      case 'fertilizing':
+        return <TbFlask style={{ color: '#8b5cf6' }} />;
+      case 'planting':
+        return <TbPlant2 style={{ color: '#10b981' }} />;
+      case 'harvesting':
+        return <RiShoppingBasketLine style={{ color: '#f59e0b' }} />;
+      case 'pruning':
+        return <RiScissorsCutLine style={{ color: '#64748b' }} />;
+      case 'pest_check':
+        return <RiBugLine style={{ color: '#ef4444' }} />;
+      case 'other':
+      default:
+        return <RiCalendarEventLine style={{ color: '#2d6a4f' }} />;
+    }
   };
 
   const getPriorityLabel = (priority) => {
     const map = {
-      high: { label: '🔴 High', className: 'high' },
-      medium: { label: '🟡 Medium', className: 'medium' },
-      low: { label: '🟢 Low', className: 'low' },
+      high: { label: 'High', className: 'high' },
+      medium: { label: 'Medium', className: 'medium' },
+      low: { label: 'Low', className: 'low' },
     };
     return map[priority] || map.medium;
   };
@@ -72,12 +96,15 @@ const TaskCard = ({
           className={`complete-btn ${isCompleted ? 'checked' : ''}`}
           onClick={() => isCompleted ? onRestore?.(task._id) : onComplete(task._id)}
           title={isCompleted ? 'Restore task' : 'Complete task'}
+          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
         >
-          {isCompleted ? '↩️' : '✓'}
+          {isCompleted ? <RiRestartLine /> : <RiCheckLine />}
         </button>
         <div className="task-content">
           <div className="task-header">
-            <span className="task-icon">{getTypeIcon(task.type)}</span>
+            <span className="task-icon" style={{ display: 'inline-flex', alignItems: 'center' }}>
+              {getTypeIcon(task.type)}
+            </span>
             <span className={`task-title ${isCompleted ? 'strikethrough' : ''}`}>
               {task.title}
             </span>
@@ -91,17 +118,27 @@ const TaskCard = ({
           <div className="task-meta">
             <span className="task-type">{getTypeLabel(task.type)}</span>
             {getPlantName(task.plantId) && (
-              <span className="task-plant">🌱 {getPlantName(task.plantId)}</span>
+              <span className="task-plant" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                <TbPlant2 /> {getPlantName(task.plantId)}
+              </span>
             )}
             {getGardenName(task.gardenId) && (
-              <span className="task-garden">📍 {getGardenName(task.gardenId)}</span>
+              <span className="task-garden" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                <RiMapPinLine /> {getGardenName(task.gardenId)}
+              </span>
             )}
-            <span className={`task-due ${isOverdue ? 'overdue' : ''}`}>
-              📅 {formatDate(task.dueDate)}
-              {isOverdue && ' ⚠️ Overdue'}
+            <span className={`task-due ${isOverdue ? 'overdue' : ''}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+              <RiCalendarEventLine /> {formatDate(task.dueDate)}
+              {isOverdue && (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', color: '#ef4444', marginLeft: '4px' }}>
+                  <RiAlertLine /> Overdue
+                </span>
+              )}
             </span>
             {task.recurring && (
-              <span className="task-recurring">🔄 Recurring</span>
+              <span className="task-recurring" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                <RiRepeatLine /> Recurring
+              </span>
             )}
           </div>
         </div>
@@ -113,21 +150,22 @@ const TaskCard = ({
             className="snooze-btn"
             onClick={() => onSnooze(task._id)}
             title="Snooze +1 day"
+            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
           >
-            ⏰
+            <RiTimerLine />
           </button>
         )}
         <div className="task-menu">
-          <button className="menu-btn" onClick={() => setShowMenu(!showMenu)}>
-            ⋮
+          <button className="menu-btn" onClick={() => setShowMenu(!showMenu)} aria-label="More actions">
+            <RiMoreFill />
           </button>
           {showMenu && (
             <div className="menu-dropdown">
-              <button onClick={() => { onEdit(task); setShowMenu(false); }}>
-                ✏️ Edit
+              <button onClick={() => { onEdit(task); setShowMenu(false); }} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <RiEditLine /> Edit
               </button>
-              <button onClick={() => { onDelete(task._id); setShowMenu(false); }} className="danger">
-                🗑️ Delete
+              <button onClick={() => { onDelete(task._id); setShowMenu(false); }} className="danger" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <RiDeleteBinLine /> Delete
               </button>
             </div>
           )}

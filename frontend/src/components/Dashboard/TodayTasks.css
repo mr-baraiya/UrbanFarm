@@ -23,9 +23,17 @@
 .tasks-header h3 {
   color: var(--text-main);
   font-size: 1.05rem;
-  font-weight: 500;
+  font-weight: 600;
   margin: 0;
   letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.tasks-header-icon {
+  font-size: 1.2rem;
+  color: #0284c7;
 }
 
 .task-count {
@@ -64,8 +72,27 @@
   flex-wrap: wrap;
 }
 
-.task-priority {
-  font-size: 0.8rem;
+.task-priority-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.task-priority-dot.high {
+  background: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.task-priority-dot.medium {
+  background: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+}
+
+.task-priority-dot.low {
+  background: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
 }
 
 .task-title {
@@ -75,12 +102,20 @@
 }
 
 .task-plant {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   color: var(--text-muted);
   background: var(--bg-primary);
   border: 1px solid var(--border-light);
-  padding: 0.1rem 0.5rem;
+  padding: 0.15rem 0.5rem;
   border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.plant-tag-icon {
+  color: #2d6a4f;
+  font-size: 0.8rem;
 }
 
 .task-actions {
@@ -90,29 +125,32 @@
 }
 
 .task-due {
-  font-size: 0.7rem;
-  color: #dfb19b;
-  background: rgba(255, 248, 245, 0.6);
-  border: 1px solid rgba(223, 177, 155, 0.3);
+  font-size: 0.72rem;
   padding: 0.15rem 0.6rem;
   border-radius: 12px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
-.task-due:not(:contains('Overdue')) {
-  color: var(--accent-sage);
-  background: rgba(245, 250, 247, 0.6);
-  border-color: rgba(142, 168, 157, 0.3);
+.task-due.due-today {
+  color: #059669;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.task-due.overdue {
+  color: #ea580c;
+  background: rgba(249, 115, 22, 0.12);
+  border: 1px solid rgba(249, 115, 22, 0.25);
 }
 
 .task-complete-btn {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   border: 1px solid var(--border-light);
   background: var(--bg-primary);
   color: var(--text-muted);
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   cursor: pointer;
   transition: var(--transition-smooth);
   display: flex;
@@ -121,8 +159,8 @@
 }
 
 .task-complete-btn:hover {
-  border-color: var(--accent-sage);
-  background: var(--accent-sage);
+  border-color: #10b981;
+  background: #10b981;
   color: #ffffff;
 }
 
@@ -132,11 +170,14 @@
   color: var(--text-muted);
 }
 
-.no-tasks-icon {
+.no-tasks-icon-wrap {
   font-size: 2rem;
-  display: block;
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 0.4rem;
-  opacity: 0.8;
+  opacity: 0.85;
 }
 
 .no-tasks p {

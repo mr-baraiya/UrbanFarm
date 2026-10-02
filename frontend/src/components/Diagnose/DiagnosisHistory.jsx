@@ -1,4 +1,13 @@
 import React from 'react';
+import { 
+  RiFileList3Line, 
+  RiSearchLine, 
+  RiCheckLine, 
+  RiAlertLine,
+  RiTimeLine,
+  RiPlantLine
+} from 'react-icons/ri';
+import { TbPlant2 } from 'react-icons/tb';
 import './DiagnosisHistory.css';
 
 const DiagnosisHistory = ({ 
@@ -11,36 +20,45 @@ const DiagnosisHistory = ({
   onSearchChange
 }) => {
   const getStatusBadge = (item) => {
+    const isHealthy = item.isHealthy || item.diseaseName?.toLowerCase().includes('healthy');
+    if (isHealthy) {
+      return { label: 'Healthy', color: '#2d6a4f', icon: <RiCheckLine /> };
+    }
     if (item.isResolved) {
-      return { label: 'Resolved', color: '#a8d5ba', icon: '✅' };
+      return { label: 'Resolved', color: '#10b981', icon: <RiCheckLine /> };
     }
     if (item.confidence > 0.7) {
-      return { label: 'Critical', color: '#e8b4b4', icon: '🔴' };
+      return { label: 'Critical', color: '#ef4444', icon: <RiAlertLine /> };
     }
     if (item.confidence > 0.4) {
-      return { label: 'Monitoring', color: '#f0d5c0', icon: '🟡' };
+      return { label: 'Monitoring', color: '#f59e0b', icon: <RiAlertLine /> };
     }
-    return { label: 'Low Risk', color: '#a8d5ba', icon: '🟢' };
+    return { label: 'Low Risk', color: '#10b981', icon: <RiCheckLine /> };
   };
 
   const filterOptions = [
     { value: 'all', label: 'All' },
-    { value: 'critical', label: '🔴 Critical' },
-    { value: 'monitoring', label: '🟡 Monitoring' },
-    { value: 'resolved', label: '✅ Resolved' },
+    { value: 'healthy', label: 'Healthy' },
+    { value: 'critical', label: 'Critical' },
+    { value: 'monitoring', label: 'Monitoring' },
+    { value: 'resolved', label: 'Resolved' },
   ];
 
   return (
     <div className="diagnosis-history">
       <div className="history-header">
-        <h3>📋 Diagnosis History</h3>
-        <span className="history-count">{history.length} diagnoses</span>
+        <h3>
+          <RiFileList3Line className="history-header-icon" /> Diagnosis History
+        </h3>
+        <span className="history-count">{history.length} records</span>
       </div>
 
       {/* Filters */}
       <div className="history-filters">
         <div className="search-bar">
-          <span className="search-icon">🔍</span>
+          <span className="search-icon">
+            <RiSearchLine />
+          </span>
           <input
             type="text"
             placeholder="Search by disease or plant..."
@@ -64,7 +82,9 @@ const DiagnosisHistory = ({
       {/* History List */}
       {history.length === 0 ? (
         <div className="no-history">
-          <span className="no-history-icon">📋</span>
+          <span className="no-history-icon">
+            <RiFileList3Line />
+          </span>
           <p>No diagnoses yet.</p>
           <p className="sub-text">Upload a plant photo to get started!</p>
         </div>
@@ -84,21 +104,23 @@ const DiagnosisHistory = ({
                   {item.imageUrl ? (
                     <img src={item.imageUrl} alt="Diagnosis" />
                   ) : (
-                    <span className="thumbnail-placeholder">🌿</span>
+                    <TbPlant2 className="thumbnail-placeholder" />
                   )}
                 </div>
                 
                 <div className="history-content">
                   <div className="history-header-row">
                     <span className="history-disease">{item.diseaseName}</span>
-                    <span className="history-status" style={{ color: status.color }}>
+                    <span className="history-status" style={{ color: status.color, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                       {status.icon} {status.label}
                     </span>
                   </div>
                   
                   <div className="history-details">
                     {item.plantId?.name && (
-                      <span className="history-plant">🌱 {item.plantId.name}</span>
+                      <span className="history-plant" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <RiPlantLine /> {item.plantId.name}
+                      </span>
                     )}
                     <span className="history-confidence">
                       {Math.round(item.confidence * 100)}% confidence

@@ -1,4 +1,5 @@
 import React from 'react';
+import { RiSearchLine, RiCloseLine, RiCheckboxMultipleLine } from 'react-icons/ri';
 import './PlantFilters.css';
 
 const PlantFilters = ({
@@ -18,11 +19,11 @@ const PlantFilters = ({
   totalPlants,
 }) => {
   const statusOptions = [
-    { value: 'all', label: 'All Status' },
-    { value: 'seedling', label: '🌱 Seedling' },
-    { value: 'growing', label: '🌿 Growing' },
-    { value: 'mature', label: '🌾 Mature' },
-    { value: 'harvested', label: '🍅 Harvesting' },
+    { value: 'all', label: 'All Statuses' },
+    { value: 'seedling', label: 'Seedling' },
+    { value: 'growing', label: 'Growing' },
+    { value: 'mature', label: 'Mature' },
+    { value: 'harvested', label: 'Harvesting' },
   ];
 
   const sortOptions = [
@@ -32,28 +33,22 @@ const PlantFilters = ({
     { value: 'status', label: 'Growth Stage' },
   ];
 
-  const typeOptions = [
-    { value: 'all', label: 'All Types' },
-    { value: 'vegetable', label: '🥬 Vegetable' },
-    { value: 'fruit', label: '🍎 Fruit' },
-    { value: 'herb', label: '🌿 Herb' },
-    { value: 'flower', label: '🌸 Flower' },
-  ];
-
   return (
     <div className="plant-filters">
       <div className="filters-top">
         <div className="search-bar">
-          <span className="search-icon">🔍</span>
+          <span className="search-icon">
+            <RiSearchLine />
+          </span>
           <input
             type="text"
-            placeholder="Search plants by name..."
+            placeholder="Search plants by name or variety..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
           />
           {searchTerm && (
-            <button className="clear-search" onClick={() => onSearchChange('')}>
-              ✕
+            <button className="clear-search" onClick={() => onSearchChange('')} aria-label="Clear search">
+              <RiCloseLine />
             </button>
           )}
         </div>
@@ -62,7 +57,11 @@ const PlantFilters = ({
             className={`select-mode-btn ${selectMode ? 'active' : ''}`}
             onClick={onSelectModeToggle}
           >
-            {selectMode ? '✕ Cancel' : '☑ Select'}
+            {selectMode ? (
+              <><RiCloseLine /> Cancel</>
+            ) : (
+              <><RiCheckboxMultipleLine /> Select</>
+            )}
           </button>
         </div>
       </div>

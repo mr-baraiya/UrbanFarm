@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { createPost } from '../../services/plantService';
+import { createPost, updatePost } from '../../services/plantService';
 import { getPlants, getGardens } from '../../services/plantService';
 import { useNotification } from '../../hooks/useNotification';
 import './PostForm.css';
 
-const PostForm = ({ onClose, user }) => {
+const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
   const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    category: 'general',
-    tags: [],
-    plantId: '',
-    gardenId: '',
+    title: post?.title || '',
+    content: post?.content || '',
+    category: post?.category || 'general',
+    tags: post?.tags || [],
+    plantId: post?.plantId?._id || post?.plantId || '',
+    gardenId: post?.gardenId?._id || post?.gardenId || '',
   });
   const [image, setImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [imagePreview, setImagePreview] = useState(post?.imageUrl || null);
   const [plants, setPlants] = useState([]);
   const [gardens, setGardens] = useState([]);
   const [tagInput, setTagInput] = useState('');
@@ -76,21 +76,36 @@ const PostForm = ({ onClose, user }) => {
     }
 
     setLoading(true);
-    const data = new FormData();
-    data.append('title', formData.title);
-    data.append('content', formData.content);
-    data.append('category', formData.category);
-    data.append('tags', JSON.stringify(formData.tags));
-    if (formData.plantId) data.append('plantId', formData.plantId);
-    if (formData.gardenId) data.append('gardenId', formData.gardenId);
-    if (image) data.append('image', image);
 
     try {
-      await createPost(data);
-      addNotification('Post shared successfully! 🌱', 'success');
+      if (post && post._id) {
+        // Edit existing post
+        const updated = await updatePost(post._id, {
+          title: formData.title,
+          content: formData.content,
+          category: formData.category,
+          tags: formData.tags,
+        });
+        addNotification('Post updated successfully! 🌿', 'success');
+        if (onPostSaved) onPostSaved(updated);
+      } else {
+        // Create new post
+        const data = new FormData();
+        data.append('title', formData.title);
+        data.append('content', formData.content);
+        data.append('category', formData.category);
+        data.append('tags', JSON.stringify(formData.tags));
+        if (formData.plantId) data.append('plantId', formData.plantId);
+        if (formData.gardenId) data.append('gardenId', formData.gardenId);
+        if (image) data.append('image', image);
+
+        const newPost = await createPost(data);
+        addNotification('Post shared successfully! 🌱', 'success');
+        if (onPostSaved) onPostSaved(newPost);
+      }
       onClose();
     } catch (error) {
-      addNotification('Failed to create post', 'error');
+      addNotification('Failed to save post', 'error');
     } finally {
       setLoading(false);
     }
@@ -107,7 +122,7 @@ const PostForm = ({ onClose, user }) => {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content post-form" onClick={(e) => e.stopPropagation()}>
-        <h3>Share with the Community</h3>
+        <h3>{post ? 'Edit Post' : 'Share with the Community'}</h3>
         <form onSubmit={handleSubmit}>
           {/* Category */}
           <div className="form-group">
@@ -146,54 +161,58 @@ const PostForm = ({ onClose, user }) => {
             />
           </div>
 
-          {/* Image Upload */}
-          <div className="form-group">
-            <label>Photo / Harvest Image</label>
-            <div className="image-upload-area" onClick={() => document.getElementById('imageInput').click()}>
-              {imagePreview ? (
-                <img src={imagePreview} alt="Preview" className="image-preview" />
-              ) : (
-                <div className="upload-placeholder">
-                  <span>📸</span>
-                  <span>Click to upload a photo</span>
-                  <span className="upload-sub">(Optional)</span>
-                </div>
-              )}
-              <input
-                id="imageInput"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                style={{ display: 'none' }}
-              />
+          {/* Image Upload - for new post */}
+          {!post && (
+            <div className="form-group">
+              <label>Photo / Harvest Image</label>
+              <div className="image-upload-area" onClick={() => document.getElementById('imageInput').click()}>
+                {imagePreview ? (
+                  <img src={imagePreview} alt="Preview" className="image-preview" />
+                ) : (
+                  <div className="upload-placeholder">
+                    <span>📸</span>
+                    <span>Click to upload a photo</span>
+                    <span className="upload-sub">(Optional)</span>
+                  </div>
+                )}
+                <input
+                  id="imageInput"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  style={{ display: 'none' }}
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Plant & Garden Tagging */}
-          <div className="form-row">
-            <div className="form-group">
-              <label>Tag Plant (Optional)</label>
-              <select name="plantId" value={formData.plantId} onChange={handleChange}>
-                <option value="">None</option>
-                {plants.map((p) => (
-                  <option key={p._id} value={p._id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
+          {!post && (
+            <div className="form-row">
+              <div className="form-group">
+                <label>Tag Plant (Optional)</label>
+                <select name="plantId" value={formData.plantId} onChange={handleChange}>
+                  <option value="">None</option>
+                  {plants.map((p) => (
+                    <option key={p._id} value={p._id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Tag Garden (Optional)</label>
+                <select name="gardenId" value={formData.gardenId} onChange={handleChange}>
+                  <option value="">None</option>
+                  {gardens.map((g) => (
+                    <option key={g._id} value={g._id}>
+                      {g.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-            <div className="form-group">
-              <label>Tag Garden (Optional)</label>
-              <select name="gardenId" value={formData.gardenId} onChange={handleChange}>
-                <option value="">None</option>
-                {gardens.map((g) => (
-                  <option key={g._id} value={g._id}>
-                    {g.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+          )}
 
           {/* Tags */}
           <div className="form-group">
@@ -227,7 +246,7 @@ const PostForm = ({ onClose, user }) => {
               Cancel
             </button>
             <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Sharing...' : 'Share Post'}
+              {loading ? 'Saving...' : post ? 'Save Changes' : 'Share Post'}
             </button>
           </div>
         </form>
@@ -236,4 +255,4 @@ const PostForm = ({ onClose, user }) => {
   );
 };
 
-export default PostForm;
+export default PostForm;

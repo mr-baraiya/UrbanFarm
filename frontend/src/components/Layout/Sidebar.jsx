@@ -1,5 +1,16 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import { 
+  RiDashboardLine, 
+  RiPlantLine, 
+  RiSeedlingLine,
+  RiMicroscopeLine, 
+  RiSparklingLine, 
+  RiDropLine, 
+  RiCalendarEventLine, 
+  RiTeamLine, 
+  RiUser3Line 
+} from "react-icons/ri";
 import { useAuth } from "../../hooks/useAuth";
 import "./Sidebar.css";
 
@@ -12,15 +23,15 @@ const Sidebar = () => {
   }
 
   const links = [
-    { to: "/app/dashboard", label: "Dashboard" },
-    { to: "/app/gardens", label: "Gardens" },
-    { to: "/app/plants", label: "Plants" },
-    { to: "/app/diagnose", label: "Diagnose" },
-    { to: "/app/crops", label: "Crop AI" },
-    { to: "/app/watering", label: "Watering" },
-    { to: "/app/schedule", label: "Schedule" },
-    { to: "/app/community", label: "Community" },
-    { to: "/app/profile", label: "Profile" },
+    { to: "/app/dashboard", label: "Dashboard", icon: <RiDashboardLine /> },
+    { to: "/app/gardens", label: "Gardens", icon: <RiPlantLine /> },
+    { to: "/app/plants", label: "Plants", icon: <RiSeedlingLine /> },
+    { to: "/app/diagnose", label: "Diagnose", icon: <RiMicroscopeLine /> },
+    { to: "/app/crops", label: "Crop AI", icon: <RiSparklingLine /> },
+    { to: "/app/watering", label: "Watering", icon: <RiDropLine /> },
+    { to: "/app/schedule", label: "Schedule", icon: <RiCalendarEventLine /> },
+    { to: "/app/community", label: "Community", icon: <RiTeamLine /> },
+    { to: "/app/profile", label: "Profile", icon: <RiUser3Line /> },
   ];
 
   return (
@@ -32,6 +43,7 @@ const Sidebar = () => {
               to={link.to}
               className={({ isActive }) => (isActive ? "active" : "")}
             >
+              <span className="icon">{link.icon}</span>
               <span className="label">{link.label}</span>
             </NavLink>
           </li>

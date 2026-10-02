@@ -3,10 +3,10 @@
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  background: rgba(168, 162, 188, 0.1);
-  padding: 0.3rem 1rem 0.3rem 1.2rem;
+  background: rgba(45, 106, 79, 0.08);
+  padding: 0.35rem 1rem 0.35rem 1.2rem;
   border-radius: 30px;
-  border: 2px solid var(--accent-lavender, #a8a2bc);
+  border: 1.5px solid #2d6a4f;
   animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -24,53 +24,78 @@
 .bulk-count {
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--text-main, #2c2421);
+  color: #2d6a4f;
 }
 
 .bulk-buttons {
   display: flex;
-  gap: 0.3rem;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .bulk-btn {
-  padding: 0.2rem 0.6rem;
+  padding: 0.25rem 0.65rem;
   border: none;
   border-radius: 20px;
   cursor: pointer;
   font-size: 0.85rem;
-  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
-  background: none;
-  color: var(--text-muted, #7c6f66);
-  font-weight: 500;
+  transition: var(--transition-smooth, all 0.25s cubic-bezier(0.16, 1, 0.3, 1));
+  background: var(--surface-primary, #ffffff);
+  color: var(--text-main, #2c2421);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  line-height: 1.2;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.bulk-btn .bulk-icon {
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.bulk-btn .bulk-icon.blue {
+  color: #0284c7;
+}
+
+.bulk-btn .bulk-icon.amber {
+  color: #d97706;
 }
 
 .bulk-btn:hover {
-  background: rgba(255, 255, 255, 0.6);
-  color: var(--text-main, #2c2421);
+  background: var(--surface-primary, #ffffff);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .bulk-btn.water:hover {
-  color: var(--accent-sage, #8ea89d);
-  background: rgba(142, 168, 157, 0.1);
+  color: #0284c7;
 }
 
 .bulk-btn.move:hover {
-  color: var(--accent-blue, #b0c4de);
-  background: rgba(176, 196, 222, 0.1);
+  color: #d97706;
+}
+
+.bulk-btn.delete {
+  color: #dc2626;
+  padding: 0.25rem 0.5rem;
 }
 
 .bulk-btn.delete:hover {
-  color: #c8968c;
-  background: rgba(200, 150, 140, 0.1);
+  background: #fee2e2;
+  color: #b91c1c;
 }
 
 .bulk-btn.cancel {
   color: var(--text-muted, #7c6f66);
+  padding: 0.25rem 0.5rem;
 }
 
 .bulk-btn.cancel:hover {
   color: var(--text-main, #2c2421);
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .bulk-move-wrapper {
@@ -83,12 +108,12 @@
   left: 0;
   background: var(--surface-primary, #ffffff);
   border-radius: var(--radius-md, 12px);
-  box-shadow: 0 8px 24px rgba(44, 36, 33, 0.1);
-  padding: 0.3rem;
-  min-width: 150px;
+  box-shadow: 0 8px 24px rgba(44, 36, 33, 0.12);
+  padding: 0.35rem;
+  min-width: 160px;
   z-index: 10;
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
-  margin-top: 0.2rem;
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.5));
+  margin-top: 0.3rem;
   animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -104,27 +129,29 @@
 }
 
 .move-dropdown button {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   width: 100%;
-  padding: 0.4rem 1rem;
+  padding: 0.45rem 0.85rem;
   border: none;
   background: none;
   text-align: left;
-  border-radius: var(--radius-md, 12px);
+  border-radius: var(--radius-md, 8px);
   color: var(--text-main, #2c2421);
   cursor: pointer;
   font-size: 0.85rem;
-  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+  transition: var(--transition-smooth, all 0.2s ease);
+}
+
+.move-dropdown button .map-icon {
+  font-size: 0.9rem;
+  color: #ef4444;
+  flex-shrink: 0;
 }
 
 .move-dropdown button:hover {
   background: var(--bg-primary, #fbf9f7);
-}
-
-.move-dropdown button .garden-name {
-  color: var(--text-muted, #7c6f66);
-  font-size: 0.8rem;
-  margin-left: 0.3rem;
 }
 
 /* Responsive */
@@ -134,20 +161,6 @@
     padding: 0.4rem 0.8rem;
     gap: 0.5rem;
     width: 100%;
-    justify-content: center;
-  }
-
-  .bulk-count {
-    font-size: 0.8rem;
-  }
-
-  .bulk-btn {
-    font-size: 0.8rem;
-    padding: 0.15rem 0.5rem;
-  }
-
-  .bulk-buttons {
-    flex-wrap: wrap;
     justify-content: center;
   }
 }

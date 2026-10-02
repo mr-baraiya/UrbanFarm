@@ -1,4 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { 
+  RiAwardLine, 
+  RiDropLine, 
+  RiMicroscopeLine, 
+  RiShoppingBasketLine, 
+  RiLeafLine, 
+  RiTeamLine, 
+  RiSunCloudyLine, 
+  RiCheckLine, 
+  RiLockLine,
+  RiTrophyLine
+} from 'react-icons/ri';
+import { TbPlant2 } from 'react-icons/tb';
 import { getBadges } from '../../services/authService';
 import './Badges.css';
 
@@ -25,60 +38,68 @@ const Badges = ({ badges: propBadges }) => {
     }
   };
 
-  // Define all possible badges with their requirements
+  // Define all possible badges with professional icons and color themes
   const allBadges = [
     {
       id: 'first_sprout',
-      icon: '🌱',
+      icon: <TbPlant2 />,
+      colorClass: 'badge-sprout',
       name: 'First Sprout',
       description: 'Added your first plant',
       requirement: 'Add your first plant to any garden',
     },
     {
       id: 'hydration_master',
-      icon: '💧',
+      icon: <RiDropLine />,
+      colorClass: 'badge-hydration',
       name: 'Hydration Master',
       description: 'Completed 10 watering sessions',
       requirement: 'Complete 10 watering sessions (0/10)',
     },
     {
       id: 'plant_doctor',
-      icon: '🔬',
+      icon: <RiMicroscopeLine />,
+      colorClass: 'badge-doctor',
       name: 'Plant Doctor',
       description: 'Ran your first disease diagnosis',
       requirement: 'Run your first disease diagnosis',
     },
     {
       id: 'first_harvest',
-      icon: '🍅',
+      icon: <RiShoppingBasketLine />,
+      colorClass: 'badge-harvest',
       name: 'First Harvest',
       description: 'Marked a crop as harvested',
       requirement: 'Harvest your first crop',
     },
     {
       id: 'green_thumb',
-      icon: '🌿',
+      icon: <RiLeafLine />,
+      colorClass: 'badge-thumb',
       name: 'Green Thumb',
       description: 'Grew 5+ plants successfully',
       requirement: 'Grow 5+ plants (0/5)',
     },
     {
       id: 'community_gardener',
-      icon: '👥',
+      icon: <RiTeamLine />,
+      colorClass: 'badge-community',
       name: 'Community Gardener',
       description: 'Shared 5 posts in the community',
       requirement: 'Share 5 community posts (0/5)',
     },
     {
       id: 'gardening_guru',
-      icon: '🌟',
+      icon: <RiAwardLine />,
+      colorClass: 'badge-guru',
       name: 'Gardening Guru',
       description: 'Reached Master Gardener level',
       requirement: 'Earn 100+ gardening points',
     },
     {
       id: 'weather_watcher',
-      icon: '🌤️',
+      icon: <RiSunCloudyLine />,
+      colorClass: 'badge-weather',
       name: 'Weather Watcher',
       description: 'Used weather features 10 times',
       requirement: 'Check weather 10 times (0/10)',
@@ -92,7 +113,6 @@ const Badges = ({ badges: propBadges }) => {
 
   // Get progress for a badge (mock data)
   const getBadgeProgress = (badgeId) => {
-    // In a real implementation, this would come from the backend
     const progress = {
       'hydration_master': { current: 3, total: 10 },
       'green_thumb': { current: 2, total: 5 },
@@ -108,8 +128,10 @@ const Badges = ({ badges: propBadges }) => {
 
   return (
     <div className="badges-section">
-      <h3>🏅 Badges & Achievements</h3>
-      <p className="badges-subtitle">Collect badges as you grow your urban garden!</p>
+      <h3>
+        <RiAwardLine className="badges-header-icon" /> Badges & Achievements
+      </h3>
+      <p className="badges-subtitle">Collect badges as you grow and maintain your urban garden!</p>
       
       <div className="badges-grid">
         {allBadges.map((badge) => {
@@ -121,10 +143,17 @@ const Badges = ({ badges: propBadges }) => {
               key={badge.id} 
               className={`badge-item ${isUnlocked ? 'unlocked' : 'locked'}`}
             >
-              <div className="badge-icon-container">
-                <span className="badge-icon">{badge.icon}</span>
-                {isUnlocked && <span className="badge-check">✅</span>}
-                {!isUnlocked && <span className="badge-lock">🔒</span>}
+              <div className={`badge-icon-container ${badge.colorClass}`}>
+                <div className="badge-icon-wrap">{badge.icon}</div>
+                {isUnlocked ? (
+                  <span className="badge-status-pill unlocked" title="Unlocked">
+                    <RiCheckLine />
+                  </span>
+                ) : (
+                  <span className="badge-status-pill locked" title="Locked">
+                    <RiLockLine />
+                  </span>
+                )}
               </div>
               <div className="badge-info">
                 <h4 className="badge-name">{badge.name}</h4>
@@ -137,7 +166,6 @@ const Badges = ({ badges: propBadges }) => {
                         className="progress-fill" 
                         style={{ 
                           width: `${(progress.current / progress.total) * 100}%`,
-                          background: 'linear-gradient(90deg, #b8a9c9, #9a87b1)'
                         }}
                       />
                     </div>
@@ -154,9 +182,11 @@ const Badges = ({ badges: propBadges }) => {
 
       {badges.length === 0 && (
         <div className="badges-empty">
-          <span>🎯</span>
+          <div className="badges-empty-icon">
+            <RiTrophyLine />
+          </div>
           <p>Start earning badges by growing your garden!</p>
-          <small>Complete activities to unlock achievements</small>
+          <small>Complete activities and daily tasks to unlock achievements</small>
         </div>
       )}
     </div>

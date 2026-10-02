@@ -1,8 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { 
+  RiDownload2Line, 
+  RiAddLine, 
+  RiSearchLine, 
+  RiArrowLeftSLine, 
+  RiArrowRightSLine 
+} from 'react-icons/ri';
+import { TbPlant2 } from 'react-icons/tb';
 import { getPlants, getGardens, addPlant, deletePlant, updatePlant } from '../../services/plantService';
 import { useNotification } from '../../hooks/useNotification';
 import ConfirmModal from '../Common/ConfirmModal';
+import QRCodeModal from '../Common/QRCodeModal';
+import HarvestTrackerModal from './HarvestTrackerModal';
 import PlantCard from './PlantCard';
 import PlantForm from '../GrowthTracker/PlantForm';
 import PlantFilters from './PlantFilters';
@@ -22,6 +32,8 @@ const Plants = () => {
   const [selectedGarden, setSelectedGarden] = useState(gardenIdParam || '');
   const [showForm, setShowForm] = useState(actionParam === 'add');
   const [editingPlant, setEditingPlant] = useState(null);
+  const [activeQRPlant, setActiveQRPlant] = useState(null);
+  const [activeHarvestPlant, setActiveHarvestPlant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
@@ -29,6 +41,8 @@ const Plants = () => {
   const [sortBy, setSortBy] = useState('recent');
   const [selectedPlants, setSelectedPlants] = useState([]);
   const [selectMode, setSelectMode] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const plantsPerPage = 12;
 
   // Custom Confirm Modal state
   const [confirmConfig, setConfirmConfig] = useState({
@@ -105,13 +119,14 @@ const Plants = () => {
     }
     
     setFilteredPlants(filtered);
+    setCurrentPage(1);
   };
 
   const handleAddPlant = async (plantData) => {
     try {
       const newPlant = await addPlant(plantData);
       setPlants([...plants, newPlant]);
-      addNotification('Plant added successfully! 🌱', 'success');
+      addNotification('Plant added successfully!', 'success');
       setShowForm(false);
     } catch (error) {
       addNotification('Failed to add plant', 'error');
@@ -126,6 +141,45 @@ const Plants = () => {
       setEditingPlant(null);
     } catch (error) {
       addNotification('Failed to update plant', 'error');
+    }
+  };
+
+  const handleExportData = (format) => {
+    if (plants.length === 0) {
+      addNotification('No plant data to export', 'error');
+      return;
+    }
+    if (format === 'json') {
+      const jsonStr = JSON.stringify(plants, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `urbanfarm_plants_${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      addNotification('Exported plant records as JSON!', 'success');
+    } else if (format === 'csv') {
+      const headers = ['Name', 'Variety', 'Scientific Name', 'Status', 'Health', 'Garden', 'Water Frequency', 'Created Date'];
+      const rows = plants.map(p => [
+        `"${(p.name || '').replace(/"/g, '""')}"`,
+        `"${(p.variety || '').replace(/"/g, '""')}"`,
+        `"${(p.scientificName || '').replace(/"/g, '""')}"`,
+        p.status || 'growing',
+        p.health || 'healthy',
+        `"${(p.gardenId?.name || '').replace(/"/g, '""')}"`,
+        p.waterFrequency || 3,
+        new Date(p.createdAt).toLocaleDateString()
+      ]);
+      const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `urbanfarm_plants_${Date.now()}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      addNotification('Exported plant records as CSV!', 'success');
     }
   };
 
@@ -194,7 +248,7 @@ const Plants = () => {
 
   const handleQuickWater = async (plantId) => {
     try {
-      addNotification('💧 Watering logged!', 'success');
+      addNotification('Watering logged!', 'success');
     } catch (error) {
       addNotification('Failed to log watering', 'error');
     }
@@ -203,6 +257,12 @@ const Plants = () => {
   const handleQuickDiagnose = (plantId) => {
     navigate(`/app/diagnose?plant=${plantId}`);
   };
+
+  // Pagination calculation
+  const indexOfLastPlant = currentPage * plantsPerPage;
+  const indexOfFirstPlant = indexOfLastPlant - plantsPerPage;
+  const currentPlants = filteredPlants.slice(indexOfFirstPlant, indexOfLastPlant);
+  const totalPages = Math.ceil(filteredPlants.length / plantsPerPage);
 
   if (loading) {
     return <div className="plants-loading">Loading your plants...</div>;
@@ -230,10 +290,18 @@ const Plants = () => {
       {/* Header */}
       <div className="plants-header">
         <div className="header-left">
-          <h2>🌱 My Plants</h2>
+          <h2>
+            <TbPlant2 className="plants-title-icon" /> My Plants
+          </h2>
           <span className="plant-count">{filteredPlants.length} plants</span>
         </div>
         <div className="header-actions">
+          <button className="btn-secondary" onClick={() => handleExportData('csv')}>
+            <RiDownload2Line /> Export CSV
+          </button>
+          <button className="btn-secondary" onClick={() => handleExportData('json')}>
+            <RiDownload2Line /> Export JSON
+          </button>
           {selectedPlants.length > 0 && (
             <BulkActions
               selectedCount={selectedPlants.length}
@@ -249,7 +317,7 @@ const Plants = () => {
             className="btn-primary" 
             onClick={() => setShowForm(true)}
           >
-            + Add Plant
+            <RiAddLine /> Add Plant
           </button>
         </div>
       </div>
@@ -278,7 +346,9 @@ const Plants = () => {
       {/* Plants Grid */}
       {filteredPlants.length === 0 ? (
         <div className="no-results">
-          <span className="no-results-icon">🔍</span>
+          <span className="no-results-icon">
+            <RiSearchLine />
+          </span>
           <h3>No plants found</h3>
           <p>Try adjusting your search or filters</p>
           <button className="btn-secondary" onClick={() => {
@@ -290,28 +360,55 @@ const Plants = () => {
           </button>
         </div>
       ) : (
-        <div className="plants-grid">
-          {filteredPlants.map((plant) => (
-            <PlantCard
-              key={plant._id}
-              plant={plant}
-              selectMode={selectMode}
-              isSelected={selectedPlants.includes(plant._id)}
-              onSelect={(id) => {
-                if (selectedPlants.includes(id)) {
-                  setSelectedPlants(selectedPlants.filter(p => p !== id));
-                } else {
-                  setSelectedPlants([...selectedPlants, id]);
-                }
-              }}
-              onEdit={() => setEditingPlant(plant)}
-              onDelete={() => promptDeletePlant(plant._id)}
-              onViewDetails={() => handleViewDetails(plant._id)}
-              onQuickWater={() => handleQuickWater(plant._id)}
-              onQuickDiagnose={() => handleQuickDiagnose(plant._id)}
-            />
-          ))}
-        </div>
+        <>
+          <div className="plants-grid">
+            {currentPlants.map((plant) => (
+              <PlantCard
+                key={plant._id}
+                plant={plant}
+                selectMode={selectMode}
+                isSelected={selectedPlants.includes(plant._id)}
+                onSelect={(id) => {
+                  if (selectedPlants.includes(id)) {
+                    setSelectedPlants(selectedPlants.filter(p => p !== id));
+                  } else {
+                    setSelectedPlants([...selectedPlants, id]);
+                  }
+                }}
+                onEdit={() => setEditingPlant(plant)}
+                onDelete={() => promptDeletePlant(plant._id)}
+                onViewDetails={() => handleViewDetails(plant._id)}
+                onQuickWater={() => handleQuickWater(plant._id)}
+                onQuickDiagnose={() => handleQuickDiagnose(plant._id)}
+                onShowQR={() => setActiveQRPlant(plant)}
+                onLogHarvest={() => setActiveHarvestPlant(plant)}
+              />
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="pagination-bar" style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '2rem' }}>
+              <button 
+                className="btn-secondary" 
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              >
+                <RiArrowLeftSLine /> Prev
+              </button>
+              <span style={{ display: 'flex', alignItems: 'center', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                Page {currentPage} of {totalPages}
+              </span>
+              <button 
+                className="btn-secondary" 
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              >
+                Next <RiArrowRightSLine />
+              </button>
+            </div>
+          )}
+        </>
       )}
 
       {/* Create/Edit Modal */}
@@ -330,6 +427,23 @@ const Plants = () => {
           onClose={() => setEditingPlant(null)}
           onSubmit={(data) => handleUpdatePlant(editingPlant._id, data)}
           gardens={gardens}
+        />
+      )}
+
+      {/* QR Code Modal */}
+      {activeQRPlant && (
+        <QRCodeModal
+          plant={activeQRPlant}
+          onClose={() => setActiveQRPlant(null)}
+        />
+      )}
+
+      {/* Harvest Tracker Modal */}
+      {activeHarvestPlant && (
+        <HarvestTrackerModal
+          plant={activeHarvestPlant}
+          onClose={() => setActiveHarvestPlant(null)}
+          onHarvestLogged={loadData}
         />
       )}
     </div>

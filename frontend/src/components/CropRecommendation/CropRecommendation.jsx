@@ -1,4 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { 
+  RiPlantLine, 
+  RiFileList3Line, 
+  RiMapPinLine, 
+  RiLoader4Line, 
+  RiSparklingLine, 
+  RiSeedlingLine,
+  RiStarFill
+} from 'react-icons/ri';
 import { getCropRecommendations, getRecommendationHistory, saveRecommendation, addPlant } from '../../services/plantService';
 import { getWeather } from '../../services/weatherService';
 import { useAuth } from '../../hooks/useAuth';
@@ -165,7 +174,7 @@ const CropRecommendation = () => {
   const handleSaveRecommendation = async (historyId) => {
     try {
       await saveRecommendation(historyId);
-      addNotification('Recommendation saved! ⭐', 'success');
+      addNotification('Recommendation saved to bookmarks!', 'success');
       loadHistory();
     } catch (error) {
       addNotification('Failed to save', 'error');
@@ -190,7 +199,7 @@ const CropRecommendation = () => {
         notes: crop.plantingTips || `Recommended by AI. ${crop.reason}`,
       });
       
-      addNotification(`Added ${crop.cropName} to your garden! 🌱`, 'success');
+      addNotification(`Added ${crop.cropName} to your garden!`, 'success');
     } catch (error) {
       addNotification('Failed to add plant', 'error');
     }
@@ -198,7 +207,9 @@ const CropRecommendation = () => {
 
   return (
     <div className="crop-recommendation">
-      <h2>🌾 AI Crop Recommendations</h2>
+      <h2>
+        <RiPlantLine className="header-icon" /> AI Crop Recommendations
+      </h2>
       <p className="subtitle">Get personalized crop suggestions for your urban space</p>
       
       <div className="crop-layout">
@@ -210,14 +221,21 @@ const CropRecommendation = () => {
           {/* Form */}
           <form onSubmit={handleSubmit} className="crop-form">
             <div className="form-header">
-              <h4>📋 Enter Your Conditions</h4>
+              <h4>
+                <RiFileList3Line className="form-header-icon" /> Enter Your Conditions
+              </h4>
               <button 
                 type="button" 
                 className="btn-secondary location-btn"
                 onClick={handleUseLocation}
                 disabled={loadingLocation}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
               >
-                {loadingLocation ? '⏳ Loading...' : '📍 Use My Location'}
+                {loadingLocation ? (
+                  <><RiLoader4Line className="spin" /> Detecting Location...</>
+                ) : (
+                  <><RiMapPinLine /> Use My Location</>
+                )}
               </button>
             </div>
             
@@ -305,14 +323,23 @@ const CropRecommendation = () => {
             <div className="form-group">
               <label>Space Available</label>
               <select name="spaceAvailable" value={inputs.spaceAvailable} onChange={handleChange}>
-                <option value="small">🪴 Small (Window box, herb pot)</option>
-                <option value="medium">🌿 Medium (Balcony, small raised bed)</option>
-                <option value="large">🌳 Large (Rooftop, backyard)</option>
+                <option value="small">Small (Window box, herb pot)</option>
+                <option value="medium">Medium (Balcony, small raised bed)</option>
+                <option value="large">Large (Rooftop, backyard)</option>
               </select>
             </div>
             
-            <button type="submit" className="btn-primary submit-btn" disabled={loading}>
-              {loading ? '🌱 Generating...' : '🌾 Get Recommendations'}
+            <button 
+              type="submit" 
+              className="btn-primary submit-btn" 
+              disabled={loading}
+              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}
+            >
+              {loading ? (
+                <><RiLoader4Line className="spin" /> Generating Recommendations...</>
+              ) : (
+                <><RiSparklingLine /> Get Recommendations</>
+              )}
             </button>
           </form>
 
@@ -320,7 +347,9 @@ const CropRecommendation = () => {
           {recommendations.length > 0 && (
             <div className="crop-results">
               <div className="results-header">
-                <h4>📊 Recommendations</h4>
+                <h4>
+                  <RiSeedlingLine className="results-icon" /> Recommendations
+                </h4>
                 <span className="result-count">{recommendations.length} crops found</span>
               </div>
               <div className="crop-grid">

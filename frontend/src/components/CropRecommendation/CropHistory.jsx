@@ -1,4 +1,14 @@
 import React from 'react';
+import { 
+  RiFileList3Line, 
+  RiSearchLine, 
+  RiStarFill, 
+  RiStarLine, 
+  RiSeedlingLine,
+  RiTempColdLine,
+  RiCalendarEventLine
+} from 'react-icons/ri';
+import { TbLayersIntersect } from 'react-icons/tb';
 import './CropHistory.css';
 
 const CropHistory = ({ 
@@ -13,19 +23,23 @@ const CropHistory = ({
 }) => {
   const filterOptions = [
     { value: 'all', label: 'All' },
-    { value: 'saved', label: '⭐ Saved' },
+    { value: 'saved', label: 'Saved' },
   ];
 
   return (
     <div className="crop-history">
       <div className="history-header">
-        <h3>📋 Recommendation History</h3>
+        <h3>
+          <RiFileList3Line className="history-header-icon" /> Recommendation History
+        </h3>
         <span className="history-count">{history.length} sessions</span>
       </div>
 
       <div className="history-filters">
         <div className="search-bar">
-          <span className="search-icon">🔍</span>
+          <span className="search-icon">
+            <RiSearchLine />
+          </span>
           <input
             type="text"
             placeholder="Search by crop, soil, season..."
@@ -40,6 +54,7 @@ const CropHistory = ({
               className={`filter-pill ${filterType === option.value ? 'active' : ''}`}
               onClick={() => onFilterChange(option.value)}
             >
+              {option.value === 'saved' && <RiStarFill style={{ marginRight: '4px', verticalAlign: 'middle' }} />}
               {option.label}
             </button>
           ))}
@@ -48,7 +63,9 @@ const CropHistory = ({
 
       {history.length === 0 ? (
         <div className="no-history">
-          <span className="no-history-icon">🌾</span>
+          <span className="no-history-icon">
+            <RiSeedlingLine />
+          </span>
           <p>No recommendations yet.</p>
           <p className="sub-text">Get your first crop suggestions!</p>
         </div>
@@ -76,7 +93,7 @@ const CropHistory = ({
                     }}
                     title="Save/Bookmark"
                   >
-                    {item.saved ? '⭐' : '☆'}
+                    {item.saved ? <RiStarFill style={{ color: '#f59e0b' }} /> : <RiStarLine />}
                   </button>
                 </div>
                 
@@ -86,9 +103,15 @@ const CropHistory = ({
                 </div>
                 
                 <div className="history-params">
-                  <span className="param-chip">🌍 {item.inputData?.soilType || 'N/A'}</span>
-                  <span className="param-chip">🌡️ {item.inputData?.temperature}°C</span>
-                  <span className="param-chip">📅 {item.inputData?.season || 'N/A'}</span>
+                  <span className="param-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <TbLayersIntersect /> {item.inputData?.soilType || 'N/A'}
+                  </span>
+                  <span className="param-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <RiTempColdLine /> {item.inputData?.temperature}°C
+                  </span>
+                  <span className="param-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <RiCalendarEventLine /> {item.inputData?.season || 'N/A'}
+                  </span>
                 </div>
               </div>
             );

@@ -17,8 +17,16 @@
   color: var(--text-main);
   margin-bottom: 1.25rem;
   font-size: 1.05rem;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.qa-header-icon {
+  font-size: 1.2rem;
+  color: #f59e0b;
 }
 
 .actions-grid {
@@ -52,15 +60,19 @@
   transform: translateY(-2px);
   box-shadow: 0 4px 16px rgba(44, 36, 33, 0.04);
   background: var(--surface-primary);
-  border-color: rgba(184, 169, 201, 0.4);
+  border-color: var(--action-color, rgba(184, 169, 201, 0.4));
 }
 
 .action-icon {
-  font-size: 1.3rem;
+  font-size: 1.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--action-color, #2d6a4f);
 }
 
 .action-label {
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-muted);
-} 
+}

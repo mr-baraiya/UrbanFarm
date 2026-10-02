@@ -1,4 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { 
+  RiCalendarEventLine, 
+  RiCalendar2Line, 
+  RiAddLine, 
+  RiAlertLine, 
+  RiSearchLine, 
+  RiListCheck2, 
+  RiDashboardLine, 
+  RiCheckDoubleLine, 
+  RiCheckLine,
+  RiTimeLine
+} from 'react-icons/ri';
 import { getTasks, completeTask, deleteTask, createTask, updateTask } from '../../services/plantService';
 import { getPlants, getGardens } from '../../services/plantService';
 import { useNotification } from '../../hooks/useNotification';
@@ -103,6 +115,24 @@ const ScheduleTab = () => {
     setFilteredTasks(filtered);
   };
 
+  const getCalendarTasks = () => {
+    let list = showCompleted ? [...tasks, ...completedTasks] : [...tasks];
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      list = list.filter(t => 
+        t.title?.toLowerCase().includes(term) ||
+        (t.description && t.description.toLowerCase().includes(term))
+      );
+    }
+    if (filterPriority !== 'all') {
+      list = list.filter(t => t.priority === filterPriority);
+    }
+    if (filterType !== 'all') {
+      list = list.filter(t => t.type === filterType);
+    }
+    return list;
+  };
+
   const handleComplete = async (id) => {
     try {
       await completeTask(id);
@@ -195,12 +225,14 @@ const ScheduleTab = () => {
       {/* Header */}
       <div className="schedule-header">
         <div className="header-left">
-          <h2>📅 Tasks & Schedule</h2>
+          <h2>
+            <RiCalendarEventLine className="header-icon" /> Tasks & Schedule
+          </h2>
           <span className="task-count">{tasks.length} active tasks</span>
         </div>
         <div className="header-actions">
-          <button className="btn-primary" onClick={() => setShowForm(true)}>
-            + Add Task
+          <button className="btn-primary" onClick={() => setShowForm(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+            <RiAddLine /> Add Task
           </button>
         </div>
       </div>
@@ -217,7 +249,9 @@ const ScheduleTab = () => {
         </div>
         <div className="stat-card warning">
           <span className="stat-value">{stats.overdue}</span>
-          <span className="stat-label">⚠️ Overdue</span>
+          <span className="stat-label" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: '#ef4444' }}>
+            <RiAlertLine /> Overdue
+          </span>
         </div>
         <div className="stat-card">
           <span className="stat-value">{Math.round((stats.completed / (stats.total || 1)) * 100)}%</span>
@@ -225,94 +259,97 @@ const ScheduleTab = () => {
         </div>
       </div>
 
-      {/* Controls */}
+      {/* Controls - All in One Unified Line */}
       <div className="schedule-controls">
-        <div className="controls-top">
-          <div className="search-bar">
-            <span className="search-icon">🔍</span>
-            <input
-              type="text"
-              placeholder="Search tasks..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <div className="view-toggle">
-            <button 
-              className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
-              onClick={() => setViewMode('list')}
-              title="List View"
-            >
-              📋 List
-            </button>
-            <button 
-              className={`view-btn ${viewMode === 'calendar' ? 'active' : ''}`}
-              onClick={() => setViewMode('calendar')}
-              title="Calendar View"
-            >
-              📅 Calendar
-            </button>
-            <button 
-              className={`view-btn ${viewMode === 'kanban' ? 'active' : ''}`}
-              onClick={() => setViewMode('kanban')}
-              title="Kanban Board"
-            >
-              📊 Board
-            </button>
-          </div>
+        <div className="search-bar">
+          <span className="search-icon">
+            <RiSearchLine />
+          </span>
+          <input
+            type="text"
+            placeholder="Search tasks..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
 
-        <div className="controls-bottom">
-          <div className="filter-group">
-            <select 
-              value={filterStatus} 
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="filter-select"
-            >
-              <option value="all">All Tasks</option>
-              <option value="today">📅 Today</option>
-              <option value="week">📆 This Week</option>
-              <option value="upcoming">📅 Upcoming</option>
-            </select>
-            <select 
-              value={filterPriority} 
-              onChange={(e) => setFilterPriority(e.target.value)}
-              className="filter-select"
-            >
-              <option value="all">All Priorities</option>
-              <option value="high">🔴 High</option>
-              <option value="medium">🟡 Medium</option>
-              <option value="low">🟢 Low</option>
-            </select>
-            <select 
-              value={filterType} 
-              onChange={(e) => setFilterType(e.target.value)}
-              className="filter-select"
-            >
-              <option value="all">All Types</option>
-              <option value="watering">💧 Watering</option>
-              <option value="fertilizing">🧪 Fertilizing</option>
-              <option value="planting">🌱 Planting</option>
-              <option value="harvesting">🍅 Harvesting</option>
-              <option value="pruning">✂️ Pruning</option>
-              <option value="pest_check">🐛 Pest Check</option>
-              <option value="other">📋 Other</option>
-            </select>
-          </div>
+        <div className="view-toggle">
           <button 
-            className={`toggle-completed ${showCompleted ? 'active' : ''}`}
-            onClick={() => setShowCompleted(!showCompleted)}
+            className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
+            onClick={() => setViewMode('list')}
+            title="List View"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
           >
-            {showCompleted ? 'Hide Completed' : `Show Completed (${completedTasks.length})`}
+            <RiListCheck2 /> List
+          </button>
+          <button 
+            className={`view-btn ${viewMode === 'calendar' ? 'active' : ''}`}
+            onClick={() => setViewMode('calendar')}
+            title="Calendar View"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+          >
+            <RiCalendar2Line /> Calendar
+          </button>
+          <button 
+            className={`view-btn ${viewMode === 'kanban' ? 'active' : ''}`}
+            onClick={() => setViewMode('kanban')}
+            title="Kanban Board"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+          >
+            <RiDashboardLine /> Board
           </button>
         </div>
+
+        <div className="filter-group">
+          <select 
+            value={filterStatus} 
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="filter-select"
+          >
+            <option value="all">All Tasks</option>
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="upcoming">Upcoming</option>
+          </select>
+          <select 
+            value={filterPriority} 
+            onChange={(e) => setFilterPriority(e.target.value)}
+            className="filter-select"
+          >
+            <option value="all">All Priorities</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+          <select 
+            value={filterType} 
+            onChange={(e) => setFilterType(e.target.value)}
+            className="filter-select"
+          >
+            <option value="all">All Types</option>
+            <option value="watering">Watering</option>
+            <option value="fertilizing">Fertilizing</option>
+            <option value="planting">Planting</option>
+            <option value="harvesting">Harvesting</option>
+            <option value="pruning">Pruning</option>
+            <option value="pest_check">Pest Check</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <button 
+          className={`toggle-completed ${showCompleted ? 'active' : ''}`}
+          onClick={() => setShowCompleted(!showCompleted)}
+        >
+          {showCompleted ? 'Hide Completed' : `Show Completed (${completedTasks.length})`}
+        </button>
       </div>
 
       {/* Task Views */}
       <div className="schedule-content">
         {viewMode === 'calendar' ? (
-          <CalendarView 
-            tasks={filteredTasks}
+           <CalendarView 
+            tasks={getCalendarTasks()}
             onComplete={handleComplete}
             onSnooze={handleSnooze}
             onEdit={setEditingTask}
@@ -321,7 +358,9 @@ const ScheduleTab = () => {
         ) : viewMode === 'kanban' ? (
           <div className="kanban-board">
             <div className="kanban-column">
-              <h4>📝 To Do</h4>
+              <h4>
+                <RiListCheck2 /> To Do
+              </h4>
               {filteredTasks.filter(t => !t.completed).map(task => (
                 <TaskCard
                   key={task._id}
@@ -339,7 +378,9 @@ const ScheduleTab = () => {
               )}
             </div>
             <div className="kanban-column">
-              <h4>✅ Completed</h4>
+              <h4>
+                <RiCheckLine /> Completed
+              </h4>
               {completedTasks.map(task => (
                 <TaskCard
                   key={task._id}
@@ -365,7 +406,9 @@ const ScheduleTab = () => {
             {/* Group by date */}
             {groupTasksByDate(filteredTasks).map(({ label, tasks: groupedTasks }) => (
               <div key={label} className="task-group">
-                <h3 className="group-label">{label}</h3>
+                <h3 className="group-label" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <RiCalendarEventLine /> {label}
+                </h3>
                 {groupedTasks.map(task => (
                   <TaskCard
                     key={task._id}
@@ -382,7 +425,9 @@ const ScheduleTab = () => {
             ))}
             {filteredTasks.length === 0 && (
               <div className="empty-tasks">
-                <span className="empty-icon">🎉</span>
+                <span className="empty-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <RiCheckDoubleLine style={{ color: '#10b981' }} />
+                </span>
                 <h3>All caught up!</h3>
                 <p>No tasks matching your filters</p>
               </div>
@@ -395,7 +440,9 @@ const ScheduleTab = () => {
       {showCompleted && completedTasks.length > 0 && viewMode === 'list' && (
         <div className="completed-drawer">
           <div className="drawer-header">
-            <h3>✅ Completed Tasks</h3>
+            <h3 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+              <RiCheckLine /> Completed Tasks
+            </h3>
             <span className="drawer-count">{completedTasks.length} tasks</span>
           </div>
           {completedTasks.map(task => (
@@ -405,7 +452,7 @@ const ScheduleTab = () => {
               onComplete={handleComplete}
               onSnooze={handleSnooze}
               onEdit={setEditingTask}
-              onDelete={handleDelete}
+              onDelete={promptDeleteTask}
               onRestore={handleRestore}
               plants={plants}
               gardens={gardens}
@@ -467,10 +514,10 @@ const groupTasksByDate = (tasks) => {
     return dueDate > weekEnd;
   });
 
-  if (todayTasks.length > 0) groups.push({ label: '📅 Today', tasks: todayTasks });
-  if (tomorrowTasks.length > 0) groups.push({ label: '📅 Tomorrow', tasks: tomorrowTasks });
-  if (weekTasks.length > 0) groups.push({ label: '📆 This Week', tasks: weekTasks });
-  if (futureTasks.length > 0) groups.push({ label: '📅 Upcoming', tasks: futureTasks });
+  if (todayTasks.length > 0) groups.push({ label: 'Today', tasks: todayTasks });
+  if (tomorrowTasks.length > 0) groups.push({ label: 'Tomorrow', tasks: tomorrowTasks });
+  if (weekTasks.length > 0) groups.push({ label: 'This Week', tasks: weekTasks });
+  if (futureTasks.length > 0) groups.push({ label: 'Upcoming', tasks: futureTasks });
 
   return groups;
 };

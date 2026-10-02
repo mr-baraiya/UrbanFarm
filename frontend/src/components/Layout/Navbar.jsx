@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import ThemeToggle from "../Common/ThemeToggle";
 import "./Navbar.css";
 
 const Navbar = () => {
@@ -15,7 +14,6 @@ const Navbar = () => {
         </Link>
       </div>
       <div className="navbar-right">
-        <ThemeToggle />
         {user && (
           <>
             <span className="user-name">{user.name}</span>

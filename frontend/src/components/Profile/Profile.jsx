@@ -1,4 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { 
+  RiUser3Line, 
+  RiEditLine, 
+  RiCloseLine, 
+  RiLightbulbLine,
+  RiMapPinLine,
+  RiSunLine,
+  RiBuilding4Line,
+  RiAwardLine,
+  RiDropLine,
+  RiMicroscopeLine,
+  RiTeamLine,
+  RiSunCloudyLine
+} from 'react-icons/ri';
 import { useAuth } from '../../hooks/useAuth';
 import { updateProfile, getBadges } from '../../services/authService';
 import { getGardens, getPlants, getDiagnosisHistory } from '../../services/plantService';
@@ -65,19 +79,12 @@ const Profile = () => {
       const totalPlants = plantsData?.length || 0;
       const totalDiagnoses = diagnosesData?.length || 0;
       
-      // Calculate completed watering events (from plants)
-      let totalWateringEvents = 0;
-      plantsData?.forEach(plant => {
-        // This would come from watering history in a real implementation
-        totalWateringEvents += 0; // Placeholder
-      });
-
       setStats({
         totalGardens: gardensData?.length || 0,
         totalPlants: totalPlants,
         totalDiagnoses: totalDiagnoses,
         totalCommunityPosts: postsData?.length || 0,
-        totalWateringEvents: totalWateringEvents,
+        totalWateringEvents: 0,
         totalHarvests: plantsData?.filter(p => p.status === 'harvested').length || 0,
       });
     } catch (error) {
@@ -133,32 +140,38 @@ const Profile = () => {
   };
 
   const urbanSpaceOptions = [
-    { value: 'balcony', label: '🏙️ Balcony' },
-    { value: 'rooftop', label: '🏢 Rooftop' },
-    { value: 'indoor', label: '🪴 Indoor Window Sill' },
-    { value: 'backyard', label: '🌳 Backyard' },
-    { value: 'community', label: '👥 Community Garden' },
-    { value: 'windowsill', label: ' Window Sill' },
+    { value: 'balcony', label: 'Balcony' },
+    { value: 'rooftop', label: 'Rooftop' },
+    { value: 'indoor', label: 'Indoor Window Sill' },
+    { value: 'backyard', label: 'Backyard' },
+    { value: 'community', label: 'Community Garden' },
+    { value: 'windowsill', label: 'Window Sill' },
   ];
 
   const climateZoneOptions = [
-    { value: 'tropical', label: '🌴 Tropical (Zone 10-11)' },
-    { value: 'subtropical', label: '🌺 Subtropical (Zone 9-10)' },
-    { value: 'temperate', label: '🌳 Temperate (Zone 7-8)' },
-    { value: 'mediterranean', label: '🌿 Mediterranean (Zone 9)' },
-    { value: 'continental', label: '🌲 Continental (Zone 5-6)' },
-    { value: 'arctic', label: '❄️ Arctic (Zone 1-4)' },
+    { value: 'tropical', label: 'Tropical (Zone 10-11)' },
+    { value: 'subtropical', label: 'Subtropical (Zone 9-10)' },
+    { value: 'temperate', label: 'Temperate (Zone 7-8)' },
+    { value: 'mediterranean', label: 'Mediterranean (Zone 9)' },
+    { value: 'continental', label: 'Continental (Zone 5-6)' },
+    { value: 'arctic', label: 'Arctic (Zone 1-4)' },
   ];
 
   return (
     <div className="profile-page">
       <div className="profile-header">
-        <h2>👤 My Profile</h2>
+        <h2>
+          <RiUser3Line className="profile-header-icon" /> My Profile
+        </h2>
         <button 
           className={`btn-edit ${editing ? 'active' : ''}`}
           onClick={() => setEditing(!editing)}
         >
-          {editing ? '✕ Cancel' : '✏️ Edit Profile'}
+          {editing ? (
+            <><RiCloseLine /> Cancel</>
+          ) : (
+            <><RiEditLine /> Edit Profile</>
+          )}
         </button>
       </div>
 
@@ -203,11 +216,12 @@ const Profile = () => {
 
           {user?.preferences?.showAdvancedTips && (
             <div className="profile-tip">
-              💡 Advanced tips are enabled
+              <RiLightbulbLine className="tip-icon" /> Advanced tips are enabled
             </div>
           )}
         </div>
       ) : (
+
         <form onSubmit={handleSubmit} className="profile-form">
           <div className="form-section">
             <h4>Basic Information</h4>
@@ -336,7 +350,7 @@ const Profile = () => {
                   checked={formData.preferences.notificationPreferences.wateringReminders}
                   onChange={handleChange}
                 />
-                💧 Watering reminders
+                <RiDropLine className="checkbox-icon text-blue" /> Watering reminders
               </label>
             </div>
             <div className="form-group checkbox">
@@ -347,7 +361,7 @@ const Profile = () => {
                   checked={formData.preferences.notificationPreferences.diagnosisAlerts}
                   onChange={handleChange}
                 />
-                🔬 Diagnosis alerts
+                <RiMicroscopeLine className="checkbox-icon text-purple" /> Diagnosis alerts
               </label>
             </div>
             <div className="form-group checkbox">
@@ -358,7 +372,7 @@ const Profile = () => {
                   checked={formData.preferences.notificationPreferences.communityUpdates}
                   onChange={handleChange}
                 />
-                👥 Community updates
+                <RiTeamLine className="checkbox-icon text-indigo" /> Community updates
               </label>
             </div>
             <div className="form-group checkbox">
@@ -369,7 +383,7 @@ const Profile = () => {
                   checked={formData.preferences.notificationPreferences.weatherAlerts}
                   onChange={handleChange}
                 />
-                🌤️ Weather alerts
+                <RiSunCloudyLine className="checkbox-icon text-amber" /> Weather alerts
               </label>
             </div>
           </div>

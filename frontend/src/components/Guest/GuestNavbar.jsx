@@ -42,11 +42,8 @@ const GuestNavbar = () => {
             FAQ
           </NavLink>
 
-          {/* Mobile Auth & Theme Controls */}
+          {/* Mobile Auth Controls */}
           <div className="guest-mobile-controls">
-            <button className="guest-theme-btn" onClick={toggleTheme} aria-label="Toggle Theme">
-              {theme === 'light' ? <><FaMoon /> Dark Mode</> : <><FaSun /> Light Mode</>}
-            </button>
             {user ? (
               <Link to={user.role === 'admin' ? '/admin' : '/app'} className="guest-btn guest-btn-primary" onClick={closeMenu}>
                 <FaTachometerAlt /> Dashboard
@@ -62,10 +59,6 @@ const GuestNavbar = () => {
 
         {/* Right Desktop Actions */}
         <div className="guest-actions-desktop">
-          <button className="guest-theme-toggle-icon" onClick={toggleTheme} title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}>
-            {theme === 'light' ? <FaMoon /> : <FaSun />}
-          </button>
-
           {user ? (
             <button
               onClick={() => navigate(user.role === 'admin' ? '/admin' : '/app')}

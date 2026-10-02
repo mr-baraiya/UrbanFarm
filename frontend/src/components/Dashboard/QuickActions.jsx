@@ -1,41 +1,46 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { 
+  RiFlashlightLine, 
+  RiMicroscopeLine, 
+  RiDropLine, 
+  RiCalendarEventLine 
+} from 'react-icons/ri';
+import { TbPlant2 } from 'react-icons/tb';
 import PlantForm from '../GrowthTracker/PlantForm';
-import DiagnoseTab from '../Diagnose/DiagnoseTab';
 import './QuickActions.css';
 
 const QuickActions = ({ onActionComplete }) => {
   const navigate = useNavigate();
   const [showPlantForm, setShowPlantForm] = useState(false);
-  const [showDiagnose, setShowDiagnose] = useState(false);
 
   const actions = [
     { 
       id: 'add-plant', 
       label: 'Add Plant', 
-      icon: '🌱', 
-      color: '#a8d5ba',
+      icon: <TbPlant2 />, 
+      color: '#52b788',
       action: () => setShowPlantForm(true)
     },
     { 
       id: 'diagnose', 
       label: 'Diagnose Leaf', 
-      icon: '🔬', 
-      color: '#d6eaf8',
+      icon: <RiMicroscopeLine />, 
+      color: '#8b5cf6',
       action: () => navigate('/app/diagnose')
     },
     { 
       id: 'watering', 
       label: 'Log Watering', 
-      icon: '💧', 
-      color: '#d6eaf8',
+      icon: <RiDropLine />, 
+      color: '#0ea5e9',
       action: () => navigate('/app/watering')
     },
     { 
       id: 'schedule', 
       label: 'Add Task', 
-      icon: '📅', 
-      color: '#f0d5c0',
+      icon: <RiCalendarEventLine />, 
+      color: '#f59e0b',
       action: () => navigate('/app/schedule')
     },
   ];
@@ -43,7 +48,9 @@ const QuickActions = ({ onActionComplete }) => {
   return (
     <>
       <div className="quick-actions">
-        <h3>⚡ Quick Actions</h3>
+        <h3>
+          <RiFlashlightLine className="qa-header-icon" /> Quick Actions
+        </h3>
         <div className="actions-grid">
           {actions.map((action) => (
             <button

@@ -1,4 +1,20 @@
 import React from 'react';
+import { 
+  RiSunLine, 
+  RiMoonLine, 
+  RiSunCloudyLine, 
+  RiCloudyLine, 
+  RiRainyLine, 
+  RiDrizzleLine, 
+  RiThunderstormsLine, 
+  RiSnowyLine, 
+  RiMistLine, 
+  RiDropLine, 
+  RiWindyLine, 
+  RiLightbulbLine,
+  RiLeafLine,
+  RiAlertLine
+} from 'react-icons/ri';
 import './WeatherWidget.css';
 
 const WeatherWidget = ({ weather, forecast, loading }) => {
@@ -9,7 +25,9 @@ const WeatherWidget = ({ weather, forecast, loading }) => {
   if (!weather) {
     return (
       <div className="weather-widget">
-        <span className="weather-icon">🌤️</span>
+        <span className="weather-icon">
+          <RiSunCloudyLine />
+        </span>
         <div className="weather-info">
           <span className="weather-temp">--°C</span>
           <span className="weather-condition">Weather unavailable</span>
@@ -24,29 +42,29 @@ const WeatherWidget = ({ weather, forecast, loading }) => {
   const windSpeed = weather.wind?.speed || 0;
   const icon = weather.weather?.[0]?.icon || '01d';
 
-  // Get weather emoji
-  const getWeatherEmoji = (iconCode) => {
-    const map = {
-      '01d': '☀️',
-      '01n': '🌙',
-      '02d': '⛅',
-      '02n': '☁️',
-      '03d': '☁️',
-      '03n': '☁️',
-      '04d': '☁️',
-      '04n': '☁️',
-      '09d': '🌧️',
-      '09n': '🌧️',
-      '10d': '🌦️',
-      '10n': '🌧️',
-      '11d': '⛈️',
-      '11n': '⛈️',
-      '13d': '❄️',
-      '13n': '❄️',
-      '50d': '🌫️',
-      '50n': '🌫️',
-    };
-    return map[iconCode] || '🌤️';
+  // Get weather SVG Icon
+  const getWeatherIcon = (iconCode) => {
+    switch (iconCode) {
+      case '01d': return <RiSunLine style={{ color: '#f59e0b' }} />;
+      case '01n': return <RiMoonLine style={{ color: '#818cf8' }} />;
+      case '02d': return <RiSunCloudyLine style={{ color: '#f59e0b' }} />;
+      case '02n':
+      case '03d':
+      case '03n':
+      case '04d':
+      case '04n': return <RiCloudyLine style={{ color: '#64748b' }} />;
+      case '09d':
+      case '09n': return <RiRainyLine style={{ color: '#38bdf8' }} />;
+      case '10d':
+      case '10n': return <RiDrizzleLine style={{ color: '#38bdf8' }} />;
+      case '11d':
+      case '11n': return <RiThunderstormsLine style={{ color: '#eab308' }} />;
+      case '13d':
+      case '13n': return <RiSnowyLine style={{ color: '#93c5fd' }} />;
+      case '50d':
+      case '50n': return <RiMistLine style={{ color: '#94a3b8' }} />;
+      default: return <RiSunCloudyLine style={{ color: '#f59e0b' }} />;
+    }
   };
 
   // Get weather advice for watering
@@ -54,41 +72,51 @@ const WeatherWidget = ({ weather, forecast, loading }) => {
     const rainToday = forecast?.list?.[0]?.rain?.['3h'] || 0;
     
     if (rainToday > 5) {
-      return '🌧️ Rain expected today - skip watering!';
+      return { icon: <RiRainyLine style={{ color: '#38bdf8' }} />, text: 'Rain expected today - skip watering!' };
     }
     if (temp > 35) {
-      return '☀️ Extreme heat - water in the evening!';
+      return { icon: <RiAlertLine style={{ color: '#ef4444' }} />, text: 'Extreme heat - water in the evening!' };
     }
     if (temp > 30) {
-      return '☀️ Hot day - consider extra watering';
+      return { icon: <RiSunLine style={{ color: '#f59e0b' }} />, text: 'Hot day - consider extra watering' };
     }
     if (humidity > 80) {
-      return '💧 High humidity - reduce watering';
+      return { icon: <RiDropLine style={{ color: '#0ea5e9' }} />, text: 'High humidity - reduce watering' };
     }
     if (humidity < 30) {
-      return '💨 Low humidity - increase misting';
+      return { icon: <RiWindyLine style={{ color: '#f97316' }} />, text: 'Low humidity - increase misting' };
     }
-    return '🌱 Optimal conditions - follow schedule';
+    return { icon: <RiLeafLine style={{ color: '#10b981' }} />, text: 'Optimal conditions - follow schedule' };
   };
 
-  const advice = getWateringAdvice(temp, condition, humidity, forecast);
+  const adviceObj = getWateringAdvice(temp, condition, humidity, forecast);
 
   return (
     <div className="weather-widget">
       <div className="weather-main">
-        <span className="weather-emoji">{getWeatherEmoji(icon)}</span>
+        <span className="weather-emoji" style={{ display: 'inline-flex', alignItems: 'center', fontSize: '2rem' }}>
+          {getWeatherIcon(icon)}
+        </span>
         <div className="weather-temp-info">
           <span className="weather-temp">{temp}°C</span>
-          <span className="weather-condition">{condition}</span>
+          <span className="weather-condition" style={{ textTransform: 'capitalize' }}>{condition}</span>
         </div>
         <div className="weather-details">
-          <span className="weather-humidity">💧 {humidity}%</span>
-          <span className="weather-wind">💨 {windSpeed} m/s</span>
+          <span className="weather-humidity" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+            <RiDropLine style={{ color: '#0ea5e9' }} /> {humidity}%
+          </span>
+          <span className="weather-wind" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+            <RiWindyLine style={{ color: '#64748b' }} /> {windSpeed} m/s
+          </span>
         </div>
       </div>
       <div className="weather-advice">
-        <span className="advice-icon">💡</span>
-        <span className="advice-text">{advice}</span>
+        <span className="advice-icon" style={{ display: 'inline-flex', alignItems: 'center' }}>
+          <RiLightbulbLine style={{ color: '#eab308' }} />
+        </span>
+        <span className="advice-text" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+          {adviceObj.icon} {adviceObj.text}
+        </span>
       </div>
       {forecast && forecast.list && (
         <div className="weather-forecast">
@@ -99,11 +127,15 @@ const WeatherWidget = ({ weather, forecast, loading }) => {
               const dayRain = day.rain?.['3h'] || 0;
               const dayIcon = day.weather?.[0]?.icon || '01d';
               return (
-                <div key={idx} className="forecast-day">
-                  <span className="forecast-emoji">{getWeatherEmoji(dayIcon)}</span>
+                <div key={idx} className="forecast-day" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem' }}>
+                  <span className="forecast-emoji" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                    {getWeatherIcon(dayIcon)}
+                  </span>
                   <span className="forecast-temp">{dayTemp}°C</span>
                   {dayRain > 0 && (
-                    <span className="forecast-rain">🌧️</span>
+                    <span className="forecast-rain" title="Rain expected" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                      <RiRainyLine style={{ color: '#38bdf8', fontSize: '0.8rem' }} />
+                    </span>
                   )}
                 </div>
               );

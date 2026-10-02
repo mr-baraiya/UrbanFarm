@@ -1,242 +1,239 @@
-/* Task Form Modal */
-.task-form .modal-content {
-  max-width: 560px;
-  padding: 2rem;
+/* Task Form Modal - Compact & Botanical */
+.task-form-modal {
+  max-width: 500px;
+  width: 92%;
+  max-height: calc(100vh - 3rem);
+  overflow-y: auto;
+  padding: 1.25rem 1.5rem;
   background: var(--surface-primary, #ffffff);
-  border-radius: var(--radius-lg, 20px);
+  border-radius: var(--radius-lg, 16px);
   border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
-  box-shadow: 0 8px 40px rgba(44, 36, 33, 0.08);
+  box-shadow: 0 12px 48px rgba(44, 36, 33, 0.12);
+  box-sizing: border-box;
 }
 
-.task-form .form-title {
-  margin: 0 0 0.5rem 0;
+.task-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+}
+
+.task-form-header h3 {
+  margin: 0;
   color: var(--text-main, #2c2421);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.task-modal-close {
+  background: none;
+  border: none;
   font-size: 1.4rem;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-}
-
-.task-form .form-subtitle {
-  margin: 0 0 1.75rem 0;
+  line-height: 1;
   color: var(--text-muted, #7c6f66);
-  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.task-form .form-group {
-  margin-bottom: 1.25rem;
-}
-
-.task-form label {
-  display: block;
-  margin-bottom: 0.4rem;
-  color: var(--text-main, #2c2421);
-  font-weight: 500;
-  font-size: 0.9rem;
-  letter-spacing: -0.01em;
-}
-
-.task-form label .required {
-  color: #c8968c;
-  margin-left: 0.2rem;
-}
-
-.task-form input,
-.task-form select,
-.task-form textarea {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1.5px solid var(--border-light, rgba(220, 210, 200, 0.4));
-  border-radius: var(--radius-md, 12px);
-  font-size: 0.95rem;
+.task-modal-close:hover {
   background: var(--bg-primary, #fbf9f7);
   color: var(--text-main, #2c2421);
-  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.task-compact-form .form-group {
+  margin-bottom: 0.65rem;
+}
+
+.task-compact-form label {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--text-main, #2c2421);
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: -0.01em;
+}
+
+.task-compact-form input,
+.task-compact-form select,
+.task-compact-form textarea {
+  width: 100%;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.5));
+  border-radius: var(--radius-md, 10px);
+  font-size: 0.88rem;
+  background: var(--bg-primary, #fbf9f7);
+  color: var(--text-main, #2c2421);
+  transition: all 0.2s ease;
   font-family: inherit;
   box-sizing: border-box;
 }
 
-.task-form input:focus,
-.task-form select:focus,
-.task-form textarea:focus {
+.task-compact-form input:focus,
+.task-compact-form select:focus,
+.task-compact-form textarea:focus {
   outline: none;
-  border-color: var(--accent-lavender, #a8a2bc);
+  border-color: var(--sage, #2c5e3b);
   background: var(--surface-primary, #ffffff);
-  box-shadow: 0 0 0 3px rgba(168, 162, 188, 0.15);
+  box-shadow: 0 0 0 2.5px rgba(44, 94, 59, 0.12);
 }
 
-.task-form input::placeholder,
-.task-form textarea::placeholder {
+.task-compact-form input::placeholder,
+.task-compact-form textarea::placeholder {
   color: var(--text-muted, #7c6f66);
   opacity: 0.7;
 }
 
-.task-form textarea {
+.task-compact-form textarea {
   resize: vertical;
-  min-height: 80px;
-  line-height: 1.5;
+  min-height: 48px;
+  max-height: 75px;
+  line-height: 1.4;
 }
 
-.task-form select {
+.task-compact-form select {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237c6f66' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 12px;
-  padding-right: 2.5rem;
+  background-position: right 0.75rem center;
+  background-size: 10px;
+  padding-right: 2rem;
   cursor: pointer;
 }
 
-.task-form select:hover {
-  border-color: var(--accent-lavender, #a8a2bc);
+.task-compact-form select:hover {
+  border-color: var(--sage, #2c5e3b);
 }
 
-.task-form .form-row {
+.task-compact-form .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 0.65rem;
 }
 
-@media (max-width: 450px) {
-  .task-form .form-row {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
+.task-compact-form .form-row-align-end {
+  align-items: flex-end;
 }
 
-.recurring-group {
-  margin-top: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: var(--bg-primary, #fbf9f7);
-  border-radius: var(--radius-md, 12px);
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
-}
-
-.checkbox-label {
-  display: flex;
+.recurring-checkbox-card {
+  display: flex !important;
   align-items: center;
   gap: 0.5rem;
+  padding: 0.45rem 0.7rem;
+  height: 35px;
+  margin-bottom: 0 !important;
+  background: var(--bg-primary, #fbf9f7);
+  border-radius: var(--radius-md, 10px);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.5));
   cursor: pointer;
-  font-weight: 500;
-  color: var(--text-main, #2c2421);
-  font-size: 0.9rem;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
 }
 
-.checkbox-label input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--accent-lavender, #a8a2bc);
+.recurring-checkbox-card:hover {
+  border-color: var(--sage, #2c5e3b);
+  background: var(--surface-primary, #ffffff);
+}
+
+.recurring-checkbox-card input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--sage, #2c5e3b);
   cursor: pointer;
   flex-shrink: 0;
   padding: 0;
+  margin: 0;
 }
 
-.task-form .form-actions {
+.recurring-label-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-main, #2c2421);
+}
+
+.recurring-config-row {
+  margin-top: -0.2rem;
+  padding: 0.4rem 0.5rem;
+  background: rgba(44, 94, 59, 0.04);
+  border-radius: 8px;
+  border: 1px dashed var(--border-light, rgba(220, 210, 200, 0.6));
+  margin-bottom: 0.65rem;
+}
+
+.task-compact-form .form-actions {
   display: flex;
-  gap: 0.75rem;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
+  gap: 0.6rem;
+  margin-top: 0.85rem;
+  padding-top: 0.65rem;
   border-top: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
   justify-content: flex-end;
 }
 
-.task-form .btn-secondary {
+.task-compact-form .btn-secondary {
   background: var(--bg-primary, #fbf9f7);
-  border: 1.5px solid var(--border-light, rgba(220, 210, 200, 0.4));
-  padding: 0.7rem 1.8rem;
-  border-radius: var(--radius-md, 12px);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.5));
+  padding: 0.45rem 1.25rem;
+  border-radius: var(--radius-md, 10px);
   color: var(--text-main, #2c2421);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   cursor: pointer;
-  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+  transition: all 0.2s ease;
   font-weight: 500;
 }
 
-.task-form .btn-secondary:hover {
+.task-compact-form .btn-secondary:hover {
   background: var(--surface-primary, #ffffff);
-  border-color: var(--accent-lavender, #a8a2bc);
+  border-color: var(--text-muted, #7c6f66);
   transform: translateY(-1px);
 }
 
-.task-form .btn-primary {
-  background: var(--accent-lavender, #a8a2bc);
-  border: none;
-  padding: 0.7rem 2rem;
-  border-radius: var(--radius-md, 12px);
+.task-compact-form .btn-primary {
+  background: var(--sage, #2c5e3b);
+  border: 1px solid var(--sage, #2c5e3b);
+  padding: 0.45rem 1.5rem;
+  border-radius: var(--radius-md, 10px);
   color: #ffffff;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   cursor: pointer;
-  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
-  font-weight: 500;
-  min-width: 100px;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  min-width: 90px;
 }
 
-.task-form .btn-primary:hover {
-  background: #9a87b1;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(168, 162, 188, 0.3);
+.task-compact-form .btn-primary:hover {
+  background: #234c2e;
+  border-color: #234c2e;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(44, 94, 59, 0.2);
 }
 
-.task-form .btn-primary:disabled {
+.task-compact-form .btn-primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
-/* Error States */
-.task-form .form-group.error input,
-.task-form .form-group.error select,
-.task-form .form-group.error textarea {
-  border-color: #c8968c;
-  background: rgba(200, 150, 140, 0.05);
-}
-
-.task-form .form-group.error label {
-  color: #c8968c;
-}
-
-.task-form .error-message {
-  color: #c8968c;
-  font-size: 0.8rem;
-  margin-top: 0.3rem;
-  display: block;
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-  .task-form .modal-content {
-    padding: 1.5rem;
+@media (max-width: 480px) {
+  .task-form-modal {
+    padding: 1rem;
     max-width: 100%;
     margin: 0.5rem;
   }
 
-  .task-form .form-title {
-    font-size: 1.2rem;
-  }
-
-  .task-form .form-actions {
-    flex-direction: column-reverse;
-  }
-
-  .task-form .form-actions button {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .task-form .btn-primary {
-    min-width: unset;
-  }
-}
-
-@media (max-width: 400px) {
-  .task-form .modal-content {
-    padding: 1rem;
-  }
-
-  .task-form input,
-  .task-form select,
-  .task-form textarea {
-    padding: 0.5rem 0.7rem;
-    font-size: 0.9rem;
+  .task-compact-form .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
   }
 }

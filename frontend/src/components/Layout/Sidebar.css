@@ -25,6 +25,7 @@
 .sidebar ul li a {
   display: flex;
   align-items: center;
+  gap: 0.75rem;
   padding: 0.75rem 1rem;
   border-radius: var(--radius-sm);
   color: var(--text-secondary);
@@ -49,13 +50,18 @@
 }
 
 .sidebar ul li a .icon {
-  font-size: 1.2rem;
-  width: 28px;
-  text-align: center;
+  font-size: 1.25rem;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .sidebar ul li a .label {
   font-size: 0.95rem;
+  line-height: 1.2;
 }
 
 /* Responsive: hide sidebar on small screens */

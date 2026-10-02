@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { getCommunityPosts, createPost, toggleLike, getLeaderboard, addComment } from '../../services/plantService';
+import { getCommunityPosts, createPost, updatePost, deletePost, deleteComment, toggleLike, getLeaderboard, addComment } from '../../services/plantService';
 import { useAuth } from '../../hooks/useAuth';
 import { useNotification } from '../../hooks/useNotification';
+import ConfirmModal from '../Common/ConfirmModal';
 import PostCard from './PostCard';
 import PostForm from './PostForm';
 import CommunityFilters from './CommunityFilters';
@@ -13,13 +14,24 @@ const CommunityTab = () => {
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingPost, setEditingPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState('all');
   const [filterRegion, setFilterRegion] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [leaderboard, setLeaderboard] = useState([]);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 6;
   const { addNotification } = useNotification();
+
+  // Custom Confirm Modal state
+  const [confirmConfig, setConfirmConfig] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
 
   useEffect(() => {
     loadData();
@@ -71,6 +83,7 @@ const CommunityTab = () => {
     }
     
     setFilteredPosts(filtered);
+    setCurrentPage(1);
   };
 
   const handleLike = async (postId) => {
@@ -102,6 +115,33 @@ const CommunityTab = () => {
     }
   };
 
+  const handleDeleteComment = async (postId, commentId) => {
+    try {
+      const updated = await deleteComment(postId, commentId);
+      setPosts(posts.map(p => p._id === postId ? updated : p));
+      addNotification('Comment deleted', 'success');
+    } catch (error) {
+      addNotification('Failed to delete comment', 'error');
+    }
+  };
+
+  const promptDeletePost = (postId) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: 'Delete Community Post',
+      message: 'Are you sure you want to permanently delete this post?',
+      onConfirm: async () => {
+        try {
+          await deletePost(postId);
+          setPosts(posts.filter(p => p._id !== postId));
+          addNotification('Post deleted successfully', 'success');
+        } catch (error) {
+          addNotification('Failed to delete post', 'error');
+        }
+      }
+    });
+  };
+
   const getUserLevel = (userData) => {
     if (!userData) return { level: '🌰 Seedling', points: 0 };
     
@@ -124,12 +164,26 @@ const CommunityTab = () => {
 
   const userLevel = user ? getUserLevel(user) : null;
 
+  // Pagination calculation
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
+  const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
+
   if (loading) {
     return <div className="community-loading">Loading community posts...</div>;
   }
 
   return (
     <div className="community-tab">
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        onConfirm={confirmConfig.onConfirm}
+        onClose={() => setConfirmConfig({ ...confirmConfig, isOpen: false })}
+      />
+
       {/* Header */}
       <div className="community-header">
         <div className="header-left">
@@ -147,7 +201,7 @@ const CommunityTab = () => {
           >
             🏆 Leaderboard
           </button>
-          <button className="btn-primary" onClick={() => setShowForm(true)}>
+          <button className="btn-primary" onClick={() => { setEditingPost(null); setShowForm(true); }}>
             + Share
           </button>
         </div>
@@ -179,31 +233,64 @@ const CommunityTab = () => {
             <span className="empty-icon">🌱</span>
             <h3>No posts yet</h3>
             <p>Be the first to share your urban farming journey!</p>
-            <button className="btn-primary" onClick={() => setShowForm(true)}>
+            <button className="btn-primary" onClick={() => { setEditingPost(null); setShowForm(true); }}>
               Share Your First Post
             </button>
           </div>
         ) : (
-          filteredPosts.map((post) => (
-            <PostCard
-              key={post._id}
-              post={post}
-              user={user}
-              onLike={handleLike}
-              onAddComment={handleAddComment}
-              userLevel={userLevel}
-            />
-          ))
+          <>
+            {currentPosts.map((post) => (
+              <PostCard
+                key={post._id}
+                post={post}
+                user={user}
+                onLike={handleLike}
+                onAddComment={handleAddComment}
+                onEditPost={(p) => setEditingPost(p)}
+                onDeletePost={promptDeletePost}
+                onDeleteComment={handleDeleteComment}
+                userLevel={userLevel}
+              />
+            ))}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="pagination-bar" style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '1.5rem' }}>
+                <button 
+                  className="btn-secondary" 
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                >
+                  ◀ Prev
+                </button>
+                <span style={{ display: 'flex', alignItems: 'center', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button 
+                  className="btn-secondary" 
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                >
+                  Next ▶
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 
-      {/* Post Form Modal */}
-      {showForm && (
+      {/* Post Form Modal (Create or Edit) */}
+      {(showForm || editingPost) && (
         <PostForm 
+          post={editingPost}
           onClose={() => {
             setShowForm(false);
+            setEditingPost(null);
             loadData();
           }} 
+          onPostSaved={() => {
+            loadData();
+          }}
           user={user}
         />
       )}
@@ -211,4 +298,4 @@ const CommunityTab = () => {
   );
 };
 
-export default CommunityTab;
+export default CommunityTab;

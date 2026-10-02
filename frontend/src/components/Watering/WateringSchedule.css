@@ -1,4 +1,4 @@
-/* Watering Schedule */
+/* Watering Schedule - Modern Botanical Redesign */
 .watering-schedule {
   width: 100%;
 }
@@ -17,439 +17,591 @@
 .schedule-header h3 {
   color: var(--text-main, #2c2421);
   margin: 0;
-  font-weight: 500;
-  font-size: 1.05rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.schedule-header-icon {
+  color: #0284c7;
+  font-size: 1.25rem;
 }
 
 .weather-adjusted-badge {
   font-size: 0.75rem;
-  background: rgba(176, 196, 222, 0.15);
-  padding: 0.2rem 0.8rem;
-  border-radius: 20px;
-  color: var(--accent-blue, #b0c4de);
-  border: 1px solid rgba(176, 196, 222, 0.3);
-  font-weight: 500;
+  background: #f0fdf4;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  color: var(--sage, #2c5e3b);
+  border: 1px solid #bbf7d0;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 
-/* Soil Moisture */
+/* Soil Moisture Card */
 .soil-moisture {
   background: var(--surface-primary, #ffffff);
-  padding: 0.8rem 1rem;
-  border-radius: var(--radius-md, 12px);
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
-  margin-bottom: 1rem;
+  padding: 0.9rem 1.1rem;
+  border-radius: var(--radius-md, 14px);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.45));
+  box-shadow: 0 2px 10px rgba(44, 36, 33, 0.02);
+  margin-bottom: 0.85rem;
 }
 
 .moisture-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main, #2c2421);
+  margin-bottom: 0.4rem;
+}
+
+.moisture-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   color: var(--text-main, #2c2421);
 }
 
 .moisture-value {
-  font-weight: 500;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .moisture-value.dry {
-  color: #c8968c;
+  color: #dc2626;
 }
 
 .moisture-value.good {
-  color: var(--accent-sage, #8ea89d);
-}
-
-.moisture-value.wet {
-  color: var(--accent-blue, #b0c4de);
+  color: #16a34a;
 }
 
 .moisture-bar {
   width: 100%;
-  height: 4px;
-  background: var(--bg-primary, #fbf9f7);
-  border-radius: 10px;
+  height: 6px;
+  background: var(--bg-primary, #f3ede6);
+  border-radius: 999px;
   overflow: hidden;
-  margin-top: 0.2rem;
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
 }
 
 .moisture-fill {
   height: 100%;
-  border-radius: 10px;
+  border-radius: 999px;
   transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .moisture-fill.dry {
-  background: #c8968c;
+  background: linear-gradient(90deg, #f87171, #ef4444);
+}
+
+.moisture-fill.medium {
+  background: linear-gradient(90deg, #fbbf24, #f59e0b);
 }
 
 .moisture-fill.good {
-  background: var(--accent-sage, #8ea89d);
-}
-
-.moisture-fill.wet {
-  background: var(--accent-blue, #b0c4de);
+  background: linear-gradient(90deg, #34d399, #10b981);
 }
 
 .moisture-warning {
   font-size: 0.75rem;
-  color: #c8968c;
-  display: block;
-  margin-top: 0.2rem;
+  color: #dc2626;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.35rem;
 }
 
-/* Weather Override */
+/* Weather Override Alert */
 .weather-override {
-  padding: 0.5rem 0.8rem;
+  padding: 0.65rem 0.9rem;
   border-radius: var(--radius-md, 12px);
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.85rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   font-size: 0.85rem;
-  border: 1px solid transparent;
+  font-weight: 500;
 }
 
 .weather-override.info {
-  background: rgba(176, 196, 222, 0.1);
-  border-color: rgba(176, 196, 222, 0.3);
-  color: var(--accent-blue, #b0c4de);
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  color: #0369a1;
 }
 
 .weather-override.warning {
-  background: rgba(223, 177, 155, 0.1);
-  border-color: rgba(223, 177, 155, 0.3);
-  color: #dfb19b;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #b45309;
 }
 
 /* Missed Alert */
 .missed-alert {
-  background: rgba(200, 150, 140, 0.06);
-  border-left: 3px solid #c8968c;
-  padding: 0.5rem 0.8rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-left: 4px solid #ef4444;
+  padding: 0.65rem 0.9rem;
   border-radius: var(--radius-md, 12px);
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.85rem;
+}
+
+.missed-alert-title {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
   font-size: 0.85rem;
-  color: var(--text-muted, #7c6f66);
-  border: 1px solid rgba(200, 150, 140, 0.2);
-  border-left-width: 3px;
+  font-weight: 700;
+  color: #991b1b;
+  margin-bottom: 0.35rem;
 }
 
-.missed-date {
-  display: inline-block;
-  background: #c8968c;
-  color: #ffffff;
-  padding: 0.05rem 0.5rem;
-  border-radius: 10px;
-  margin-left: 0.3rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-/* Schedule Controls */
-.schedule-controls {
+.missed-dates-list {
   display: flex;
-  justify-content: space-between;
-  font-size: 0.85rem;
-  color: var(--text-muted, #7c6f66);
-  margin-bottom: 0.8rem;
-}
-
-/* Schedule List */
-.schedule-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.schedule-item {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.5rem 0.8rem;
-  border-bottom: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
-  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
-}
-
-.schedule-item:hover {
-  background: var(--surface-primary, #ffffff);
-  border-radius: var(--radius-md, 12px);
-}
-
-.schedule-item.completed {
-  opacity: 0.6;
-}
-
-.schedule-item.completed .schedule-date {
-  text-decoration: line-through;
-}
-
-.schedule-item.missed {
-  background: rgba(200, 150, 140, 0.05);
-  border-radius: var(--radius-md, 12px);
-}
-
-.schedule-item.today {
-  background: rgba(168, 162, 188, 0.06);
-  border-radius: var(--radius-md, 12px);
-  border: 1px solid rgba(168, 162, 188, 0.2);
-}
-
-.schedule-left {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-width: 140px;
-}
-
-.water-checkbox {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--accent-sage, #8ea89d);
-  cursor: pointer;
-}
-
-.water-checkbox:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.schedule-date {
-  font-size: 0.85rem;
-  color: var(--text-main, #2c2421);
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
+  gap: 0.35rem;
   flex-wrap: wrap;
 }
 
-.today-badge {
-  font-size: 0.6rem;
-  background: var(--accent-lavender, #a8a2bc);
-  color: #ffffff;
-  padding: 0.05rem 0.4rem;
-  border-radius: 8px;
-  font-weight: 500;
-}
-
-.missed-badge {
-  font-size: 0.6rem;
-  background: #c8968c;
-  color: #ffffff;
-  padding: 0.05rem 0.4rem;
-  border-radius: 8px;
-  font-weight: 500;
-}
-
-.done-badge {
-  font-size: 0.6rem;
-  color: var(--accent-sage, #8ea89d);
-  font-weight: 500;
-}
-
-.schedule-middle {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.schedule-details {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.schedule-amount {
-  font-weight: 600;
-  color: var(--text-main, #2c2421);
+.missed-date-chip {
+  background: #fee2e2;
+  color: #991b1b;
   padding: 0.1rem 0.5rem;
-  border-radius: 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Summary Stats Strip */
+.schedule-controls-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background: var(--bg-primary, #fbf9f7);
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
-  font-size: 0.85rem;
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.45));
+  border-radius: var(--radius-md, 12px);
+  padding: 0.5rem 0.85rem;
+  margin-bottom: 0.85rem;
+  font-size: 0.82rem;
+  color: var(--text-main, #2c2421);
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
-.schedule-amount:hover {
-  background: var(--surface-primary, #ffffff);
-}
-
-.edited-badge {
-  font-size: 0.6rem;
-  color: var(--accent-lavender, #a8a2bc);
-  font-weight: 500;
-}
-
-.schedule-time {
-  font-size: 0.8rem;
-  color: var(--text-muted, #7c6f66);
-  background: var(--bg-primary, #fbf9f7);
-  padding: 0.05rem 0.5rem;
-  border-radius: 10px;
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
-}
-
-.adjustment-reason {
-  font-size: 0.7rem;
-  color: var(--accent-sage, #8ea89d);
-  background: rgba(142, 168, 157, 0.06);
-  padding: 0.05rem 0.5rem;
-  border-radius: 10px;
-  border: 1px solid rgba(142, 168, 157, 0.2);
-}
-
-.schedule-right {
+.schedule-stat-chip,
+.schedule-next-chip {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+  gap: 0.35rem;
 }
 
-.schedule-notes {
-  font-size: 0.8rem;
+.stat-chip-icon {
+  color: var(--sage, #2c5e3b);
+  font-size: 1rem;
+}
+
+/* Main Cards Container */
+.ws-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.no-events {
+  text-align: center;
+  padding: 2rem 1rem;
   color: var(--text-muted, #7c6f66);
   font-style: italic;
+  font-size: 0.9rem;
 }
 
-.completed-time {
-  font-size: 0.65rem;
+/* Day Card Component */
+.ws-day-card {
+  display: grid;
+  grid-template-columns: 145px 1fr auto;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 1rem;
+  background: var(--surface-primary, #ffffff);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.45));
+  border-radius: var(--radius-md, 12px);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.ws-day-card:hover {
+  border-color: var(--sage, #2c5e3b);
+  box-shadow: 0 4px 16px rgba(44, 36, 33, 0.05);
+  transform: translateY(-1px);
+}
+
+.ws-day-card.today {
+  border-color: var(--sage, #2c5e3b);
+  background: rgba(44, 94, 59, 0.02);
+  border-left: 4px solid var(--sage, #2c5e3b);
+}
+
+.ws-day-card.missed {
+  border-left: 4px solid #ef4444;
+  background: rgba(239, 68, 68, 0.02);
+}
+
+.ws-day-card.completed {
+  opacity: 0.7;
+  background: var(--bg-primary, #fbf9f7);
+}
+
+.ws-day-card.rest-day {
+  background: rgba(251, 249, 247, 0.6);
+}
+
+/* Left Column: Date & Day */
+.ws-card-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.ws-day-tag {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.ws-weekday {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-main, #2c2421);
+}
+
+.ws-date-text {
+  font-size: 0.8rem;
+  font-weight: 500;
   color: var(--text-muted, #7c6f66);
+  white-space: nowrap;
 }
 
-/* Edit Amount */
-.edit-amount {
+.ws-status-badges {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.ws-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
+}
+
+.ws-badge.today {
+  background: var(--sage, #2c5e3b);
+  color: #ffffff;
+}
+
+.ws-badge.missed {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.ws-badge.done {
+  background: #dcfce7;
+  color: #166534;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* Middle Column: Details */
+.ws-card-middle {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.ws-details-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.ws-badges-group {
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.4rem;
+  flex-wrap: wrap;
 }
 
-.edit-amount input {
-  width: 80px;
-  padding: 0.2rem 0.5rem;
-  border: 1.5px solid var(--accent-lavender, #a8a2bc);
-  border-radius: 20px;
+.ws-amount-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  transition: all 0.15s ease;
+}
+
+.ws-amount-pill.active {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+  cursor: pointer;
+}
+
+.ws-amount-pill.active:hover {
+  background: #bae6fd;
+  transform: translateY(-1px);
+}
+
+.ws-amount-pill.rest {
+  background: var(--bg-primary, #fbf9f7);
+  color: var(--text-muted, #7c6f66);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.6));
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.pill-water-icon {
+  color: #0284c7;
+  font-size: 0.9rem;
+}
+
+.pill-leaf-icon {
+  color: var(--sage, #2c5e3b);
   font-size: 0.85rem;
+}
+
+.pill-edit-icon {
+  font-size: 0.75rem;
+  opacity: 0.6;
+  margin-left: 2px;
+}
+
+.ws-time-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.ws-time-icon {
+  font-size: 0.8rem;
+}
+
+.ws-time-icon.morning {
+  color: #d97706;
+}
+
+.ws-time-icon.evening {
+  color: #6366f1;
+}
+
+.ws-reason-pill {
+  font-size: 0.7rem;
+  color: var(--sage, #2c5e3b);
+  background: rgba(44, 94, 59, 0.08);
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+.ws-notes-text {
+  margin: 0;
+  font-size: 0.76rem;
+  color: var(--text-muted, #7c6f66);
+  line-height: 1.35;
+  white-space: normal;
+}
+
+/* Inline Edit */
+.ws-inline-edit {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.ws-inline-edit input {
+  width: 90px;
+  padding: 0.25rem 0.5rem;
+  border: 1.5px solid var(--sage, #2c5e3b);
+  border-radius: 8px;
+  font-size: 0.82rem;
   background: var(--surface-primary, #ffffff);
   color: var(--text-main, #2c2421);
 }
 
-.edit-amount input:focus {
+.ws-inline-edit input:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(168, 162, 188, 0.15);
+  box-shadow: 0 0 0 2px rgba(44, 94, 59, 0.2);
 }
 
-.edit-amount button {
-  padding: 0.1rem 0.6rem;
-  border: none;
-  border-radius: 15px;
+.btn-edit-save,
+.btn-edit-cancel {
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
   font-size: 0.75rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
-  font-weight: 500;
+  border: none;
+  transition: all 0.15s ease;
 }
 
-.edit-amount button:first-of-type {
-  background: var(--accent-lavender, #a8a2bc);
+.btn-edit-save {
+  background: var(--sage, #2c5e3b);
   color: #ffffff;
 }
 
-.edit-amount button:first-of-type:hover {
-  background: #9a87b1;
+.btn-edit-save:hover {
+  background: #234c2e;
 }
 
-.edit-amount button:last-of-type {
+.btn-edit-cancel {
   background: var(--bg-primary, #fbf9f7);
   color: var(--text-muted, #7c6f66);
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  border: 1px solid var(--border-light, #e0d6cb);
 }
 
-.edit-amount button:last-of-type:hover {
+.btn-edit-cancel:hover {
   background: var(--surface-primary, #ffffff);
+}
+
+/* Right Column: Custom Check Button */
+.ws-card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.ws-action-check-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--border-light, #d1d5db);
+  background: var(--bg-primary, #fbf9f7);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0;
+}
+
+.ws-action-check-btn:hover:not(:disabled) {
+  border-color: var(--sage, #2c5e3b);
+  background: rgba(44, 94, 59, 0.08);
+  color: var(--sage, #2c5e3b);
+  transform: scale(1.06);
+}
+
+.ws-action-check-btn.checked {
+  background: var(--sage, #2c5e3b);
+  border-color: var(--sage, #2c5e3b);
+  color: #ffffff;
+}
+
+.ws-action-check-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.check-svg-icon {
+  font-size: 1.1rem;
+}
+
+.ws-completed-timestamp {
+  font-size: 0.65rem;
+  color: var(--text-muted, #7c6f66);
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 /* Legend */
-.schedule-legend {
+.ws-schedule-legend {
   display: flex;
   gap: 1rem;
   margin-top: 1rem;
-  padding-top: 0.8rem;
+  padding-top: 0.75rem;
   border-top: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
   font-size: 0.75rem;
   color: var(--text-muted, #7c6f66);
   flex-wrap: wrap;
+  justify-content: center;
 }
 
-.legend-item {
+.ws-legend-item {
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.35rem;
+  font-weight: 500;
 }
 
-.legend-dot {
-  width: 12px;
-  height: 12px;
+.ws-legend-chip {
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   display: inline-block;
 }
 
-.legend-dot.unchecked {
-  background: var(--bg-primary, #fbf9f7);
-  border: 1.5px solid var(--border-light, rgba(220, 210, 200, 0.4));
+.ws-legend-chip.today {
+  background: var(--sage, #2c5e3b);
 }
 
-.legend-dot.checked {
-  background: var(--accent-sage, #8ea89d);
+.ws-legend-chip.completed {
+  background: #10b981;
 }
 
-.legend-dot.missed {
-  background: #c8968c;
+.ws-legend-chip.pending {
+  background: #e2e8f0;
+  border: 1px solid #cbd5e1;
 }
 
-.legend-dot.today {
-  background: var(--accent-lavender, #a8a2bc);
-}
-
-.no-schedule {
-  color: var(--text-muted, #7c6f66);
-  text-align: center;
-  padding: 1.5rem 0;
-  font-style: italic;
+.ws-legend-chip.missed {
+  background: #ef4444;
 }
 
 /* Responsive */
-@media (max-width: 480px) {
-  .schedule-item {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.3rem;
+@media (max-width: 600px) {
+  .ws-day-card {
+    grid-template-columns: 1fr auto;
+    gap: 0.6rem;
   }
 
-  .schedule-left {
-    min-width: unset;
+  .ws-card-left {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-light, rgba(220, 210, 200, 0.3));
+    padding-bottom: 0.35rem;
   }
 
-  .schedule-middle {
-    flex-direction: column;
-    align-items: flex-start;
+  .ws-card-middle {
+    grid-column: 1;
   }
 
-  .schedule-right {
-    justify-content: flex-start;
-  }
-
-  .edit-amount {
-    flex-wrap: wrap;
-  }
-
-  .edit-amount input {
-    width: 60px;
-  }
-
-  .schedule-legend {
-    gap: 0.5rem;
+  .ws-card-right {
+    grid-column: 2;
   }
 }

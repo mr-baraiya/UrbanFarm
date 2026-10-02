@@ -1,4 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { 
+  RiDropLine, 
+  RiRefreshLine, 
+  RiLoader4Line, 
+  RiFlashlightLine, 
+  RiSunLine, 
+  RiRainyLine, 
+  RiCheckLine,
+  RiHistoryLine,
+  RiCloseLine
+} from 'react-icons/ri';
 import { getPlants, generateWateringSchedule, getWateringSchedules, updateWateringSchedule } from '../../services/plantService';
 import { getWeather, getForecast } from '../../services/weatherService';
 import { useAuth } from '../../hooks/useAuth';
@@ -90,7 +101,8 @@ const WateringTab = () => {
     try {
       const sched = await generateWateringSchedule(selectedPlant._id);
       setSchedule(sched);
-      addNotification('Watering schedule generated! 💧', 'success');
+      setSelectedHistory(null);
+      addNotification('Watering schedule generated successfully!', 'success');
       loadData();
     } catch (error) {
       addNotification('Failed to generate schedule', 'error');
@@ -101,7 +113,6 @@ const WateringTab = () => {
 
   const handleHistoryClick = (item) => {
     setSelectedHistory(item);
-    setSchedule(item);
   };
 
   const handleMarkWatered = async (scheduleId, eventIndex) => {
@@ -127,7 +138,7 @@ const WateringTab = () => {
       
       setSchedule(updatedSchedule);
       if (selectedHistory) setSelectedHistory(updatedSchedule);
-      addNotification('✅ Watering marked as done!', 'success');
+      addNotification('Watering marked as completed!', 'success');
       loadData();
     } catch (error) {
       addNotification('Failed to update schedule', 'error');
@@ -171,19 +182,19 @@ const WateringTab = () => {
           ...event,
           amount: newAmount,
           adjusted: adjusted,
-          adjustmentReason: adjustment === 'hot_weather' ? '☀️ Heatwave boost (+20%)' : undefined,
+          adjustmentReason: adjustment === 'hot_weather' ? 'Heatwave boost (+20%)' : undefined,
         };
       }).filter(e => e !== null);
       
       // Update weather adjusted status
       if (adjustment === 'rain_delay') {
         updatedSchedule.weatherAdjusted = true;
-        updatedSchedule.skipReason = '🌧️ Rain delay applied';
-        addNotification('🌧️ Rain delay applied! Skipping watering for 3 days.', 'info');
+        updatedSchedule.skipReason = 'Rain delay applied';
+        addNotification('Rain delay applied! Skipping watering for 3 days.', 'info');
       } else if (adjustment === 'hot_weather') {
         updatedSchedule.weatherAdjusted = true;
-        updatedSchedule.skipReason = '☀️ Heatwave boost applied';
-        addNotification('☀️ Heatwave boost applied! Increased all volumes by 20%.', 'info');
+        updatedSchedule.skipReason = 'Heatwave boost applied';
+        addNotification('Heatwave boost applied! Increased all volumes by 20%.', 'info');
       }
       
       await updateWateringSchedule(schedule._id, {
@@ -193,7 +204,7 @@ const WateringTab = () => {
       });
       
       setSchedule(updatedSchedule);
-      addNotification('✅ Schedule adjusted successfully!', 'success');
+      addNotification('Schedule adjusted successfully!', 'success');
       loadData();
     } catch (error) {
       addNotification('Failed to adjust schedule', 'error');
@@ -215,7 +226,7 @@ const WateringTab = () => {
       
       setSchedule(updatedSchedule);
       if (selectedHistory) setSelectedHistory(updatedSchedule);
-      addNotification('✅ Volume updated!', 'success');
+      addNotification('Volume updated successfully!', 'success');
       loadData();
     } catch (error) {
       addNotification('Failed to update volume', 'error');
@@ -236,7 +247,9 @@ const WateringTab = () => {
 
   return (
     <div className="watering-tab">
-      <h2>💧 Smart Watering</h2>
+      <h2>
+        <RiDropLine className="header-icon" /> Smart Watering
+      </h2>
       <p className="subtitle">Intelligent watering schedules powered by weather data</p>
       
       <div className="watering-layout">
@@ -270,8 +283,13 @@ const WateringTab = () => {
                 className="btn-primary" 
                 onClick={handleGenerate} 
                 disabled={!selectedPlant || loading}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
               >
-                {loading ? '⏳ Generating...' : '🔄 Generate Schedule'}
+                {loading ? (
+                  <><RiLoader4Line className="spin" /> Generating...</>
+                ) : (
+                  <><RiRefreshLine /> Generate Schedule</>
+                )}
               </button>
             </div>
           </div>
@@ -279,26 +297,53 @@ const WateringTab = () => {
           {/* Bulk Adjustment Controls */}
           {schedule && schedule.schedule && schedule.schedule.length > 0 && (
             <div className="bulk-controls">
-              <span className="controls-label">⚡ Quick Adjust:</span>
+              <span className="controls-label" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                <RiFlashlightLine /> Quick Adjust:
+              </span>
               <button 
                 className="control-btn hot"
                 onClick={() => handleBulkAdjust('hot_weather')}
                 title="Increase all volumes by 20% for hot weather"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
               >
-                ☀️ Heatwave Boost
+                <RiSunLine /> Heatwave Boost
               </button>
               <button 
                 className="control-btn rain"
                 onClick={() => handleBulkAdjust('rain_delay')}
                 title="Skip watering for next 3 days due to rain"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
               >
-                🌧️ Rain Delay
+                <RiRainyLine /> Rain Delay
               </button>
             </div>
           )}
 
-          {/* Current Schedule */}
-          {schedule && (
+          {/* Schedule Display: Current or Selected History */}
+          {selectedHistory ? (
+            <div className="watering-history-detail">
+              <div className="history-detail-header-bar">
+                <span className="history-badge-tag">
+                  <RiHistoryLine /> Viewing Archived Schedule
+                </span>
+                <button 
+                  className="btn-close-history" 
+                  onClick={() => setSelectedHistory(null)}
+                >
+                  <RiCloseLine /> Close History
+                </button>
+              </div>
+              <WateringSchedule 
+                schedule={selectedHistory} 
+                plantName={getPlantName(selectedHistory.plantId)}
+                onMarkWatered={handleMarkWatered}
+                onCustomEdit={handleCustomEdit}
+                weatherData={weatherData}
+                forecastData={forecastData}
+                isHistory={true}
+              />
+            </div>
+          ) : schedule ? (
             <div className="watering-schedule-section">
               <WateringSchedule 
                 schedule={schedule} 
@@ -309,28 +354,7 @@ const WateringTab = () => {
                 forecastData={forecastData}
               />
             </div>
-          )}
-
-          {/* History Detail */}
-          {selectedHistory && (
-            <div className="watering-history-detail">
-              <WateringSchedule 
-                schedule={selectedHistory} 
-                plantName={getPlantName(selectedHistory.plantId)}
-                onMarkWatered={handleMarkWatered}
-                onCustomEdit={handleCustomEdit}
-                weatherData={weatherData}
-                forecastData={forecastData}
-                isHistory={true}
-              />
-              <button className="btn-secondary" onClick={() => {
-                setSelectedHistory(null);
-                setSchedule(null);
-              }}>
-                Close History
-              </button>
-            </div>
-          )}
+          ) : null}
         </div>
 
         {/* Right Column - History */}

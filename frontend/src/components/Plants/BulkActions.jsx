@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { RiDropLine, RiFolderTransferLine, RiDeleteBinLine, RiCloseLine, RiMapPin2Line } from 'react-icons/ri';
 import './BulkActions.css';
 
 const BulkActions = ({ selectedCount, onAction, gardens, onCancel }) => {
@@ -13,7 +14,7 @@ const BulkActions = ({ selectedCount, onAction, gardens, onCancel }) => {
           onClick={() => onAction('water')}
           title="Water selected plants"
         >
-          💧 Water
+          <RiDropLine className="bulk-icon blue" /> Water
         </button>
         <div className="bulk-move-wrapper">
           <button 
@@ -21,7 +22,7 @@ const BulkActions = ({ selectedCount, onAction, gardens, onCancel }) => {
             onClick={() => setShowMoveMenu(!showMoveMenu)}
             title="Move selected plants"
           >
-            📦 Move
+            <RiFolderTransferLine className="bulk-icon amber" /> Move
           </button>
           {showMoveMenu && (
             <div className="move-dropdown">
@@ -33,7 +34,7 @@ const BulkActions = ({ selectedCount, onAction, gardens, onCancel }) => {
                     setShowMoveMenu(false);
                   }}
                 >
-                  📍 {g.name}
+                  <RiMapPin2Line className="map-icon" /> {g.name}
                 </button>
               ))}
             </div>
@@ -43,14 +44,17 @@ const BulkActions = ({ selectedCount, onAction, gardens, onCancel }) => {
           className="bulk-btn delete"
           onClick={() => onAction('delete')}
           title="Delete selected plants"
+          aria-label="Delete selected plants"
         >
-          🗑️
+          <RiDeleteBinLine />
         </button>
         <button 
           className="bulk-btn cancel"
           onClick={onCancel}
+          title="Cancel selection"
+          aria-label="Cancel selection"
         >
-          ✕
+          <RiCloseLine />
         </button>
       </div>
     </div>

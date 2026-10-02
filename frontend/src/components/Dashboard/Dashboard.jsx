@@ -2,6 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { getGardens, getPlants, getTasks, getDiagnosisHistory } from '../../services/plantService';
 import { getWeather } from '../../services/weatherService';
+import { 
+  RiPlantLine, 
+  RiCalendarEventLine, 
+  RiMicroscopeLine, 
+  RiHistoryLine 
+} from 'react-icons/ri';
+import { TbPlant2 } from 'react-icons/tb';
 import StatsCard from './StatsCard';
 import RecentActivity from './RecentActivity';
 import QuickActions from './QuickActions';
@@ -144,7 +151,7 @@ const Dashboard = () => {
       {/* Header with Welcome and Weather */}
       <div className="dashboard-header">
         <div className="header-left">
-          <h1>🌱 Welcome back{user?.name ? `, ${user.name}` : ''}!</h1>
+          <h1>Welcome back{user?.name ? `, ${user.name}` : ''}!</h1>
           <p className="header-subtitle">Here's what's happening in your urban garden today</p>
         </div>
         <div className="header-right">
@@ -157,10 +164,10 @@ const Dashboard = () => {
 
       {/* Stats Grid */}
       <div className="stats-grid">
-        <StatsCard title="Gardens" value={stats.gardens} icon="🌿" color="#b8a9c9" />
-        <StatsCard title="Plants" value={stats.plants} icon="🌱" color="#a8d5ba" />
-        <StatsCard title="Pending Tasks" value={stats.tasks} icon="📋" color="#f0d5c0" />
-        <StatsCard title="Diagnoses" value={stats.diagnoses} icon="🔬" color="#d6eaf8" />
+        <StatsCard title="Gardens" value={stats.gardens} icon={<RiPlantLine />} color="#b8a9c9" />
+        <StatsCard title="Plants" value={stats.plants} icon={<TbPlant2 />} color="#52b788" />
+        <StatsCard title="Pending Tasks" value={stats.tasks} icon={<RiCalendarEventLine />} color="#f59e0b" />
+        <StatsCard title="Diagnoses" value={stats.diagnoses} icon={<RiMicroscopeLine />} color="#8b5cf6" />
       </div>
 
       {/* Two-column layout for main content */}
@@ -184,7 +191,7 @@ const Dashboard = () => {
 
           {/* Recent Activity */}
           <div className="recent-activity-section">
-            <h3>📊 Recent Activity</h3>
+            <h3><RiHistoryLine className="section-title-icon" /> Recent Activity</h3>
             <RecentActivity activities={activities} />
           </div>
         </div>

@@ -1,8 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getPlantById, updatePlant, addTimelineEntry } from '../../services/plantService';
+import { 
+  RiArrowLeftLine, 
+  RiShoppingBasketLine, 
+  RiQrCodeLine, 
+  RiEditLine, 
+  RiCloseLine, 
+  RiMicroscopeLine, 
+  RiSunLine, 
+  RiSunCloudyLine, 
+  RiFileTextLine, 
+  RiLineChartLine, 
+  RiRulerLine,
+  RiSaveLine,
+  RiAddLine,
+  RiCameraLine
+} from 'react-icons/ri';
+import { TbPlant2 } from 'react-icons/tb';
+import { getPlantById, updatePlant, addTimelineEntry, uploadImage } from '../../services/plantService';
 import { useNotification } from '../../hooks/useNotification';
-import { formatDate, getStatusColor } from '../../utils/helpers';
+import { formatDate, getStatusColor, getPlantImage } from '../../utils/helpers';
+import QRCodeModal from '../Common/QRCodeModal';
+import HarvestTrackerModal from './HarvestTrackerModal';
 import './PlantDetail.css';
 
 const PlantDetail = () => {
@@ -11,7 +30,10 @@ const PlantDetail = () => {
   const [plant, setPlant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
+  const [showQR, setShowQR] = useState(false);
+  const [showHarvest, setShowHarvest] = useState(false);
   const [editData, setEditData] = useState({});
+  const [uploadingImg, setUploadingImg] = useState(false);
   const [newHeight, setNewHeight] = useState('');
   const [newNotes, setNewNotes] = useState('');
   const { addNotification } = useNotification();
@@ -35,13 +57,27 @@ const PlantDetail = () => {
     }
   };
 
-  const handleUpdate = async (field, value) => {
+  const handleDetailImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingImg(true);
     try {
-      await updatePlant(id, { [field]: value });
-      setPlant({ ...plant, [field]: value });
-      addNotification('Plant updated!', 'success');
-    } catch (error) {
-      addNotification('Update failed', 'error');
+      const uploadedUrl = await uploadImage(file);
+      if (uploadedUrl) {
+        setEditData((prev) => ({ ...prev, imageUrl: uploadedUrl }));
+        addNotification('Image uploaded to Cloudinary successfully!', 'success');
+      }
+    } catch (err) {
+      // Fallback to local base64 preview if Cloudinary fails
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditData((prev) => ({ ...prev, imageUrl: reader.result }));
+        addNotification('Image set locally!', 'success');
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      setUploadingImg(false);
     }
   };
 
@@ -50,7 +86,7 @@ const PlantDetail = () => {
     try {
       await updatePlant(id, editData);
       setPlant({ ...plant, ...editData });
-      addNotification('Plant updated!', 'success');
+      addNotification('Plant updated successfully!', 'success');
       setEditing(false);
     } catch (error) {
       addNotification('Update failed', 'error');
@@ -62,7 +98,7 @@ const PlantDetail = () => {
     if (!newHeight && !newNotes) return;
     try {
       await addTimelineEntry(id, { height: parseFloat(newHeight) || 0, notes: newNotes });
-      addNotification('Timeline entry added!', 'success');
+      addNotification('Growth entry added!', 'success');
       setNewHeight('');
       setNewNotes('');
       loadPlant();
@@ -80,20 +116,27 @@ const PlantDetail = () => {
   }
 
   const statusColor = getStatusColor(plant.status);
+  const plantImg = getPlantImage(plant);
 
   return (
     <div className="plant-detail">
       {/* Header */}
       <div className="detail-header">
         <button className="back-btn" onClick={() => navigate('/app/plants')}>
-          ← Back to Plants
+          <RiArrowLeftLine /> Back to Plants
         </button>
         <div className="detail-actions">
+          <button className="btn-secondary" onClick={() => setShowHarvest(true)}>
+            <RiShoppingBasketLine /> Log Harvest
+          </button>
+          <button className="btn-secondary" onClick={() => setShowQR(true)}>
+            <RiQrCodeLine /> QR Code
+          </button>
           <button className="btn-secondary" onClick={() => setEditing(!editing)}>
-            {editing ? '✕ Cancel' : '✏️ Edit'}
+            {editing ? <><RiCloseLine /> Cancel</> : <><RiEditLine /> Edit</>}
           </button>
           <button className="btn-primary" onClick={() => navigate(`/app/diagnose?plant=${plant._id}`)}>
-            🔬 Diagnose
+            <RiMicroscopeLine /> Diagnose
           </button>
         </div>
       </div>
@@ -102,11 +145,11 @@ const PlantDetail = () => {
       <div className="detail-content">
         <div className="detail-main">
           <div className="plant-header">
-            <div className="plant-avatar" style={{ background: statusColor + '44' }}>
-              {plant.imageUrl ? (
-                <img src={plant.imageUrl} alt={plant.name} />
+            <div className="plant-avatar" style={{ background: statusColor + '22' }}>
+              {plantImg ? (
+                <img src={plantImg} alt={plant.name} />
               ) : (
-                <span>🌱</span>
+                <TbPlant2 className="plant-avatar-icon" />
               )}
             </div>
             <div className="plant-title">
@@ -116,13 +159,14 @@ const PlantDetail = () => {
                 <span className="scientific">{plant.scientificName}</span>
               )}
               <div className="plant-badges">
-                <span className="status-badge" style={{ background: statusColor + '33', color: statusColor }}>
+                <span className="status-badge" style={{ background: statusColor + '22', color: statusColor }}>
                   {plant.status}
                 </span>
-                <span className="health-badge">
-                  {plant.health === 'healthy' ? '🟢 Healthy' : 
-                   plant.health === 'warning' ? '🟡 Needs Attention' : 
-                   '🔴 At Risk'}
+                <span className={`health-badge ${plant.health || 'healthy'}`}>
+                  <span className={`health-dot ${plant.health || 'healthy'}`} />
+                  {plant.health === 'healthy' ? 'Healthy' : 
+                   plant.health === 'warning' ? 'Needs Attention' : 
+                   'At Risk'}
                 </span>
               </div>
             </div>
@@ -148,6 +192,40 @@ const PlantDetail = () => {
                 </div>
               </div>
               <div className="form-group">
+                <label>Plant Photo</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.25rem' }}>
+                  <div style={{ width: '56px', height: '56px', borderRadius: '10px', overflow: 'hidden', background: statusColor + '22', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid var(--border-light, rgba(0,0,0,0.1))' }}>
+                    {editData.imageUrl ? (
+                      <img src={editData.imageUrl} alt="Plant" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <TbPlant2 style={{ fontSize: '1.6rem', color: '#2d6a4f' }} />
+                    )}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <label htmlFor="detailImageUpload" className="btn-secondary" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.85rem', padding: '0.4rem 0.9rem', margin: 0 }}>
+                      <RiCameraLine /> {uploadingImg ? 'Uploading...' : 'Upload Photo'}
+                    </label>
+                    <input
+                      id="detailImageUpload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleDetailImageUpload}
+                      style={{ display: 'none' }}
+                      disabled={uploadingImg}
+                    />
+                    {editData.imageUrl && (
+                      <button 
+                        type="button" 
+                        onClick={() => setEditData({ ...editData, imageUrl: '' })}
+                        style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.82rem', padding: '0.2rem 0.4rem' }}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="form-group">
                 <label>Notes</label>
                 <textarea
                   value={editData.notes || ''}
@@ -156,7 +234,9 @@ const PlantDetail = () => {
                 />
               </div>
               <div className="form-actions">
-                <button type="submit" className="btn-primary">Save Changes</button>
+                <button type="submit" className="btn-primary">
+                  <RiSaveLine /> Save Changes
+                </button>
               </div>
             </form>
           ) : (
@@ -178,16 +258,22 @@ const PlantDetail = () => {
                 <div className="detail-item">
                   <span className="label">Sunlight</span>
                   <span className="value">
-                    {plant.sunlight === 'full' ? '☀️ Full Sun' : 
-                     plant.sunlight === 'partial' ? '⛅ Partial Shade' : 
-                     '🌥️ Shade'}
+                    {plant.sunlight === 'full' ? (
+                      <><RiSunLine className="meta-icon sun" /> Full Sun</>
+                    ) : plant.sunlight === 'partial' ? (
+                      <><RiSunCloudyLine className="meta-icon shade" /> Partial Shade</>
+                    ) : (
+                      <><RiSunCloudyLine className="meta-icon shade" /> Shade</>
+                    )}
                   </span>
                 </div>
               </div>
 
               {plant.notes && (
                 <div className="plant-notes">
-                  <h4>📝 Notes</h4>
+                  <h4>
+                    <RiFileTextLine className="section-icon" /> Notes
+                  </h4>
                   <p>{plant.notes}</p>
                 </div>
               )}
@@ -196,7 +282,9 @@ const PlantDetail = () => {
 
           {/* Growth Timeline */}
           <div className="growth-timeline">
-            <h4>📈 Growth Timeline</h4>
+            <h4>
+              <RiLineChartLine className="section-icon" /> Growth Timeline
+            </h4>
             {plant.growthTimeline?.length === 0 ? (
               <p className="no-timeline">No growth entries yet.</p>
             ) : (
@@ -204,7 +292,11 @@ const PlantDetail = () => {
                 {plant.growthTimeline?.map((entry, idx) => (
                   <div key={idx} className="timeline-item">
                     <span className="timeline-date">{formatDate(entry.date)}</span>
-                    {entry.height && <span className="timeline-height">📏 {entry.height} cm</span>}
+                    {entry.height && (
+                      <span className="timeline-height">
+                        <RiRulerLine className="ruler-icon" /> {entry.height} cm
+                      </span>
+                    )}
                     {entry.notes && <span className="timeline-notes">{entry.notes}</span>}
                   </div>
                 ))}
@@ -224,11 +316,30 @@ const PlantDetail = () => {
                 value={newNotes}
                 onChange={(e) => setNewNotes(e.target.value)}
               />
-              <button type="submit" className="btn-primary">Add Entry</button>
+              <button type="submit" className="btn-primary">
+                <RiAddLine /> Add Entry
+              </button>
             </form>
           </div>
         </div>
       </div>
+
+      {/* QR Code Modal */}
+      {showQR && (
+        <QRCodeModal
+          plant={plant}
+          onClose={() => setShowQR(false)}
+        />
+      )}
+
+      {/* Harvest Tracker Modal */}
+      {showHarvest && (
+        <HarvestTrackerModal
+          plant={plant}
+          onClose={() => setShowHarvest(false)}
+          onHarvestLogged={loadPlant}
+        />
+      )}
     </div>
   );
 };

@@ -1,4 +1,21 @@
 import React, { useState } from 'react';
+import { 
+  RiDropLine, 
+  RiSunCloudyLine, 
+  RiAlertLine, 
+  RiCheckLine, 
+  RiEditLine, 
+  RiRainyLine, 
+  RiSunLine, 
+  RiMoonLine,
+  RiBarChartLine,
+  RiCheckboxCircleLine,
+  RiCloseCircleLine,
+  RiCalendarEventLine,
+  RiTimeLine,
+  RiLeafLine
+} from 'react-icons/ri';
+import { TbPlant2 } from 'react-icons/tb';
 import { formatDate } from '../../utils/helpers';
 import './WateringSchedule.css';
 
@@ -6,9 +23,9 @@ const WateringSchedule = ({
   schedule, 
   plantName, 
   onMarkWatered, 
-  onCustomEdit,
-  weatherData,
-  forecastData,
+  onCustomEdit, 
+  weatherData, 
+  forecastData, 
   isHistory 
 }) => {
   const [editingIndex, setEditingIndex] = useState(null);
@@ -37,14 +54,14 @@ const WateringSchedule = ({
     
     if (rain > 5) {
       return { 
-        emoji: '🌧️', 
+        icon: <RiRainyLine style={{ color: '#38bdf8' }} />, 
         message: `Rain forecast (${rain}mm) - Consider skipping watering`,
         severity: 'info'
       };
     }
     if (temp > 35) {
       return { 
-        emoji: '☀️', 
+        icon: <RiSunLine style={{ color: '#f59e0b' }} />, 
         message: `Heatwave alert (${Math.round(temp)}°C) - Consider evening watering`,
         severity: 'warning'
       };
@@ -66,41 +83,65 @@ const WateringSchedule = ({
     }
   };
 
+  const getTimeIcon = (timeOfDay) => {
+    if (!timeOfDay) return null;
+    const lower = timeOfDay.toLowerCase();
+    if (lower.includes('morning')) return <RiSunLine className="ws-time-icon morning" />;
+    if (lower.includes('evening') || lower.includes('night')) return <RiMoonLine className="ws-time-icon evening" />;
+    return <RiTimeLine className="ws-time-icon" />;
+  };
+
+  const isRestDay = (amount) => {
+    if (!amount) return true;
+    const norm = amount.toLowerCase().trim();
+    return norm === '0ml' || norm === '0l' || norm === '0' || norm === 'none';
+  };
+
+  const completedCount = schedule.schedule.filter(e => e.completed).length;
+  const totalCount = schedule.schedule.length;
+
   return (
     <div className="watering-schedule">
       <div className="schedule-header">
-        <h3>💧 Watering Schedule {plantName && `for ${plantName}`}</h3>
+        <h3>
+          <RiDropLine className="schedule-header-icon" /> Watering Schedule {plantName && `for ${plantName}`}
+        </h3>
         {schedule.weatherAdjusted && (
-          <span className="weather-adjusted-badge">🌤️ Weather Adjusted</span>
+          <span className="weather-adjusted-badge">
+            <RiSunCloudyLine /> Weather Adjusted
+          </span>
         )}
       </div>
 
       {/* Soil Moisture Indicator */}
       <div className="soil-moisture">
         <div className="moisture-header">
-          <span>🌱 Current Soil Moisture</span>
+          <span className="moisture-label">
+            <TbPlant2 /> Current Soil Moisture
+          </span>
           <span className={`moisture-value ${isDry ? 'dry' : 'good'}`}>
-            {soilMoisture}% {isDry ? '🔴 Dry' : '🟢 Good'}
+            {soilMoisture}% {isDry ? <><RiCloseCircleLine /> Dry</> : <><RiCheckboxCircleLine /> Good</>}
           </span>
         </div>
         <div className="moisture-bar">
           <div 
-            className="moisture-fill" 
-            style={{ 
-              width: `${soilMoisture}%`,
-              background: soilMoisture < 40 ? '#e8b4b4' : soilMoisture < 70 ? '#f0d5c0' : '#a8d5ba'
-            }}
+            className={`moisture-fill ${soilMoisture < 40 ? 'dry' : soilMoisture < 70 ? 'medium' : 'good'}`} 
+            style={{ width: `${soilMoisture}%` }}
           />
         </div>
         {isDry && (
-          <span className="moisture-warning">⚠️ Soil is dry - consider watering</span>
+          <span className="moisture-warning">
+            <RiAlertLine /> Soil is dry - consider watering
+          </span>
         )}
       </div>
 
-      {/* Weather Override */}
+      {/* Weather Override Alert */}
       {weatherOverride && !isHistory && (
         <div className={`weather-override ${weatherOverride.severity}`}>
-          <span className="override-emoji">{weatherOverride.emoji}</span>
+          <span className="override-emoji">
+            {weatherOverride.icon}
+          </span>
           <span className="override-message">{weatherOverride.message}</span>
         </div>
       )}
@@ -108,123 +149,165 @@ const WateringSchedule = ({
       {/* Missed Watering Alert */}
       {missedEvents.length > 0 && !isHistory && (
         <div className="missed-alert">
-          ⚠️ {missedEvents.length} watering session{missedEvents.length > 1 ? 's' : ''} missed
-          {missedEvents.map((event, idx) => (
-            <span key={idx} className="missed-date">
-              {formatDate(event.date)}
-            </span>
-          ))}
+          <div className="missed-alert-title">
+            <RiAlertLine /> {missedEvents.length} watering session{missedEvents.length > 1 ? 's' : ''} missed
+          </div>
+          <div className="missed-dates-list">
+            {missedEvents.map((event, idx) => (
+              <span key={idx} className="missed-date-chip">
+                {formatDate(event.date)}
+              </span>
+            ))}
+          </div>
         </div>
       )}
 
-      {/* Schedule Controls */}
+      {/* Summary Stats Row */}
       {schedule.schedule.length > 0 && (
-        <div className="schedule-controls">
-          <span className="schedule-stats">
-            📊 {schedule.schedule.filter(e => e.completed).length}/{schedule.schedule.length} completed
-          </span>
+        <div className="schedule-controls-card">
+          <div className="schedule-stat-chip">
+            <RiBarChartLine className="stat-chip-icon" />
+            <span><strong>{completedCount}</strong> of {totalCount} completed</span>
+          </div>
           {!isHistory && schedule.nextWateringDate && (
-            <span className="next-watering">
-              Next: {new Date(schedule.nextWateringDate).toLocaleDateString()}
-            </span>
+            <div className="schedule-next-chip">
+              <RiCalendarEventLine className="stat-chip-icon" />
+              <span>Next: <strong>{new Date(schedule.nextWateringDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</strong></span>
+            </div>
           )}
         </div>
       )}
 
-      {/* Schedule List */}
-      <ul className="schedule-list">
+      {/* Schedule List of Day Cards */}
+      <div className="ws-cards-container">
         {schedule.schedule.length === 0 ? (
-          <li className="no-events">No watering events scheduled.</li>
+          <div className="no-events">No watering events scheduled.</div>
         ) : (
           schedule.schedule.map((item, idx) => {
             const eventDate = new Date(item.date);
             const isPast = eventDate < today;
             const isMissed = isPast && !item.completed;
             const isToday = eventDate.toDateString() === today.toDateString();
-            
+            const rest = isRestDay(item.amount);
+            const dayOfWeek = eventDate.toLocaleDateString(undefined, { weekday: 'short' });
+            const formattedDateStr = eventDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+
             return (
-              <li 
+              <div 
                 key={idx} 
-                className={`schedule-item ${item.completed ? 'completed' : ''} ${isMissed ? 'missed' : ''} ${isToday ? 'today' : ''}`}
+                className={`ws-day-card ${item.completed ? 'completed' : ''} ${isMissed ? 'missed' : ''} ${isToday ? 'today' : ''} ${rest ? 'rest-day' : 'active-watering'}`}
               >
-                <div className="schedule-left">
-                  <input
-                    type="checkbox"
-                    className="water-checkbox"
-                    checked={item.completed || false}
-                    onChange={() => onMarkWatered(schedule._id, idx)}
-                    disabled={isHistory}
-                  />
-                  <span className="schedule-date">
-                    {formatDate(item.date)}
-                    {isToday && <span className="today-badge">Today</span>}
-                    {isMissed && <span className="missed-badge">Missed</span>}
-                    {item.completed && <span className="done-badge">✅ Done</span>}
-                  </span>
+                {/* Left: Day & Date Header */}
+                <div className="ws-card-left">
+                  <div className="ws-day-tag">
+                    <span className="ws-weekday">{dayOfWeek}</span>
+                    <span className="ws-date-text">{formattedDateStr}</span>
+                  </div>
+                  <div className="ws-status-badges">
+                    {isToday && <span className="ws-badge today">Today</span>}
+                    {isMissed && <span className="ws-badge missed">Missed</span>}
+                    {item.completed && <span className="ws-badge done"><RiCheckLine /> Done</span>}
+                  </div>
                 </div>
-                
-                <div className="schedule-middle">
+
+                {/* Middle: Watering Details or Rest Description */}
+                <div className="ws-card-middle">
                   {editingIndex === idx ? (
-                    <div className="edit-amount">
+                    <div className="ws-inline-edit" onClick={(e) => e.stopPropagation()}>
                       <input
                         type="text"
                         value={editAmount}
                         onChange={(e) => setEditAmount(e.target.value)}
-                        placeholder="e.g., 600ml"
+                        placeholder="e.g., 500ml"
                         autoFocus
                       />
-                      <button onClick={() => handleEditSubmit(idx, schedule._id)}>Save</button>
-                      <button onClick={() => setEditingIndex(null)}>Cancel</button>
+                      <button className="btn-edit-save" onClick={() => handleEditSubmit(idx, schedule._id)}>Save</button>
+                      <button className="btn-edit-cancel" onClick={() => setEditingIndex(null)}>Cancel</button>
                     </div>
                   ) : (
-                    <div className="schedule-details">
-                      <span 
-                        className="schedule-amount"
-                        onClick={() => {
-                          setEditingIndex(idx);
-                          setEditAmount(item.amount);
-                        }}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        {item.amount}
-                        {item.customEdited && <span className="edited-badge">✏️</span>}
-                      </span>
-                      <span className="schedule-time">{item.timeOfDay}</span>
-                      {item.adjustmentReason && (
-                        <span className="adjustment-reason">{item.adjustmentReason}</span>
+                    <div className="ws-details-row">
+                      {!rest ? (
+                        <div className="ws-badges-group">
+                          <span 
+                            className="ws-amount-pill active"
+                            onClick={() => {
+                              if (!isHistory) {
+                                setEditingIndex(idx);
+                                setEditAmount(item.amount);
+                              }
+                            }}
+                            title="Click to edit volume"
+                          >
+                            <RiDropLine className="pill-water-icon" />
+                            <strong>{item.amount}</strong>
+                            {!isHistory && <RiEditLine className="pill-edit-icon" />}
+                          </span>
+
+                          {item.timeOfDay && item.timeOfDay.toLowerCase() !== 'none' && (
+                            <span className="ws-time-pill">
+                              {getTimeIcon(item.timeOfDay)}
+                              <span className="time-text">{item.timeOfDay}</span>
+                            </span>
+                          )}
+
+                          {item.adjustmentReason && (
+                            <span className="ws-reason-pill">{item.adjustmentReason}</span>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="ws-badges-group">
+                          <span className="ws-amount-pill rest">
+                            <RiLeafLine className="pill-leaf-icon" />
+                            <span>Rest (0ml)</span>
+                          </span>
+                        </div>
+                      )}
+
+                      {item.notes && (
+                        <p className="ws-notes-text">{item.notes}</p>
                       )}
                     </div>
                   )}
                 </div>
-                
-                <div className="schedule-right">
-                  <span className="schedule-notes">{item.notes}</span>
+
+                {/* Right: Checkbox / Action Button */}
+                <div className="ws-card-right">
+                  <button
+                    type="button"
+                    className={`ws-action-check-btn ${item.completed ? 'checked' : ''}`}
+                    onClick={() => !isHistory && onMarkWatered(schedule._id, idx)}
+                    disabled={isHistory}
+                    title={item.completed ? 'Mark uncompleted' : 'Mark as watered'}
+                    aria-label="Toggle completed"
+                  >
+                    <RiCheckLine className="check-svg-icon" />
+                  </button>
                   {item.completed && item.completedAt && (
-                    <span className="completed-time">
-                      {new Date(item.completedAt).toLocaleTimeString()}
+                    <span className="ws-completed-timestamp">
+                      {new Date(item.completedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   )}
                 </div>
-              </li>
+              </div>
             );
           })
         )}
-      </ul>
+      </div>
 
       {/* Legend */}
       {!isHistory && (
-        <div className="schedule-legend">
-          <span className="legend-item">
-            <span className="legend-dot unchecked"></span> Pending
+        <div className="ws-schedule-legend">
+          <span className="ws-legend-item">
+            <span className="ws-legend-chip today"></span> Today
           </span>
-          <span className="legend-item">
-            <span className="legend-dot checked"></span> Completed
+          <span className="ws-legend-item">
+            <span className="ws-legend-chip completed"></span> Completed
           </span>
-          <span className="legend-item">
-            <span className="legend-dot missed"></span> Missed
+          <span className="ws-legend-item">
+            <span className="ws-legend-chip pending"></span> Pending
           </span>
-          <span className="legend-item">
-            <span className="legend-dot today"></span> Today
+          <span className="ws-legend-item">
+            <span className="ws-legend-chip missed"></span> Missed
           </span>
         </div>
       )}

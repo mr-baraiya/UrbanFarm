@@ -297,6 +297,37 @@
   box-shadow: 0 4px 12px rgba(168, 162, 188, 0.3);
 }
 
+.result-action-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1rem 0;
+  padding: 0.75rem;
+  background: var(--bg-primary, #fbf9f7);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  border-radius: var(--radius-md, 12px);
+  align-items: center;
+}
+
+.report-btn {
+  font-size: 0.8rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  background: var(--surface-primary, #ffffff);
+  border: 1px solid var(--border-light, #e0d6cb);
+  color: var(--text-main, #2c2421);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.report-btn:hover {
+  background: var(--surface-secondary, #f5ede4);
+  border-color: var(--sage, #2c5e3b);
+  transform: translateY(-1px);
+}
+
+
 /* Prevention */
 .result-prevention {
   margin-bottom: 0.8rem;

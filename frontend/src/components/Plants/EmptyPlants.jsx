@@ -1,4 +1,6 @@
 import React from 'react';
+import { RiPlantLine, RiAddLine, RiMapPin2Line, RiLightbulbLine } from 'react-icons/ri';
+import { TbPlant2 } from 'react-icons/tb';
 import './EmptyPlants.css';
 
 const EmptyPlants = ({ onCreateClick, gardenName }) => {
@@ -6,11 +8,13 @@ const EmptyPlants = ({ onCreateClick, gardenName }) => {
     <div className="empty-plants">
       <div className="empty-content">
         <div className="empty-illustration">
-          <span className="empty-icon">🌱</span>
+          <div className="empty-icon-wrap">
+            <RiPlantLine className="main-empty-svg" />
+          </div>
           <div className="growing-plants">
-            <span className="plant-sprout">🌿</span>
-            <span className="plant-sprout">🌱</span>
-            <span className="plant-sprout">🌿</span>
+            <TbPlant2 className="pot-svg" />
+            <TbPlant2 className="pot-svg center" />
+            <TbPlant2 className="pot-svg" />
           </div>
         </div>
         <h2>No plants found{gardenName ? ` in "${gardenName}"` : ''}</h2>
@@ -21,14 +25,16 @@ const EmptyPlants = ({ onCreateClick, gardenName }) => {
         </p>
         <div className="empty-actions">
           <button className="btn-primary" onClick={onCreateClick}>
-            + Add Your First Plant
+            <RiAddLine /> Add Your First Plant
           </button>
           <button className="btn-secondary" onClick={() => window.location.href = '/app/gardens'}>
-            📍 View Gardens
+            <RiMapPin2Line /> View Gardens
           </button>
         </div>
         <div className="empty-tips">
-          <h4>💡 Quick tips for starting your urban garden:</h4>
+          <h4>
+            <RiLightbulbLine className="tip-icon" /> Quick tips for starting your urban garden:
+          </h4>
           <ul>
             <li>Start with easy-to-grow plants like herbs (basil, mint)</li>
             <li>Match plants to your available sunlight</li>

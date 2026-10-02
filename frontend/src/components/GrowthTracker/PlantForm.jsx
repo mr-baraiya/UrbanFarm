@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { addPlant, getGardens } from '../../services/plantService';
+import { RiCameraLine, RiCloseLine, RiPlantLine, RiImageLine, RiDeleteBinLine } from 'react-icons/ri';
+import { addPlant, updatePlant, getGardens, uploadImage } from '../../services/plantService';
 import { PLANT_STATUSES, SUNLIGHT_OPTIONS } from '../../utils/constants';
 import { useNotification } from '../../hooks/useNotification';
 import './PlantForm.css';
 
-const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId }) => {
+const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onSubmit }) => {
   const [gardens, setGardens] = useState(propGardens || []);
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [imagePreview, setImagePreview] = useState(plant?.imageUrl || null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -19,6 +20,7 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId }) =
     waterFrequency: 3,
     sunlight: 'full',
     notes: '',
+    imageUrl: '',
   });
   const { addNotification } = useNotification();
 
@@ -37,6 +39,7 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId }) =
         waterFrequency: plant.waterFrequency || 3,
         sunlight: plant.sunlight || 'full',
         notes: plant.notes || '',
+        imageUrl: plant.imageUrl || '',
       });
       if (plant.imageUrl) {
         setImagePreview(plant.imageUrl);
@@ -58,12 +61,41 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId }) =
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
+    if (!file) return;
+
+    // Show instant local preview
+    const localPreviewUrl = URL.createObjectURL(file);
+    setImagePreview(localPreviewUrl);
+    setUploadingImage(true);
+
+    try {
+      const cloudUrl = await uploadImage(file);
+      if (cloudUrl) {
+        setFormData((prev) => ({ ...prev, imageUrl: cloudUrl }));
+        setImagePreview(cloudUrl);
+        addNotification('Photo uploaded to Cloudinary!', 'success');
+      }
+    } catch (err) {
+      console.warn('Direct upload error, saving local image:', err);
+      // Fallback: Read as Base64 so it still persists
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData((prev) => ({ ...prev, imageUrl: reader.result }));
+        setImagePreview(reader.result);
+        addNotification('Photo set successfully!', 'success');
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      setUploadingImage(false);
     }
+  };
+
+  const handleClearImage = (e) => {
+    e.stopPropagation();
+    setImagePreview(null);
+    setFormData((prev) => ({ ...prev, imageUrl: '' }));
   };
 
   const handleSubmit = async (e) => {
@@ -79,13 +111,24 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId }) =
 
     setLoading(true);
     try {
-      // For now, we'll send the data without image upload to Cloudinary
-      // The backend will handle image upload separately
-      await addPlant(formData);
-      addNotification('Plant added successfully! 🌱', 'success');
+      const payload = {
+        ...formData,
+        imageUrl: formData.imageUrl || imagePreview || '',
+      };
+
+      if (onSubmit) {
+        await onSubmit(payload);
+      } else if (plant?._id) {
+        await updatePlant(plant._id, payload);
+        addNotification('Plant updated successfully!', 'success');
+      } else {
+        await addPlant(payload);
+        addNotification('Plant saved successfully!', 'success');
+      }
+
       onClose();
     } catch (error) {
-      addNotification('Failed to add plant', 'error');
+      addNotification('Failed to save plant', 'error');
     } finally {
       setLoading(false);
     }
@@ -94,18 +137,44 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId }) =
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content plant-form" onClick={(e) => e.stopPropagation()}>
-        <h3>{plant ? 'Edit Plant' : 'Add New Plant'}</h3>
+        <div className="form-header">
+          <h3>
+            <RiPlantLine className="form-header-icon" /> {plant ? 'Edit Plant' : 'Add New Plant'}
+          </h3>
+          <button className="close-btn" onClick={onClose} aria-label="Close">
+            <RiCloseLine />
+          </button>
+        </div>
         <form onSubmit={handleSubmit}>
-          {/* Image Upload */}
+          {/* Image Upload Area */}
           <div className="form-group">
-            <label>Plant Photo</label>
-            <div className="image-upload-area" onClick={() => document.getElementById('imageInput').click()}>
-              {imagePreview ? (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+              <label style={{ margin: 0 }}>Plant Photo</label>
+              {imagePreview && (
+                <button 
+                  type="button" 
+                  onClick={handleClearImage}
+                  style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}
+                >
+                  <RiDeleteBinLine /> Remove Photo
+                </button>
+              )}
+            </div>
+            <div 
+              className="image-upload-area" 
+              onClick={() => document.getElementById('imageInput').click()}
+              style={{ cursor: uploadingImage ? 'wait' : 'pointer' }}
+            >
+              {uploadingImage ? (
+                <div className="upload-placeholder">
+                  <span style={{ fontSize: '0.9rem', color: '#2d6a4f', fontWeight: 600 }}>Uploading to Cloudinary...</span>
+                </div>
+              ) : imagePreview ? (
                 <img src={imagePreview} alt="Plant preview" className="image-preview" />
               ) : (
                 <div className="upload-placeholder">
-                  <span>📸</span>
-                  <span>Click to upload photo</span>
+                  <RiCameraLine className="camera-icon" />
+                  <span>Click or drag photo to auto-upload</span>
                 </div>
               )}
               <input
@@ -113,6 +182,7 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId }) =
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
+                disabled={uploadingImage}
                 style={{ display: 'none' }}
               />
             </div>
@@ -140,17 +210,16 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId }) =
             </div>
           </div>
 
-          <div className="form-group">
-            <label>Scientific Name</label>
-            <input
-              name="scientificName"
-              value={formData.scientificName}
-              onChange={handleChange}
-              placeholder="e.g., Solanum lycopersicum"
-            />
-          </div>
-
           <div className="form-row">
+            <div className="form-group">
+              <label>Scientific Name</label>
+              <input
+                name="scientificName"
+                value={formData.scientificName}
+                onChange={handleChange}
+                placeholder="e.g., Solanum lycopersicum"
+              />
+            </div>
             <div className="form-group">
               <label>Garden *</label>
               <select
@@ -166,15 +235,6 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId }) =
                   </option>
                 ))}
               </select>
-            </div>
-            <div className="form-group">
-              <label>Planting Date</label>
-              <input
-                type="date"
-                name="plantingDate"
-                value={formData.plantingDate}
-                onChange={handleChange}
-              />
             </div>
           </div>
 
@@ -201,16 +261,27 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId }) =
             </div>
           </div>
 
-          <div className="form-group">
-            <label>Water Frequency (days)</label>
-            <input
-              type="number"
-              name="waterFrequency"
-              value={formData.waterFrequency}
-              onChange={handleChange}
-              min="1"
-              max="10"
-            />
+          <div className="form-row">
+            <div className="form-group">
+              <label>Planting Date</label>
+              <input
+                type="date"
+                name="plantingDate"
+                value={formData.plantingDate}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="form-group">
+              <label>Water Frequency (days)</label>
+              <input
+                type="number"
+                name="waterFrequency"
+                value={formData.waterFrequency}
+                onChange={handleChange}
+                min="1"
+                max="10"
+              />
+            </div>
           </div>
 
           <div className="form-group">
@@ -228,7 +299,7 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId }) =
             <button type="button" className="btn-secondary" onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className="btn-primary" disabled={loading}>
+            <button type="submit" className="btn-primary" disabled={loading || uploadingImage}>
               {loading ? 'Saving...' : plant ? 'Update Plant' : 'Add Plant'}
             </button>
           </div>

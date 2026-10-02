@@ -31,10 +31,95 @@
 
 .post-header {
   display: flex;
-  align-items: center;
+  justify-content: space-between;
+  align-items: flex-start;
   gap: 0.8rem;
   margin-bottom: 0.8rem;
 }
+
+.post-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex: 1;
+}
+
+.post-header-actions {
+  position: relative;
+}
+
+.menu-btn {
+  background: none;
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0.2rem 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-muted, #7c6f66);
+  transition: all 0.2s ease;
+}
+
+.menu-btn:hover {
+  background: var(--bg-primary, #fbf9f7);
+  color: var(--text-main, #2c2421);
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: var(--surface-primary, #ffffff);
+  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  border-radius: var(--radius-md, 12px);
+  box-shadow: 0 8px 24px rgba(44, 36, 33, 0.12);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  min-width: 140px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.menu-dropdown button {
+  background: none;
+  border: none;
+  padding: 0.6rem 0.85rem;
+  text-align: left;
+  font-size: 0.85rem;
+  color: var(--text-main, #2c2421);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.menu-dropdown button:hover {
+  background: var(--bg-primary, #fbf9f7);
+}
+
+.menu-dropdown button.danger {
+  color: #b91c1c;
+}
+
+.menu-dropdown button.danger:hover {
+  background: #fee2e2;
+}
+
+.btn-delete-comment {
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 0.75rem;
+  margin-left: auto;
+  opacity: 0.6;
+  padding: 0 0.3rem;
+  transition: opacity 0.2s ease;
+}
+
+.btn-delete-comment:hover {
+  opacity: 1;
+}
+
 
 .post-avatar {
   width: 48px;

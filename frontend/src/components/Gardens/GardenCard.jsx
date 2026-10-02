@@ -1,23 +1,27 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getWeatherAdvice, getWeatherEmoji } from '../../utils/weatherHelpers';
+import { 
+  RiPlantLine, 
+  RiMapPin2Line, 
+  RiSunLine, 
+  RiSunCloudyLine, 
+  RiDropLine, 
+  RiEditLine, 
+  RiDeleteBinLine, 
+  RiLayoutMasonryLine, 
+  RiMoreFill,
+  RiAddLine,
+  RiAlertLine,
+  RiCheckLine,
+  RiSparklingLine
+} from 'react-icons/ri';
+import { TbPlant2 } from 'react-icons/tb';
+import { getWeatherEmoji } from '../../utils/weatherHelpers';
 import './GardenCard.css';
 
-const GardenCard = ({ garden, viewMode, onEdit, onDelete, weather, weatherLoading }) => {
+const GardenCard = ({ garden, viewMode, onEdit, onDelete, onOpenLayout, weather, weatherLoading }) => {
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
-
-  const getTypeEmoji = (type) => {
-    const map = {
-      balcony: '🏠',
-      rooftop: '🏢',
-      terrace: '🏡',
-      indoor: '🪴',
-      backyard: '🌳',
-      community: '👥',
-    };
-    return map[type] || '🌿';
-  };
 
   const getTypeLabel = (type) => {
     const map = {
@@ -33,49 +37,47 @@ const GardenCard = ({ garden, viewMode, onEdit, onDelete, weather, weatherLoadin
 
   const getHealthStatus = (garden) => {
     const plants = garden.plants || [];
-    const healthy = plants.filter(p => p.health === 'healthy' || !p.health);
-    const warning = plants.filter(p => p.health === 'warning');
     const unhealthy = plants.filter(p => p.health === 'unhealthy');
+    const warning = plants.filter(p => p.health === 'warning');
     
-    if (plants.length === 0) return { label: 'Empty', color: '#9a8a7a', emoji: '🌱' };
-    if (unhealthy.length > 0) return { label: 'Needs Attention', color: '#e8b4b4', emoji: '⚠️' };
-    if (warning.length > 0) return { label: 'Monitor', color: '#f0d5c0', emoji: '👀' };
-    return { label: 'Thriving', color: '#a8d5ba', emoji: '🌟' };
+    if (plants.length === 0) return { label: 'Empty', color: '#6b7280', icon: <TbPlant2 /> };
+    if (unhealthy.length > 0) return { label: 'Needs Attention', color: '#ef4444', icon: <RiAlertLine /> };
+    if (warning.length > 0) return { label: 'Monitor', color: '#f59e0b', icon: <RiAlertLine /> };
+    return { label: 'Thriving', color: '#10b981', icon: <RiSparklingLine /> };
   };
 
-  const getSunlightEmoji = (sunlight) => {
+  const getSunlightLabel = (sunlight) => {
     const map = {
-      'full': '☀️ Full Sun (6-8 hrs)',
-      'partial': '⛅ Partial Shade (3-6 hrs)',
-      'shade': '🌥️ Shade (<3 hrs)',
+      'full': 'Full Sun (6-8h)',
+      'partial': 'Partial Shade (3-6h)',
+      'shade': 'Shade (<3h)',
     };
-    return map[sunlight] || '☀️ Full Sun';
+    return map[sunlight] || 'Full Sun';
   };
 
-  const getSoilEmoji = (soil) => {
+  const getSoilLabel = (soil) => {
     const map = {
-      'potting_mix': '🪴 Potting Mix',
-      'hydroponics': '💧 Hydroponics',
-      'raised_bed': '📦 Raised Bed',
-      'coco_peat': '🥥 Coco Peat',
-      'loam': '🌱 Loam',
-      'clay': '🏺 Clay',
-      'sandy': '🏖️ Sandy',
+      'potting_mix': 'Potting Mix',
+      'hydroponics': 'Hydroponics',
+      'raised_bed': 'Raised Bed',
+      'coco_peat': 'Coco Peat',
+      'loam': 'Loam',
+      'clay': 'Clay',
+      'sandy': 'Sandy',
     };
-    return map[soil] || '🌱 Soil';
+    return map[soil] || 'Soil';
   };
 
   const getWaterStatus = (garden) => {
-    // If no schedule, show default
     if (!garden.lastWatered) {
-      return { label: 'Not watered yet', emoji: '💧', color: '#9a8a7a' };
+      return { label: 'Not watered yet', color: '#6b7280' };
     }
     
     const days = Math.floor((Date.now() - new Date(garden.lastWatered)) / (1000 * 60 * 60 * 24));
-    if (days <= 0) return { label: 'Watered today', emoji: '💧', color: '#a8d5ba' };
-    if (days === 1) return { label: 'Watered yesterday', emoji: '💧', color: '#a8d5ba' };
-    if (days <= 3) return { label: `${days} days ago`, emoji: '💧', color: '#f0d5c0' };
-    return { label: `Water ${days} days ago`, emoji: '⚠️', color: '#e8b4b4' };
+    if (days <= 0) return { label: 'Watered today', color: '#10b981' };
+    if (days === 1) return { label: 'Watered yesterday', color: '#10b981' };
+    if (days <= 3) return { label: `${days} days ago`, color: '#f59e0b' };
+    return { label: `Water ${days} days ago`, color: '#ef4444' };
   };
 
   const health = getHealthStatus(garden);
@@ -96,23 +98,28 @@ const GardenCard = ({ garden, viewMode, onEdit, onDelete, weather, weatherLoadin
       <div className="garden-card-header">
         <div className="garden-header-left">
           <span className="garden-type-badge">
-            {getTypeEmoji(garden.type)} {getTypeLabel(garden.type)}
+            <RiPlantLine className="type-icon" /> {getTypeLabel(garden.type)}
           </span>
-          <span className="garden-health-badge" style={{ background: health.color + '33', color: health.color }}>
-            {health.emoji} {health.label}
+          <span className="garden-health-badge" style={{ background: health.color + '22', color: health.color }}>
+            {health.icon} {health.label}
           </span>
         </div>
         <div className="garden-header-right">
-          <button className="menu-btn" onClick={() => setShowMenu(!showMenu)}>
-            ⋮
+          <button className="menu-btn" onClick={() => setShowMenu(!showMenu)} aria-label="Options">
+            <RiMoreFill />
           </button>
           {showMenu && (
             <div className="menu-dropdown">
+              {onOpenLayout && (
+                <button onClick={() => { onOpenLayout(garden); setShowMenu(false); }}>
+                  <RiLayoutMasonryLine /> Space & Layout
+                </button>
+              )}
               <button onClick={() => { onEdit(); setShowMenu(false); }}>
-                ✏️ Edit Garden
+                <RiEditLine /> Edit Garden
               </button>
               <button onClick={() => { onDelete(); setShowMenu(false); }} className="danger">
-                🗑️ Delete Garden
+                <RiDeleteBinLine /> Delete Garden
               </button>
             </div>
           )}
@@ -126,28 +133,30 @@ const GardenCard = ({ garden, viewMode, onEdit, onDelete, weather, weatherLoadin
       <div className="garden-details-grid">
         {garden.location && (
           <div className="detail-item">
-            <span className="detail-icon">📍</span>
+            <span className="detail-icon"><RiMapPin2Line /></span>
             <span className="detail-text">{garden.location}</span>
           </div>
         )}
         <div className="detail-item">
-          <span className="detail-icon">🌱</span>
+          <span className="detail-icon"><TbPlant2 /></span>
           <span className="detail-text">{plantCount} plants</span>
         </div>
         {garden.size && (
           <div className="detail-item">
-            <span className="detail-icon">📐</span>
+            <span className="detail-icon"><RiLayoutMasonryLine /></span>
             <span className="detail-text">{garden.size} m²</span>
           </div>
         )}
         <div className="detail-item">
-          <span className="detail-icon">☀️</span>
-          <span className="detail-text">{getSunlightEmoji(garden.sunlight || 'full')}</span>
+          <span className="detail-icon">
+            {garden.sunlight === 'full' ? <RiSunLine className="sun" /> : <RiSunCloudyLine className="shade" />}
+          </span>
+          <span className="detail-text">{getSunlightLabel(garden.sunlight || 'full')}</span>
         </div>
         {garden.soilType && (
           <div className="detail-item">
-            <span className="detail-icon">🌍</span>
-            <span className="detail-text">{getSoilEmoji(garden.soilType)}</span>
+            <span className="detail-icon"><RiPlantLine /></span>
+            <span className="detail-text">{getSoilLabel(garden.soilType)}</span>
           </div>
         )}
       </div>
@@ -164,16 +173,15 @@ const GardenCard = ({ garden, viewMode, onEdit, onDelete, weather, weatherLoadin
             <span className="weather-loading">Loading weather...</span>
           ) : weather ? (
             <>
-              <span className="weather-emoji">{getWeatherEmoji(weather)}</span>
               <span className="weather-temp">{Math.round(weather.main?.temp || 0)}°C</span>
               <span className="weather-condition">{weather.weather?.[0]?.description || ''}</span>
             </>
           ) : (
-            <span className="weather-na">🌤️ No location set</span>
+            <span className="weather-na">No weather data</span>
           )}
         </div>
         <div className="water-status" style={{ color: waterStatus.color }}>
-          <span>{waterStatus.emoji}</span>
+          <RiDropLine className="water-icon" />
           <span>{waterStatus.label}</span>
         </div>
       </div>
@@ -181,10 +189,15 @@ const GardenCard = ({ garden, viewMode, onEdit, onDelete, weather, weatherLoadin
       {/* Quick Actions */}
       <div className="garden-actions">
         <button className="btn-secondary-small" onClick={handleViewPlants}>
-          🌱 View Plants
+          <TbPlant2 /> View Plants
         </button>
+        {onOpenLayout && (
+          <button className="btn-secondary-small" onClick={() => onOpenLayout(garden)}>
+            <RiLayoutMasonryLine /> Layout
+          </button>
+        )}
         <button className="btn-primary-small" onClick={handleQuickAddPlant}>
-          + Add Plant
+          <RiAddLine /> Add Plant
         </button>
       </div>
 
