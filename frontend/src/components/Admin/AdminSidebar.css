@@ -4,12 +4,12 @@
   position: sticky;
   top: 0;
   background: var(--surface-strong);
-  border: none;
+  border-right: 1px solid var(--border-light, rgba(107, 144, 128, 0.22));
   display: flex;
   flex-direction: column;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 100;
-  box-shadow: 6px 0 25px rgba(0, 0, 0, 0.04);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.03);
 }
 
 .admin-sidebar.collapsed {
@@ -22,7 +22,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border: none;
+  border-bottom: 1px solid rgba(107, 144, 128, 0.15);
   gap: 0.5rem;
 }
 
@@ -38,13 +38,14 @@
   width: 40px;
   height: 40px;
   background: linear-gradient(135deg, var(--sage), var(--accent));
-  border-radius: 14px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
   font-size: 1.15rem;
-  box-shadow: 0 6px 16px rgba(107, 144, 128, 0.3);
+  box-shadow: 0 4px 12px rgba(107, 144, 128, 0.3);
   flex-shrink: 0;
 }
 
@@ -60,11 +61,11 @@
 
 .admin-sidebar-toggle {
   background: var(--surface);
-  border: none;
+  border: 1px solid rgba(107, 144, 128, 0.2);
   color: var(--text-secondary);
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -72,11 +73,12 @@
   transition: all var(--transition);
   flex-shrink: 0;
   font-size: 0.75rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
 .admin-sidebar-toggle:hover {
   background: rgba(107, 144, 128, 0.15);
+  border-color: var(--sage);
   color: var(--sage);
 }
 
@@ -101,34 +103,36 @@
 
 .admin-nav-divider {
   height: 1px;
-  background: rgba(107, 144, 128, 0.1);
+  background: rgba(107, 144, 128, 0.12);
   margin: 0.4rem 0.5rem;
 }
 
-/* Pill Nav Link - Frameless Design */
+/* Nav Link */
 .admin-nav-link {
   display: flex;
   align-items: center;
   gap: 0.85rem;
   padding: 0.65rem 1rem;
-  border-radius: 30px;
+  border-radius: 6px;
   color: var(--text-secondary);
   text-decoration: none;
   font-size: 0.88rem;
   font-weight: 500;
   transition: all var(--transition);
   white-space: nowrap;
-  border: none;
+  border: 1px solid transparent;
 }
 
 .admin-nav-link.public-nav-link {
   color: var(--text-secondary);
   background: rgba(107, 144, 128, 0.05);
+  border: 1px solid rgba(107, 144, 128, 0.15);
 }
 
 .admin-nav-link.public-nav-link:hover {
   color: var(--sage);
   background: rgba(107, 144, 128, 0.15);
+  border-color: var(--sage);
 }
 
 .admin-nav-link .nav-icon {
@@ -141,22 +145,23 @@
 
 .admin-nav-link:hover {
   background: var(--surface);
+  border-color: rgba(107, 144, 128, 0.2);
   color: var(--text);
   transform: translateX(3px);
 }
 
-/* Active State: Soft Pill Glow without harsh box borders */
+/* Active State */
 .admin-nav-link.active {
-  background: linear-gradient(135deg, rgba(107, 144, 128, 0.22), rgba(107, 144, 128, 0.08));
+  background: linear-gradient(135deg, rgba(107, 144, 128, 0.2), rgba(107, 144, 128, 0.08));
   color: var(--sage);
   font-weight: 700;
-  border: none;
-  box-shadow: 0 6px 20px rgba(107, 144, 128, 0.18);
+  border: 1px solid rgba(107, 144, 128, 0.35);
+  box-shadow: 0 4px 14px rgba(107, 144, 128, 0.12);
 }
 
 .admin-sidebar-footer {
   padding: 1rem 0.85rem;
-  border: none;
+  border-top: 1px solid rgba(107, 144, 128, 0.15);
 }
 
 .admin-exit-btn {
@@ -166,9 +171,9 @@
   gap: 0.75rem;
   width: 100%;
   padding: 0.75rem 1.1rem;
-  border-radius: 30px;
-  border: none;
-  background: rgba(192, 57, 43, 0.1);
+  border-radius: 6px;
+  border: 1px solid rgba(192, 57, 43, 0.25);
+  background: rgba(192, 57, 43, 0.08);
   color: #c0392b;
   cursor: pointer;
   font-size: 0.88rem;
@@ -176,13 +181,14 @@
   transition: all var(--transition);
   white-space: nowrap;
   font-family: inherit;
-  box-shadow: 0 4px 14px rgba(192, 57, 43, 0.08);
+  box-shadow: 0 2px 8px rgba(192, 57, 43, 0.06);
 }
 
 .admin-exit-btn:hover {
-  background: rgba(192, 57, 43, 0.2);
+  background: rgba(192, 57, 43, 0.18);
+  border-color: #c0392b;
   color: #a93226;
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(192, 57, 43, 0.18);
+  box-shadow: 0 4px 14px rgba(192, 57, 43, 0.15);
 }
 

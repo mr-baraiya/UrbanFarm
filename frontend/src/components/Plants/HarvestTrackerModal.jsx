@@ -8,6 +8,7 @@ import {
 } from 'react-icons/ri';
 import { addTimelineEntry, updatePlant } from '../../services/plantService';
 import { useNotification } from '../../hooks/useNotification';
+import { validateHarvestForm } from '../../utils/validators';
 import './HarvestTrackerModal.css';
 
 const HarvestTrackerModal = ({ plant, onClose, onHarvestLogged }) => {
@@ -16,15 +17,25 @@ const HarvestTrackerModal = ({ plant, onClose, onHarvestLogged }) => {
   const [rating, setRating] = useState(5);
   const [notes, setNotes] = useState('');
   const [markHarvested, setMarkHarvested] = useState(false);
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const { addNotification } = useNotification();
 
+  const handleAmountChange = (e) => {
+    setAmount(e.target.value);
+    if (errors.amount) {
+      setErrors((prev) => ({ ...prev, amount: null }));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!amount || parseFloat(amount) <= 0) {
-      addNotification('Please enter a valid harvest amount', 'error');
+    const { isValid, errors: formErrors } = validateHarvestForm({ amount });
+    if (!isValid) {
+      setErrors(formErrors);
       return;
     }
+    setErrors({});
     setLoading(true);
     try {
       const entryNote = `Harvest Logged: ${amount} ${unit} | Quality: ${'★'.repeat(rating)}${'☆'.repeat(5 - rating)}${notes ? ` | ${notes}` : ''}`;
@@ -59,7 +70,7 @@ const HarvestTrackerModal = ({ plant, onClose, onHarvestLogged }) => {
             <RiCloseLine />
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="harvest-modal-body">
+        <form onSubmit={handleSubmit} className="harvest-modal-body" noValidate>
           <div className="form-group-row">
             <div className="form-group flex-2">
               <label>Harvest Yield / Amount *</label>
@@ -68,10 +79,11 @@ const HarvestTrackerModal = ({ plant, onClose, onHarvestLogged }) => {
                 step="0.01"
                 placeholder="e.g. 1.5"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                required
+                onChange={handleAmountChange}
+                className={errors.amount ? 'input-error' : ''}
                 autoFocus
               />
+              {errors.amount && <span className="error-text">{errors.amount}</span>}
             </div>
             <div className="form-group flex-1">
               <label>Unit</label>

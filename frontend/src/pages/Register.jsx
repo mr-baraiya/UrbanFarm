@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { RiArrowLeftLine } from "react-icons/ri";
+import { FaExclamationCircle } from "react-icons/fa";
 import { useAuth } from "../hooks/useAuth";
 import { register } from "../services/authService";
 import { useNotification } from "../hooks/useNotification";
+import { validateRegisterForm } from "../utils/validators";
 import "./Auth.css";
 
 const Register = () => {
@@ -12,6 +15,7 @@ const Register = () => {
     password: "",
     gardeningLevel: "beginner",
   });
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const { addNotification } = useNotification();
@@ -20,18 +24,23 @@ const Register = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: null }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
 
-    // Validate password length
-    if (formData.password.length < 6) {
-      addNotification("Password must be at least 6 characters", "error");
-      setLoading(false);
+    // Centralized form validation
+    const { isValid, errors: formErrors } = validateRegisterForm(formData);
+    if (!isValid) {
+      setErrors(formErrors);
       return;
     }
+
+    setErrors({});
+    setLoading(true);
 
     try {
       const data = await register(formData);
@@ -47,6 +56,7 @@ const Register = () => {
 
         if (status === 400) {
           if (data.message === "Email already registered") {
+            setErrors((prev) => ({ ...prev, email: "This email is already registered." }));
             addNotification(
               "This email is already registered. Please login or use a different email.",
               "error",
@@ -86,19 +96,26 @@ const Register = () => {
   return (
     <div className="auth-page">
       <div className="auth-card">
+        <Link to="/" className="auth-back-home">
+          <RiArrowLeftLine /> Back to Home
+        </Link>
         <h2>Create an account</h2>
         <p className="auth-subtitle">Set up your city garden in a few steps.</p>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
           <div className="form-group">
             <label>Full Name *</label>
             <input
               name="name"
               value={formData.name}
               onChange={handleChange}
-              required
-              minLength="2"
               placeholder="John Doe"
+              className={errors.name ? "input-error" : ""}
             />
+            {errors.name && (
+              <span className="error-text">
+                <FaExclamationCircle /> {errors.name}
+              </span>
+            )}
           </div>
           <div className="form-group">
             <label>Email *</label>
@@ -107,9 +124,14 @@ const Register = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              required
               placeholder="your@email.com"
+              className={errors.email ? "input-error" : ""}
             />
+            {errors.email && (
+              <span className="error-text">
+                <FaExclamationCircle /> {errors.email}
+              </span>
+            )}
           </div>
           <div className="form-group">
             <label>Password (min 6 characters) *</label>
@@ -118,10 +140,14 @@ const Register = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              required
-              minLength="6"
               placeholder="Choose a password"
+              className={errors.password ? "input-error" : ""}
             />
+            {errors.password && (
+              <span className="error-text">
+                <FaExclamationCircle /> {errors.password}
+              </span>
+            )}
           </div>
           <div className="form-group">
             <label>Gardening Level</label>

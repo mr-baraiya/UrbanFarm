@@ -16,6 +16,7 @@ import {
 } from 'react-icons/ri';
 import { formatDate, getInitials } from '../../utils/helpers';
 import { useNotification } from '../../hooks/useNotification';
+import { validateRequired } from '../../utils/validators';
 import './PostCard.css';
 
 const PostCard = ({ 
@@ -81,13 +82,13 @@ const PostCard = ({
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
-    if (!commentText.trim()) return;
+    if (!validateRequired(commentText)) return;
     if (!user) {
       addNotification('Please login to comment', 'error');
       return;
     }
     try {
-      await onAddComment(post._id, commentText);
+      await onAddComment(post._id, commentText.trim());
       setCommentText('');
     } catch (error) {
       addNotification('Failed to add comment', 'error');

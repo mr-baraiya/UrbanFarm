@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useNotification } from '../../hooks/useNotification';
 import ConfirmModal from '../Common/ConfirmModal';
+import { validateLeadForm } from '../../utils/validators';
 import {
   FaAddressBook,
   FaSearch,
@@ -65,21 +66,9 @@ const AdminGuestLeads = () => {
   };
 
   const validateLead = () => {
-    const errs = {};
-    if (!newLead.name.trim()) errs.name = 'Sender name is required';
-    if (!newLead.email.trim()) {
-      errs.email = 'Email address is required';
-    } else if (!/^\S+@\S+\.\S+$/.test(newLead.email)) {
-      errs.email = 'Valid email address is required';
-    }
-    if (!newLead.subject.trim()) errs.subject = 'Subject is required';
-    if (!newLead.message.trim()) {
-      errs.message = 'Inquiry message content is required';
-    } else if (newLead.message.trim().length < 5) {
-      errs.message = 'Message must be at least 5 characters long';
-    }
-    setLeadErrors(errs);
-    return Object.keys(errs).length === 0;
+    const { isValid, errors: formErrors } = validateLeadForm(newLead);
+    setLeadErrors(formErrors);
+    return isValid;
   };
 
   const handleCreateLead = async (e) => {
@@ -275,15 +264,15 @@ const AdminGuestLeads = () => {
                 <FaTimes />
               </button>
             </div>
-            <form onSubmit={handleCreateLead} className="admin-modal-form">
+            <form onSubmit={handleCreateLead} className="admin-modal-form" noValidate>
               <div className="form-group">
                 <label>Sender Full Name <span className="required">*</span></label>
                 <input
                   type="text"
-                  required
                   placeholder="e.g. Alex Morgan"
                   value={newLead.name}
                   onChange={(e) => setNewLead({ ...newLead, name: e.target.value })}
+                  className={leadErrors.name ? 'input-error' : ''}
                 />
                 {leadErrors.name && <span className="error-text"><FaExclamationCircle /> {leadErrors.name}</span>}
               </div>
@@ -293,10 +282,10 @@ const AdminGuestLeads = () => {
                   <label>Email Address <span className="required">*</span></label>
                   <input
                     type="email"
-                    required
                     placeholder="e.g. alex@example.com"
                     value={newLead.email}
                     onChange={(e) => setNewLead({ ...newLead, email: e.target.value })}
+                    className={leadErrors.email ? 'input-error' : ''}
                   />
                   {leadErrors.email && <span className="error-text"><FaExclamationCircle /> {leadErrors.email}</span>}
                 </div>
@@ -352,10 +341,10 @@ const AdminGuestLeads = () => {
                     minHeight: '80px',
                     fontFamily: 'inherit'
                   }}
-                  required
                   placeholder="Enter message text submitted by guest..."
                   value={newLead.message}
                   onChange={(e) => setNewLead({ ...newLead, message: e.target.value })}
+                  className={leadErrors.message ? 'input-error' : ''}
                 />
                 {leadErrors.message && <span className="error-text"><FaExclamationCircle /> {leadErrors.message}</span>}
               </div>

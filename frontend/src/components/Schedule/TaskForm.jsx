@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { RiRepeatLine } from 'react-icons/ri';
 import { TASK_TYPES, TASK_PRIORITIES } from '../../utils/constants';
 import { useNotification } from '../../hooks/useNotification';
+import { validateTaskForm } from '../../utils/validators';
 import './TaskForm.css';
 
 const TaskForm = ({ task, onClose, onSubmit, plants, gardens }) => {
@@ -17,6 +18,7 @@ const TaskForm = ({ task, onClose, onSubmit, plants, gardens }) => {
     recurringInterval: 3,
     recurringUnit: 'days',
   });
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const { addNotification } = useNotification();
 
@@ -43,20 +45,20 @@ const TaskForm = ({ task, onClose, onSubmit, plants, gardens }) => {
       ...prev,
       [name]: inputType === 'checkbox' ? checked : value,
     }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: null }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.title.trim()) {
-      addNotification('Task title is required', 'error');
+    const { isValid, errors: formErrors } = validateTaskForm(formData);
+    if (!isValid) {
+      setErrors(formErrors);
       return;
     }
-
-    if (!formData.dueDate) {
-      addNotification('Due date is required', 'error');
-      return;
-    }
+    setErrors({});
 
     setLoading(true);
     try {
@@ -89,7 +91,7 @@ const TaskForm = ({ task, onClose, onSubmit, plants, gardens }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="task-compact-form">
+        <form onSubmit={handleSubmit} className="task-compact-form" noValidate>
           <div className="form-group">
             <label>Task Title *</label>
             <input
@@ -97,8 +99,9 @@ const TaskForm = ({ task, onClose, onSubmit, plants, gardens }) => {
               value={formData.title}
               onChange={handleChange}
               placeholder="What needs to be done?"
-              required
+              className={errors.title ? 'input-error' : ''}
             />
+            {errors.title && <span className="error-text">{errors.title}</span>}
           </div>
 
           <div className="form-group">
@@ -169,9 +172,10 @@ const TaskForm = ({ task, onClose, onSubmit, plants, gardens }) => {
                 name="dueDate"
                 value={formData.dueDate}
                 onChange={handleChange}
-                required
                 min={new Date().toISOString().split('T')[0]}
+                className={errors.dueDate ? 'input-error' : ''}
               />
+              {errors.dueDate && <span className="error-text">{errors.dueDate}</span>}
             </div>
 
             <div className="form-group">

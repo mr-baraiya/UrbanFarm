@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useNotification } from '../../hooks/useNotification';
 import ConfirmModal from '../Common/ConfirmModal';
+import { validatePostForm } from '../../utils/validators';
 import {
   FaShieldAlt,
   FaSearch,
@@ -80,15 +81,9 @@ const ContentModeration = () => {
   };
 
   const validatePost = () => {
-    const errs = {};
-    if (!newPost.title.trim()) errs.title = 'Post title is required';
-    if (!newPost.content.trim()) {
-      errs.content = 'Post content is required';
-    } else if (newPost.content.trim().length < 10) {
-      errs.content = 'Content must be at least 10 characters long';
-    }
-    setPostErrors(errs);
-    return Object.keys(errs).length === 0;
+    const { isValid, errors: formErrors } = validatePostForm(newPost, true);
+    setPostErrors(formErrors);
+    return isValid;
   };
 
   const handleCreatePost = async (e) => {
@@ -382,15 +377,15 @@ const ContentModeration = () => {
                 <FaTimes />
               </button>
             </div>
-            <form onSubmit={handleCreatePost} className="admin-modal-form">
+            <form onSubmit={handleCreatePost} className="admin-modal-form" noValidate>
               <div className="form-group">
                 <label>Announcement Title <span className="required">*</span></label>
                 <input
                   type="text"
-                  required
                   placeholder="e.g. Spring Seed Swap Announcement"
                   value={newPost.title}
                   onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+                  className={postErrors.title ? 'input-error' : ''}
                 />
                 {postErrors.title && <span className="error-text"><FaExclamationCircle /> {postErrors.title}</span>}
               </div>
@@ -431,10 +426,10 @@ const ContentModeration = () => {
                     minHeight: '100px',
                     fontFamily: 'inherit'
                   }}
-                  required
                   placeholder="Write post content here..."
                   value={newPost.content}
                   onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
+                  className={postErrors.content ? 'input-error' : ''}
                 />
                 {postErrors.content && <span className="error-text"><FaExclamationCircle /> {postErrors.content}</span>}
               </div>
@@ -551,7 +546,7 @@ const ContentModeration = () => {
                 <FaTimes />
               </button>
             </div>
-            <form onSubmit={handleSaveEditPost} className="admin-modal-form">
+            <form onSubmit={handleSaveEditPost} className="admin-modal-form" noValidate>
               <div className="form-group">
                 <label>Post Title</label>
                 <input

@@ -3,6 +3,7 @@ import { RiCameraLine, RiCloseLine, RiPlantLine, RiImageLine, RiDeleteBinLine } 
 import { addPlant, updatePlant, getGardens, uploadImage } from '../../services/plantService';
 import { PLANT_STATUSES, SUNLIGHT_OPTIONS } from '../../utils/constants';
 import { useNotification } from '../../hooks/useNotification';
+import { validatePlantForm } from '../../utils/validators';
 import './PlantForm.css';
 
 const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onSubmit }) => {
@@ -10,6 +11,7 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onS
   const [imagePreview, setImagePreview] = useState(plant?.imageUrl || null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     name: '',
     scientificName: '',
@@ -59,6 +61,9 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onS
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: null }));
+    }
   };
 
   const handleImageChange = async (e) => {
@@ -100,15 +105,13 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onS
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name.trim()) {
-      addNotification('Plant name is required', 'error');
-      return;
-    }
-    if (!formData.gardenId) {
-      addNotification('Please select a garden', 'error');
+    const { isValid, errors: formErrors } = validatePlantForm(formData);
+    if (!isValid) {
+      setErrors(formErrors);
       return;
     }
 
+    setErrors({});
     setLoading(true);
     try {
       const payload = {
@@ -145,7 +148,7 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onS
             <RiCloseLine />
           </button>
         </div>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
           {/* Image Upload Area */}
           <div className="form-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
@@ -196,8 +199,9 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onS
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="e.g., Tomato"
-                required
+                className={errors.name ? 'input-error' : ''}
               />
+              {errors.name && <span className="error-text">{errors.name}</span>}
             </div>
             <div className="form-group">
               <label>Variety</label>
@@ -226,7 +230,7 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onS
                 name="gardenId"
                 value={formData.gardenId}
                 onChange={handleChange}
-                required
+                className={errors.gardenId ? 'input-error' : ''}
               >
                 <option value="">Select a garden</option>
                 {gardens.map((g) => (
@@ -235,6 +239,7 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onS
                   </option>
                 ))}
               </select>
+              {errors.gardenId && <span className="error-text">{errors.gardenId}</span>}
             </div>
           </div>
 

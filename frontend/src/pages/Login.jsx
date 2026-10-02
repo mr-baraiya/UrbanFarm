@@ -1,20 +1,46 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { RiArrowLeftLine } from "react-icons/ri";
+import { FaExclamationCircle } from "react-icons/fa";
 import { useAuth } from "../hooks/useAuth";
 import { login } from "../services/authService";
 import { useNotification } from "../hooks/useNotification";
+import { validateLoginForm } from "../utils/validators";
 import "./Auth.css";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const { login: authLogin } = useAuth();
   const { addNotification } = useNotification();
   const navigate = useNavigate();
 
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    if (errors.email) {
+      setErrors((prev) => ({ ...prev, email: null }));
+    }
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+    if (errors.password) {
+      setErrors((prev) => ({ ...prev, password: null }));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const { isValid, errors: formErrors } = validateLoginForm({ email, password });
+    if (!isValid) {
+      setErrors(formErrors);
+      return;
+    }
+
+    setErrors({});
     setLoading(true);
     try {
       const data = await login({ email, password });
@@ -58,28 +84,41 @@ const Login = () => {
   return (
     <div className="auth-page">
       <div className="auth-card">
+        <Link to="/" className="auth-back-home">
+          <RiArrowLeftLine /> Back to Home
+        </Link>
         <h2>Welcome back</h2>
         <p className="auth-subtitle">Sign in to manage your city garden.</p>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
           <div className="form-group">
             <label>Email</label>
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={handleEmailChange}
               placeholder="your@email.com"
-              required
+              className={errors.email ? "input-error" : ""}
             />
+            {errors.email && (
+              <span className="error-text">
+                <FaExclamationCircle /> {errors.email}
+              </span>
+            )}
           </div>
           <div className="form-group">
             <label>Password</label>
             <input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={handlePasswordChange}
               placeholder="Enter your password"
-              required
+              className={errors.password ? "input-error" : ""}
             />
+            {errors.password && (
+              <span className="error-text">
+                <FaExclamationCircle /> {errors.password}
+              </span>
+            )}
           </div>
           <button type="submit" className="btn-primary" disabled={loading}>
             {loading ? "Logging in..." : "Login"}

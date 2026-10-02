@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import api from '../../services/api';
 import { useNotification } from '../../hooks/useNotification';
+import { validateContactForm } from '../../utils/validators';
 import {
   FaEnvelope,
   FaPhone,
@@ -26,21 +27,9 @@ const ContactPage = () => {
   const [errors, setErrors] = useState({});
 
   const validate = () => {
-    const errs = {};
-    if (!formData.name.trim()) errs.name = 'Full name is required';
-    if (!formData.email.trim()) {
-      errs.email = 'Email address is required';
-    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-      errs.email = 'Please enter a valid email address';
-    }
-    if (!formData.subject) errs.subject = 'Subject selection is required';
-    if (!formData.message.trim()) {
-      errs.message = 'Message content is required';
-    } else if (formData.message.trim().length < 10) {
-      errs.message = 'Message must be at least 10 characters long';
-    }
-    setErrors(errs);
-    return Object.keys(errs).length === 0;
+    const { isValid, errors: formErrors } = validateContactForm(formData);
+    setErrors(formErrors);
+    return isValid;
   };
 
   const handleChange = (e) => {

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPost, updatePost } from '../../services/plantService';
 import { getPlants, getGardens } from '../../services/plantService';
 import { useNotification } from '../../hooks/useNotification';
+import { validatePostForm } from '../../utils/validators';
 import { RiImageAddLine, RiCloseLine } from 'react-icons/ri';
 import './PostForm.css';
 
@@ -20,6 +21,7 @@ const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
   const [gardens, setGardens] = useState([]);
   const [tagInput, setTagInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
   const { addNotification } = useNotification();
 
   useEffect(() => {
@@ -42,6 +44,9 @@ const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: null }));
+    }
   };
 
   const handleImageChange = (e) => {
@@ -71,11 +76,13 @@ const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.title.trim() || !formData.content.trim()) {
-      addNotification('Please fill in all required fields', 'error');
+    const { isValid, errors: formErrors } = validatePostForm(formData);
+    if (!isValid) {
+      setErrors(formErrors);
       return;
     }
 
+    setErrors({});
     setLoading(true);
 
     try {
@@ -124,12 +131,12 @@ const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content post-form" onClick={(e) => e.stopPropagation()}>
         <h3>{post ? 'Edit Post' : 'Share with the Community'}</h3>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
           {/* Category & Title Row */}
           <div className="form-row">
             <div className="form-group">
               <label>Category *</label>
-              <select name="category" value={formData.category} onChange={handleChange} required>
+              <select name="category" value={formData.category} onChange={handleChange}>
                 {categories.map((cat) => (
                   <option key={cat.value} value={cat.value}>
                     {cat.label}
@@ -144,8 +151,9 @@ const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
                 value={formData.title}
                 onChange={handleChange}
                 placeholder="What's your post about?"
-                required
+                className={errors.title ? 'input-error' : ''}
               />
+              {errors.title && <span className="error-text">{errors.title}</span>}
             </div>
           </div>
 
@@ -158,8 +166,9 @@ const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
               onChange={handleChange}
               placeholder="Share your urban farming experience..."
               rows="2"
-              required
+              className={errors.content ? 'input-error' : ''}
             />
+            {errors.content && <span className="error-text">{errors.content}</span>}
           </div>
 
           {/* Image Upload - for new post */}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { RiCloseLine, RiPlantLine } from 'react-icons/ri';
+import { validateGardenForm } from '../../utils/validators';
 import './GardenForm.css';
 
 const GardenForm = ({ garden, onClose, onSubmit }) => {
@@ -13,6 +14,7 @@ const GardenForm = ({ garden, onClose, onSubmit }) => {
     soilType: garden?.soilType || 'potting_mix',
   });
   const [loading, setLoading] = useState(false);
+  const [formError, setFormError] = useState('');
 
   const gardenTypes = [
     { value: 'balcony', label: 'Balcony' },
@@ -42,12 +44,14 @@ const GardenForm = ({ garden, onClose, onSubmit }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (formError) setFormError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name.trim()) {
-      alert('Garden name is required');
+    const { isValid, firstError } = validateGardenForm(formData);
+    if (!isValid) {
+      setFormError(firstError);
       return;
     }
     setLoading(true);
@@ -69,7 +73,12 @@ const GardenForm = ({ garden, onClose, onSubmit }) => {
             <RiCloseLine />
           </button>
         </div>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
+          {formError && (
+            <div style={{ color: '#e63946', backgroundColor: '#fde8e8', padding: '0.6rem 0.9rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.88rem' }}>
+              {formError}
+            </div>
+          )}
           <div className="form-group">
             <label>Garden Name *</label>
             <input
@@ -77,7 +86,7 @@ const GardenForm = ({ garden, onClose, onSubmit }) => {
               value={formData.name}
               onChange={handleChange}
               placeholder="e.g., Rooftop Herb Haven"
-              required
+              className={formError ? 'input-error' : ''}
             />
           </div>
 

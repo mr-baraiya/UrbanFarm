@@ -10,18 +10,12 @@ import {
   FaSignOutAlt,
   FaLeaf,
   FaAddressBook,
-  FaHome,
 } from 'react-icons/fa';
 import { useAuth } from '../../hooks/useAuth';
 import './AdminSidebar.css';
 
 const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
   const { logout } = useAuth();
-
-  const publicLinks = [
-    { path: '/', label: 'Home (Landing)', icon: <FaHome /> },
-    { path: '/app', label: 'User App', icon: <FaSeedling /> },
-  ];
 
   const navItems = [
     { path: '/admin', label: 'Dashboard', icon: <FaChartLine />, end: true },
@@ -53,23 +47,6 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
 
       <nav className="admin-sidebar-nav">
         <div className="admin-nav-section-label">
-          {!isCollapsed && <span>Quick Links</span>}
-        </div>
-        {publicLinks.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            className="admin-nav-link public-nav-link"
-            title={item.label}
-          >
-            <span className="nav-icon">{item.icon}</span>
-            {!isCollapsed && <span className="nav-label">{item.label}</span>}
-          </NavLink>
-        ))}
-
-        <div className="admin-nav-divider" />
-
-        <div className="admin-nav-section-label">
           {!isCollapsed && <span>Management</span>}
         </div>
         {navItems.map((item) => (
@@ -99,4 +76,3 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
 };
 
 export default AdminSidebar;
-

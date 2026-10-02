@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useNotification } from '../../hooks/useNotification';
 import ConfirmModal from '../Common/ConfirmModal';
+import { validateGardenForm, validatePlantForm } from '../../utils/validators';
 import {
   FaSeedling,
   FaSearch,
@@ -133,11 +134,9 @@ const GardenManagement = () => {
   };
 
   const validateGarden = () => {
-    const errs = {};
-    if (!newGarden.name.trim()) errs.name = 'Garden name is required';
-    if (newGarden.size < 0) errs.size = 'Size cannot be negative';
-    setGardenErrors(errs);
-    return Object.keys(errs).length === 0;
+    const { isValid, errors: formErrors } = validateGardenForm(newGarden);
+    setGardenErrors(formErrors);
+    return isValid;
   };
 
   const handleCreateGarden = async (e) => {
@@ -156,12 +155,9 @@ const GardenManagement = () => {
   };
 
   const validatePlant = () => {
-    const errs = {};
-    if (!newPlant.name.trim()) errs.name = 'Plant name is required';
-    if (!newPlant.gardenId) errs.gardenId = 'Please select a garden space';
-    if (newPlant.waterFrequency < 1) errs.waterFrequency = 'Watering frequency must be at least 1 day';
-    setPlantErrors(errs);
-    return Object.keys(errs).length === 0;
+    const { isValid, errors: formErrors } = validatePlantForm(newPlant);
+    setPlantErrors(formErrors);
+    return isValid;
   };
 
   const handleCreatePlant = async (e) => {
@@ -435,15 +431,15 @@ const GardenManagement = () => {
               <h3><FaPlus /> Add New Garden Space</h3>
               <button className="modal-close" onClick={() => setShowCreateGardenModal(false)}><FaTimes /></button>
             </div>
-            <form onSubmit={handleCreateGarden} className="admin-modal-form">
+            <form onSubmit={handleCreateGarden} className="admin-modal-form" noValidate>
               <div className="form-group">
                 <label>Garden Name <span className="required">*</span></label>
                 <input
                   type="text"
-                  required
                   placeholder="e.g. Rooftop Vegetable Bed"
                   value={newGarden.name}
                   onChange={(e) => setNewGarden({ ...newGarden, name: e.target.value })}
+                  className={gardenErrors.name ? 'input-error' : ''}
                 />
                 {gardenErrors.name && <span className="error-text"><FaExclamationCircle /> {gardenErrors.name}</span>}
               </div>
@@ -493,24 +489,24 @@ const GardenManagement = () => {
               <h3><FaPlus /> Add New Plant Record</h3>
               <button className="modal-close" onClick={() => setShowCreatePlantModal(false)}><FaTimes /></button>
             </div>
-            <form onSubmit={handleCreatePlant} className="admin-modal-form">
+            <form onSubmit={handleCreatePlant} className="admin-modal-form" noValidate>
               <div className="form-group">
                 <label>Plant Name <span className="required">*</span></label>
                 <input
                   type="text"
-                  required
                   placeholder="e.g. Cherry Tomato"
                   value={newPlant.name}
                   onChange={(e) => setNewPlant({ ...newPlant, name: e.target.value })}
+                  className={plantErrors.name ? 'input-error' : ''}
                 />
                 {plantErrors.name && <span className="error-text"><FaExclamationCircle /> {plantErrors.name}</span>}
               </div>
               <div className="form-group">
                 <label>Assigned Garden Space <span className="required">*</span></label>
                 <select
-                  required
                   value={newPlant.gardenId}
                   onChange={(e) => setNewPlant({ ...newPlant, gardenId: e.target.value })}
+                  className={plantErrors.gardenId ? 'input-error' : ''}
                 >
                   <option value="">-- Select Target Garden --</option>
                   {gardens.map((g) => (
@@ -623,10 +619,10 @@ const GardenManagement = () => {
               <h3><FaEdit /> Edit Garden Information</h3>
               <button className="modal-close" onClick={() => setEditingGarden(null)}><FaTimes /></button>
             </div>
-            <form onSubmit={handleSaveEditGarden} className="admin-modal-form">
+            <form onSubmit={handleSaveEditGarden} className="admin-modal-form" noValidate>
               <div className="form-group">
                 <label>Garden Name</label>
-                <input type="text" required value={editingGarden.name} onChange={(e) => setEditingGarden({ ...editingGarden, name: e.target.value })} />
+                <input type="text" value={editingGarden.name} onChange={(e) => setEditingGarden({ ...editingGarden, name: e.target.value })} />
               </div>
               <div className="form-group">
                 <label>Location</label>
@@ -681,10 +677,10 @@ const GardenManagement = () => {
               <h3><FaEdit /> Edit Plant Attributes</h3>
               <button className="modal-close" onClick={() => setEditingPlant(null)}><FaTimes /></button>
             </div>
-            <form onSubmit={handleSaveEditPlant} className="admin-modal-form">
+            <form onSubmit={handleSaveEditPlant} className="admin-modal-form" noValidate>
               <div className="form-group">
                 <label>Plant Name</label>
-                <input type="text" required value={editingPlant.name} onChange={(e) => setEditingPlant({ ...editingPlant, name: e.target.value })} />
+                <input type="text" value={editingPlant.name} onChange={(e) => setEditingPlant({ ...editingPlant, name: e.target.value })} />
               </div>
               <div className="form-row">
                 <div className="form-group">

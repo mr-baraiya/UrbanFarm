@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useNotification } from '../../hooks/useNotification';
 import ConfirmModal from '../Common/ConfirmModal';
+import { validateUserForm, validateRegisterForm } from '../../utils/validators';
 import {
   FaUsers,
   FaSearch,
@@ -73,6 +74,11 @@ const UserManagement = () => {
 
   const handleCreateUser = async (e) => {
     e.preventDefault();
+    const { isValid, firstError } = validateRegisterForm(newUser);
+    if (!isValid) {
+      addNotification(firstError, 'error');
+      return;
+    }
     try {
       await api.post('/admin/users', newUser);
       addNotification('User created successfully!', 'success');
@@ -87,6 +93,11 @@ const UserManagement = () => {
   const handleSaveEditUser = async (e) => {
     e.preventDefault();
     if (!editingUser) return;
+    const { isValid, firstError } = validateUserForm(editingUser);
+    if (!isValid) {
+      addNotification(firstError, 'error');
+      return;
+    }
     try {
       await api.put(`/admin/users/${editingUser._id}`, {
         name: editingUser.name,
@@ -425,12 +436,11 @@ const UserManagement = () => {
                 <FaTimes />
               </button>
             </div>
-            <form onSubmit={handleSaveEditUser} className="admin-modal-form">
+            <form onSubmit={handleSaveEditUser} className="admin-modal-form" noValidate>
               <div className="form-group">
                 <label>Full Name</label>
                 <input
                   type="text"
-                  required
                   value={editingUser.name}
                   onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
                 />
@@ -439,7 +449,6 @@ const UserManagement = () => {
                 <label>Email Address</label>
                 <input
                   type="email"
-                  required
                   value={editingUser.email}
                   onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
                 />
@@ -500,12 +509,11 @@ const UserManagement = () => {
                 <FaTimes />
               </button>
             </div>
-            <form onSubmit={handleCreateUser} className="admin-modal-form">
+            <form onSubmit={handleCreateUser} className="admin-modal-form" noValidate>
               <div className="form-group">
                 <label>Full Name</label>
                 <input
                   type="text"
-                  required
                   value={newUser.name}
                   onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
                   placeholder="Enter full name"
@@ -515,7 +523,6 @@ const UserManagement = () => {
                 <label>Email</label>
                 <input
                   type="email"
-                  required
                   value={newUser.email}
                   onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
                   placeholder="Enter email address"
@@ -525,8 +532,6 @@ const UserManagement = () => {
                 <label>Password</label>
                 <input
                   type="password"
-                  required
-                  minLength={6}
                   value={newUser.password}
                   onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
                   placeholder="Minimum 6 characters"
