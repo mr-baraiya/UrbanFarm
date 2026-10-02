@@ -1,37 +1,56 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   FaRobot,
   FaCloudSunRain,
   FaSeedling,
   FaUsers,
-  FaChartLine,
   FaCheckCircle,
   FaArrowRight,
   FaShieldAlt,
-  FaWater,
-  FaBug,
-  FaCalendarAlt,
+  FaLeaf,
+  FaMicroscope,
+  FaTint,
+  FaMapMarkedAlt,
+  FaComments,
+  FaBell,
+  FaStar,
+  FaBolt,
+  FaChartLine,
   FaCogs,
 } from 'react-icons/fa';
 import './FeaturesPage.css';
 
+
 const FeaturesPage = () => {
+  const [activeFeature, setActiveFeature] = useState(0);
+
   const featureList = [
     {
       id: 'disease-diagnosis',
-      title: 'AI-Powered Plant Disease Diagnosis',
+      title: 'AI Plant Disease Diagnosis',
       badge: 'Computer Vision AI',
       icon: <FaRobot />,
-      color: '#27ae60',
-      summary: 'Instant leaf image classification detecting plant diseases, pathogens, and pest infestations before they spread.',
+      miniIcon: <FaMicroscope />,
+      accent: '#27ae60',
+      accentDark: '#1e8449',
+      summary: 'Instantly detect diseases, pathogens, and pests from a single leaf photo with 98.4% accuracy.',
       details: [
-        'Over 98.4% diagnostic accuracy trained on 100,000+ plant leaf datasets.',
-        'Supports 30+ urban crop species including tomatoes, peppers, spinach, and herbs.',
-        'Provides organic treatment protocols (neem oil, biological controls, pruning guidance).',
-        'Tracks diagnosis history to monitor plant recovery over several weeks.',
+        '98.4% diagnostic accuracy trained on 100,000+ plant datasets',
+        'Supports 30+ urban crop species — tomatoes, peppers, herbs & more',
+        'Organic treatment protocols: neem oil, biological controls, pruning',
+        'Tracks diagnosis history to monitor recovery over time',
       ],
-      ctaText: 'Test AI Diagnosis',
+      visual: {
+        title: 'Diagnosis Engine',
+        stats: [
+          { label: 'Detection Accuracy', value: '98.4%', good: true },
+          { label: 'Species Supported', value: '30+ Crops', good: true },
+          { label: 'Analysis Time', value: '< 2 seconds', good: true },
+        ],
+        tag: '🛡️ Powered by UrbanFarm Vision AI',
+      },
+      ctaText: 'Try AI Diagnosis',
       ctaLink: '/register',
     },
     {
@@ -39,14 +58,25 @@ const FeaturesPage = () => {
       title: 'Weather-Based Smart Irrigation',
       badge: 'Microclimate Sync',
       icon: <FaCloudSunRain />,
-      color: '#2980b9',
-      summary: 'Dynamic watering algorithms that sync with live local weather forecasts to eliminate over-watering.',
+      miniIcon: <FaTint />,
+      accent: '#2980b9',
+      accentDark: '#1f618d',
+      summary: 'Dynamic watering schedules that sync with live local weather to cut water waste by up to 40%.',
       details: [
-        'Automated rain delays—skips watering sessions when precipitation is forecasted.',
-        'Considers humidity, ambient temperature, sunlight hours, and soil type.',
-        'Tailors water amounts by growth stage (seedlings vs flowering vs mature plants).',
-        'Helps urban households save up to 40% on water usage.',
+        'Automated rain delays — skips sessions when rain is forecast',
+        'Adapts to humidity, temperature, sunlight hours & soil type',
+        'Growth-stage aware: seedling vs flowering vs mature watering',
+        'Save up to 40% on household water usage',
       ],
+      visual: {
+        title: 'Irrigation Dashboard',
+        stats: [
+          { label: 'Water Saved', value: 'Up to 40%', good: true },
+          { label: 'Weather Sync', value: 'Live Updates', good: true },
+          { label: 'Rain Detection', value: 'Auto Delay', good: true },
+        ],
+        tag: '🌧️ Real-Time Microclimate Sync Active',
+      },
       ctaText: 'Set Up Irrigation',
       ctaLink: '/register',
     },
@@ -55,15 +85,26 @@ const FeaturesPage = () => {
       title: 'Balcony & Bed Space Management',
       badge: 'Space Optimization',
       icon: <FaSeedling />,
-      color: '#8e44ad',
+      miniIcon: <FaMapMarkedAlt />,
+      accent: '#7d3c98',
+      accentDark: '#6c3483',
       summary: 'Virtual mapping for raised beds, balcony pots, hydroponic towers, and rooftop plots.',
       details: [
-        'Track individual plants, planting dates, variety, and projected harvest windows.',
-        'Keep visual growth logs with photo timelines and height records.',
-        'Calculate sunlight exposure and companion planting compatibility.',
-        'Receive automated notifications when plants require fertilizing or pruning.',
+        'Track planting dates, variety, and projected harvest windows',
+        'Visual growth logs with photo timelines and height records',
+        'Sunlight exposure calculator & companion planting compatibility',
+        'Automated alerts for fertilizing, pruning, and replanting cycles',
       ],
-      ctaText: 'Create Your Garden Space',
+      visual: {
+        title: 'Garden Map View',
+        stats: [
+          { label: 'Space Tracking', value: 'Multi-Zone', good: true },
+          { label: 'Growth Logs', value: 'Photo + Data', good: true },
+          { label: 'Smart Alerts', value: 'Automated', good: true },
+        ],
+        tag: '🗺️ Full Garden Space Intelligence',
+      },
+      ctaText: 'Map Your Garden',
       ctaLink: '/register',
     },
     {
@@ -71,102 +112,168 @@ const FeaturesPage = () => {
       title: 'Community Knowledge & Seed Swaps',
       badge: 'Urban Network',
       icon: <FaUsers />,
-      color: '#d35400',
-      summary: 'A vibrant social platform connecting urban growers to exchange advice, trade seeds, and solve garden challenges.',
+      miniIcon: <FaComments />,
+      accent: '#d35400',
+      accentDark: '#b94600',
+      summary: 'A vibrant social platform where urban growers share advice, trade seeds, and solve challenges together.',
       details: [
-        'Q&A forum categorized by crop type, pest control, and regional climate.',
-        'Showcase balcony harvests and bed layouts with photo galleries.',
-        'Peer moderation & agronomist badge verification ensuring reliable advice.',
-        'Local seed exchange locator for rare heirloom seed varieties.',
+        'Q&A forum categorized by crop type, pest control & climate',
+        'Showcase balcony harvests with photo galleries',
+        'Agronomist-verified expert badges for reliable advice',
+        'Local seed exchange locator for rare heirloom varieties',
       ],
+      visual: {
+        title: 'Community Hub',
+        stats: [
+          { label: 'Active Members', value: '12,500+', good: true },
+          { label: 'Expert Verified', value: 'Agronomists', good: true },
+          { label: 'Seed Library', value: 'Heirloom+', good: true },
+        ],
+        tag: '🤝 Peer-Verified Urban Farming Community',
+      },
       ctaText: 'Join the Community',
       ctaLink: '/register',
     },
   ];
 
+  const quickFeatures = [
+    { icon: <FaBell />, title: 'Smart Notifications', desc: 'Never miss watering, pruning, or harvest windows.' },
+    { icon: <FaChartLine />, title: 'Growth Analytics', desc: 'Track yield trends over weeks and seasons.' },
+    { icon: <FaLeaf />, title: 'Plant Health Score', desc: 'Live composite health score for every plant.' },
+    { icon: <FaShieldAlt />, title: 'AI Guard Engine', desc: 'Continuous background monitoring 24/7.' },
+    { icon: <FaStar />, title: 'Harvest Planner', desc: 'Forecast exact harvest dates by growth data.' },
+    { icon: <FaBolt />, title: 'Instant Insights', desc: "Real-time tips based on your plants' status." },
+  ];
+
+  const active = featureList[activeFeature];
+
   return (
     <div className="features-page">
+
       {/* Hero */}
-      <section className="features-hero">
-        <div className="features-container text-center">
-          <span className="section-tag">COMPREHENSIVE TOOLKIT</span>
-          <h1>Smart Features Built for Modern Urban Farming</h1>
-          <p className="features-hero-subtitle">
-            From computer vision pathogen scans to automated weather irrigation—discover how UrbanFarm makes city agriculture effortless and high-yielding.
+      <section className="fp-hero">
+        <div className="fp-container fp-text-center">
+          <span className="fp-section-tag">COMPREHENSIVE TOOLKIT</span>
+          <h1 className="fp-hero-title">Smart Features Built for<br /><span className="fp-gradient-text">Modern Urban Farming</span></h1>
+          <p className="fp-hero-subtitle">
+            From computer vision pathogen scans to automated weather irrigation — discover how UrbanFarm makes city agriculture effortless and high-yielding.
           </p>
+          <div className="fp-hero-badges">
+            <span className="fp-hero-pill"><FaCheckCircle /> AI-Powered</span>
+            <span className="fp-hero-pill"><FaCheckCircle /> Real-Time Sync</span>
+            <span className="fp-hero-pill"><FaCheckCircle /> Zero Setup</span>
+          </div>
         </div>
       </section>
 
-      {/* Main Features Breakdown */}
-      <section className="features-breakdown-section">
-        <div className="features-container">
-          {featureList.map((item, index) => (
-            <div
-              key={item.id}
-              id={item.id}
-              className={`feature-breakdown-card ${index % 2 === 1 ? 'reverse' : ''}`}
-            >
-              <div className="breakdown-info">
-                <span className="feature-badge" style={{ background: `${item.color}15`, color: item.color }}>
-                  {item.badge}
-                </span>
-                <h2>{item.title}</h2>
-                <p className="breakdown-summary">{item.summary}</p>
+      {/* Interactive Feature Explorer */}
+      <section className="fp-section">
+        <div className="fp-container">
+          <div className="fp-text-center fp-section-header">
+            <span className="fp-section-tag">CORE FEATURES</span>
+            <h2>Everything Your Urban Farm Needs</h2>
+            <p>Click any feature to explore capabilities in depth.</p>
+          </div>
 
-                <ul className="breakdown-details-list">
-                  {item.details.map((detail, dIdx) => (
-                    <li key={dIdx}>
-                      <FaCheckCircle className="check-icon" style={{ color: item.color }} />
-                      <span>{detail}</span>
-                    </li>
-                  ))}
-                </ul>
+          {/* Tab Navigation */}
+          <div className="fp-tabs">
+            {featureList.map((f, idx) => (
+              <button
+                key={f.id}
+                className={`fp-tab ${activeFeature === idx ? 'active' : ''}`}
+                style={activeFeature === idx ? { '--tab-accent': f.accent } : {}}
+                onClick={() => setActiveFeature(idx)}
+              >
+                <span className="fp-tab-icon" style={activeFeature === idx ? { color: f.accent } : {}}>{f.icon}</span>
+                <span className="fp-tab-label">{f.title}</span>
+              </button>
+            ))}
+          </div>
 
-                <Link to={item.ctaLink} className="landing-btn landing-btn-primary" style={{ background: item.color }}>
-                  {item.ctaText} <FaArrowRight />
-                </Link>
+          {/* Feature Detail Panel */}
+          <div className="fp-detail-panel" key={active.id}>
+            <div className="fp-detail-info">
+              <span className="fp-badge" style={{ background: `${active.accent}18`, color: active.accent, border: `1px solid ${active.accent}30` }}>
+                {active.miniIcon} {active.badge}
+              </span>
+              <h2 className="fp-detail-title">{active.title}</h2>
+              <p className="fp-detail-summary">{active.summary}</p>
+
+              <ul className="fp-detail-list">
+                {active.details.map((d, i) => (
+                  <li key={i}>
+                    <FaCheckCircle style={{ color: active.accent }} className="fp-check" />
+                    <span>{d}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Link to={active.ctaLink} className="fp-cta-btn" style={{ background: `linear-gradient(135deg, ${active.accent}, ${active.accentDark})` }}>
+                {active.ctaText} <FaArrowRight />
+              </Link>
+            </div>
+
+            <div className="fp-detail-visual" style={{ borderColor: `${active.accent}25` }}>
+              <div className="fp-visual-header" style={{ background: `${active.accent}12`, borderColor: `${active.accent}20` }}>
+                <span className="fp-visual-icon" style={{ background: `${active.accent}20`, color: active.accent }}>{active.icon}</span>
+                <strong>{active.visual.title}</strong>
+                <span className="fp-visual-live">● LIVE</span>
               </div>
-
-              <div className="breakdown-visual" style={{ borderColor: `${item.color}30` }}>
-                <div className="visual-header" style={{ background: `${item.color}10` }}>
-                  <span className="visual-icon" style={{ color: item.color }}>{item.icon}</span>
-                  <strong>{item.title} Dashboard</strong>
-                </div>
-                <div className="visual-preview-body">
-                  <div className="preview-stat-row">
-                    <span>Status</span>
-                    <strong style={{ color: item.color }}>Operational & Synced</strong>
+              <div className="fp-visual-body">
+                {active.visual.stats.map((s, i) => (
+                  <div key={i} className="fp-visual-stat">
+                    <span className="fp-vs-label">{s.label}</span>
+                    <span className="fp-vs-value" style={{ color: active.accent }}>{s.value}</span>
                   </div>
-                  <div className="preview-stat-row">
-                    <span>Target Precision</span>
-                    <strong>99.1% High Accuracy</strong>
-                  </div>
-                  <div className="preview-stat-row">
-                    <span>Supported Ecosystem</span>
-                    <strong>Urban Balconies & Beds</strong>
-                  </div>
-                  <div className="preview-mini-banner" style={{ background: `${item.color}12`, color: item.color }}>
-                    <FaShieldAlt /> Protected by UrbanFarm AI Guard Engine
-                  </div>
+                ))}
+                <div className="fp-visual-tag" style={{ background: `${active.accent}12`, color: active.accent, border: `1px solid ${active.accent}25` }}>
+                  {active.visual.tag}
                 </div>
               </div>
             </div>
-          ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Quick Feature Grid */}
+      <section className="fp-section fp-section-alt">
+        <div className="fp-container">
+          <div className="fp-text-center fp-section-header">
+            <span className="fp-section-tag">BUILT-IN TOOLS</span>
+            <h2>Plus Everything in Between</h2>
+            <p>Dozens of intelligent micro-features to keep your garden thriving.</p>
+          </div>
+          <div className="fp-quick-grid">
+            {quickFeatures.map((f, i) => (
+              <div key={i} className="fp-quick-card">
+                <div className="fp-quick-icon">{f.icon}</div>
+                <h4>{f.title}</h4>
+                <p>{f.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* CTA Banner */}
-      <section className="features-cta-banner">
-        <div className="features-container text-center">
-          <h2>Ready to experience these features live?</h2>
-          <p>Create a free account in under 60 seconds and start monitoring your urban farm.</p>
-          <div className="features-cta-group">
-            <Link to="/register" className="landing-btn landing-btn-primary btn-large">
-              Get Started for Free <FaArrowRight />
-            </Link>
+      <section className="fp-cta-section">
+        <div className="fp-container fp-text-center">
+          <div className="fp-cta-inner">
+            <span className="fp-section-tag">GET STARTED TODAY</span>
+            <h2>Ready to Experience These Features Live?</h2>
+            <p>Create a free account in under 60 seconds and start monitoring your urban farm.</p>
+            <div className="fp-cta-group">
+              <Link to="/register" className="fp-cta-btn fp-cta-btn-lg">
+                Get Started Free <FaArrowRight />
+              </Link>
+              <Link to="/about" className="fp-cta-ghost-btn">
+                Learn More
+              </Link>
+            </div>
           </div>
         </div>
       </section>
+
     </div>
   );
 };

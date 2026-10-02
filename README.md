@@ -1,88 +1,98 @@
-# Urban Farming Assistant
+# 🌱 UrbanFarm — AI-Powered Urban Farming Assistant
 
-Urban Farming Assistant is a full-stack web application designed to help urban gardeners plan, monitor, and maintain home growing spaces. The platform combines plant record management, weather-aware watering recommendations, crop suggestions, image-based plant disease diagnosis, community discussions, and administration controls.
+> Manage your urban garden with AI plant disease diagnosis, smart irrigation, growth tracking, and a thriving community — all in one place.
 
-## Features
+## 🌐 Live Deployment
 
-### Smart Crop Recommendations
-- Provides suitable crop suggestions and planting guidelines based on user location and climate conditions.
-- Integrates weather analysis with plant needs.
+| | URL |
+|---|---|
+| **🖥️ Frontend** | [https://urbanfarm.baraiyavishalbhai32.workers.dev](https://urbanfarm.baraiyavishalbhai32.workers.dev) |
+| **⚙️ Backend API** | [https://urbanfarm-server.vercel.app](https://urbanfarm-server.vercel.app) |
+| **❤️ Health Check** | [https://urbanfarm-server.vercel.app/health](https://urbanfarm-server.vercel.app/health) |
 
-### Plant Disease Diagnosis
-- Enables image upload for automated plant disease identification.
-- Delivers diagnosis results and actionable treatment advice.
+> **Frontend** hosted on **Cloudflare Workers** · **Backend** hosted on **Vercel Serverless**
 
-### Weather-Aware Watering Schedule
-- Generates adjusted watering recommendations based on real-time weather metrics.
-- Provides care reminders to keep plants healthy.
+---
 
-### Garden and Plant Management
-- Add, update, and track gardens and individual plant records.
-- Monitor plant health status and watering history.
+## ✨ Features
 
-### Community Engagement
-- Create community posts and share gardening updates.
-- Interact via comments and likes on community posts.
-- View community member contributions and leaderboards.
+### 🤖 AI Plant Disease Diagnosis
+- Upload a leaf photo for instant disease detection with 98.4% accuracy.
+- Supports 30+ urban crop species including tomatoes, peppers, herbs & spinach.
+- Provides organic treatment protocols and recovery tracking.
 
-### Admin Controls
-- Review flagged content and moderate user posts.
-- Manage users and platform activity.
+### 🌧️ Weather-Based Smart Irrigation
+- Auto-adjusts watering schedules based on live local weather forecasts.
+- Skips sessions when rain is predicted, saving up to 40% water usage.
 
-### Authentication and Roles
-- Secure user registration and login with JWT authentication.
-- Role-based authorization for administrative access.
+### 🪴 Garden & Plant Management
+- Track individual plants with planting dates, growth stages, and harvest windows.
+- Visual growth logs with photo timelines and health history.
 
-## Tech Stack
+### 💬 Community Knowledge & Seed Swaps
+- Q&A forum with agronomist-verified expert badges.
+- Local seed exchange locator for rare heirloom varieties.
+
+### 🛡️ Admin Panel
+- Review flagged content, moderate posts, and manage users.
+- Full analytics dashboard with platform activity overview.
+
+---
+
+## 🛠️ Tech Stack
 
 ### Frontend
-- React 18
-- Vite
-- React Router DOM
-- Axios
-- Custom CSS styling
+- **React 18** + **Vite**
+- **React Router DOM v7**
+- **Axios** for API communication
+- **Custom CSS** (dark green theme with glassmorphism)
+- Deployed on **Cloudflare Workers (Static Assets)**
 
 ### Backend
-- Node.js
-- Express.js
-- MongoDB with Mongoose
-- JSON Web Tokens (JWT)
-- Cloudinary for image and media management
-- Express rate limiting and security middleware
+- **Node.js** + **Express.js**
+- **MongoDB** with **Mongoose** (MongoDB Atlas)
+- **JWT** authentication with role-based authorization
+- **Cloudinary** for image uploads
+- **Multer** (memory storage) for file handling
+- Deployed on **Vercel Serverless Functions**
 
-### External Services and APIs
-- Google Gemini API
-- Plant.id API
-- OpenWeather API
-- Nodemailer for email notifications
+### External APIs
+- **Google Gemini API** — AI assistant & crop intelligence
+- **Plant.id API** — Leaf image disease diagnosis
+- **OpenWeather API** — Real-time weather & irrigation sync
+- **Nodemailer** — Email notifications
 
-## Project Structure
+---
+
+## 📁 Project Structure
 
 ```text
 UrbanFarm/
 ├── backend/
-│   ├── config/
-│   ├── controllers/
-│   ├── middleware/
-│   ├── models/
-│   ├── routes/
-│   ├── scripts/
-│   ├── services/
-│   ├── utils/
-│   ├── .env.example
+│   ├── api/            # Vercel serverless entrypoint
+│   ├── config/         # Database connection (with serverless caching)
+│   ├── controllers/    # Route handler logic
+│   ├── middleware/     # Auth, error handling, upload, rate limiting
+│   ├── models/         # Mongoose schemas
+│   ├── routes/         # API route definitions
+│   ├── utils/          # Logger, helpers
+│   ├── vercel.json     # Vercel deployment config
 │   ├── package.json
-│   └── server.js
+│   └── server.js       # Express app (serverless-ready)
 ├── frontend/
 │   ├── public/
+│   │   ├── favicon.png
+│   │   └── manifest.json
 │   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   ├── .env.example
-│   ├── package.json
+│   │   ├── components/ # Shared UI components
+│   │   ├── pages/      # Route page components
+│   │   ├── services/   # API service layer (api.js)
+│   │   ├── hooks/      # Custom React hooks
+│   │   ├── utils/      # Formatters, helpers
+│   │   └── App.jsx
+│   ├── wrangler.toml   # Cloudflare Workers config
 │   ├── vite.config.js
+│   ├── package.json
 │   └── index.html
 ├── scripts/
 │   └── seedData.js
@@ -90,129 +100,145 @@ UrbanFarm/
 └── README.md
 ```
 
-## Environment Setup
+---
 
-The project requires environment configuration files for both backend and frontend services.
+## ⚙️ Environment Setup
 
-### Backend Environment (.env)
-
-Create a `.env` file in the `backend/` directory based on `backend/.env.example`:
+### Backend (`backend/.env`)
 
 ```env
 PORT=5000
-MONGO_URI=mongodb://127.0.0.1:27017/urban_farming
-JWT_SECRET=your_jwt_secret_key_here
+NODE_ENV=development
+
+MONGO_URI=mongodb+srv://<user>:<password>@cluster0.xxx.mongodb.net/urbanfarm
+
+JWT_SECRET=your_jwt_secret_32chars_minimum
 JWT_EXPIRE=7d
 
-CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
-CLOUDINARY_API_KEY=your_cloudinary_api_key
-CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
 
-PLANT_ID_API_KEY=your_plant_id_api_key
 GEMINI_API_KEY=your_gemini_api_key
+PLANT_ID_API_KEY=your_plant_id_api_key
 OPENWEATHER_API_KEY=your_openweather_api_key
 
 EMAIL_USER=your_email@example.com
 EMAIL_PASS=your_email_app_password
+
+FRONTEND_URL=http://localhost:5173
 ```
 
-### Frontend Environment (.env)
-
-Create a `.env` file in the `frontend/` directory based on `frontend/.env.example`:
+### Frontend (`frontend/.env`)
 
 ```env
 VITE_API_URL=http://localhost:5000/api
 ```
 
-## Getting Started
+> For production, set `VITE_API_URL=https://urbanfarm-server.vercel.app/api`
+
+---
+
+## 🚀 Getting Started (Local Development)
 
 ### Prerequisites
+- **Node.js** v18+
+- **npm** v9+
+- **MongoDB Atlas** account (or local MongoDB)
 
-Ensure the following tools are installed on your machine:
-- **Node.js** (v18 or higher recommended)
-- **npm** (v9 or higher recommended)
-- **MongoDB** (Local instance running at `mongodb://127.0.0.1:27017` or MongoDB Atlas cluster)
+### Installation
 
-### Setup & Installation
+```bash
+# 1. Clone the repository
+git clone https://github.com/mr-baraiya/UrbanFarm.git
+cd UrbanFarm
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/mr-baraiya/UrbanFarm.git
-   cd UrbanFarm
-   ```
+# 2. Install backend dependencies
+cd backend
+npm install
 
-2. **Configure Environment Files:**
-   - **Backend Environment**: Copy `backend/.env.example` to `backend/.env` and update your secret keys & database URI.
-     ```bash
-     cp backend/.env.example backend/.env
-     ```
-   - **Frontend Environment**: Copy `frontend/.env.example` to `frontend/.env`.
-     ```bash
-     cp frontend/.env.example frontend/.env
-     ```
+# 3. Install frontend dependencies
+cd ../frontend
+npm install
+```
 
-3. **Install Dependencies:**
+### Configure Environment Files
 
-   - **Backend:**
-     ```bash
-     cd backend
-     npm install
-     ```
+```bash
+# Backend
+cp backend/.env.example backend/.env
+# → Edit backend/.env with your credentials
 
-   - **Frontend:**
-     ```bash
-     cd ../frontend
-     npm install
-     ```
+# Frontend
+cp frontend/.env.example frontend/.env
+# → Default points to http://localhost:5000/api
+```
 
-### Running the Application
+### Run Locally
 
-1. **Start MongoDB:** Ensure local MongoDB server service is running or MongoDB Atlas connection string is configured in `backend/.env`.
+```bash
+# Terminal 1 — Backend (http://localhost:5000)
+cd backend
+npm run dev
 
-2. **Start Backend Server:**
-   ```bash
-   cd backend
-   npm run dev
-   ```
-   > The API server will start at: `http://localhost:5000`
-
-3. **Start Frontend Client:**
-   Open a **new terminal window/tab** and run:
-   ```bash
-   cd frontend
-   npm run dev
-   ```
-   > The frontend dev server will start at: `http://localhost:5173`
+# Terminal 2 — Frontend (http://localhost:5173)
+cd frontend
+npm run dev
+```
 
 ### Database Seeding (Optional)
 
-To seed initial plant database records, run:
 ```bash
 cd backend
 node ../scripts/seedData.js
 ```
 
-### Creating an Admin Account
+### Create Admin Account
 
-To generate an administrator account for managing platform content:
 ```bash
 cd backend
 node scripts/create-admin.js admin@example.com AdminPassword123 "Admin User" adminuser
 ```
 
-## API Endpoint Reference
+---
 
-- Auth: `/api/auth` (register, login, user profile)
-- Gardens: `/api/gardens` (CRUD operations for user gardens)
-- Plants: `/api/plants` (CRUD operations for plant entries)
-- Crop Recommendation: `/api/crops` (crop guidelines and AI recommendations)
-- Disease Diagnosis: `/api/disease` (AI plant image health diagnosis)
-- Weather & Watering: `/api/weather`, `/api/watering` (weather data and automated care plans)
-- Community: `/api/community` (posts, comments, likes, leaderboard)
-- Admin: `/api/admin` (moderation and content management)
-- Uploads: `/api/upload` (media handling via Cloudinary)
+## 🌍 Deployment
 
-## License
+### Backend → Vercel
 
-This project is licensed under the [MIT License](LICENSE) - see the [LICENSE](LICENSE) file for details.
+1. Push code to GitHub.
+2. Import project on [vercel.com](https://vercel.com), set **Root Directory** to `backend`.
+3. Add environment variables from `backend/.env`.
+4. Deploy — live at `https://urbanfarm-server.vercel.app`.
 
+### Frontend → Cloudflare Workers
+
+1. Push code to GitHub (includes `frontend/wrangler.toml`).
+2. Create a Workers project on [dash.cloudflare.com](https://dash.cloudflare.com).
+3. Set **Root directory** to `frontend`, **Build command** to `npm run build`, **Deploy command** to `npx wrangler deploy`.
+4. Add environment variable: `VITE_API_URL=https://urbanfarm-server.vercel.app/api`.
+5. Deploy — live at `https://urbanfarm.baraiyavishalbhai32.workers.dev`.
+
+---
+
+## 📡 API Endpoint Reference
+
+| Group | Base Path | Description |
+|---|---|---|
+| Auth | `/api/auth` | Register, login, profile |
+| Plants | `/api/plants` | CRUD for plant records |
+| Gardens | `/api/gardens` | Garden space management |
+| Crops | `/api/crops` | AI crop recommendations |
+| Disease | `/api/disease` | AI image diagnosis |
+| Weather | `/api/weather` | Live weather data |
+| Watering | `/api/watering` | Smart irrigation schedules |
+| Community | `/api/community` | Posts, comments, likes |
+| Admin | `/api/admin` | Moderation & management |
+| Upload | `/api/upload` | Cloudinary media uploads |
+| AI | `/api/ai` | Gemini AI chat assistant |
+
+---
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).

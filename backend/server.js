@@ -52,18 +52,89 @@ app.use(async (req, res, next) => {
   }
 });
 
-// Root route
+// Root route – branded landing page
 app.get('/', (req, res) => {
-  res.status(200).json({
-    status: 'OK',
-    name: 'UrbanFarm Backend API',
-    version: '3.0.0',
-    serverless: Boolean(process.env.VERCEL),
-    endpoints: {
-      health: '/health',
-      api: '/api'
+  res.status(200).send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UrbanFarm API</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #0a1f13 0%, #1a3a24 50%, #0d2618 100%);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: #e8f5e9;
     }
-  });
+    .card {
+      text-align: center;
+      padding: 48px 56px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 24px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+      max-width: 480px;
+      width: 90%;
+    }
+    .logo {
+      width: 80px; height: 80px;
+      background: linear-gradient(135deg, #2d6a4f, #52b788);
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px;
+      margin: 0 auto 24px;
+      box-shadow: 0 8px 24px rgba(82,183,136,0.3);
+    }
+    h1 { font-size: 28px; font-weight: 700; color: #52b788; margin-bottom: 8px; }
+    .subtitle { font-size: 14px; color: #a5d6a7; margin-bottom: 32px; }
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(82,183,136,0.15);
+      border: 1px solid rgba(82,183,136,0.3);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-size: 13px; color: #52b788;
+      margin-bottom: 28px;
+    }
+    .dot { width: 8px; height: 8px; background: #52b788; border-radius: 50%; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .endpoints { text-align: left; margin-top: 24px; }
+    .endpoint {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 16px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .endpoint code { color: #81c784; font-family: monospace; }
+    .endpoint span { color: #a5d6a7; font-size: 12px; }
+    .version { margin-top: 24px; font-size: 12px; color: #4caf50; opacity: 0.6; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">🌱</div>
+    <h1>UrbanFarm API</h1>
+    <p class="subtitle">AI-Powered Urban Farming Assistant Backend</p>
+    <div class="status-badge">
+      <div class="dot"></div>
+      All systems operational
+    </div>
+    <div class="endpoints">
+      <div class="endpoint"><code>GET /health</code><span>Health check</span></div>
+      <div class="endpoint"><code>POST /api/auth/login</code><span>Authentication</span></div>
+      <div class="endpoint"><code>GET /api/plants</code><span>Plant management</span></div>
+      <div class="endpoint"><code>GET /api/ai/chat</code><span>AI Assistant</span></div>
+    </div>
+    <p class="version">v3.0.0 · ${Boolean(process.env.VERCEL) ? 'Vercel Serverless' : 'Node.js'}</p>
+  </div>
+</body>
+</html>`);
 });
 
 // Health check endpoint
