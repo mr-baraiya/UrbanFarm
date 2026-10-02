@@ -1,3 +1,5 @@
 name = "urbanfarm"
-pages_build_output_dir = "dist"
-compatibility_date = "2024-01-01"
+compatibility_date = "2024-09-23"
+
+# Host static assets directly on Cloudflare Workers
+assets = { directory = "./dist", not_found_handling = "single-page-application" }
