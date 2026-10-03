@@ -30,6 +30,11 @@
   border-radius: 8px;
 }
 
+.plant-form .form-group select option[hidden],
+select option[hidden] {
+  display: none !important;
+}
+
 .plant-form .form-group textarea {
   resize: vertical;
   min-height: 48px;

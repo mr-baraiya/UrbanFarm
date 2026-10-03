@@ -19,7 +19,7 @@ app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (mobile apps, curl, Postman)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
+    if (allowedOrigins.includes(origin) || (process.env.NODE_ENV !== 'production' && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin))) {
       callback(null, true);
     } else {
       callback(new Error(`CORS policy: Origin ${origin} is not allowed`));
@@ -164,8 +164,20 @@ app.use('*', (req, res) => {
 if (!process.env.VERCEL) {
   const PORT = process.env.PORT || 5000;
   connectDB().then(() => {
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
       console.log(`🚀 UrbanFarm Backend running on http://localhost:${PORT}`);
+    });
+
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        console.error(`❌ Port ${PORT} is currently in use by another process. Retrying in 1 second...`);
+        setTimeout(() => {
+          server.close();
+          app.listen(PORT);
+        }, 1000);
+      } else {
+        console.error('Server error:', err);
+      }
     });
   }).catch((err) => {
     console.error('Failed to start server:', err.message);

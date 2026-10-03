@@ -312,6 +312,12 @@
   color: #ffffff;
 }
 
+.ws-badge.future {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+}
+
 .ws-badge.missed {
   background: #fee2e2;
   color: #991b1b;
@@ -522,6 +528,49 @@
 
 .check-svg-icon {
   font-size: 1rem;
+}
+
+.ws-action-skip-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-light, rgba(220, 210, 200, 0.6));
+  background: var(--surface-primary, #ffffff);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  transition: var(--transition-smooth, all 0.2s cubic-bezier(0.16, 1, 0.3, 1));
+  padding: 0;
+}
+
+.ws-action-skip-btn:hover:not(:disabled) {
+  border-color: #64748b;
+  color: #0f172a;
+  background: rgba(100, 116, 139, 0.1);
+  transform: scale(1.06);
+}
+
+.ws-action-skip-btn.skipped {
+  background: #64748b;
+  border-color: #64748b;
+  color: #ffffff;
+}
+
+.ws-action-skip-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.skip-svg-icon {
+  font-size: 0.95rem;
+}
+
+.ws-badge.skipped {
+  background: rgba(100, 116, 139, 0.1);
+  color: #64748b;
+  border: 1px solid rgba(100, 116, 139, 0.3);
 }
 
 .ws-completed-timestamp {

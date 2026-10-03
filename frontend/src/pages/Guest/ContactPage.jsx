@@ -11,6 +11,8 @@ import {
   FaCheckCircle,
   FaExclamationCircle,
 } from 'react-icons/fa';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './ContactPage.css';
 
 const ContactPage = () => {
@@ -33,9 +35,23 @@ const ContactPage = () => {
   };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (errors[e.target.name]) {
-      setErrors({ ...errors, [e.target.name]: null });
+    const { name, value } = e.target;
+    const updatedData = { ...formData, [name]: value };
+    setFormData(updatedData);
+
+    // Live validation check for instant error resolution as user types
+    const { errors: newErrors } = validateContactForm(updatedData);
+    setErrors((prev) => ({
+      ...prev,
+      [name]: newErrors[name] || null,
+    }));
+  };
+
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    const { errors: newErrors } = validateContactForm(formData);
+    if (newErrors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: newErrors[name] }));
     }
   };
 
@@ -46,9 +62,17 @@ const ContactPage = () => {
     setLoading(true);
     try {
       const res = await api.post('/contact', formData);
-      addNotification(
-        res.data?.message || 'Thank you! Your inquiry has been received. Our team will contact you shortly.',
-        'success'
+      toast.success(
+        res.data?.message || 'Message sent successfully! Our team will contact you shortly.',
+        {
+          position: 'bottom-right',
+          autoClose: 4000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          className: 'urban-toast-success',
+        }
       );
       // Reset form state cleanly
       setFormData({
@@ -61,9 +85,17 @@ const ContactPage = () => {
       setErrors({});
     } catch (error) {
       console.error('Contact submission error:', error);
-      addNotification(
-        error.response?.data?.message || 'Failed to submit inquiry. Please try again.',
-        'error'
+      toast.error(
+        error.response?.data?.message || 'Failed to send message. Please try again.',
+        {
+          position: 'bottom-right',
+          autoClose: 4000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          className: 'urban-toast-error',
+        }
       );
     } finally {
       setLoading(false);
@@ -146,7 +178,8 @@ const ContactPage = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="e.g. Jane Doe"
+                  onBlur={handleBlur}
+                  placeholder="e.g. Vishal Sharma"
                   className={errors.name ? 'input-error' : ''}
                 />
                 {errors.name && <span className="error-text"><FaExclamationCircle /> {errors.name}</span>}
@@ -160,7 +193,8 @@ const ContactPage = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="e.g. jane@example.com"
+                    onBlur={handleBlur}
+                    placeholder="e.g. Vishal@example.com"
                     className={errors.email ? 'input-error' : ''}
                   />
                   {errors.email && <span className="error-text"><FaExclamationCircle /> {errors.email}</span>}
@@ -173,8 +207,11 @@ const ContactPage = () => {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    placeholder="e.g. +1 (555) 000-1234"
+                    onBlur={handleBlur}
+                    placeholder="e.g. +91 1234567890"
+                    className={errors.phone ? 'input-error' : ''}
                   />
+                  {errors.phone && <span className="error-text"><FaExclamationCircle /> {errors.phone}</span>}
                 </div>
               </div>
 
@@ -184,6 +221,7 @@ const ContactPage = () => {
                   name="subject"
                   value={formData.subject}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   className={errors.subject ? 'input-error' : ''}
                 >
                   <option value="General Inquiry">General Inquiry</option>
@@ -202,6 +240,7 @@ const ContactPage = () => {
                   rows="5"
                   value={formData.message}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="How can we help your urban farm?"
                   className={errors.message ? 'input-error' : ''}
                 />
@@ -215,6 +254,9 @@ const ContactPage = () => {
           </div>
         </div>
       </section>
+
+      {/* Toastify Notification Container */}
+      <ToastContainer position="bottom-right" />
     </div>
   );
 };

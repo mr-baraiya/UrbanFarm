@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   RiEyeLine, 
   RiDropLine, 
@@ -11,7 +11,7 @@ import {
   RiCalendarEventLine, 
   RiSunLine, 
   RiSunCloudyLine,
-  RiMoreFill
+  RiMore2Fill
 } from 'react-icons/ri';
 import { TbPlant2 } from 'react-icons/tb';
 import { getStatusColor, getHealthStatus, getGrowthStageLabel, getGrowthProgress, getPlantImage } from '../../utils/helpers';
@@ -48,8 +48,19 @@ const PlantCard = ({
 
   const daysOld = getDaysSincePlanting();
 
+  useEffect(() => {
+    if (!showMenu) return;
+    const handleClickOutside = (e) => {
+      if (!e.target.closest('.plant-menu')) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showMenu]);
+
   return (
-    <div className={`plant-card ${isSelected ? 'selected' : ''}`}>
+    <div className={`plant-card ${isSelected ? 'selected' : ''} ${showMenu ? 'menu-open' : ''}`}>
       {/* Image container with menu & select overlays */}
       <div className="plant-image-container">
         {selectMode && (
@@ -63,8 +74,8 @@ const PlantCard = ({
         )}
 
         <div className="plant-menu">
-          <button className="menu-btn" onClick={() => setShowMenu(!showMenu)} aria-label="Menu">
-            <RiMoreFill />
+          <button className="menu-btn" onClick={() => setShowMenu(!showMenu)} aria-label="Menu" title="Plant Options">
+            <RiMore2Fill />
           </button>
           {showMenu && (
             <div className="menu-dropdown">
@@ -150,7 +161,7 @@ const PlantCard = ({
           </span>
         )}
         <span className="plant-water">
-          <RiDropLine className="meta-icon water" /> every {plant.waterFrequency || 3}d
+          <RiDropLine className="meta-icon water" /> every {plant.waterFrequency !== undefined && plant.waterFrequency !== null ? plant.waterFrequency : 3}d
         </span>
         {plant.sunlight && (
           <span className="plant-sunlight" title={`Sunlight: ${plant.sunlight}`}>

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { RiArrowLeftLine } from "react-icons/ri";
 import { FaExclamationCircle } from "react-icons/fa";
+import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { login } from "../services/authService";
 import { useNotification } from "../hooks/useNotification";
@@ -12,7 +13,9 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
+  const [authError, setAuthError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login: authLogin } = useAuth();
   const { addNotification } = useNotification();
   const navigate = useNavigate();
@@ -41,6 +44,7 @@ const Login = () => {
     }
 
     setErrors({});
+    setAuthError("");
     setLoading(true);
     try {
       const data = await login({ email, password });
@@ -64,18 +68,32 @@ const Login = () => {
       }
     } catch (error) {
       console.error("❌ Login error:", error);
+      let errMsg = "Login failed. Please check your credentials.";
 
       if (error.response) {
         console.error("Response data:", error.response.data);
-        const errorMessage = error.response.data?.message || "Login failed";
-        addNotification(errorMessage, "error");
+        const status = error.response.status;
+        const backendMsg = error.response.data?.message;
+
+        if (status === 401 || status === 404) {
+          errMsg = backendMsg || "User not found or incorrect credentials. Please try again or register.";
+        } else if (status === 403) {
+          errMsg = backendMsg || "Account is suspended. Please contact system administrator.";
+        } else if (status === 400) {
+          errMsg = backendMsg || "Invalid login input.";
+        } else {
+          errMsg = backendMsg || "Login failed. Please try again.";
+        }
       } else if (error.request) {
         console.error("No response received");
-        addNotification("Server not responding. Please try again.", "error");
+        errMsg = "Server not responding. Please check your internet connection.";
       } else {
         console.error("Error message:", error.message);
-        addNotification(error.message || "Login failed", "error");
+        errMsg = error.message || "An unexpected error occurred.";
       }
+
+      setAuthError(errMsg);
+      addNotification(errMsg, "error");
     } finally {
       setLoading(false);
     }
@@ -89,6 +107,14 @@ const Login = () => {
         </Link>
         <h2>Welcome back</h2>
         <p className="auth-subtitle">Sign in to manage your city garden.</p>
+
+        {authError && (
+          <div className="auth-error-banner">
+            <FaExclamationCircle />
+            <span>{authError}</span>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} noValidate>
           <div className="form-group">
             <label>Email</label>
@@ -107,13 +133,23 @@ const Login = () => {
           </div>
           <div className="form-group">
             <label>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={handlePasswordChange}
-              placeholder="Enter your password"
-              className={errors.password ? "input-error" : ""}
-            />
+            <div className="password-wrapper">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={handlePasswordChange}
+                placeholder="Enter your password"
+                className={errors.password ? "input-error" : ""}
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
             {errors.password && (
               <span className="error-text">
                 <FaExclamationCircle /> {errors.password}

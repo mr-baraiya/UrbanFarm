@@ -40,6 +40,7 @@ const UserManagement = () => {
     name: '',
     email: '',
     password: '',
+    city: '',
     role: 'user',
     gardeningLevel: 'beginner',
   });
@@ -83,7 +84,7 @@ const UserManagement = () => {
       await api.post('/admin/users', newUser);
       addNotification('User created successfully!', 'success');
       setShowCreateModal(false);
-      setNewUser({ name: '', email: '', password: '', role: 'user', gardeningLevel: 'beginner' });
+      setNewUser({ name: '', email: '', password: '', city: '', role: 'user', gardeningLevel: 'beginner' });
       loadUsers();
     } catch (error) {
       addNotification(error.response?.data?.message || 'Failed to create user', 'error');
@@ -535,6 +536,15 @@ const UserManagement = () => {
                   value={newUser.password}
                   onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
                   placeholder="Minimum 6 characters"
+                />
+              </div>
+              <div className="form-group">
+                <label>City *</label>
+                <input
+                  type="text"
+                  value={newUser.city}
+                  onChange={(e) => setNewUser({ ...newUser, city: e.target.value })}
+                  placeholder="Enter city (e.g. Mumbai)"
                 />
               </div>
               <div className="form-row">

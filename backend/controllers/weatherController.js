@@ -1,13 +1,23 @@
 const { getWeather: fetchWeather, getForecast: fetchForecast } = require('../services/weatherService');
 
+const getValidCity = (req) => {
+  const cityQuery = req.query?.city?.trim();
+  const userCity = req.user?.location?.city?.trim();
+  const invalidCities = ['balcony', 'rooftop', 'indoor', 'backyard', 'windowsill', 'community', ''];
+  
+  let target = cityQuery || userCity;
+  if (!target || invalidCities.includes(target.toLowerCase())) {
+    return 'Mumbai';
+  }
+  return target;
+};
+
 // @desc    Get current weather for a city
 // @route   GET /api/weather
 exports.getWeather = async (req, res, next) => {
   try {
-    const { city } = req.query;
-    const userCity = city || req.user.location?.city || 'London';
-    
-    const weatherData = await fetchWeather(userCity);
+    const city = getValidCity(req);
+    const weatherData = await fetchWeather(city);
     res.status(200).json(weatherData);
   } catch (error) {
     console.error('Weather controller error:', error);
@@ -19,10 +29,8 @@ exports.getWeather = async (req, res, next) => {
 // @route   GET /api/weather/forecast
 exports.getForecast = async (req, res, next) => {
   try {
-    const { city } = req.query;
-    const userCity = city || req.user.location?.city || 'London';
-    
-    const forecastData = await fetchForecast(userCity);
+    const city = getValidCity(req);
+    const forecastData = await fetchForecast(city);
     res.status(200).json(forecastData);
   } catch (error) {
     console.error('Forecast controller error:', error);

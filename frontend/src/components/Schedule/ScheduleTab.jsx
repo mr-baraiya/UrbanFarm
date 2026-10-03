@@ -140,15 +140,24 @@ const ScheduleTab = () => {
 
   const handleComplete = async (id) => {
     try {
-      await completeTask(id);
       const task = tasks.find(t => t._id === id);
+      if (task && task.dueDate) {
+        const now = new Date();
+        const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+        if (new Date(task.dueDate) > todayEnd) {
+          addNotification('Cannot complete future tasks ahead of time', 'warning');
+          return;
+        }
+      }
+      await completeTask(id);
       setTasks(tasks.filter(t => t._id !== id));
       if (task) {
         setCompletedTasks([...completedTasks, { ...task, completed: true }]);
       }
       addNotification('Task completed successfully', 'success');
     } catch (error) {
-      addNotification('Failed to complete task', 'error');
+      const msg = error.response?.data?.message || 'Failed to complete task';
+      addNotification(msg, 'error');
     }
   };
 

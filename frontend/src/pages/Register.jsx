@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { RiArrowLeftLine } from "react-icons/ri";
 import { FaExclamationCircle } from "react-icons/fa";
+import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { register } from "../services/authService";
 import { useNotification } from "../hooks/useNotification";
@@ -13,10 +14,13 @@ const Register = () => {
     name: "",
     email: "",
     password: "",
+    city: "",
     gardeningLevel: "beginner",
   });
   const [errors, setErrors] = useState({});
+  const [authError, setAuthError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const { addNotification } = useNotification();
   const navigate = useNavigate();
@@ -40,6 +44,7 @@ const Register = () => {
     }
 
     setErrors({});
+    setAuthError("");
     setLoading(true);
 
     try {
@@ -49,6 +54,7 @@ const Register = () => {
       navigate("/app");
     } catch (error) {
       console.error("Registration error:", error);
+      let errMsg = "Registration failed. Please try again.";
 
       if (error.response) {
         const status = error.response.status;
@@ -57,37 +63,23 @@ const Register = () => {
         if (status === 400) {
           if (data.message === "Email already registered") {
             setErrors((prev) => ({ ...prev, email: "This email is already registered." }));
-            addNotification(
-              "This email is already registered. Please login or use a different email.",
-              "error",
-            );
-          } else if (data.message.includes("Validation")) {
-            addNotification(data.message, "error");
+            errMsg = "This email is already registered. Please login or use a different email.";
           } else {
-            addNotification(
-              data.message || "Please check your input and try again.",
-              "error",
-            );
+            errMsg = data.message || "Please check your input and try again.";
           }
         } else if (status === 500) {
-          addNotification("Server error. Please try again later.", "error");
+          errMsg = "Server error. Please try again later.";
         } else {
-          addNotification(
-            data.message || "Registration failed. Please try again.",
-            "error",
-          );
+          errMsg = data.message || "Registration failed. Please try again.";
         }
       } else if (error.request) {
-        addNotification(
-          "Cannot reach the server. Please check your connection.",
-          "error",
-        );
+        errMsg = "Cannot reach the server. Please check your connection.";
       } else {
-        addNotification(
-          "An unexpected error occurred. Please try again.",
-          "error",
-        );
+        errMsg = error.message || "An unexpected error occurred. Please try again.";
       }
+
+      setAuthError(errMsg);
+      addNotification(errMsg, "error");
     } finally {
       setLoading(false);
     }
@@ -101,6 +93,14 @@ const Register = () => {
         </Link>
         <h2>Create an account</h2>
         <p className="auth-subtitle">Set up your city garden in a few steps.</p>
+
+        {authError && (
+          <div className="auth-error-banner">
+            <FaExclamationCircle />
+            <span>{authError}</span>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} noValidate>
           <div className="form-group">
             <label>Full Name *</label>
@@ -108,7 +108,7 @@ const Register = () => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              placeholder="John Doe"
+              placeholder="Vishal Sharma"
               className={errors.name ? "input-error" : ""}
             />
             {errors.name && (
@@ -134,15 +134,40 @@ const Register = () => {
             )}
           </div>
           <div className="form-group">
-            <label>Password (min 6 characters) *</label>
+            <label>City *</label>
             <input
-              type="password"
-              name="password"
-              value={formData.password}
+              name="city"
+              value={formData.city}
               onChange={handleChange}
-              placeholder="Choose a password"
-              className={errors.password ? "input-error" : ""}
+              placeholder="e.g., Mumbai, New York"
+              className={errors.city ? "input-error" : ""}
             />
+            {errors.city && (
+              <span className="error-text">
+                <FaExclamationCircle /> {errors.city}
+              </span>
+            )}
+          </div>
+          <div className="form-group">
+            <label>Password (min 6 characters) *</label>
+            <div className="password-wrapper">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Choose a password"
+                className={errors.password ? "input-error" : ""}
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
             {errors.password && (
               <span className="error-text">
                 <FaExclamationCircle /> {errors.password}

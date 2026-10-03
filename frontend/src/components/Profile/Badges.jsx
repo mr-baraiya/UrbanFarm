@@ -10,7 +10,7 @@ import { getBadges } from '../../services/authService';
 import BadgeEmblem from './BadgeEmblem';
 import './Badges.css';
 
-const Badges = ({ badges: propBadges }) => {
+const Badges = ({ badges: propBadges, stats = {} }) => {
   const [badges, setBadges] = useState(propBadges || []);
   const [loading, setLoading] = useState(!propBadges);
 
@@ -33,7 +33,74 @@ const Badges = ({ badges: propBadges }) => {
     }
   };
 
-  // Define all possible badges with bespoke themes and tiers
+  const getBadgeStatus = (badgeId) => {
+    const { 
+      totalPlants = 0, 
+      totalWateringEvents = 0, 
+      totalDiagnoses = 0, 
+      totalCommunityPosts = 0, 
+      totalHarvests = 0, 
+      totalGardens = 0 
+    } = stats;
+
+    const totalPts = (totalPlants * 10) + (totalCommunityPosts * 10) + (totalHarvests * 15);
+
+    switch (badgeId) {
+      case 'first_sprout':
+        return totalPlants >= 1;
+      case 'hydration_master':
+        return totalWateringEvents >= 10;
+      case 'plant_doctor':
+        return totalDiagnoses >= 1;
+      case 'first_harvest':
+        return totalHarvests >= 1;
+      case 'green_thumb':
+        return totalPlants >= 5;
+      case 'community_gardener':
+        return totalCommunityPosts >= 5;
+      case 'gardening_guru':
+        return totalPts >= 100;
+      case 'weather_watcher':
+        return totalGardens >= 1;
+      default:
+        return false;
+    }
+  };
+
+  const getBadgeProgress = (badgeId) => {
+    const { 
+      totalPlants = 0, 
+      totalWateringEvents = 0, 
+      totalDiagnoses = 0, 
+      totalCommunityPosts = 0, 
+      totalHarvests = 0, 
+      totalGardens = 0 
+    } = stats;
+
+    const totalPts = (totalPlants * 10) + (totalCommunityPosts * 10) + (totalHarvests * 15);
+
+    switch (badgeId) {
+      case 'first_sprout':
+        return { current: Math.min(totalPlants, 1), total: 1 };
+      case 'hydration_master':
+        return { current: Math.min(totalWateringEvents, 10), total: 10 };
+      case 'plant_doctor':
+        return { current: Math.min(totalDiagnoses, 1), total: 1 };
+      case 'first_harvest':
+        return { current: Math.min(totalHarvests, 1), total: 1 };
+      case 'green_thumb':
+        return { current: Math.min(totalPlants, 5), total: 5 };
+      case 'community_gardener':
+        return { current: Math.min(totalCommunityPosts, 5), total: 5 };
+      case 'gardening_guru':
+        return { current: Math.min(totalPts, 100), total: 100 };
+      case 'weather_watcher':
+        return { current: Math.min(totalGardens, 1), total: 1 };
+      default:
+        return null;
+    }
+  };
+
   const allBadges = [
     {
       id: 'first_sprout',
@@ -49,7 +116,7 @@ const Badges = ({ badges: propBadges }) => {
       themeColor: '#0284c7',
       name: 'Hydration Master',
       description: 'Completed 10 regular watering sessions to keep plants thriving.',
-      requirement: 'Complete 10 watering sessions (0/10)',
+      requirement: `Complete 10 watering sessions (${Math.min(stats.totalWateringEvents || 0, 10)}/10)`,
     },
     {
       id: 'plant_doctor',
@@ -73,7 +140,7 @@ const Badges = ({ badges: propBadges }) => {
       themeColor: '#059669',
       name: 'Green Thumb',
       description: 'Cultivated 5 or more active healthy urban plants simultaneously.',
-      requirement: 'Grow 5+ plants (0/5)',
+      requirement: `Grow 5+ plants (${Math.min(stats.totalPlants || 0, 5)}/5)`,
     },
     {
       id: 'community_gardener',
@@ -81,7 +148,7 @@ const Badges = ({ badges: propBadges }) => {
       themeColor: '#4f46e5',
       name: 'Community Gardener',
       description: 'Shared knowledge, tips, and achievements with other city growers.',
-      requirement: 'Share 5 community posts (0/5)',
+      requirement: `Share 5 community posts (${Math.min(stats.totalCommunityPosts || 0, 5)}/5)`,
     },
     {
       id: 'gardening_guru',
@@ -89,7 +156,7 @@ const Badges = ({ badges: propBadges }) => {
       themeColor: '#d97706',
       name: 'Gardening Guru',
       description: 'Attained supreme gardening knowledge and master experience.',
-      requirement: 'Earn 100+ gardening points',
+      requirement: `Earn 100+ gardening points (${Math.min((stats.totalPlants || 0) * 10 + (stats.totalCommunityPosts || 0) * 10 + (stats.totalHarvests || 0) * 15, 100)}/100)`,
     },
     {
       id: 'weather_watcher',
@@ -97,25 +164,9 @@ const Badges = ({ badges: propBadges }) => {
       themeColor: '#0891b2',
       name: 'Weather Watcher',
       description: 'Utilised hyper-local weather alerts and irrigation intelligence.',
-      requirement: 'Check weather 10 times (0/10)',
+      requirement: `Register garden and check weather (${Math.min(stats.totalGardens || 0, 1)}/1)`,
     },
   ];
-
-  // Check which badges are unlocked
-  const getBadgeStatus = (badgeId) => {
-    return badges.some(b => b.id === badgeId || b === badgeId);
-  };
-
-  // Get progress for a badge (mock data)
-  const getBadgeProgress = (badgeId) => {
-    const progress = {
-      'hydration_master': { current: 3, total: 10 },
-      'green_thumb': { current: 2, total: 5 },
-      'community_gardener': { current: 1, total: 5 },
-      'weather_watcher': { current: 4, total: 10 },
-    };
-    return progress[badgeId] || null;
-  };
 
   if (loading) {
     return <div className="badges-loading">Loading badges...</div>;
@@ -197,7 +248,7 @@ const Badges = ({ badges: propBadges }) => {
         })}
       </div>
 
-      {badges.length === 0 && (
+      {allBadges.length === 0 && (
         <div className="badges-empty">
           <div className="badges-empty-icon">
             <RiTrophyLine />

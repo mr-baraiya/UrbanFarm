@@ -46,3 +46,14 @@ export const getBadges = async () => {
   const response = await api.get('/users/badges');
   return response.data.badges;
 };
+
+export const uploadImage = async (file) => {
+  const formData = new FormData();
+  formData.append('image', file);
+  const response = await api.post('/upload/image', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data.imageUrl;
+};

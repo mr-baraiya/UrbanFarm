@@ -567,9 +567,12 @@ const GardenManagement = () => {
                   <label>Water Frequency (Days)</label>
                   <input
                     type="number"
-                    min="1"
+                    min="0"
                     value={newPlant.waterFrequency}
-                    onChange={(e) => setNewPlant({ ...newPlant, waterFrequency: parseInt(e.target.value) || 1 })}
+                    onChange={(e) => {
+                      const val = e.target.value === '' ? '' : parseInt(e.target.value);
+                      setNewPlant({ ...newPlant, waterFrequency: val });
+                    }}
                   />
                   {plantErrors.waterFrequency && <span className="error-text"><FaExclamationCircle /> {plantErrors.waterFrequency}</span>}
                 </div>
@@ -658,7 +661,7 @@ const GardenManagement = () => {
                 <div><label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block' }}>HEALTH STATUS</label><span className={`health-badge ${viewingPlant.health}`}>{viewingPlant.health}</span></div>
                 <div><label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block' }}>GROWTH STAGE</label><span className="badge badge-secondary">{viewingPlant.status}</span></div>
                 <div><label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block' }}>GARDEN</label><span>{viewingPlant.gardenId?.name || 'N/A'}</span></div>
-                <div><label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block' }}>WATER FREQUENCY</label><span>Every {viewingPlant.waterFrequency || 3} days</span></div>
+                <div><label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block' }}>WATER FREQUENCY</label><span>Every {viewingPlant.waterFrequency !== undefined && viewingPlant.waterFrequency !== null ? viewingPlant.waterFrequency : 3} days</span></div>
               </div>
               <div className="admin-modal-footer">
                 <button type="button" className="admin-btn admin-btn-outline" onClick={() => { setEditingPlant({ ...viewingPlant }); setViewingPlant(null); }}><FaEdit /> Edit Plant</button>

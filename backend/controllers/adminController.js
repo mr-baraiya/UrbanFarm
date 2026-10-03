@@ -437,6 +437,11 @@ exports.createPlant = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Selected garden space not found' });
     }
 
+    const parsedFreq = parseInt(waterFrequency);
+    if (!isNaN(parsedFreq) && parsedFreq < 0) {
+      return res.status(400).json({ success: false, message: 'Water frequency cannot be negative' });
+    }
+
     const plant = await Plant.create({
       name,
       scientificName: scientificName || '',
@@ -446,7 +451,7 @@ exports.createPlant = async (req, res, next) => {
       health: health || 'healthy',
       status: status || 'seedling',
       sunlight: sunlight || 'full',
-      waterFrequency: parseInt(waterFrequency) || 3,
+      waterFrequency: !isNaN(parsedFreq) ? parsedFreq : 3,
       notes: notes || '',
     });
 

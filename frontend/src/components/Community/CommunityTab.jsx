@@ -15,9 +15,9 @@ import { useAuth } from '../../hooks/useAuth';
 import { useNotification } from '../../hooks/useNotification';
 import ConfirmModal from '../Common/ConfirmModal';
 import PostCard from './PostCard';
-import PostForm from './PostForm';
+import PostForm, { PostComposer } from './PostForm';
 import CommunityFilters from './CommunityFilters';
-import Leaderboard from './Leaderboard';
+import Leaderboard, { LeaderboardRightRail } from './Leaderboard';
 import './CommunityTab.css';
 
 const CommunityTab = () => {
@@ -26,6 +26,7 @@ const CommunityTab = () => {
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
+  const [composerFocus, setComposerFocus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState('all');
   const [filterRegion, setFilterRegion] = useState('all');
@@ -74,7 +75,13 @@ const CommunityTab = () => {
     let filtered = [...posts];
     
     // Type filter
-    if (filterType !== 'all') {
+    if (filterType === 'my_posts') {
+      const currentUserId = (user?._id || user?.id)?.toString();
+      filtered = filtered.filter(p => {
+        const pUserId = (p.userId?._id || p.userId)?.toString();
+        return pUserId === currentUserId;
+      });
+    } else if (filterType !== 'all') {
       filtered = filtered.filter(p => p.category === filterType);
     }
     
@@ -171,24 +178,48 @@ const CommunityTab = () => {
   const getUserLevel = (userData) => {
     if (!userData) return { level: 'Seedling', icon: <RiSeedlingLine style={{ color: '#65a30d' }} />, points: 0 };
     
-    const postCount = posts.filter(p => p.userId?._id === userData._id).length;
+    const currentUserId = (userData._id || userData.id)?.toString();
+    if (!currentUserId) return { level: 'Seedling', icon: <RiSeedlingLine style={{ color: '#65a30d' }} />, points: 0 };
+
+    const postCount = posts.filter(p => {
+      const pUserId = (p.userId?._id || p.userId)?.toString();
+      return pUserId === currentUserId;
+    }).length;
+
     const likeCount = posts.reduce((acc, p) => {
-      if (p.userId?._id === userData._id) {
+      const pUserId = (p.userId?._id || p.userId)?.toString();
+      if (pUserId === currentUserId) {
         const likes = Array.isArray(p.likes) ? p.likes : [];
         return acc + likes.length;
       }
       return acc;
     }, 0);
+
+    const commentCount = posts.reduce((acc, p) => {
+      const comments = Array.isArray(p.comments) ? p.comments : [];
+      const userComments = comments.filter(c => {
+        const cUserId = (c.userId?._id || c.userId)?.toString();
+        return cUserId === currentUserId;
+      });
+      return acc + userComments.length;
+    }, 0);
     
-    const totalPoints = postCount * 10 + likeCount * 2;
+    // Points rule: 10 pts per post, 2 pts per like received, 5 pts per comment made
+    const totalPoints = (postCount * 10) + (likeCount * 2) + (commentCount * 5);
     
-    if (totalPoints > 100) return { level: 'Master Gardener', icon: <RiMedalLine style={{ color: '#eab308' }} />, points: totalPoints };
-    if (totalPoints > 50) return { level: 'Green Thumb', icon: <RiLeafLine style={{ color: '#16a34a' }} />, points: totalPoints };
-    if (totalPoints > 20) return { level: 'Urban Farmer', icon: <TbPlant2 style={{ color: '#2c5e3b' }} />, points: totalPoints };
+    if (totalPoints >= 100) return { level: 'Master Gardener', icon: <RiMedalLine style={{ color: '#eab308' }} />, points: totalPoints };
+    if (totalPoints >= 50) return { level: 'Green Thumb', icon: <RiLeafLine style={{ color: '#16a34a' }} />, points: totalPoints };
+    if (totalPoints >= 20) return { level: 'Urban Farmer', icon: <TbPlant2 style={{ color: '#2c5e3b' }} />, points: totalPoints };
     return { level: 'Seedling', icon: <RiSeedlingLine style={{ color: '#65a30d' }} />, points: totalPoints };
   };
 
   const userLevel = user ? getUserLevel(user) : null;
+
+  const handleOpenComposer = (focusField = null) => {
+    setEditingPost(null);
+    setComposerFocus(focusField);
+    setShowForm(true);
+  };
 
   // Pagination calculation
   const indexOfLastPost = currentPage * postsPerPage;
@@ -197,7 +228,12 @@ const CommunityTab = () => {
   const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
 
   if (loading) {
-    return <div className="community-loading">Loading community posts...</div>;
+    return (
+      <div className="community-loading">
+        <div className="loading-spinner"></div>
+        <p>Loading community posts & leaderboard...</p>
+      </div>
+    );
   }
 
   return (
@@ -214,10 +250,10 @@ const CommunityTab = () => {
       <div className="community-header">
         <div className="header-left">
           <h2>
-            <RiTeamLine className="header-icon" /> Community
+            <RiTeamLine className="header-icon" /> UrbanFarm Social
           </h2>
           {userLevel && (
-            <span className="user-level" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+            <span className="user-level">
               {userLevel.icon} {userLevel.level} • {userLevel.points} pts
             </span>
           )}
@@ -226,21 +262,105 @@ const CommunityTab = () => {
           <button 
             className="btn-secondary leaderboard-btn"
             onClick={() => setShowLeaderboard(!showLeaderboard)}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
           >
             <RiTrophyLine style={{ color: '#d97706' }} /> Leaderboard
           </button>
           <button 
-            className="btn-primary" 
-            onClick={() => { setEditingPost(null); setShowForm(true); }}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+            className="btn-primary create-post-btn" 
+            onClick={() => handleOpenComposer()}
           >
-            <RiAddLine /> Share
+            <RiAddLine /> Share Post
           </button>
         </div>
       </div>
 
-      {/* Leaderboard */}
+      {/* Main Community Feed Container */}
+      <div className="community-feed-container">
+        {/* Side-by-Side Top Urban Farmers & Community Activity Row */}
+        <LeaderboardRightRail 
+          leaderboard={leaderboard} 
+          posts={posts}
+          onOpenLeaderboard={() => setShowLeaderboard(true)}
+        />
+
+        {/* Post Composer Banner */}
+        <PostComposer 
+          user={user} 
+          onOpenComposer={handleOpenComposer} 
+        />
+
+        {/* Filters */}
+        <CommunityFilters
+          filterType={filterType}
+          onFilterTypeChange={setFilterType}
+          filterRegion={filterRegion}
+          onFilterRegionChange={setFilterRegion}
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          posts={posts}
+          user={user}
+        />
+
+        {/* Posts Feed */}
+        <div className="posts-feed">
+          {filteredPosts.length === 0 ? (
+            <div className="empty-feed">
+              <span className="empty-icon">
+                <TbPlant2 style={{ color: 'var(--primary, #6b9080)' }} />
+              </span>
+              <h3>No posts yet</h3>
+              <p>Be the first to share your urban farming journey!</p>
+              <button 
+                className="btn-primary" 
+                onClick={() => handleOpenComposer()}
+              >
+                <RiAddLine /> Share Your First Post
+              </button>
+            </div>
+          ) : (
+            <>
+              {currentPosts.map((post) => (
+                <PostCard
+                  key={post._id}
+                  post={post}
+                  user={user}
+                  onLike={handleLike}
+                  onAddComment={handleAddComment}
+                  onEditPost={(p) => setEditingPost(p)}
+                  onDeletePost={promptDeletePost}
+                  onDeleteComment={handleDeleteComment}
+                  userLevel={userLevel}
+                />
+              ))}
+
+              {/* Restyled Pagination Bar */}
+              {totalPages > 1 && (
+                <div className="pagination-bar">
+                  <button 
+                    className="pagination-btn" 
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  >
+                    <RiArrowLeftSLine /> Prev
+                  </button>
+                  <span className="pagination-indicator">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <button 
+                    className="pagination-btn" 
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  >
+                    Next <RiArrowRightSLine />
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Leaderboard Modal */}
       {showLeaderboard && (
         <Leaderboard 
           leaderboard={leaderboard}
@@ -248,85 +368,15 @@ const CommunityTab = () => {
         />
       )}
 
-      {/* Filters */}
-      <CommunityFilters
-        filterType={filterType}
-        onFilterTypeChange={setFilterType}
-        filterRegion={filterRegion}
-        onFilterRegionChange={setFilterRegion}
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        posts={posts}
-      />
-
-      {/* Posts Feed */}
-      <div className="posts-feed">
-        {filteredPosts.length === 0 ? (
-          <div className="empty-feed">
-            <span className="empty-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-              <TbPlant2 />
-            </span>
-            <h3>No posts yet</h3>
-            <p>Be the first to share your urban farming journey!</p>
-            <button 
-              className="btn-primary" 
-              onClick={() => { setEditingPost(null); setShowForm(true); }}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
-            >
-              <RiAddLine /> Share Your First Post
-            </button>
-          </div>
-        ) : (
-          <>
-            {currentPosts.map((post) => (
-              <PostCard
-                key={post._id}
-                post={post}
-                user={user}
-                onLike={handleLike}
-                onAddComment={handleAddComment}
-                onEditPost={(p) => setEditingPost(p)}
-                onDeletePost={promptDeletePost}
-                onDeleteComment={handleDeleteComment}
-                userLevel={userLevel}
-              />
-            ))}
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="pagination-bar" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', marginTop: '1.5rem' }}>
-                <button 
-                  className="btn-secondary" 
-                  disabled={currentPage === 1}
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
-                >
-                  <RiArrowLeftSLine /> Prev
-                </button>
-                <span style={{ display: 'flex', alignItems: 'center', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                  Page {currentPage} of {totalPages}
-                </span>
-                <button 
-                  className="btn-secondary" 
-                  disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
-                >
-                  Next <RiArrowRightSLine />
-                </button>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-
       {/* Post Form Modal (Create or Edit) */}
       {(showForm || editingPost) && (
         <PostForm 
           post={editingPost}
+          initialFocus={composerFocus}
           onClose={() => {
             setShowForm(false);
             setEditingPost(null);
+            setComposerFocus(null);
             loadData();
           }} 
           onPostSaved={() => {
