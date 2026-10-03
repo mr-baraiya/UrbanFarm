@@ -14,7 +14,8 @@ import { TbPlant2 } from 'react-icons/tb';
 import './WateringHistory.css';
 
 const WateringHistory = ({ 
-  history, 
+  history,
+  allHistory = [],
   onItemClick, 
   selectedId, 
   filterStatus, 
@@ -24,6 +25,7 @@ const WateringHistory = ({
 }) => {
   const filterOptions = [
     { value: 'all', label: 'All' },
+    { value: 'pending', label: 'Pending', icon: <RiTimeLine /> },
     { value: 'completed', label: 'Completed', icon: <RiCheckLine /> },
     { value: 'missed', label: 'Missed', icon: <RiCloseLine /> },
     { value: 'skipped', label: 'Skipped', icon: <RiSkipForwardLine /> },
@@ -50,10 +52,16 @@ const WateringHistory = ({
     );
   }
 
-  // Calculate stats
-  const totalEvents = history.reduce((acc, h) => acc + (h.schedule?.length || 0), 0);
-  const completedEvents = history.reduce((acc, h) => acc + (h.schedule?.filter(e => e.completed)?.length || 0), 0);
-  const completionRate = totalEvents > 0 ? Math.round((completedEvents / totalEvents) * 100) : 0;
+  // Calculate top KPI summary stats using full history (allHistory) so completion rate never fluctuates when filtering
+  const statsSource = (allHistory && allHistory.length > 0) ? allHistory : history;
+  const activeSchedules = statsSource.filter(h => h.isActive !== false);
+  const targetSchedules = activeSchedules.length > 0 ? activeSchedules : statsSource;
+
+  const totalEvents = targetSchedules.reduce((acc, h) => acc + (h.schedule?.length || 0), 0);
+  const completedEvents = targetSchedules.reduce((acc, h) => acc + (h.schedule?.filter(e => e.completed)?.length || 0), 0);
+  const skippedEvents = targetSchedules.reduce((acc, h) => acc + (h.schedule?.filter(e => e.skipped)?.length || 0), 0);
+  const handledEvents = completedEvents + skippedEvents;
+  const completionRate = totalEvents > 0 ? Math.round((handledEvents / totalEvents) * 100) : 0;
 
   return (
     <div className="watering-history">
@@ -75,8 +83,8 @@ const WateringHistory = ({
           <span className="stat-label">Total Events</span>
         </div>
         <div className="stat-item">
-          <span className="stat-value">{completedEvents}</span>
-          <span className="stat-label">Completed</span>
+          <span className="stat-value">{handledEvents}</span>
+          <span className="stat-label">Handled</span>
         </div>
       </div>
 
@@ -111,27 +119,43 @@ const WateringHistory = ({
           {history.map((item) => {
             const isSelected = selectedId === item._id;
             const events = item.schedule || [];
-            const completed = events.filter(e => e.completed).length;
+            const handledCount = events.filter(e => e.completed || e.skipped).length;
+            const completed = events.filter(e => e.completed && !e.skipped).length;
+            const skipped = events.filter(e => e.skipped && !e.completed).length;
             const missed = events.filter(e => {
               const eventDate = new Date(e.date);
-              return eventDate < new Date() && !e.completed;
+              return eventDate < new Date() && !e.completed && !e.skipped;
             }).length;
-            const skipped = events.filter(e => e.skipped).length;
             
-            let statusIcon = <RiCheckLine style={{ color: '#10b981' }} />;
-            let statusLabel = 'Completed';
-            if (missed > 0) {
-              statusIcon = <RiAlertLine style={{ color: '#ef4444' }} />;
-              statusLabel = 'Missed';
-            } else if (skipped > 0) {
-              statusIcon = <RiSkipForwardLine style={{ color: '#64748b' }} />;
-              statusLabel = 'Skipped';
-            } else if (completed === events.length && events.length > 0) {
+            let statusIcon = <RiTimeLine style={{ color: '#0ea5e9' }} />;
+            let statusLabel = 'Pending';
+            if ((completed === events.length || handledCount === events.length) && events.length > 0) {
               statusIcon = <RiCheckLine style={{ color: '#10b981' }} />;
-              statusLabel = 'All Done';
-            } else if (completed > 0) {
+              statusLabel = 'Completed';
+            } else if (handledCount > 0) {
               statusIcon = <RiTimeLine style={{ color: '#f59e0b' }} />;
               statusLabel = 'In Progress';
+            } else if (skipped > 0 && missed === 0) {
+              statusIcon = <RiSkipForwardLine style={{ color: '#64748b' }} />;
+              statusLabel = 'Skipped';
+            } else if (missed > 0) {
+              statusIcon = <RiAlertLine style={{ color: '#ef4444' }} />;
+              statusLabel = 'Missed';
+            }
+
+            // Determine display date: prefer latest completedAt timestamp or updatedAt date
+            const completedWithTimestamp = events.filter(e => (e.completed || e.skipped) && e.completedAt);
+            let displayDate = item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '';
+            if (completedWithTimestamp.length > 0) {
+              const latestTime = completedWithTimestamp.reduce((max, e) => {
+                const t = new Date(e.completedAt).getTime();
+                return t > max ? t : max;
+              }, 0);
+              if (latestTime > 0) {
+                displayDate = new Date(latestTime).toLocaleDateString();
+              }
+            } else if (item.updatedAt) {
+              displayDate = new Date(item.updatedAt).toLocaleDateString();
             }
 
             return (
@@ -145,7 +169,7 @@ const WateringHistory = ({
                     <TbPlant2 className="plant-icon" /> {getPlantName(item.plantId)}
                   </span>
                   <span className="history-date">
-                    {new Date(item.createdAt).toLocaleDateString()}
+                    {displayDate}
                   </span>
                 </div>
                 
@@ -154,7 +178,7 @@ const WateringHistory = ({
                     {statusIcon} {statusLabel}
                   </span>
                   <span className="history-adj-badge">
-                    {completed}/{events.length} events
+                    {handledCount}/{events.length} events
                   </span>
                   {item.weatherAdjusted && (
                     <span className="history-adj-badge">

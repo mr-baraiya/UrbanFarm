@@ -61,15 +61,16 @@ const getMockForecast = (city) => {
  * Fetch current weather and forecast for a given city/coordinates
  */
 exports.getWeather = async (city, units = 'metric') => {
+  const targetCity = (city && city.trim()) ? city.trim() : 'Mumbai';
   try {
     if (!aiConfig.openweather.apiKey || aiConfig.openweather.apiKey === 'your_openweather_api_key') {
-      return getMockWeather(city);
+      return getMockWeather(targetCity);
     }
     const response = await axios.get(
       `${aiConfig.openweather.baseUrl}/weather`,
       {
         params: {
-          q: city,
+          q: targetCity,
           appid: aiConfig.openweather.apiKey,
           units,
         },
@@ -77,21 +78,21 @@ exports.getWeather = async (city, units = 'metric') => {
     );
     return response.data;
   } catch (error) {
-    console.warn('Weather API failed, using fallback mock weather:', error.message);
-    return getMockWeather(city);
+    return getMockWeather(targetCity);
   }
 };
 
 exports.getForecast = async (city, units = 'metric') => {
+  const targetCity = (city && city.trim()) ? city.trim() : 'Mumbai';
   try {
     if (!aiConfig.openweather.apiKey || aiConfig.openweather.apiKey === 'your_openweather_api_key') {
-      return getMockForecast(city);
+      return getMockForecast(targetCity);
     }
     const response = await axios.get(
       `${aiConfig.openweather.baseUrl}/forecast`,
       {
         params: {
-          q: city,
+          q: targetCity,
           appid: aiConfig.openweather.apiKey,
           units,
           cnt: 7, // 7 days
@@ -100,7 +101,6 @@ exports.getForecast = async (city, units = 'metric') => {
     );
     return response.data;
   } catch (error) {
-    console.warn('Forecast API failed, using fallback mock forecast:', error.message);
-    return getMockForecast(city);
+    return getMockForecast(targetCity);
   }
 };

@@ -38,7 +38,7 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onS
         gardenId: plant.gardenId?._id || plant.gardenId || '',
         plantingDate: plant.plantingDate?.slice(0, 10) || new Date().toISOString().split('T')[0],
         status: plant.status || 'seedling',
-        waterFrequency: plant.waterFrequency || 3,
+        waterFrequency: plant.waterFrequency !== undefined && plant.waterFrequency !== null ? plant.waterFrequency : 3,
         sunlight: plant.sunlight || 'full',
         notes: plant.notes || '',
         imageUrl: plant.imageUrl || '',
@@ -232,7 +232,7 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onS
                 onChange={handleChange}
                 className={errors.gardenId ? 'input-error' : ''}
               >
-                <option value="">Select a garden</option>
+                <option value="" disabled hidden>Select a garden</option>
                 {gardens.map((g) => (
                   <option key={g._id} value={g._id}>
                     {g.name}
@@ -283,9 +283,10 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onS
                 name="waterFrequency"
                 value={formData.waterFrequency}
                 onChange={handleChange}
-                min="1"
-                max="10"
+                min="0"
+                className={errors.waterFrequency ? 'input-error' : ''}
               />
+              {errors.waterFrequency && <span className="error-text">{errors.waterFrequency}</span>}
             </div>
           </div>
 

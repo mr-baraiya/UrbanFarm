@@ -97,7 +97,7 @@ const Gardens = () => {
 
     // Filter by type
     if (filterType !== 'all') {
-      result = result.filter(g => g.type === filterType);
+      result = result.filter(g => (g.type || 'balcony').toLowerCase() === filterType.toLowerCase());
     }
 
     // Filter by search term (name or location)

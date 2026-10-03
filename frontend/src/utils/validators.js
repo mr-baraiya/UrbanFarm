@@ -1,3 +1,4 @@
+
 /**
  * Centralized Validation Rules & Helpers for UrbanFarm
  * Provides consistent validation across all frontend forms and user inputs.
@@ -59,8 +60,34 @@ export const validateNonNegativeNumber = (value) => {
 };
 
 export const validatePhone = (phone) => {
-  if (!phone) return true; // Optional phone
-  return PHONE_REGEX.test(phone.trim());
+  if (!phone || typeof phone !== 'string' || !phone.trim()) return true; // Optional phone
+  const trimmed = phone.trim();
+  const digitsOnly = trimmed.replace(/\D/g, '');
+
+  // Must contain only digits, spaces, dashes, plus sign, parentheses
+  if (!/^\+?[0-9\s\-()]+$/.test(trimmed)) return false;
+
+  // Reject all repeating digits like 0000000000 or 1111111111
+  if (/^(\d)\1+$/.test(digitsOnly)) return false;
+
+  // 10 digits without country code (e.g. 9876543210)
+  if (digitsOnly.length === 10) {
+    return /^[2-9]\d{9}$/.test(digitsOnly);
+  }
+  // 11 digits starting with 0 (e.g. 09876543210)
+  if (digitsOnly.length === 11 && digitsOnly.startsWith('0')) {
+    return /^0[2-9]\d{9}$/.test(digitsOnly);
+  }
+  // 12 digits starting with country code 91 (e.g. 919876543210)
+  if (digitsOnly.length === 12 && digitsOnly.startsWith('91')) {
+    return /^91[6-9]\d{9}$/.test(digitsOnly);
+  }
+  // International format starting with + (10 to 13 digits)
+  if (trimmed.startsWith('+')) {
+    return digitsOnly.length >= 10 && digitsOnly.length <= 13;
+  }
+
+  return false;
 };
 
 // ==========================================
@@ -84,6 +111,12 @@ export const VALIDATION_RULES = {
     required: true,
     minLength: 6,
     label: 'Password',
+  },
+  city: {
+    required: true,
+    minLength: 2,
+    maxLength: 60,
+    label: 'City',
   },
   role: {
     required: true,
@@ -119,7 +152,7 @@ export const VALIDATION_RULES = {
   },
   waterFrequency: {
     required: true,
-    min: 1,
+    min: 0,
     label: 'Watering frequency',
   },
 
@@ -177,6 +210,7 @@ export const VALIDATION_RULES = {
   contactPhone: {
     isPhone: true,
     label: 'Phone number',
+    phoneMessage: 'Please enter a valid 10-digit phone number (e.g. 9876543210 or +91 9876543210)',
   },
   contactSubject: {
     required: true,
@@ -320,6 +354,7 @@ export const validateRegisterForm = (data) => {
     name: VALIDATION_RULES.name,
     email: VALIDATION_RULES.email,
     password: VALIDATION_RULES.password,
+    city: VALIDATION_RULES.city,
   });
 };
 

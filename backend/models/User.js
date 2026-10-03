@@ -32,7 +32,11 @@ const UserSchema = new mongoose.Schema(
       default: 'user',
     },
     location: {
-      city: String,
+      city: {
+        type: String,
+        required: [true, 'Please add a city'],
+        trim: true,
+      },
       country: String,
     },
     gardeningLevel: {

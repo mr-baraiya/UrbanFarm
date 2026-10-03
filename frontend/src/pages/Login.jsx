@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { RiArrowLeftLine } from "react-icons/ri";
 import { FaExclamationCircle } from "react-icons/fa";
+import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { login } from "../services/authService";
 import { useNotification } from "../hooks/useNotification";
@@ -14,7 +15,9 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
+  const [authError, setAuthError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login: authLogin } = useAuth();
   const { addNotification } = useNotification();
   const navigate = useNavigate();
@@ -43,6 +46,7 @@ const Login = () => {
     }
 
     setErrors({});
+    setAuthError("");
     setLoading(true);
     try {
       const data = await login({ email, password });
@@ -57,12 +61,32 @@ const Login = () => {
       }
     } catch (error) {
       console.error("❌ Login error:", error);
+      let errMsg = t("auth.invalidCredentials");
+
       if (error.response) {
-        const errorMessage = error.response.data?.message || t("auth.invalidCredentials");
-        addNotification(errorMessage, "error");
+        console.error("Response data:", error.response.data);
+        const status = error.response.status;
+        const backendMsg = error.response.data?.message;
+
+        if (status === 401 || status === 404) {
+          errMsg = backendMsg || t("auth.invalidCredentials");
+        } else if (status === 403) {
+          errMsg = backendMsg || "Account is suspended. Please contact system administrator.";
+        } else if (status === 400) {
+          errMsg = backendMsg || "Invalid login input.";
+        } else {
+          errMsg = backendMsg || t("auth.invalidCredentials");
+        }
+      } else if (error.request) {
+        console.error("No response received");
+        errMsg = t("messages.networkError");
       } else {
-        addNotification(t("messages.networkError"), "error");
+        console.error("Error message:", error.message);
+        errMsg = error.message || "An unexpected error occurred.";
       }
+
+      setAuthError(errMsg);
+      addNotification(errMsg, "error");
     } finally {
       setLoading(false);
     }
@@ -76,6 +100,14 @@ const Login = () => {
         </Link>
         <h2>{t("auth.loginTitle")}</h2>
         <p className="auth-subtitle">{t("auth.loginSubtitle")}</p>
+
+        {authError && (
+          <div className="auth-error-banner">
+            <FaExclamationCircle />
+            <span>{authError}</span>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} noValidate>
           <div className="form-group">
             <label>{t("auth.email")}</label>
@@ -99,13 +131,23 @@ const Login = () => {
                 {t("auth.forgotPassword")}
               </Link>
             </div>
-            <input
-              type="password"
-              value={password}
-              onChange={handlePasswordChange}
-              placeholder={t("auth.passwordPlaceholder")}
-              className={errors.password ? "input-error" : ""}
-            />
+            <div className="password-wrapper">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={handlePasswordChange}
+                placeholder={t("auth.passwordPlaceholder")}
+                className={errors.password ? "input-error" : ""}
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
             {errors.password && (
               <span className="error-text">
                 <FaExclamationCircle /> {errors.password}

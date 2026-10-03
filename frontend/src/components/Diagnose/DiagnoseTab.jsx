@@ -82,6 +82,10 @@ const DiagnoseTab = () => {
     }
   };
 
+  useEffect(() => {
+    applyFilters();
+  }, [history, searchTerm, filterStatus]);
+
   const applyFilters = () => {
     let filtered = [...history];
     
@@ -99,9 +103,9 @@ const DiagnoseTab = () => {
       filtered = filtered.filter(h => {
         const isHealthy = h.isHealthy || h.diseaseName?.toLowerCase().includes('healthy');
         if (filterStatus === 'healthy') return isHealthy;
-        if (filterStatus === 'resolved') return h.isResolved;
+        if (filterStatus === 'resolved') return h.isResolved && !isHealthy;
         if (filterStatus === 'critical') return !isHealthy && !h.isResolved && h.confidence > 0.7;
-        if (filterStatus === 'monitoring') return !isHealthy && !h.isResolved && h.confidence <= 0.7;
+        if (filterStatus === 'monitoring') return !isHealthy && !h.isResolved && h.confidence > 0.4 && h.confidence <= 0.7;
         return true;
       });
     }

@@ -41,6 +41,14 @@ const CalendarView = ({ tasks, onComplete, onSnooze, onEdit, onDelete }) => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [calendarScale, setCalendarScale] = useState('month'); // 'month', 'week', 'day'
 
+  const isFutureTask = (dueDate) => {
+    if (!dueDate) return false;
+    const taskDate = new Date(dueDate);
+    const now = new Date();
+    const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+    return taskDate > todayEnd;
+  };
+
   const getDaysInMonth = (date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -202,9 +210,10 @@ const CalendarView = ({ tasks, onComplete, onSnooze, onEdit, onDelete }) => {
                             className="chip-quick-check" 
                             onClick={(e) => {
                               e.stopPropagation();
-                              onComplete(task._id);
+                              if (!isFutureTask(task.dueDate)) onComplete(task._id);
                             }}
-                            title="Complete task"
+                            disabled={isFutureTask(task.dueDate)}
+                            title={isFutureTask(task.dueDate) ? 'Future task (cannot complete ahead of time)' : 'Complete task'}
                           >
                             <RiCheckLine />
                           </button>
@@ -244,7 +253,12 @@ const CalendarView = ({ tasks, onComplete, onSnooze, onEdit, onDelete }) => {
                           </div>
                           <div className="popup-task-actions">
                             {onComplete && !task.completed && (
-                              <button className="btn-done-mini" onClick={() => onComplete(task._id)} title="Complete">
+                              <button 
+                                className="btn-done-mini" 
+                                onClick={() => !isFutureTask(task.dueDate) && onComplete(task._id)} 
+                                disabled={isFutureTask(task.dueDate)}
+                                title={isFutureTask(task.dueDate) ? 'Future task (cannot complete ahead of time)' : 'Complete'}
+                              >
                                 <RiCheckLine />
                               </button>
                             )}
@@ -298,9 +312,10 @@ const CalendarView = ({ tasks, onComplete, onSnooze, onEdit, onDelete }) => {
                           className="btn-check-task" 
                           onClick={(e) => {
                             e.stopPropagation();
-                            onComplete(task._id);
+                            if (!isFutureTask(task.dueDate)) onComplete(task._id);
                           }} 
-                          title="Complete task"
+                          disabled={isFutureTask(task.dueDate)}
+                          title={isFutureTask(task.dueDate) ? 'Future task (cannot complete ahead of time)' : 'Complete task'}
                         >
                           <RiCheckLine />
                         </button>
@@ -340,7 +355,14 @@ const CalendarView = ({ tasks, onComplete, onSnooze, onEdit, onDelete }) => {
                 </div>
                 <div className="day-task-actions">
                   {onComplete && !task.completed && (
-                    <button className="btn-primary" onClick={() => onComplete(task._id)}>Mark Completed</button>
+                    <button 
+                      className="btn-primary" 
+                      onClick={() => !isFutureTask(task.dueDate) && onComplete(task._id)}
+                      disabled={isFutureTask(task.dueDate)}
+                      title={isFutureTask(task.dueDate) ? 'Future task (cannot complete ahead of time)' : 'Complete'}
+                    >
+                      Mark Completed
+                    </button>
                   )}
                   {onSnooze && !task.completed && (
                     <button className="btn-secondary" onClick={() => onSnooze(task._id)}>Snooze +1d</button>

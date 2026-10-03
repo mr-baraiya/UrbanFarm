@@ -253,7 +253,7 @@ const PlantDetail = () => {
                 </div>
                 <div className="detail-item">
                   <span className="label">Water Frequency</span>
-                  <span className="value">Every {plant.waterFrequency || 3} days</span>
+                  <span className="value">Every {plant.waterFrequency !== undefined && plant.waterFrequency !== null ? plant.waterFrequency : 3} days</span>
                 </div>
                 <div className="detail-item">
                   <span className="label">Sunlight</span>

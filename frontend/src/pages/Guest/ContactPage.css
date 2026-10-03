@@ -241,3 +241,50 @@
   }
 }
 
+/* Custom Toastify Notification Styling matching UrbanFarm theme */
+.Toastify__toast-container--bottom-right {
+  bottom: 1.5rem !important;
+  right: 1.5rem !important;
+  font-family: "DM Sans", sans-serif !important;
+}
+
+.urban-toast-success {
+  background: #1e3a29 !important;
+  color: #e8f5e9 !important;
+  border: 1px solid rgba(82, 183, 136, 0.4) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 32px rgba(15, 35, 23, 0.35) !important;
+  font-family: "DM Sans", sans-serif !important;
+  font-size: 0.92rem !important;
+  font-weight: 500 !important;
+  padding: 14px 18px !important;
+}
+
+.urban-toast-success .Toastify__toast-icon svg {
+  fill: #52b788 !important;
+}
+
+.urban-toast-error {
+  background: #3b1c1c !important;
+  color: #fce8e8 !important;
+  border: 1px solid rgba(235, 87, 87, 0.4) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 32px rgba(35, 15, 15, 0.35) !important;
+  font-family: "DM Sans", sans-serif !important;
+  font-size: 0.92rem !important;
+  font-weight: 500 !important;
+  padding: 14px 18px !important;
+}
+
+.urban-toast-error .Toastify__toast-icon svg {
+  fill: #eb5757 !important;
+}
+
+.urban-toast-success .Toastify__progress-bar {
+  background: linear-gradient(90deg, #2d6a4f, #52b788) !important;
+}
+
+.urban-toast-error .Toastify__progress-bar {
+  background: linear-gradient(90deg, #c0392b, #eb5757) !important;
+}
+

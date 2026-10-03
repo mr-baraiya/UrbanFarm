@@ -14,7 +14,15 @@ exports.register = async (req, res, next) => {
   try {
     console.log('Registration attempt:', req.body);
 
-    const { name, email, password, location, gardeningLevel, username } = req.body;
+    const { name, email, password, city, location, gardeningLevel, username } = req.body;
+
+    const userCity = (city || (location && location.city) || '').trim();
+    if (!userCity) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'City is required' 
+      });
+    }
 
     // Check if user exists
     const existingUser = await User.findOne({ email });
@@ -37,7 +45,10 @@ exports.register = async (req, res, next) => {
       username: username || name.toLowerCase().replace(/\s/g, ''),
       email,
       password,
-      location: location || {},
+      location: {
+        city: userCity,
+        country: (location && location.country) || 'India',
+      },
       gardeningLevel: gardeningLevel || 'beginner',
       role,
     });
@@ -56,6 +67,7 @@ exports.register = async (req, res, next) => {
         email: user.email,
         role: user.role,
         gardeningLevel: user.gardeningLevel,
+        location: user.location,
       },
     });
   } catch (error) {

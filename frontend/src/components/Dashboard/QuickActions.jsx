@@ -21,28 +21,32 @@ const QuickActions = ({ onActionComplete }) => {
       id: 'add-plant', 
       labelKey: 'dashboard.addPlant', 
       icon: <TbPlant2 />, 
-      color: '#52b788',
+      color: '#2d6a4f',
+      bg: '#dcfce7',
       action: () => setShowPlantForm(true)
     },
     { 
       id: 'diagnose', 
       labelKey: 'dashboard.diagnosePlant', 
       icon: <RiMicroscopeLine />, 
-      color: '#8b5cf6',
+      color: '#7c3aed',
+      bg: '#f3e8ff',
       action: () => navigate('/app/diagnose')
     },
     { 
       id: 'watering', 
       labelKey: 'dashboard.logWatering', 
       icon: <RiDropLine />, 
-      color: '#0ea5e9',
+      color: '#0284c7',
+      bg: '#e0f2fe',
       action: () => navigate('/app/watering')
     },
     { 
       id: 'schedule', 
       labelKey: 'dashboard.addTask', 
       icon: <RiCalendarEventLine />, 
-      color: '#f59e0b',
+      color: '#d97706',
+      bg: '#ffedd5',
       action: () => navigate('/app/schedule')
     },
   ];
@@ -58,10 +62,15 @@ const QuickActions = ({ onActionComplete }) => {
             <button
               key={action.id}
               className="action-btn"
-              style={{ '--action-color': action.color }}
+              style={{ 
+                '--action-color': action.color,
+                '--action-bg': action.bg 
+              }}
               onClick={action.action}
             >
-              <span className="action-icon">{action.icon}</span>
+              <div className="action-icon-box">
+                {action.icon}
+              </div>
               <span className="action-label">{t(action.labelKey)}</span>
             </button>
           ))}

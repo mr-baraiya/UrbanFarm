@@ -84,15 +84,31 @@ const TaskCard = ({
   };
 
   const priority = getPriorityLabel(task.priority);
-  const isOverdue = !isCompleted && new Date(task.dueDate) < new Date();
+  const now = new Date();
+  const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+  const isFuture = !isCompleted && task.dueDate && new Date(task.dueDate) > todayEnd;
+  const isOverdue = !isCompleted && !isFuture && new Date(task.dueDate) < now;
 
   return (
-    <div className={`task-card ${isCompleted ? 'completed' : ''} ${isOverdue ? 'overdue' : ''}`}>
+    <div className={`task-card ${isCompleted ? 'completed' : ''} ${isOverdue ? 'overdue' : ''} ${isFuture ? 'future-task' : ''}`}>
       <div className="task-card-left">
         <button 
-          className={`complete-btn ${isCompleted ? 'checked' : ''}`}
-          onClick={() => isCompleted ? onRestore?.(task._id) : onComplete(task._id)}
-          title={isCompleted ? 'Restore task' : 'Complete task'}
+          className={`complete-btn ${isCompleted ? 'checked' : ''} ${isFuture ? 'future-disabled' : ''}`}
+          onClick={() => {
+            if (isCompleted) {
+              onRestore?.(task._id);
+            } else if (!isFuture) {
+              onComplete(task._id);
+            }
+          }}
+          disabled={isFuture}
+          title={
+            isCompleted 
+              ? 'Restore task' 
+              : isFuture 
+              ? `Future task scheduled for ${formatDate(task.dueDate)} (cannot complete ahead of time)` 
+              : 'Complete task'
+          }
           style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
         >
           {isCompleted ? <RiRestartLine /> : <RiCheckLine />}

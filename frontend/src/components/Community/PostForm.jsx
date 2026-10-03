@@ -1,12 +1,83 @@
 import React, { useState, useEffect } from 'react';
-import { createPost, updatePost } from '../../services/plantService';
-import { getPlants, getGardens } from '../../services/plantService';
+import { createPost, updatePost, getPlants, getGardens } from '../../services/plantService';
 import { useNotification } from '../../hooks/useNotification';
 import { validatePostForm } from '../../utils/validators';
-import { RiImageAddLine, RiCloseLine } from 'react-icons/ri';
+import { getInitials } from '../../utils/helpers';
+import { 
+  RiImageAddLine, 
+  RiCloseLine, 
+  RiPriceTag3Line, 
+  RiPlantLine, 
+  RiShareForwardLine,
+  RiSendPlane2Fill
+} from 'react-icons/ri';
 import './PostForm.css';
 
-const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
+export const PostComposer = ({ user, onOpenComposer }) => {
+  const firstName = user?.name ? user.name.split(' ')[0] : 'Gardener';
+  const userAvatar = user?.profilePicture || null;
+
+  return (
+    <div className="post-composer-card">
+      <div className="composer-top-row">
+        <div className="composer-avatar">
+          {userAvatar ? (
+            <img src={userAvatar} alt={user?.name || 'User'} />
+          ) : (
+            getInitials(user?.name || 'User')
+          )}
+        </div>
+        <button 
+          type="button" 
+          className="composer-input-trigger" 
+          onClick={() => onOpenComposer()}
+        >
+          <span>What's growing in your garden, {firstName}?</span>
+        </button>
+      </div>
+      <div className="composer-affordance-row">
+        <button 
+          type="button" 
+          className="composer-chip photo-chip" 
+          onClick={() => onOpenComposer('photo')}
+          title="Upload a photo for your post"
+        >
+          <RiImageAddLine className="chip-icon" style={{ color: '#10b981' }} />
+          <span>Photo</span>
+        </button>
+        <button 
+          type="button" 
+          className="composer-chip tag-chip" 
+          onClick={() => onOpenComposer('tag')}
+          title="Add tags to categorize your post"
+        >
+          <RiPriceTag3Line className="chip-icon" style={{ color: '#f59e0b' }} />
+          <span>Tag</span>
+        </button>
+        <button 
+          type="button" 
+          className="composer-chip location-chip" 
+          onClick={() => onOpenComposer('garden')}
+          title="Tag a garden or plant"
+        >
+          <RiPlantLine className="chip-icon" style={{ color: '#06b6d4' }} />
+          <span>Garden</span>
+        </button>
+        <button 
+          type="button" 
+          className="composer-chip share-chip" 
+          onClick={() => onOpenComposer()}
+          title="Publish a community post"
+        >
+          <RiShareForwardLine className="chip-icon" style={{ color: 'var(--primary, #6b9080)' }} />
+          <span>Share</span>
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const PostForm = ({ onClose, user, post = null, onPostSaved, initialFocus = null }) => {
   const [formData, setFormData] = useState({
     title: post?.title || '',
     content: post?.content || '',
@@ -26,7 +97,19 @@ const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
 
   useEffect(() => {
     loadData();
-  }, []);
+    if (initialFocus) {
+      const timer = setTimeout(() => {
+        if (initialFocus === 'photo') {
+          document.getElementById('imageInput')?.click();
+        } else if (initialFocus === 'tag') {
+          document.getElementById('tagInput')?.focus();
+        } else if (initialFocus === 'garden') {
+          document.getElementById('gardenSelect')?.focus();
+        }
+      }, 250);
+      return () => clearTimeout(timer);
+    }
+  }, [initialFocus]);
 
   const loadData = async () => {
     try {
@@ -108,7 +191,7 @@ const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
         if (image) data.append('image', image);
 
         const newPost = await createPost(data);
-        addNotification('Post shared successfully!', 'success');
+        addNotification('Post published successfully!', 'success');
         if (onPostSaved) onPostSaved(newPost);
       }
       onClose();
@@ -120,17 +203,23 @@ const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
   };
 
   const categories = [
-    { value: 'showcase', label: 'Harvest Showcase' },
-    { value: 'question', label: 'Plant Help / Diagnose Request' },
-    { value: 'tip', label: 'Urban Tip / DIY' },
-    { value: 'event', label: 'Community Event' },
-    { value: 'general', label: 'General Discussion' },
+    { value: 'showcase', label: '🌾 Harvest Showcase' },
+    { value: 'question', label: '🪴 Plant Help / Diagnose Request' },
+    { value: 'tip', label: '💡 Urban Tip / DIY' },
+    { value: 'event', label: '📅 Community Event' },
+    { value: 'general', label: '💬 General Discussion' },
   ];
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content post-form" onClick={(e) => e.stopPropagation()}>
-        <h3>{post ? 'Edit Post' : 'Share with the Community'}</h3>
+        <div className="modal-header">
+          <h3>{post ? 'Edit Community Post' : 'Create Community Post'}</h3>
+          <button className="close-btn" onClick={onClose} aria-label="Close modal">
+            <RiCloseLine />
+          </button>
+        </div>
+        
         <form onSubmit={handleSubmit} noValidate>
           {/* Category & Title Row */}
           <div className="form-row">
@@ -164,8 +253,8 @@ const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
               name="content"
               value={formData.content}
               onChange={handleChange}
-              placeholder="Share your urban farming experience..."
-              rows="2"
+              placeholder="Share your urban farming experience, questions, or tips..."
+              rows="3"
               className={errors.content ? 'input-error' : ''}
             />
             {errors.content && <span className="error-text">{errors.content}</span>}
@@ -175,12 +264,15 @@ const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
           {!post && (
             <div className="form-group">
               <label>Photo / Harvest Image</label>
-              <div className="image-upload-area" onClick={() => document.getElementById('imageInput').click()}>
+              <div 
+                className="image-upload-area" 
+                onClick={() => document.getElementById('imageInput').click()}
+              >
                 {imagePreview ? (
                   <img src={imagePreview} alt="Preview" className="image-preview" />
                 ) : (
                   <div className="upload-placeholder">
-                    <RiImageAddLine style={{ fontSize: '28px', color: '#7c6f66', marginBottom: '4px' }} />
+                    <RiImageAddLine style={{ fontSize: '28px', color: 'var(--primary, #6b9080)', marginBottom: '4px' }} />
                     <span>Click to upload a photo</span>
                     <span className="upload-sub">(Optional)</span>
                   </div>
@@ -212,7 +304,7 @@ const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
               </div>
               <div className="form-group">
                 <label>Tag Garden (Optional)</label>
-                <select name="gardenId" value={formData.gardenId} onChange={handleChange}>
+                <select id="gardenSelect" name="gardenId" value={formData.gardenId} onChange={handleChange}>
                   <option value="">None</option>
                   {gardens.map((g) => (
                     <option key={g._id} value={g._id}>
@@ -226,13 +318,14 @@ const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
 
           {/* Tags */}
           <div className="form-group">
-            <label>Tags</label>
+            <label>Tags (Topics)</label>
             <div className="tag-input-group">
               <input
+                id="tagInput"
                 type="text"
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
-                placeholder="Add tags (e.g., tomato, balcony)"
+                placeholder="Add tags (e.g. tomato, balcony, organic)"
                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
               />
               <button type="button" className="btn-secondary add-tag-btn" onClick={handleAddTag}>
@@ -256,7 +349,8 @@ const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
               Cancel
             </button>
             <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Saving...' : post ? 'Save Changes' : 'Share Post'}
+              <RiSendPlane2Fill style={{ fontSize: '0.95rem' }} />
+              {loading ? 'Publishing...' : post ? 'Save Changes' : 'Publish Post'}
             </button>
           </div>
         </form>
@@ -265,4 +359,4 @@ const PostForm = ({ onClose, user, post = null, onPostSaved }) => {
   );
 };
 
-export default PostForm;
+export default PostForm;

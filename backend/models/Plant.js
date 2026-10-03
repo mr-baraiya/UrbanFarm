@@ -35,6 +35,7 @@ const PlantSchema = new mongoose.Schema(
     notes: String,
     waterFrequency: {
       type: Number, // days between watering
+      min: [0, 'Water frequency cannot be negative'],
       default: 3,
     },
     sunlight: {

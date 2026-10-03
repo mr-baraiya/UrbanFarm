@@ -26,7 +26,6 @@ const WateringTab = () => {
   const [schedule, setSchedule] = useState(null);
   const [history, setHistory] = useState([]);
   const [filteredHistory, setFilteredHistory] = useState([]);
-  const [selectedHistory, setSelectedHistory] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [weatherData, setWeatherData] = useState(null);
@@ -51,10 +50,42 @@ const WateringTab = () => {
         getPlants(),
         getWateringSchedules(),
       ]);
-      setPlants(plantsData || []);
-      setHistory(schedulesData || []);
-      setFilteredHistory(schedulesData || []);
-      if (plantsData.length > 0) setSelectedPlant(plantsData[0]);
+      const validPlants = plantsData || [];
+      const validSchedules = schedulesData || [];
+      setPlants(validPlants);
+      setHistory(validSchedules);
+      setFilteredHistory(validSchedules);
+
+      if (validPlants.length > 0) {
+        setSelectedPlant((prevPlant) => {
+          const activePlant = prevPlant 
+            ? (validPlants.find(p => p._id.toString() === prevPlant._id.toString()) || validPlants[0]) 
+            : validPlants[0];
+          
+          setSchedule((prevSchedule) => {
+            if (validSchedules.length > 0) {
+              // 1. Keep currently selected schedule by _id if it exists in validSchedules
+              if (prevSchedule && prevSchedule._id) {
+                const existing = validSchedules.find(s => s._id.toString() === prevSchedule._id.toString());
+                if (existing) {
+                  return existing;
+                }
+              }
+              // 2. Otherwise find schedule matching activePlant
+              const matchForActivePlant = validSchedules.find(
+                (s) => (s.plantId?._id || s.plantId)?.toString() === activePlant._id.toString()
+              );
+              if (matchForActivePlant) {
+                return matchForActivePlant;
+              }
+            }
+            // 3. Return null if activePlant has no schedule (NEVER fall back to another plant's schedule!)
+            return null;
+          });
+
+          return activePlant;
+        });
+      }
     } catch (error) {
       console.error('Failed to load data:', error);
       addNotification('Failed to load data', 'error');
@@ -83,12 +114,25 @@ const WateringTab = () => {
   const applyHistoryFilters = () => {
     let filtered = [...history];
     
-    if (filterStatus === 'completed') {
-      filtered = filtered.filter(h => h.isCompleted);
+    if (filterStatus === 'pending') {
+      filtered = filtered.filter(h => {
+        const events = h.schedule || [];
+        const completedCount = events.filter(e => e.completed).length;
+        return completedCount < events.length && !h.isCompleted;
+      });
+    } else if (filterStatus === 'completed') {
+      filtered = filtered.filter(h => {
+        const events = h.schedule || [];
+        const completedCount = events.filter(e => e.completed).length;
+        return h.isCompleted || (events.length > 0 && completedCount === events.length);
+      });
     } else if (filterStatus === 'missed') {
-      filtered = filtered.filter(h => h.isMissed);
+      filtered = filtered.filter(h => {
+        const events = h.schedule || [];
+        return h.isMissed || events.some(e => new Date(e.date) < new Date() && !e.completed && !e.skipped);
+      });
     } else if (filterStatus === 'skipped') {
-      filtered = filtered.filter(h => h.isSkipped);
+      filtered = filtered.filter(h => h.isSkipped || (h.schedule && h.schedule.some(e => e.skipped)));
     }
     
     setFilteredHistory(filtered);
@@ -100,7 +144,6 @@ const WateringTab = () => {
     try {
       const sched = await generateWateringSchedule(selectedPlant._id);
       setSchedule(sched);
-      setSelectedHistory(null);
       addNotification('Watering schedule generated successfully!', 'success');
       loadData();
     } catch (error) {
@@ -111,36 +154,104 @@ const WateringTab = () => {
   };
 
   const handleHistoryClick = (item) => {
-    setSelectedHistory(item);
+    const targetPlantId = (item.plantId?._id || item.plantId)?.toString();
+    if (targetPlantId && plants.length > 0) {
+      const match = plants.find(p => p._id.toString() === targetPlantId);
+      if (match) {
+        setSelectedPlant(match);
+      }
+    }
+    setSchedule(item);
   };
 
   const handleMarkWatered = async (scheduleId, eventIndex) => {
     try {
-      const scheduleData = schedule || selectedHistory;
-      if (!scheduleData) return;
+      if (!schedule) return;
       
-      // Mark the specific event as completed
-      const updatedSchedule = { ...scheduleData };
-      updatedSchedule.schedule[eventIndex].completed = true;
-      updatedSchedule.schedule[eventIndex].completedAt = new Date().toISOString();
+      const updatedEvents = schedule.schedule.map((evt, i) => {
+        if (i === eventIndex) {
+          const isCurrentlyCompleted = !!evt.completed;
+          const nextCompleted = !isCurrentlyCompleted;
+          return {
+            ...evt,
+            completed: nextCompleted,
+            skipped: false, // Reset skipped so completed and skipped are mutually exclusive
+            completedAt: nextCompleted ? new Date().toISOString() : null,
+            adjustmentReason: evt.adjustmentReason === 'Skipped by user' ? undefined : evt.adjustmentReason,
+          };
+        }
+        return evt;
+      });
       
-      // Check if all events are completed
-      const allCompleted = updatedSchedule.schedule.every(e => e.completed);
-      if (allCompleted) {
-        updatedSchedule.isCompleted = true;
-      }
+      const allDoneOrSkipped = updatedEvents.length > 0 && updatedEvents.every(e => e.completed || e.skipped);
       
-      await updateWateringSchedule(scheduleData._id, {
-        schedule: updatedSchedule.schedule,
-        isCompleted: allCompleted,
+      const updatedSchedule = {
+        ...schedule,
+        schedule: updatedEvents,
+        isCompleted: allDoneOrSkipped,
+      };
+      
+      await updateWateringSchedule(schedule._id, {
+        schedule: updatedEvents,
+        isCompleted: allDoneOrSkipped,
       });
       
       setSchedule(updatedSchedule);
-      if (selectedHistory) setSelectedHistory(updatedSchedule);
-      addNotification('Watering marked as completed!', 'success');
+      setHistory(prev => prev.map(h => h._id === schedule._id ? updatedSchedule : h));
+      setFilteredHistory(prev => prev.map(h => h._id === schedule._id ? updatedSchedule : h));
+      
+      addNotification('Watering status updated!', 'success');
       loadData();
     } catch (error) {
+      console.error('Failed to update schedule:', error);
       addNotification('Failed to update schedule', 'error');
+    }
+  };
+
+  const handleSkipWatering = async (scheduleId, eventIndex) => {
+    try {
+      if (!schedule) return;
+
+      const updatedEvents = schedule.schedule.map((evt, i) => {
+        if (i === eventIndex) {
+          const isCurrentlySkipped = !!evt.skipped;
+          const nextSkipped = !isCurrentlySkipped;
+          return {
+            ...evt,
+            skipped: nextSkipped,
+            completed: false, // Reset completed so completed and skipped are mutually exclusive
+            completedAt: null,
+            adjustmentReason: nextSkipped ? 'Skipped by user' : undefined,
+          };
+        }
+        return evt;
+      });
+
+      const hasSkipped = updatedEvents.some(e => e.skipped);
+      const allDoneOrSkipped = updatedEvents.length > 0 && updatedEvents.every(e => e.completed || e.skipped);
+
+      const updatedSchedule = {
+        ...schedule,
+        schedule: updatedEvents,
+        isSkipped: hasSkipped,
+        isCompleted: allDoneOrSkipped,
+      };
+
+      await updateWateringSchedule(schedule._id, {
+        schedule: updatedEvents,
+        isSkipped: hasSkipped,
+        isCompleted: allDoneOrSkipped,
+      });
+
+      setSchedule(updatedSchedule);
+      setHistory(prev => prev.map(h => h._id === schedule._id ? updatedSchedule : h));
+      setFilteredHistory(prev => prev.map(h => h._id === schedule._id ? updatedSchedule : h));
+
+      addNotification(hasSkipped ? 'Watering session skipped!' : 'Skip canceled', 'info');
+      loadData();
+    } catch (error) {
+      console.error('Failed to skip watering:', error);
+      addNotification('Failed to skip watering', 'error');
     }
   };
 
@@ -212,19 +323,17 @@ const WateringTab = () => {
 
   const handleCustomEdit = async (scheduleId, eventIndex, newAmount) => {
     try {
-      const scheduleData = schedule || selectedHistory;
-      if (!scheduleData) return;
+      if (!schedule) return;
       
-      const updatedSchedule = { ...scheduleData };
+      const updatedSchedule = { ...schedule };
       updatedSchedule.schedule[eventIndex].amount = newAmount;
       updatedSchedule.schedule[eventIndex].customEdited = true;
       
-      await updateWateringSchedule(scheduleData._id, {
+      await updateWateringSchedule(schedule._id, {
         schedule: updatedSchedule.schedule,
       });
       
       setSchedule(updatedSchedule);
-      if (selectedHistory) setSelectedHistory(updatedSchedule);
       addNotification('Volume updated successfully!', 'success');
       loadData();
     } catch (error) {
@@ -237,8 +346,9 @@ const WateringTab = () => {
     if (typeof plantId === 'object' && plantId.name) {
       return plantId.name;
     }
-    if (typeof plantId === 'string') {
-      const plant = plants.find(p => p._id === plantId);
+    const pidStr = (typeof plantId === 'object' ? plantId._id : plantId)?.toString();
+    if (pidStr) {
+      const plant = plants.find(p => p._id.toString() === pidStr);
       return plant?.name || 'Unknown Plant';
     }
     return 'Unknown Plant';
@@ -273,10 +383,12 @@ const WateringTab = () => {
                 <select 
                   value={selectedPlant?._id || ''} 
                   onChange={(e) => {
-                    const plant = plants.find(p => p._id === e.target.value);
-                    setSelectedPlant(plant);
-                    setSchedule(null);
-                    setSelectedHistory(null);
+                    const plant = plants.find(p => p._id.toString() === e.target.value);
+                    if (plant) {
+                      setSelectedPlant(plant);
+                      const match = history.find(s => (s.plantId?._id || s.plantId)?.toString() === plant._id.toString());
+                      setSchedule(match || null);
+                    }
                   }}
                 >
                   {plants.map(p => (
@@ -324,50 +436,38 @@ const WateringTab = () => {
             </div>
           )}
 
-          {/* Schedule Display: Current or Selected History */}
-          {selectedHistory ? (
-            <div className="watering-history-detail">
-              <div className="history-detail-header-bar">
-                <span className="history-badge-tag">
-                  <RiHistoryLine /> Viewing Archived Schedule
-                </span>
-                <button 
-                  className="btn-close-history" 
-                  onClick={() => setSelectedHistory(null)}
-                >
-                  <RiCloseLine /> Close History
-                </button>
-              </div>
-              <WateringSchedule 
-                schedule={selectedHistory} 
-                plantName={getPlantName(selectedHistory.plantId)}
-                onMarkWatered={handleMarkWatered}
-                onCustomEdit={handleCustomEdit}
-                weatherData={weatherData}
-                forecastData={forecastData}
-                isHistory={true}
-              />
-            </div>
-          ) : schedule ? (
+          {/* Schedule Display */}
+          {schedule ? (
             <div className="watering-schedule-section">
               <WateringSchedule 
                 schedule={schedule} 
                 plantName={getPlantName(schedule.plantId)}
                 onMarkWatered={handleMarkWatered}
+                onSkipWatering={handleSkipWatering}
                 onCustomEdit={handleCustomEdit}
                 weatherData={weatherData}
                 forecastData={forecastData}
               />
             </div>
-          ) : null}
+          ) : (
+            <div className="no-schedule-box" style={{ background: '#ffffff', padding: '2rem', borderRadius: '16px', textAlign: 'center', border: '1px solid rgba(0,0,0,0.1)' }}>
+              <p style={{ color: '#4a3f3a', marginBottom: '1rem', fontWeight: 500 }}>
+                No active watering schedule generated yet for {selectedPlant?.name || 'this plant'}.
+              </p>
+              <button className="btn-primary" onClick={handleGenerate} disabled={loading}>
+                Generate Schedule for {selectedPlant?.name || 'Plant'}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Right Column - History */}
         <div className="watering-right">
           <WateringHistory 
+            allHistory={history}
             history={filteredHistory}
             onItemClick={handleHistoryClick}
-            selectedId={selectedHistory?._id}
+            selectedId={schedule?._id}
             filterStatus={filterStatus}
             onFilterChange={setFilterStatus}
             getPlantName={getPlantName}

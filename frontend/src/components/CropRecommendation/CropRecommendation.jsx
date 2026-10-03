@@ -8,13 +8,14 @@ import {
   RiSeedlingLine,
   RiStarFill
 } from 'react-icons/ri';
-import { getCropRecommendations, getRecommendationHistory, saveRecommendation, addPlant } from '../../services/plantService';
+import { getCropRecommendations, getRecommendationHistory, saveRecommendation, addPlant, getGardens } from '../../services/plantService';
 import { getWeather } from '../../services/weatherService';
 import { useAuth } from '../../hooks/useAuth';
 import { useNotification } from '../../hooks/useNotification';
 import CropCard from './CropCard';
 import CropHistory from './CropHistory';
 import UrbanPresets from './UrbanPresets';
+import PlantForm from '../GrowthTracker/PlantForm';
 import './CropRecommendation.css';
 
 const CropRecommendation = () => {
@@ -31,6 +32,8 @@ const CropRecommendation = () => {
     spaceAvailable: 'medium', // small, medium, large
   });
   const [recommendations, setRecommendations] = useState([]);
+  const [gardens, setGardens] = useState([]);
+  const [selectedCropForAdd, setSelectedCropForAdd] = useState(null);
   const [history, setHistory] = useState([]);
   const [filteredHistory, setFilteredHistory] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -42,7 +45,17 @@ const CropRecommendation = () => {
 
   useEffect(() => {
     loadHistory();
+    loadGardens();
   }, []);
+
+  const loadGardens = async () => {
+    try {
+      const data = await getGardens();
+      setGardens(data || []);
+    } catch (err) {
+      console.error('Failed to load gardens:', err);
+    }
+  };
 
   useEffect(() => {
     applyHistoryFilters();
@@ -181,28 +194,15 @@ const CropRecommendation = () => {
     }
   };
 
-  const handleAddToPlants = async (crop, historyId) => {
-    try {
-      // Get the garden ID from the recommendation or use the first garden
-      // For now, we'll use a prompt to select a garden
-      const gardenId = prompt('Enter the garden ID to add this plant to:');
-      if (!gardenId) return;
-      
-      await addPlant({
-        name: crop.cropName,
-        variety: crop.variety || '',
-        gardenId: gardenId,
-        plantingDate: new Date().toISOString().split('T')[0],
-        status: 'seedling',
-        waterFrequency: 3,
-        sunlight: 'full',
-        notes: crop.plantingTips || `Recommended by AI. ${crop.reason}`,
-      });
-      
-      addNotification(`Added ${crop.cropName} to your garden!`, 'success');
-    } catch (error) {
-      addNotification('Failed to add plant', 'error');
-    }
+  const handleAddToPlants = (crop) => {
+    setSelectedCropForAdd({
+      name: crop.cropName,
+      variety: crop.variety || '',
+      notes: crop.plantingTips ? `AI Recommendation: ${crop.plantingTips}` : `Recommended by AI. ${crop.reason || ''}`,
+      waterFrequency: 3,
+      sunlight: 'full',
+      status: 'seedling',
+    });
   };
 
   return (
@@ -390,6 +390,23 @@ const CropRecommendation = () => {
           />
         </div>
       </div>
+
+      {selectedCropForAdd && (
+        <PlantForm
+          plant={selectedCropForAdd}
+          gardens={gardens}
+          onClose={() => setSelectedCropForAdd(null)}
+          onSubmit={async (plantPayload) => {
+            try {
+              await addPlant(plantPayload);
+              addNotification(`Added ${plantPayload.name} to your garden!`, 'success');
+              setSelectedCropForAdd(null);
+            } catch (err) {
+              addNotification('Failed to add plant', 'error');
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

@@ -5,12 +5,15 @@ const Plant = require('../models/Plant');
 // @route   POST /api/gardens
 exports.createGarden = async (req, res, next) => {
   try {
-    const { name, description, location, size } = req.body;
+    const { name, description, location, size, type, sunlight, soilType } = req.body;
     const garden = await Garden.create({
       name,
       description,
       location,
       size,
+      type: type || 'balcony',
+      sunlight: sunlight || 'full',
+      soilType: soilType || 'potting_mix',
       userId: req.user.id,
     });
     res.status(201).json({ success: true, garden });

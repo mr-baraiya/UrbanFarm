@@ -168,7 +168,7 @@ const Plants = () => {
         p.status || 'growing',
         p.health || 'healthy',
         `"${(p.gardenId?.name || '').replace(/"/g, '""')}"`,
-        p.waterFrequency || 3,
+        p.waterFrequency !== undefined && p.waterFrequency !== null ? p.waterFrequency : 3,
         new Date(p.createdAt).toLocaleDateString()
       ]);
       const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');

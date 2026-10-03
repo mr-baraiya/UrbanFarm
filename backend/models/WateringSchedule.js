@@ -18,9 +18,36 @@ const WateringScheduleSchema = new mongoose.Schema(
         amount: String, // e.g., "500ml", "1L"
         timeOfDay: String, // e.g., "morning", "evening"
         notes: String,
+        completed: {
+          type: Boolean,
+          default: false,
+        },
+        completedAt: Date,
+        skipped: {
+          type: Boolean,
+          default: false,
+        },
+        customEdited: {
+          type: Boolean,
+          default: false,
+        },
+        adjustmentReason: String,
       },
     ],
     weatherAdjusted: {
+      type: Boolean,
+      default: false,
+    },
+    skipReason: String,
+    isCompleted: {
+      type: Boolean,
+      default: false,
+    },
+    isMissed: {
+      type: Boolean,
+      default: false,
+    },
+    isSkipped: {
       type: Boolean,
       default: false,
     },
@@ -32,6 +59,7 @@ const WateringScheduleSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    strict: false,
   }
 );
 

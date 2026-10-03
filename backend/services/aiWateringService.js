@@ -38,7 +38,7 @@ Plant info:
 - Type: ${plant.name}
 - Sunlight: ${plant.sunlight || 'full'}
 - Status: ${plant.status || 'growing'}
-- Water every: ${plant.waterFrequency || 3} days
+- Water every: ${plant.waterFrequency !== undefined && plant.waterFrequency !== null ? plant.waterFrequency : 3} days
 
 Return a JSON array with 7 objects, one for each day.
 Each object: {"date":"YYYY-MM-DD","amount":"500ml or 1L","timeOfDay":"morning or evening","notes":"reason"}
@@ -234,7 +234,7 @@ Return ONLY the JSON array. No explanations.
  */
 function generateRuleBasedSchedule(plant, weatherData) {
   const schedule = [];
-  const baseInterval = plant.waterFrequency || 3;
+  const baseInterval = plant.waterFrequency !== undefined && plant.waterFrequency !== null ? plant.waterFrequency : 3;
   const today = new Date();
 
   // Adjust based on temperature (if weatherData is available)

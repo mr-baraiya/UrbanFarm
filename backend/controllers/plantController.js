@@ -5,12 +5,16 @@ const Garden = require('../models/Garden');
 // @route   POST /api/plants
 exports.addPlant = async (req, res, next) => {
   try {
-    const { name, scientificName, variety, gardenId, plantingDate, status, waterFrequency, sunlight, notes } = req.body;
+    const { name, scientificName, variety, gardenId, plantingDate, status, waterFrequency, sunlight, notes, imageUrl } = req.body;
 
     // Verify garden belongs to user
     const garden = await Garden.findOne({ _id: gardenId, userId: req.user.id });
     if (!garden) {
       return res.status(404).json({ success: false, message: 'Garden not found' });
+    }
+
+    if (waterFrequency !== undefined && waterFrequency !== null && Number(waterFrequency) < 0) {
+      return res.status(400).json({ success: false, message: 'Water frequency cannot be negative' });
     }
 
     const plant = await Plant.create({
@@ -24,10 +28,12 @@ exports.addPlant = async (req, res, next) => {
       waterFrequency,
       sunlight,
       notes,
+      imageUrl,
     });
 
     // Add plant to garden's plants array
     await Garden.findByIdAndUpdate(gardenId, { $push: { plants: plant._id } });
+    await plant.populate('gardenId', 'name');
 
     res.status(201).json({ success: true, plant });
   } catch (error) {
@@ -51,7 +57,8 @@ exports.getPlants = async (req, res, next) => {
 // @route   GET /api/plants/:id
 exports.getPlantById = async (req, res, next) => {
   try {
-    const plant = await Plant.findOne({ _id: req.params.id, userId: req.user.id });
+    const plant = await Plant.findOne({ _id: req.params.id, userId: req.user.id })
+      .populate('gardenId', 'name');
     if (!plant) {
       return res.status(404).json({ success: false, message: 'Plant not found' });
     }
@@ -69,7 +76,7 @@ exports.updatePlant = async (req, res, next) => {
       { _id: req.params.id, userId: req.user.id },
       req.body,
       { new: true, runValidators: true }
-    );
+    ).populate('gardenId', 'name');
     if (!plant) {
       return res.status(404).json({ success: false, message: 'Plant not found' });
     }

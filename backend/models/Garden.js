@@ -16,6 +16,21 @@ const GardenSchema = new mongoose.Schema(
       type: Number, // in square meters
       default: 0,
     },
+    type: {
+      type: String,
+      default: 'balcony',
+      trim: true,
+    },
+    sunlight: {
+      type: String,
+      default: 'full',
+      trim: true,
+    },
+    soilType: {
+      type: String,
+      default: 'potting_mix',
+      trim: true,
+    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

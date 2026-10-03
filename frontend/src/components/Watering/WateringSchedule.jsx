@@ -13,7 +13,8 @@ import {
   RiCloseCircleLine,
   RiCalendarEventLine,
   RiTimeLine,
-  RiLeafLine
+  RiLeafLine,
+  RiSkipForwardLine
 } from 'react-icons/ri';
 import { TbPlant2 } from 'react-icons/tb';
 import { formatDate } from '../../utils/helpers';
@@ -23,6 +24,7 @@ const WateringSchedule = ({
   schedule, 
   plantName, 
   onMarkWatered, 
+  onSkipWatering,
   onCustomEdit, 
   weatherData, 
   forecastData, 
@@ -39,7 +41,7 @@ const WateringSchedule = ({
   const today = new Date();
   const missedEvents = schedule.schedule.filter(event => {
     const eventDate = new Date(event.date);
-    return eventDate < today && !event.completed;
+    return eventDate < today && !event.completed && !event.skipped;
   });
 
   // Get weather override
@@ -71,8 +73,19 @@ const WateringSchedule = ({
 
   const weatherOverride = getWeatherOverride();
 
-  // Calculate soil moisture (mock data - could be from real sensors)
-  const soilMoisture = Math.round(60 + (Math.random() * 30 - 15));
+  // Deterministic soil moisture calculation based on schedule ID (prevents random changes on re-renders)
+  const soilMoisture = React.useMemo(() => {
+    if (schedule?.soilMoisture !== undefined) return schedule.soilMoisture;
+    if (!schedule || !schedule._id) return 65;
+    let hash = 0;
+    const str = String(schedule._id);
+    for (let i = 0; i < str.length; i++) {
+      hash = (hash << 5) - hash + str.charCodeAt(i);
+      hash |= 0;
+    }
+    return 52 + (Math.abs(hash) % 24);
+  }, [schedule?._id, schedule?.soilMoisture]);
+
   const isDry = soilMoisture < 40;
 
   const handleEditSubmit = (index, scheduleId) => {
@@ -97,7 +110,7 @@ const WateringSchedule = ({
     return norm === '0ml' || norm === '0l' || norm === '0' || norm === 'none';
   };
 
-  const completedCount = schedule.schedule.filter(e => e.completed).length;
+  const handledCount = schedule.schedule.filter(e => e.completed || e.skipped).length;
   const totalCount = schedule.schedule.length;
 
   return (
@@ -167,7 +180,7 @@ const WateringSchedule = ({
         <div className="schedule-controls-card">
           <div className="schedule-stat-chip">
             <RiBarChartLine className="stat-chip-icon" />
-            <span><strong>{completedCount}</strong> of {totalCount} completed</span>
+            <span><strong>{handledCount}</strong> of {totalCount} completed</span>
           </div>
           {!isHistory && schedule.nextWateringDate && (
             <div className="schedule-next-chip">
@@ -185,9 +198,14 @@ const WateringSchedule = ({
         ) : (
           schedule.schedule.map((item, idx) => {
             const eventDate = new Date(item.date);
-            const isPast = eventDate < today;
-            const isMissed = isPast && !item.completed;
-            const isToday = eventDate.toDateString() === today.toDateString();
+            const now = new Date();
+            const todayDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            const eventDay = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate()).getTime();
+
+            const isFuture = eventDay > todayDay;
+            const isToday = eventDay === todayDay;
+            const isPast = eventDay < todayDay;
+            const isMissed = isPast && !item.completed && !item.skipped;
             const rest = isRestDay(item.amount);
             const dayOfWeek = eventDate.toLocaleDateString(undefined, { weekday: 'short' });
             const formattedDateStr = eventDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
@@ -195,7 +213,7 @@ const WateringSchedule = ({
             return (
               <div 
                 key={idx} 
-                className={`ws-day-card ${item.completed ? 'completed' : ''} ${isMissed ? 'missed' : ''} ${isToday ? 'today' : ''} ${rest ? 'rest-day' : 'active-watering'}`}
+                className={`ws-day-card ${item.completed ? 'completed' : ''} ${isMissed ? 'missed' : ''} ${isToday ? 'today' : ''} ${isFuture ? 'future-card' : ''} ${rest ? 'rest-day' : 'active-watering'}`}
               >
                 {/* Left: Day & Date Header */}
                 <div className="ws-card-left">
@@ -205,8 +223,10 @@ const WateringSchedule = ({
                   </div>
                   <div className="ws-status-badges">
                     {isToday && <span className="ws-badge today">Today</span>}
-                    {isMissed && <span className="ws-badge missed">Missed</span>}
+                    {isFuture && !item.completed && !item.skipped && <span className="ws-badge future">Future</span>}
+                    {isMissed && !item.skipped && <span className="ws-badge missed">Missed</span>}
                     {item.completed && <span className="ws-badge done"><RiCheckLine /> Done</span>}
+                    {item.skipped && <span className="ws-badge skipped"><RiSkipForwardLine /> Skipped</span>}
                   </div>
                 </div>
 
@@ -270,18 +290,45 @@ const WateringSchedule = ({
                   )}
                 </div>
 
-                {/* Right: Checkbox / Action Button */}
+                {/* Right: Action Buttons */}
                 <div className="ws-card-right">
-                  <button
-                    type="button"
-                    className={`ws-action-check-btn ${item.completed ? 'checked' : ''}`}
-                    onClick={() => !isHistory && onMarkWatered(schedule._id, idx)}
-                    disabled={isHistory}
-                    title={item.completed ? 'Mark uncompleted' : 'Mark as watered'}
-                    aria-label="Toggle completed"
-                  >
-                    <RiCheckLine className="check-svg-icon" />
-                  </button>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <button
+                      type="button"
+                      className={`ws-action-check-btn ${item.completed ? 'checked' : ''}`}
+                      onClick={() => {
+                        if (!isFuture || item.completed) {
+                          onMarkWatered(schedule._id, idx);
+                        }
+                      }}
+                      disabled={isFuture && !item.completed}
+                      title={
+                        isFuture && !item.completed
+                          ? `Future task scheduled for ${formattedDateStr} (cannot complete ahead of time)`
+                          : item.completed
+                          ? 'Marked as watered'
+                          : 'Mark as watered'
+                      }
+                      aria-label="Toggle completed"
+                    >
+                      <RiCheckLine className="check-svg-icon" />
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`ws-action-skip-btn ${item.skipped ? 'skipped' : ''}`}
+                      onClick={() => {
+                        if (onSkipWatering) {
+                          onSkipWatering(schedule._id, idx);
+                        }
+                      }}
+                      disabled={isFuture && !item.skipped}
+                      title={item.skipped ? 'Un-skip session' : 'Skip watering session (e.g. Rain/Moist soil)'}
+                      aria-label="Toggle skipped"
+                    >
+                      <RiSkipForwardLine className="skip-svg-icon" />
+                    </button>
+                  </div>
                   {item.completed && item.completedAt && (
                     <span className="ws-completed-timestamp">
                       {new Date(item.completedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
