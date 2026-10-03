@@ -1,5 +1,6 @@
 const ScheduleTask = require('../models/ScheduleTask');
 const WateringSchedule = require('../models/WateringSchedule');
+const badgeService = require('../services/badgeService');
 
 // @desc    Create a task
 // @route   POST /api/schedule
@@ -209,6 +210,8 @@ exports.completeTask = async (req, res, next) => {
         console.error('⚠️ Error syncing completion to WateringSchedule:', wsErr);
       }
     }
+
+    badgeService.checkAndAwardBadges(req.user.id).catch(err => console.error('Badge check error:', err));
 
     res.status(200).json({ success: true, task });
   } catch (error) {

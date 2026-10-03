@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="160" height="160">
+      <defs>
+        <linearGradient id="docGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#c084fc" />
+          <stop offset="40%" stop-color="#9333ea" />
+          <stop offset="100%" stop-color="#581c87" />
+        </linearGradient>
+        <linearGradient id="docRim" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f3e8ff" />
+          <stop offset="50%" stop-color="#c084fc" />
+          <stop offset="100%" stop-color="#6b21a8" />
+        </linearGradient>
+        <linearGradient id="crossGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ffffff" />
+          <stop offset="100%" stop-color="#f3e8ff" />
+        </linearGradient>
+      </defs>
+      <polygon points="30,7 70,7 93,30 93,70 70,93 30,93 7,70 7,30" fill="url(#docGrad)" stroke="url(#docRim)" stroke-width="4" stroke-linejoin="round" />
+      <polygon points="32,13 68,13 87,32 87,68 68,87 32,87 13,68 13,32" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" />
+      <path d="M40,24 H60 V40 H76 V60 H60 V76 H40 V60 H24 V40 H40 Z" fill="url(#crossGrad)" stroke="#581c87" stroke-width="2" stroke-linejoin="round" />
+      <path d="M50,30 C40,40 39,56 50,66 C61,56 60,40 50,30 Z" fill="#22c55e" stroke="#15803d" stroke-width="1" />
+      <path d="M50,34 L50,63" stroke="#ffffff" stroke-width="2" stroke-linecap="round" />
+      <path d="M50,44 Q44,40 42,38" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" />
+      <path d="M50,52 Q56,48 58,46" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" />
+      <polygon points="76,18 78,24 84,26 78,28 76,34 74,28 68,26 74,24" fill="#fde047" />
+    </svg>

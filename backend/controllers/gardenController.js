@@ -1,5 +1,6 @@
 const Garden = require('../models/Garden');
 const Plant = require('../models/Plant');
+const badgeService = require('../services/badgeService');
 
 // @desc    Create a new garden
 // @route   POST /api/gardens
@@ -16,6 +17,9 @@ exports.createGarden = async (req, res, next) => {
       soilType: soilType || 'potting_mix',
       userId: req.user.id,
     });
+
+    badgeService.checkAndAwardBadges(req.user.id).catch(err => console.error('Badge check error:', err));
+
     res.status(201).json({ success: true, garden });
   } catch (error) {
     next(error);

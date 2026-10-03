@@ -2,6 +2,7 @@ const Diagnosis = require('../models/Diagnosis');
 const Plant = require('../models/Plant');
 const cloudinary = require('../config/cloudinary');
 const { identifyDisease } = require('../services/aiPlantDiseaseService');
+const badgeService = require('../services/badgeService');
 
 // @desc    Diagnose plant disease from image
 // @route   POST /api/disease/diagnose
@@ -57,6 +58,8 @@ exports.diagnosePlant = async (req, res, next) => {
     });
     await diagnosis.save();
     console.log('💾 Diagnosis saved to database');
+
+    badgeService.checkAndAwardBadges(req.user.id).catch(err => console.error('Badge check error:', err));
 
     // 4. Update plant health status if plantId is provided
     if (plantId) {

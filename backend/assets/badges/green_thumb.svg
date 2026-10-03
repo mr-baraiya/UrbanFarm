@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="160" height="160">
+      <defs>
+        <linearGradient id="thumbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#34d399" />
+          <stop offset="40%" stop-color="#059669" />
+          <stop offset="100%" stop-color="#064e3b" />
+        </linearGradient>
+        <linearGradient id="goldLaurel" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fef08a" />
+          <stop offset="50%" stop-color="#eab308" />
+          <stop offset="100%" stop-color="#a16207" />
+        </linearGradient>
+        <linearGradient id="emeraldThumb" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#dcfce7" />
+          <stop offset="40%" stop-color="#4ade80" />
+          <stop offset="100%" stop-color="#15803d" />
+        </linearGradient>
+      </defs>
+      <polygon points="50,5 92,45 50,95 8,45" fill="url(#thumbGrad)" stroke="url(#goldLaurel)" stroke-width="4" stroke-linejoin="round" />
+      <polygon points="50,13 84,45 50,85 16,45" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" />
+      <path d="M25,58 C18,43 25,28 35,22" fill="none" stroke="url(#goldLaurel)" stroke-width="3" stroke-linecap="round" />
+      <path d="M75,58 C82,43 75,28 65,22" fill="none" stroke="url(#goldLaurel)" stroke-width="3" stroke-linecap="round" />
+      <circle cx="23" cy="45" r="3.5" fill="#fef08a" />
+      <circle cx="30" cy="32" r="3.5" fill="#fef08a" />
+      <circle cx="77" cy="45" r="3.5" fill="#fef08a" />
+      <circle cx="70" cy="32" r="3.5" fill="#fef08a" />
+      <path d="M44,65 L58,65 C62,65 64,63 64,59 L64,47 C64,44 62,42 58,42 L52,42 L54,28 C54,24 51,22 47,23 C44,24 43,28 43,32 L43,44 L38,49 L38,60 C38,63 41,65 44,65 Z" fill="url(#emeraldThumb)" stroke="#064e3b" stroke-width="2" stroke-linejoin="round" />
+      <path d="M47,38 Q50,42 50,48" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.8" />
+      <polygon points="56,20 58,25 63,26 58,27 56,32 54,27 49,26 54,25" fill="#ffffff" />
+    </svg>

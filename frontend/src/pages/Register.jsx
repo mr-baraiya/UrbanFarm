@@ -135,12 +135,12 @@ const Register = () => {
             )}
           </div>
           <div className="form-group">
-            <label>{t("auth.city")} *</label>
+            <label>{t("auth.city", "City")} *</label>
             <input
               name="city"
               value={formData.city}
               onChange={handleChange}
-              placeholder={t("auth.cityPlaceholder") || "e.g., Mumbai, New York"}
+              placeholder={t("auth.cityPlaceholder", "e.g., Mumbai, New York")}
               className={errors.city ? "input-error" : ""}
             />
             {errors.city && (
@@ -150,14 +150,17 @@ const Register = () => {
             )}
           </div>
           <div className="form-group">
-            <label>{t("auth.password")} (min 6 chars) *</label>
+            <label>
+              {t("auth.password", "Password")}{" "}
+              <span className="form-label-hint">{t("auth.minChars", "(min 6 chars)")}</span> *
+            </label>
             <div className="password-wrapper">
               <input
                 type={showPassword ? "text" : "password"}
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                placeholder={t("auth.passwordPlaceholder")}
+                placeholder={t("auth.passwordPlaceholder", "••••••••")}
                 className={errors.password ? "input-error" : ""}
               />
               <button
@@ -176,24 +179,24 @@ const Register = () => {
             )}
           </div>
           <div className="form-group">
-            <label>{t("profile.gardenerLevel")}</label>
+            <label>{t("auth.gardenerLevel", t("profile.gardenerLevel", t("profile.myInfo.gardeningLevel", "Gardening Level")))}</label>
             <select
               name="gardeningLevel"
               value={formData.gardeningLevel}
               onChange={handleChange}
             >
-              <option value="beginner">Beginner</option>
-              <option value="intermediate">Intermediate</option>
-              <option value="advanced">Advanced</option>
+              <option value="beginner">{t("profile.levels.beginner", "Beginner")}</option>
+              <option value="intermediate">{t("profile.levels.intermediate", "Intermediate")}</option>
+              <option value="advanced">{t("profile.levels.advanced", "Advanced")}</option>
             </select>
           </div>
           <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? t("common.loading") : t("auth.registerButton")}
+            {loading ? t("common.loading", "Loading...") : t("auth.registerButton", "Create Account")}
           </button>
         </form>
         <p className="auth-footer">
-          {t("auth.alreadyHaveAccount")}{" "}
-          <Link to="/login">{t("navigation.signIn")}</Link>
+          {t("auth.alreadyHaveAccount", "Already have an account?")}{" "}
+          <Link to="/login">{t("navigation.signIn", "Sign In")}</Link>
         </p>
       </div>
     </div>

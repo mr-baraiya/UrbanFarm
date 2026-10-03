@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const badgeService = require('../services/badgeService');
 
 // @desc    Update user profile
 // @route   PUT /api/users/profile
@@ -32,14 +33,55 @@ exports.updateProfile = async (req, res, next) => {
   }
 };
 
-// @desc    Get user badges
+// @desc    Get user badges (auto-checks milestones and awards new badges)
 // @route   GET /api/users/badges
 exports.getBadges = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id).select('badges');
-    res.status(200).json({ success: true, badges: user?.badges || [] });
+    // Automatically evaluate user achievements and send notification email for newly unlocked badges
+    const result = await badgeService.checkAndAwardBadges(req.user.id);
+    res.status(200).json({
+      success: true,
+      badges: result.badges || [],
+      newlyUnlocked: result.newlyUnlocked || [],
+    });
   } catch (error) {
     next(error);
+  }
+};
+
+// @desc    Manually trigger badge check
+// @route   POST /api/users/check-badges
+exports.checkBadges = async (req, res, next) => {
+  try {
+    const result = await badgeService.checkAndAwardBadges(req.user.id);
+    res.status(200).json({
+      success: true,
+      badges: result.badges,
+      newlyUnlocked: result.newlyUnlocked,
+      stats: result.stats,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Test sending badge unlock email
+// @route   POST /api/users/test-badge-email
+exports.testBadgeEmail = async (req, res, next) => {
+  try {
+    const { badgeId } = req.body;
+    const result = await badgeService.triggerTestBadgeEmail(req.user?.id, badgeId || 'gardening_guru');
+    res.status(200).json({
+      success: true,
+      message: `Test congratulation email sent successfully to ${result.sentTo}!`,
+      badge: result.badge,
+    });
+  } catch (error) {
+    console.error('Test badge email error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to send badge email: ' + (error.message || 'Unknown error'),
+    });
   }
 };
 

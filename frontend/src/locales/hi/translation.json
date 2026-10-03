@@ -101,6 +101,10 @@
     "emailPlaceholder": "you@example.com",
     "passwordPlaceholder": "••••••••",
     "namePlaceholder": "राहुल शर्मा",
+    "city": "शहर",
+    "cityPlaceholder": "उदा., मुंबई, दिल्ली",
+    "gardenerLevel": "बागवानी स्तर",
+    "minChars": "(न्यूनतम 6 अक्षर)",
     "gardener": "माली / किसान",
     "agronomist": "कृषि विज्ञानी / विशेषज्ञ",
     "admin": "प्रशासक",
@@ -1195,6 +1199,7 @@
   "profile": {
     "title": "उपयोगकर्ता प्रोफ़ाइल",
     "subtitle": "अपनी व्यक्तिगत जानकारी और उपलब्धि बैज प्रबंधित करें।",
+    "gardenerLevel": "बागवानी स्तर",
     "userProfile": "{{name}} का प्रोफाइल",
     "highestBadge": "सर्वोच्च बैज",
     "language": "भाषा",

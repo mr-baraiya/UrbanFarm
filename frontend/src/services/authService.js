@@ -47,6 +47,16 @@ export const getBadges = async () => {
   return response.data.badges;
 };
 
+export const checkBadges = async () => {
+  const response = await api.post('/users/check-badges');
+  return response.data;
+};
+
+export const testBadgeEmail = async (badgeId = 'gardening_guru') => {
+  const response = await api.post('/users/test-badge-email', { badgeId });
+  return response.data;
+};
+
 export const forgotPassword = async (email) => {
   const response = await api.post('/auth/forgot-password', { email });
   return response.data;

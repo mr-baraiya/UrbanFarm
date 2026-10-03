@@ -101,6 +101,10 @@
     "emailPlaceholder": "you@example.com",
     "passwordPlaceholder": "••••••••",
     "namePlaceholder": "વિશાલ બારૈયા",
+    "city": "શહેર",
+    "cityPlaceholder": "દા.ત., અમદાવાદ, મુંબઈ",
+    "gardenerLevel": "બાગકામનું સ્તર",
+    "minChars": "(ઓછામાં ઓછા ૬ અક્ષર)",
     "gardener": "માળી / ખેડૂત",
     "agronomist": "કૃષિ વિજ્ઞાની / નિષ્ણાત",
     "admin": "એડમિનિસ્ટ્રેટર",
@@ -1195,6 +1199,7 @@
   "profile": {
     "title": "વપરાશકર્તા પ્રોફાઇલ",
     "subtitle": "તમારી વ્યક્તિગત માહિતી અને બેજ મેનેજ કરો.",
+    "gardenerLevel": "બાગકામનું સ્તર",
     "userProfile": "{{name}} ની પ્રોફાઇલ",
     "highestBadge": "સર્વોચ્ચ બેજ",
     "language": "ભાષા",

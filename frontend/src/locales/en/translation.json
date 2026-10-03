@@ -101,6 +101,10 @@
     "emailPlaceholder": "you@example.com",
     "passwordPlaceholder": "••••••••",
     "namePlaceholder": "John Doe",
+    "city": "City",
+    "cityPlaceholder": "e.g., Mumbai, New York",
+    "gardenerLevel": "Gardening Level",
+    "minChars": "(min 6 chars)",
     "gardener": "Gardener",
     "agronomist": "Agronomist / Expert",
     "admin": "Administrator",
@@ -1194,6 +1198,7 @@
   "profile": {
     "title": "User Profile",
     "subtitle": "Manage your personal information and achievement badges.",
+    "gardenerLevel": "Gardening Level",
     "userProfile": "{{name}}'s Profile",
     "highestBadge": "Highest Badge",
     "language": "Language",

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="160" height="160">
+      <defs>
+        <linearGradient id="weatherBg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#38bdf8" />
+          <stop offset="40%" stop-color="#0284c7" />
+          <stop offset="100%" stop-color="#1e3a8a" />
+        </linearGradient>
+        <linearGradient id="weatherRim" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#e0f2fe" />
+          <stop offset="50%" stop-color="#38bdf8" />
+          <stop offset="100%" stop-color="#0369a1" />
+        </linearGradient>
+        <linearGradient id="sunGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fef08a" />
+          <stop offset="50%" stop-color="#f59e0b" />
+          <stop offset="100%" stop-color="#d97706" />
+        </linearGradient>
+        <linearGradient id="cloudGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#ffffff" />
+          <stop offset="70%" stop-color="#f1f5f9" />
+          <stop offset="100%" stop-color="#cbd5e1" />
+        </linearGradient>
+      </defs>
+      <path d="M50,7 C78,7 90,20 90,49 C90,74 68,90 50,96 C32,90 10,74 10,49 C10,20 22,7 50,7 Z" fill="url(#weatherBg)" stroke="url(#weatherRim)" stroke-width="4" />
+      <path d="M50,13 C74,13 84,23 84,49 C84,69 64,84 50,90 C36,84 16,69 16,49 C16,23 26,13 50,13 Z" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" />
+      <circle cx="39" cy="37" r="16" fill="url(#sunGrad)" stroke="#d97706" stroke-width="1" />
+      <path d="M39,14 L39,20 M39,54 L39,60 M16,37 L22,37 M56,37 L62,37 M23,21 L27,25 M51,49 L55,53 M23,53 L27,49 M51,25 L55,21" stroke="#fbbf24" stroke-width="3" stroke-linecap="round" />
+      <path d="M33,65 L69,65 C76,65 80,60 80,54 C80,48 75,44 70,44 C70,35 63,29 55,29 C48,29 42,33 40,39 C38,38 36,37 34,37 C27,37 23,42 23,49 C23,57 27,65 33,65 Z" fill="url(#cloudGrad)" stroke="#94a3b8" stroke-width="2" />
+    </svg>

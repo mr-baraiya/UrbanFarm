@@ -1,6 +1,7 @@
 const CommunityPost = require('../models/CommunityPost');
 const User = require('../models/User');
 const cloudinary = require('../config/cloudinary');
+const badgeService = require('../services/badgeService');
 
 // @desc    Create a community post
 // @route   POST /api/community
@@ -30,6 +31,7 @@ exports.createPost = async (req, res, next) => {
     await post.save();
 
     const populated = await CommunityPost.findById(post._id).populate('userId', 'name profilePicture');
+    badgeService.checkAndAwardBadges(req.user.id).catch(err => console.error('Badge check error:', err));
     res.status(201).json({ success: true, post: populated });
   } catch (error) {
     next(error);

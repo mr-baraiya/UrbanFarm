@@ -1,5 +1,6 @@
 const Plant = require('../models/Plant');
 const Garden = require('../models/Garden');
+const badgeService = require('../services/badgeService');
 
 // @desc    Add a plant to a garden
 // @route   POST /api/plants
@@ -34,6 +35,9 @@ exports.addPlant = async (req, res, next) => {
     // Add plant to garden's plants array
     await Garden.findByIdAndUpdate(gardenId, { $push: { plants: plant._id } });
     await plant.populate('gardenId', 'name');
+
+    // Trigger badge evaluation asynchronously
+    badgeService.checkAndAwardBadges(req.user.id).catch(err => console.error('Badge check error:', err));
 
     res.status(201).json({ success: true, plant });
   } catch (error) {
@@ -81,6 +85,7 @@ exports.updatePlant = async (req, res, next) => {
     if (!plant) {
       return res.status(404).json({ success: false, message: 'Plant not found' });
     }
+    badgeService.checkAndAwardBadges(req.user.id).catch(err => console.error('Badge check error:', err));
     res.status(200).json({ success: true, plant });
   } catch (error) {
     next(error);
