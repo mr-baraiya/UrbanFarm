@@ -16,7 +16,8 @@ import {
   RiUploadCloudLine,
   RiTrophyLine,
   RiSparklingFill,
-  RiArrowRightLine
+  RiArrowRightLine,
+  RiGlobalLine
 } from 'react-icons/ri';
 import { useAuth } from '../../hooks/useAuth';
 import { updateProfile, getBadges, uploadImage } from '../../services/authService';
@@ -27,6 +28,7 @@ import ProfileStats from './ProfileStats';
 import BadgeEmblem from './BadgeEmblem';
 import { GARDENING_LEVELS } from '../../utils/constants';
 import { getInitials } from '../../utils/helpers';
+import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import './Profile.css';
 
 const BADGE_DEFINITIONS = [
@@ -257,7 +259,7 @@ const Profile = () => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        addNotification('Image size should be under 5MB', 'warning');
+        addNotification(t('profile.modal.imageSizeWarning', 'Image size should be under 5MB'), 'warning');
         return;
       }
       setSelectedFile(file);
@@ -282,7 +284,7 @@ const Profile = () => {
           profilePictureUrl = await uploadImage(selectedFile);
         } catch (uploadErr) {
           console.error('Photo upload error:', uploadErr);
-          addNotification('Failed to upload photo to Cloudinary', 'error');
+          addNotification(t('profile.modal.updateFailed', 'Update failed'), 'error');
           setLoading(false);
           setUploadingPhoto(false);
           return;
@@ -298,11 +300,11 @@ const Profile = () => {
       });
 
       login(updated, localStorage.getItem('token'));
-      addNotification('Profile updated successfully! 🌱', 'success');
+      addNotification(t('profile.modal.updateSuccess', 'Profile updated successfully! 🌱'), 'success');
       setEditing(false);
       setSelectedFile(null);
     } catch (error) {
-      addNotification('Update failed', 'error');
+      addNotification(t('profile.modal.updateFailed', 'Update failed'), 'error');
     } finally {
       setLoading(false);
       setUploadingPhoto(false);
@@ -310,42 +312,65 @@ const Profile = () => {
   };
 
   const urbanSpaceOptions = [
-    { value: 'balcony', label: 'Balcony' },
-    { value: 'rooftop', label: 'Rooftop' },
-    { value: 'indoor', label: 'Indoor Window Sill' },
-    { value: 'backyard', label: 'Backyard' },
-    { value: 'community', label: 'Community Garden' },
-    { value: 'windowsill', label: 'Window Sill' },
+    { value: 'balcony', label: t('profile.spaces.balcony', 'Balcony') },
+    { value: 'rooftop', label: t('profile.spaces.rooftop', 'Rooftop') },
+    { value: 'indoor', label: t('profile.spaces.indoor', 'Indoor Window Sill') },
+    { value: 'backyard', label: t('profile.spaces.backyard', 'Backyard') },
+    { value: 'community', label: t('profile.spaces.community', 'Community Garden') },
+    { value: 'windowsill', label: t('profile.spaces.windowsill', 'Window Sill') },
   ];
 
   const climateZoneOptions = [
-    { value: 'tropical', label: 'Tropical' },
-    { value: 'subtropical', label: 'Humid Subtropical' },
-    { value: 'temperate', label: 'Temperate' },
-    { value: 'mediterranean', label: 'Mediterranean' },
-    { value: 'continental', label: 'Continental' },
-    { value: 'arctic', label: 'Arctic' },
+    { value: 'tropical', label: t('profile.climates.tropical', 'Tropical') },
+    { value: 'subtropical', label: t('profile.climates.subtropical', 'Humid Subtropical') },
+    { value: 'temperate', label: t('profile.climates.temperate', 'Temperate') },
+    { value: 'mediterranean', label: t('profile.climates.mediterranean', 'Mediterranean') },
+    { value: 'continental', label: t('profile.climates.continental', 'Continental') },
+    { value: 'arctic', label: t('profile.climates.arctic', 'Arctic') },
   ];
 
-  const userCity = user?.location?.city || 'Mumbai';
-  const userCountry = user?.location?.country || 'India';
-  const locationDisplay = `${userCity}, ${userCountry}`;
+  const gardeningLevelOptions = [
+    { value: 'beginner', label: t('profile.levels.beginner', 'Beginner') },
+    { value: 'intermediate', label: t('profile.levels.intermediate', 'Intermediate') },
+    { value: 'advanced', label: t('profile.levels.advanced', 'Advanced') },
+    { value: 'expert', label: t('profile.levels.expert', 'Expert') },
+  ];
 
-  const currentLevelLabel = GARDENING_LEVELS.find(l => l.value === user?.gardeningLevel)?.label || 'Intermediate';
-  const currentSpaceLabel = urbanSpaceOptions.find(o => o.value === user?.urbanSpaceType)?.label || 'Balcony';
-  const currentClimateLabel = climateZoneOptions.find(z => z.value === user?.climateZone)?.label || 'Humid Subtropical';
+  const userCity = user?.location?.city || 'Botad';
+  const userCountry = user?.location?.country || 'India';
+  const rawLocation = user?.location?.city && user?.location?.country 
+    ? `${user.location.city}, ${user.location.country}` 
+    : `${userCity}, ${userCountry}`;
+  const locationDisplay = getLocalizedDynamicText(rawLocation, i18n.language) || rawLocation;
+
+  const currentLevelLabel = gardeningLevelOptions.find(l => l.value === user?.gardeningLevel)?.label 
+    || t(`profile.levels.${user?.gardeningLevel || 'intermediate'}`, 'Intermediate');
+  const currentSpaceLabel = urbanSpaceOptions.find(o => o.value === user?.urbanSpaceType)?.label 
+    || t(`profile.spaces.${user?.urbanSpaceType || 'balcony'}`, 'Balcony');
+  const currentClimateLabel = climateZoneOptions.find(z => z.value === user?.climateZone)?.label 
+    || t(`profile.climates.${user?.climateZone || 'subtropical'}`, 'Humid Subtropical');
+
+  const getLocalizedBadge = (badge) => {
+    if (!badge) return badge;
+    return {
+      ...badge,
+      name: t(`profile.badges.${badge.id}.name`, badge.name),
+      tier: t(`profile.badges.${badge.id}.tier`, badge.tier),
+      description: t(`profile.badges.${badge.id}.description`, badge.description),
+    };
+  };
 
   const getTopBadgeData = () => {
     const unlockedBadges = BADGE_DEFINITIONS.filter(b => b.check(stats));
     if (unlockedBadges.length > 0) {
       return { 
-        badge: unlockedBadges[0], 
+        badge: getLocalizedBadge(unlockedBadges[0]), 
         isUnlocked: true, 
         count: unlockedBadges.length 
       };
     }
     return { 
-      badge: BADGE_DEFINITIONS[BADGE_DEFINITIONS.length - 2], 
+      badge: getLocalizedBadge(BADGE_DEFINITIONS[BADGE_DEFINITIONS.length - 2]), 
       isUnlocked: false, 
       count: 0 
     };
@@ -363,7 +388,7 @@ const Profile = () => {
             <div 
               className="profile-avatar-circle clickable"
               onClick={() => setEditing(true)}
-              title="Click to edit profile photo"
+              title={t('profile.modal.photoSection', 'Click to edit profile photo')}
             >
               {user?.profilePicture ? (
                 <img src={user.profilePicture} alt={user.name} />
@@ -376,27 +401,31 @@ const Profile = () => {
             </div>
             <div className="profile-user-titles">
               <h2 className="profile-user-name">
-                {user?.name || 'Priya Sharma'}'s Profile
+                {t('profile.userProfile', "{{name}}'s Profile", { name: getLocalizedDynamicText(user?.name || 'Priya Sharma', i18n.language) })}
               </h2>
               {topBadgeInfo.isUnlocked && (
                 <div className="header-highest-badge-pill" style={{ '--pill-color': topBadgeInfo.badge.themeColor }}>
-                  <RiTrophyLine /> Highest Badge: <strong>{topBadgeInfo.badge.name}</strong> ({topBadgeInfo.badge.tier})
+                  <RiTrophyLine /> {t('profile.highestBadge', 'Highest Badge')}: <strong>{topBadgeInfo.badge.name}</strong> ({topBadgeInfo.badge.tier})
                 </div>
               )}
             </div>
-            <div className="info-item">
-              <span className="info-label">Language / ભાષા</span>
-              <span className="info-value">
+          </div>
+
+          <div className="profile-banner-actions">
+            <div className="profile-lang-pill">
+              <RiGlobalLine className="profile-lang-icon" />
+              <span className="profile-lang-label">{t('profile.language', 'Language')}:</span>
+              <span className="profile-lang-value">
                 {i18n.language === 'gu' ? 'ગુજરાતી (Gujarati)' : i18n.language === 'hi' ? 'हिन्दी (Hindi)' : 'English'}
               </span>
             </div>
+            <button 
+              className="btn-edit-profile"
+              onClick={() => setEditing(true)}
+            >
+              <RiEditLine /> {t('profile.editProfile', 'Edit Profile')}
+            </button>
           </div>
-          <button 
-            className="btn-edit-profile"
-            onClick={() => setEditing(true)}
-          >
-            <RiEditLine /> Edit Profile
-          </button>
         </div>
 
         {/* Tabbed Profile Content Card */}
@@ -407,13 +436,13 @@ const Profile = () => {
               className={`tab-nav-btn ${activeTab === 'stats' ? 'active' : ''}`}
               onClick={() => setActiveTab('stats')}
             >
-              My Garden Stats
+              {t('profile.tabs.stats', 'My Garden Stats')}
             </button>
             <button 
               className={`tab-nav-btn ${activeTab === 'achievements' ? 'active' : ''}`}
               onClick={() => setActiveTab('achievements')}
             >
-              My Achievements
+              {t('profile.tabs.achievements', 'My Achievements')}
             </button>
           </div>
 
@@ -431,7 +460,7 @@ const Profile = () => {
                   <div className="top-badge-info">
                     <div className="top-badge-label-row">
                       <span className="top-badge-header-tag">
-                        <RiTrophyLine style={{ color: topBadgeInfo.badge.themeColor }} /> HIGHEST EARNED BADGE
+                        <RiTrophyLine style={{ color: topBadgeInfo.badge.themeColor }} /> {t('profile.spotlight.highestEarned', 'HIGHEST EARNED BADGE')}
                       </span>
                       <span className="top-badge-tier-pill" style={{ color: topBadgeInfo.badge.themeColor }}>
                         {topBadgeInfo.badge.tier}
@@ -444,53 +473,55 @@ const Profile = () => {
 
                 <div className="top-badge-right">
                   <div className="unlocked-count-pill">
-                    <RiSparklingFill /> {topBadgeInfo.count} / {BADGE_DEFINITIONS.length} Unlocked
+                    <RiSparklingFill /> {t('profile.spotlight.unlockedCount', '{{count}} / {{total}} Unlocked', { count: topBadgeInfo.count, total: BADGE_DEFINITIONS.length })}
                   </div>
                   <button 
                     className="btn-view-all-badges"
                     onClick={() => setActiveTab('achievements')}
                   >
-                    View All Badges <RiArrowRightLine />
+                    {t('profile.spotlight.viewAll', 'View All Badges')} <RiArrowRightLine />
                   </button>
                 </div>
               </div>
 
               {/* My Info Section */}
               <div className="my-info-section">
-                <h3 className="my-info-title">My Info</h3>
+                <h3 className="my-info-title">{t('profile.myInfo.title', 'My Info')}</h3>
                 <div className="my-info-grid">
                   <div className="info-col">
                     <div className="info-row">
-                      <span className="info-key">Name</span>
-                      <span className="info-val">{user?.name || 'Priya Sharma'}</span>
+                      <span className="info-key">{t('profile.myInfo.name', 'Name')}</span>
+                      <span className="info-val">{getLocalizedDynamicText(user?.name || 'Priya Sharma', i18n.language)}</span>
                     </div>
                     <div className="info-row">
-                      <span className="info-key">Location</span>
+                      <span className="info-key">{t('profile.myInfo.location', 'Location')}</span>
                       <span className="info-val">{locationDisplay}</span>
                     </div>
                     <div className="info-row">
-                      <span className="info-key">Gardening Level</span>
+                      <span className="info-key">{t('profile.myInfo.gardeningLevel', 'Gardening Level')}</span>
                       <span className="info-val">{currentLevelLabel}</span>
                     </div>
                     <div className="info-row">
-                      <span className="info-key">Urban Space Type</span>
+                      <span className="info-key">{t('profile.myInfo.urbanSpaceType', 'Urban Space Type')}</span>
                       <span className="info-val">{currentSpaceLabel}</span>
                     </div>
                   </div>
 
                   <div className="info-col">
                     <div className="info-row">
-                      <span className="info-key">Email</span>
+                      <span className="info-key">{t('profile.myInfo.email', 'Email')}</span>
                       <span className="info-val">{user?.email || 'priya@urbanfarm.com'}</span>
                     </div>
                     <div className="info-row">
-                      <span className="info-key">Climate Zone</span>
+                      <span className="info-key">{t('profile.myInfo.climateZone', 'Climate Zone')}</span>
                       <span className="info-val">{currentClimateLabel}</span>
                     </div>
                     <div className="info-row">
-                      <span className="info-key">Unit System</span>
+                      <span className="info-key">{t('profile.myInfo.unitSystem', 'Unit System')}</span>
                       <span className="info-val">
-                        {user?.preferences?.unitSystem === 'imperial' ? 'Imperial (in, °F)' : 'Metric (cm, °C)'}
+                        {user?.preferences?.unitSystem === 'imperial' 
+                          ? t('profile.units.imperial', 'Imperial (in, °F)') 
+                          : t('profile.units.metric', 'Metric (cm, °C)')}
                       </span>
                     </div>
                   </div>
@@ -508,15 +539,15 @@ const Profile = () => {
       {/* Right Rail Column: Upcoming & Urgent */}
       <div className="profile-right-rail">
         <div className="upcoming-urgent-card">
-          <h3 className="rail-title">Upcoming & Urgent</h3>
+          <h3 className="rail-title">{t('profile.upcoming.title', 'Upcoming & Urgent')}</h3>
           <div className="urgent-list">
             <div className="urgent-item">
               <div className="urgent-icon icon-blue">
                 <RiDropLine />
               </div>
               <div className="urgent-meta">
-                <span className="urgent-item-title">Watering Due</span>
-                <span className="urgent-item-sub">Balcony Plants (Tomorrow AM)</span>
+                <span className="urgent-item-title">{t('profile.upcoming.wateringDue', 'Watering Due')}</span>
+                <span className="urgent-item-sub">{t('profile.upcoming.wateringSub', 'Balcony Plants (Tomorrow AM)')}</span>
               </div>
             </div>
 
@@ -525,8 +556,8 @@ const Profile = () => {
                 <RiShoppingBasketLine />
               </div>
               <div className="urgent-meta">
-                <span className="urgent-item-title">Harvest Ready</span>
-                <span className="urgent-item-sub">Tomatoes (In 2 days)</span>
+                <span className="urgent-item-title">{t('profile.upcoming.harvestReady', 'Harvest Ready')}</span>
+                <span className="urgent-item-sub">{t('profile.upcoming.harvestSub', 'Tomatoes (In 2 days)')}</span>
               </div>
             </div>
 
@@ -535,8 +566,8 @@ const Profile = () => {
                 <RiMicroscopeLine />
               </div>
               <div className="urgent-meta">
-                <span className="urgent-item-title">Diagnosis Recommended</span>
-                <span className="urgent-item-sub">Basil (View Details)</span>
+                <span className="urgent-item-title">{t('profile.upcoming.diagnosisRecommended', 'Diagnosis Recommended')}</span>
+                <span className="urgent-item-sub">{t('profile.upcoming.diagnosisSub', 'Basil (View Details)')}</span>
               </div>
             </div>
           </div>
@@ -548,7 +579,7 @@ const Profile = () => {
         <div className="edit-profile-modal-overlay" onClick={() => setEditing(false)}>
           <div className="edit-profile-modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="edit-modal-header">
-              <h3>Edit Profile</h3>
+              <h3>{t('profile.modal.title', 'Edit Profile')}</h3>
               <button className="close-btn" onClick={() => setEditing(false)}>
                 <RiCloseLine />
               </button>
@@ -557,7 +588,7 @@ const Profile = () => {
             <form onSubmit={handleSubmit} className="profile-form">
               {/* Optional Photo Upload Section */}
               <div className="form-section photo-upload-section">
-                <h4>Profile Photo (Optional)</h4>
+                <h4>{t('profile.modal.photoSection', 'Profile Photo (Optional)')}</h4>
                 <div className="photo-upload-container">
                   <div className="photo-preview-avatar">
                     {photoPreview ? (
@@ -579,7 +610,7 @@ const Profile = () => {
                       className="btn-upload-photo"
                       onClick={() => document.getElementById('profilePhotoInput')?.click()}
                     >
-                      <RiCameraLine /> {selectedFile || photoPreview ? 'Change Photo' : 'Upload Photo'}
+                      <RiCameraLine /> {selectedFile || photoPreview ? t('profile.modal.changePhoto', 'Change Photo') : t('profile.modal.uploadPhoto', 'Upload Photo')}
                     </button>
                     {photoPreview && (
                       <button 
@@ -587,7 +618,7 @@ const Profile = () => {
                         className="btn-remove-photo"
                         onClick={handleRemovePhoto}
                       >
-                        <RiDeleteBinLine /> Remove Photo
+                        <RiDeleteBinLine /> {t('profile.modal.removePhoto', 'Remove Photo')}
                       </button>
                     )}
                   </div>
@@ -595,9 +626,9 @@ const Profile = () => {
               </div>
 
               <div className="form-section">
-                <h4>Basic Information</h4>
+                <h4>{t('profile.modal.basicInfo', 'Basic Information')}</h4>
                 <div className="form-group">
-                  <label>Name</label>
+                  <label>{t('profile.modal.name', 'Name')}</label>
                   <input
                     name="name"
                     value={formData.name}
@@ -608,29 +639,29 @@ const Profile = () => {
               </div>
 
               <div className="form-section">
-                <h4>Location & Climate</h4>
+                <h4>{t('profile.modal.locationSection', 'Location & Climate')}</h4>
                 <div className="form-row">
                   <div className="form-group">
-                    <label>City</label>
+                    <label>{t('profile.modal.city', 'City')}</label>
                     <input
                       name="location.city"
                       value={formData.location.city}
                       onChange={handleChange}
-                      placeholder="e.g., Mumbai"
+                      placeholder={t('profile.modal.cityPlaceholder', 'e.g., Mumbai')}
                     />
                   </div>
                   <div className="form-group">
-                    <label>Country</label>
+                    <label>{t('profile.modal.country', 'Country')}</label>
                     <input
                       name="location.country"
                       value={formData.location.country}
                       onChange={handleChange}
-                      placeholder="e.g., India"
+                      placeholder={t('profile.modal.countryPlaceholder', 'e.g., India')}
                     />
                   </div>
                 </div>
                 <div className="form-group">
-                  <label>Climate Zone</label>
+                  <label>{t('profile.modal.climateZone', 'Climate Zone')}</label>
                   <select
                     name="climateZone"
                     value={formData.climateZone}
@@ -646,9 +677,9 @@ const Profile = () => {
               </div>
 
               <div className="form-section">
-                <h4>Urban Garden Setup</h4>
+                <h4>{t('profile.modal.gardenSetup', 'Urban Garden Setup')}</h4>
                 <div className="form-group">
-                  <label>Primary Growing Space</label>
+                  <label>{t('profile.modal.primarySpace', 'Primary Growing Space')}</label>
                   <select
                     name="urbanSpaceType"
                     value={formData.urbanSpaceType}
@@ -664,15 +695,15 @@ const Profile = () => {
               </div>
 
               <div className="form-section">
-                <h4>Gardening Experience</h4>
+                <h4>{t('profile.modal.experience', 'Gardening Experience')}</h4>
                 <div className="form-group">
-                  <label>Skill Level</label>
+                  <label>{t('profile.modal.skillLevel', 'Skill Level')}</label>
                   <select
                     name="gardeningLevel"
                     value={formData.gardeningLevel}
                     onChange={handleChange}
                   >
-                    {GARDENING_LEVELS.map((level) => (
+                    {gardeningLevelOptions.map((level) => (
                       <option key={level.value} value={level.value}>
                         {level.label}
                       </option>
@@ -682,7 +713,7 @@ const Profile = () => {
               </div>
 
               <div className="form-section">
-                <h4>Preferences & Notifications</h4>
+                <h4>{t('profile.modal.preferencesSection', 'Preferences & Notifications')}</h4>
                 <div className="form-group checkbox-group">
                   <label className="checkbox-label">
                     <input
@@ -691,28 +722,32 @@ const Profile = () => {
                       checked={formData.preferences.showAdvancedTips}
                       onChange={handleChange}
                     />
-                    <span>Show advanced gardening tips</span>
+                    <span>{t('profile.modal.advancedTips', 'Show advanced gardening tips')}</span>
                   </label>
                 </div>
                 <div className="form-group">
-                  <label>Unit System</label>
+                  <label>{t('profile.modal.unitSystem', 'Unit System')}</label>
                   <select
                     name="preferences.unitSystem"
                     value={formData.preferences.unitSystem}
                     onChange={handleChange}
                   >
-                    <option value="metric">Metric (cm, kg, °C)</option>
-                    <option value="imperial">Imperial (in, lb, °F)</option>
+                    <option value="metric">{t('profile.units.metricForm', 'Metric (cm, kg, °C)')}</option>
+                    <option value="imperial">{t('profile.units.imperialForm', 'Imperial (in, lb, °F)')}</option>
                   </select>
                 </div>
               </div>
 
               <div className="form-actions">
                 <button type="button" className="btn-secondary" onClick={() => setEditing(false)}>
-                  Cancel
+                  {t('profile.modal.cancel', 'Cancel')}
                 </button>
                 <button type="submit" className="btn-primary" disabled={loading || uploadingPhoto}>
-                  {uploadingPhoto ? 'Uploading Photo...' : loading ? 'Saving...' : 'Save Profile'}
+                  {uploadingPhoto 
+                    ? t('profile.modal.uploading', 'Uploading Photo...') 
+                    : loading 
+                      ? t('profile.modal.saving', 'Saving...') 
+                      : t('profile.modal.save', 'Save Profile')}
                 </button>
               </div>
             </form>

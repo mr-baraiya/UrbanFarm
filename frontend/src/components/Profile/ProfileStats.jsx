@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   RiLeafLine, 
   RiMicroscopeLine, 
@@ -9,40 +10,42 @@ import { TbPlant2 } from 'react-icons/tb';
 import './ProfileStats.css';
 
 const ProfileStats = ({ stats = {} }) => {
+  const { t } = useTranslation();
+
   const statItems = [
     { 
       key: 'totalGardens', 
       icon: <RiLeafLine />, 
       bgClass: 'bg-green',
-      label: 'ACTIVE GARDENS', 
+      label: t('profile.statsRow.activeGardens', 'ACTIVE GARDENS'), 
       value: stats.totalGardens || 0 
     },
     { 
       key: 'totalPlants', 
       icon: <TbPlant2 />, 
       bgClass: 'bg-emerald',
-      label: 'PLANTS GROWN', 
+      label: t('profile.statsRow.plantsGrown', 'PLANTS GROWN'), 
       value: stats.totalPlants || 0 
     },
     { 
       key: 'totalDiagnoses', 
       icon: <RiMicroscopeLine />, 
       bgClass: 'bg-purple',
-      label: 'DIAGNOSES RUN', 
+      label: t('profile.statsRow.diagnosesRun', 'DIAGNOSES RUN'), 
       value: stats.totalDiagnoses || 0 
     },
     { 
       key: 'totalCommunityPosts', 
       icon: <RiTeamLine />, 
       bgClass: 'bg-blue',
-      label: 'COMMUNITY POSTS', 
+      label: t('profile.statsRow.communityPosts', 'COMMUNITY POSTS'), 
       value: stats.totalCommunityPosts || 0 
     },
     { 
       key: 'totalWateringEvents', 
       icon: <RiDropLine />, 
       bgClass: 'bg-cyan',
-      label: 'WATERING EVENTS', 
+      label: t('profile.statsRow.wateringEvents', 'WATERING EVENTS'), 
       value: stats.totalWateringEvents || 0 
     },
   ];

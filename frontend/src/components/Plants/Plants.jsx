@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { 
   RiDownload2Line, 
   RiAddLine, 
@@ -10,6 +11,7 @@ import {
 import { TbPlant2 } from 'react-icons/tb';
 import { getPlants, getGardens, addPlant, deletePlant, updatePlant } from '../../services/plantService';
 import { useNotification } from '../../hooks/useNotification';
+import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import ConfirmModal from '../Common/ConfirmModal';
 import QRCodeModal from '../Common/QRCodeModal';
 import HarvestTrackerModal from './HarvestTrackerModal';
@@ -21,6 +23,7 @@ import BulkActions from './BulkActions';
 import './Plants.css';
 
 const Plants = () => {
+  const { t, i18n } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const gardenIdParam = searchParams.get('garden');
@@ -291,16 +294,18 @@ const Plants = () => {
       <div className="plants-header">
         <div className="header-left">
           <h2>
-            <TbPlant2 className="plants-title-icon" /> My Plants
+            <TbPlant2 className="plants-title-icon" /> {t('plants.myPlants', 'My Plants')}
           </h2>
-          <span className="plant-count">{filteredPlants.length} plants</span>
+          <span className="plant-count">
+            {t('plants.plantsCount', '{{count}} plants', { count: filteredPlants.length })}
+          </span>
         </div>
         <div className="header-actions">
           <button className="btn-secondary" onClick={() => handleExportData('csv')}>
-            <RiDownload2Line /> Export CSV
+            <RiDownload2Line /> {t('plants.exportCsv', 'Export CSV')}
           </button>
           <button className="btn-secondary" onClick={() => handleExportData('json')}>
-            <RiDownload2Line /> Export JSON
+            <RiDownload2Line /> {t('plants.exportJson', 'Export JSON')}
           </button>
           {selectedPlants.length > 0 && (
             <BulkActions
@@ -317,7 +322,7 @@ const Plants = () => {
             className="btn-primary" 
             onClick={() => setShowForm(true)}
           >
-            <RiAddLine /> Add Plant
+            <RiAddLine /> {t('plants.addPlant', 'Add Plant')}
           </button>
         </div>
       </div>
@@ -349,14 +354,14 @@ const Plants = () => {
           <span className="no-results-icon">
             <RiSearchLine />
           </span>
-          <h3>No plants found</h3>
-          <p>Try adjusting your search or filters</p>
+          <h3>{t('plants.emptyTitle', 'No plants found')}</h3>
+          <p>{t('dashboard.tryAdjusting', 'Try adjusting your search or filters')}</p>
           <button className="btn-secondary" onClick={() => {
             setSearchTerm('');
             setSelectedGarden('');
             setFilterStatus('all');
           }}>
-            Clear Filters
+            {t('plants.clearFilters', 'Clear Filters')}
           </button>
         </div>
       ) : (
@@ -394,17 +399,17 @@ const Plants = () => {
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               >
-                <RiArrowLeftSLine /> Prev
+                <RiArrowLeftSLine /> {t('common.previous', 'Prev')}
               </button>
               <span style={{ display: 'flex', alignItems: 'center', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                Page {currentPage} of {totalPages}
+                {t('plants.pageOf', 'Page {{current}} of {{total}}', { current: currentPage, total: totalPages })}
               </span>
               <button 
                 className="btn-secondary" 
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               >
-                Next <RiArrowRightSLine />
+                {t('common.next', 'Next')} <RiArrowRightSLine />
               </button>
             </div>
           )}

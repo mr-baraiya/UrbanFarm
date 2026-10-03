@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   RiPlantLine, 
   RiFileList3Line, 
@@ -12,6 +13,7 @@ import { getCropRecommendations, getRecommendationHistory, saveRecommendation, a
 import { getWeather } from '../../services/weatherService';
 import { useAuth } from '../../hooks/useAuth';
 import { useNotification } from '../../hooks/useNotification';
+import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import CropCard from './CropCard';
 import CropHistory from './CropHistory';
 import UrbanPresets from './UrbanPresets';
@@ -19,6 +21,7 @@ import PlantForm from '../GrowthTracker/PlantForm';
 import './CropRecommendation.css';
 
 const CropRecommendation = () => {
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const [inputs, setInputs] = useState({
     soilType: 'Loam',
@@ -76,11 +79,18 @@ const CropRecommendation = () => {
     
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(h => 
-        h.inputData?.soilType?.toLowerCase().includes(term) ||
-        h.inputData?.season?.toLowerCase().includes(term) ||
-        h.recommendations?.some(r => r.cropName.toLowerCase().includes(term))
-      );
+      filtered = filtered.filter(h => {
+        const soil = (h.inputData?.soilType || '').toLowerCase();
+        const localizedSoil = getLocalizedDynamicText(h.inputData?.soilType, i18n.language).toLowerCase();
+        const season = (h.inputData?.season || '').toLowerCase();
+        const localizedSeason = getLocalizedDynamicText(h.inputData?.season, i18n.language).toLowerCase();
+        const hasCropMatch = h.recommendations?.some(r => {
+          const cName = (r.cropName || '').toLowerCase();
+          const localizedCName = getLocalizedDynamicText(r.cropName, i18n.language).toLowerCase();
+          return cName.includes(term) || localizedCName.includes(term);
+        });
+        return soil.includes(term) || localizedSoil.includes(term) || season.includes(term) || localizedSeason.includes(term) || hasCropMatch;
+      });
     }
     
     if (filterType !== 'all') {
@@ -104,7 +114,7 @@ const CropRecommendation = () => {
       ...preset.inputs,
       gardenType: preset.id,
     });
-    addNotification(`Loaded preset: ${preset.label}`, 'info');
+    addNotification(t('crops.loadedPreset', { name: preset.label }), 'info');
   };
 
   const handleUseLocation = async () => {
@@ -139,11 +149,11 @@ const CropRecommendation = () => {
           region: city,
         }));
         
-        addNotification(`Weather data loaded for ${city}!`, 'success');
+        addNotification(t('crops.weatherLoaded', { city }), 'success');
       }
     } catch (error) {
       console.error('Failed to get location:', error);
-      addNotification('Could not auto-detect location. Please enter manually.', 'warning');
+      addNotification(t('crops.locationError', 'Could not auto-detect location. Please enter manually.'), 'warning');
     } finally {
       setLoadingLocation(false);
     }
@@ -163,10 +173,10 @@ const CropRecommendation = () => {
     try {
       const data = await getCropRecommendations(inputs);
       setRecommendations(data.recommendations || []);
-      addNotification('Recommendations ready!', 'success');
+      addNotification(t('crops.recommendationsReady', 'Recommendations ready!'), 'success');
       loadHistory(); // Refresh history
     } catch (error) {
-      addNotification('Failed to get recommendations', 'error');
+      addNotification(t('crops.recommendationsFailed', 'Failed to get recommendations'), 'error');
     } finally {
       setLoading(false);
     }
@@ -187,10 +197,10 @@ const CropRecommendation = () => {
   const handleSaveRecommendation = async (historyId) => {
     try {
       await saveRecommendation(historyId);
-      addNotification('Recommendation saved to bookmarks!', 'success');
+      addNotification(t('crops.savedBookmark', 'Recommendation saved to bookmarks!'), 'success');
       loadHistory();
     } catch (error) {
-      addNotification('Failed to save', 'error');
+      addNotification(t('crops.saveFailed', 'Failed to save'), 'error');
     }
   };
 
@@ -208,9 +218,9 @@ const CropRecommendation = () => {
   return (
     <div className="crop-recommendation">
       <h2>
-        <RiPlantLine className="header-icon" /> AI Crop Recommendations
+        <RiPlantLine className="header-icon" /> {t('crops.title', 'AI Crop Recommendations')}
       </h2>
-      <p className="subtitle">Get personalized crop suggestions for your urban space</p>
+      <p className="subtitle">{t('crops.subtitle', 'Get personalized crop suggestions for your urban space')}</p>
       
       <div className="crop-layout">
         {/* Left Column - Form & Results */}
@@ -222,7 +232,7 @@ const CropRecommendation = () => {
           <form onSubmit={handleSubmit} className="crop-form">
             <div className="form-header">
               <h4>
-                <RiFileList3Line className="form-header-icon" /> Enter Your Conditions
+                <RiFileList3Line className="form-header-icon" /> {t('crops.enterConditions', 'Enter Your Conditions')}
               </h4>
               <button 
                 type="button" 
@@ -231,27 +241,27 @@ const CropRecommendation = () => {
                 disabled={loadingLocation}
               >
                 {loadingLocation ? (
-                  <><RiLoader4Line className="spin" /> Detecting Location...</>
+                  <><RiLoader4Line className="spin" /> {t('crops.detectingLocation', 'Detecting Location...')}</>
                 ) : (
-                  <><RiMapPinLine /> Use My Location</>
+                  <><RiMapPinLine /> {t('crops.useMyLocation', 'Use My Location')}</>
                 )}
               </button>
             </div>
             
             <div className="form-row">
               <div className="form-group">
-                <label>Soil Type</label>
+                <label>{t('crops.soilType', 'Soil Type')}</label>
                 <select name="soilType" value={inputs.soilType} onChange={handleChange}>
-                  <option value="Loam">Loam</option>
-                  <option value="Sandy">Sandy</option>
-                  <option value="Clay">Clay</option>
-                  <option value="Silty">Silty</option>
-                  <option value="Peaty">Peaty</option>
-                  <option value="Chalky">Chalky</option>
+                  <option value="Loam">{t('crops.soilLoam', 'Loam')}</option>
+                  <option value="Sandy">{t('crops.soilSandy', 'Sandy')}</option>
+                  <option value="Clay">{t('crops.soilClay', 'Clay')}</option>
+                  <option value="Silty">{t('crops.soilSilty', 'Silty')}</option>
+                  <option value="Peaty">{t('crops.soilPeaty', 'Peaty')}</option>
+                  <option value="Chalky">{t('crops.soilChalky', 'Chalky')}</option>
                 </select>
               </div>
               <div className="form-group">
-                <label>pH Level</label>
+                <label>{t('crops.phLevel', 'pH Level')}</label>
                 <input 
                   name="ph" 
                   type="number" 
@@ -266,7 +276,7 @@ const CropRecommendation = () => {
             
             <div className="form-row">
               <div className="form-group">
-                <label>Temperature (°C)</label>
+                <label>{t('crops.temperature', 'Temperature (°C)')}</label>
                 <input 
                   name="temperature" 
                   type="number" 
@@ -275,7 +285,7 @@ const CropRecommendation = () => {
                 />
               </div>
               <div className="form-group">
-                <label>Humidity (%)</label>
+                <label>{t('crops.humidity', 'Humidity (%)')}</label>
                 <input 
                   name="humidity" 
                   type="number" 
@@ -289,7 +299,7 @@ const CropRecommendation = () => {
             
             <div className="form-row">
               <div className="form-group">
-                <label>Rainfall (mm)</label>
+                <label>{t('crops.rainfall', 'Rainfall (mm)')}</label>
                 <input 
                   name="rainfall" 
                   type="number" 
@@ -299,32 +309,32 @@ const CropRecommendation = () => {
                 />
               </div>
               <div className="form-group">
-                <label>Season</label>
+                <label>{t('crops.season', 'Season')}</label>
                 <select name="season" value={inputs.season} onChange={handleChange}>
-                  <option value="Spring">Spring</option>
-                  <option value="Summer">Summer</option>
-                  <option value="Fall">Fall</option>
-                  <option value="Winter">Winter</option>
+                  <option value="Spring">{t('crops.seasonSpring', 'Spring')}</option>
+                  <option value="Summer">{t('crops.seasonSummer', 'Summer')}</option>
+                  <option value="Fall">{t('crops.seasonFall', 'Fall')}</option>
+                  <option value="Winter">{t('crops.seasonWinter', 'Winter')}</option>
                 </select>
               </div>
             </div>
             
             <div className="form-group">
-              <label>Region</label>
+              <label>{t('crops.region', 'Region')}</label>
               <input 
                 name="region" 
                 value={inputs.region} 
                 onChange={handleChange} 
-                placeholder="e.g., New York, London, Tokyo"
+                placeholder={t('crops.regionPlaceholder', 'e.g., New York, London, Tokyo')}
               />
             </div>
             
             <div className="form-group">
-              <label>Space Available</label>
+              <label>{t('crops.spaceAvailable', 'Space Available')}</label>
               <select name="spaceAvailable" value={inputs.spaceAvailable} onChange={handleChange}>
-                <option value="small">Small (Window box, herb pot)</option>
-                <option value="medium">Medium (Balcony, small raised bed)</option>
-                <option value="large">Large (Rooftop, backyard)</option>
+                <option value="small">{t('crops.spaceSmall', 'Small (Window box, herb pot)')}</option>
+                <option value="medium">{t('crops.spaceMedium', 'Medium (Balcony, small raised bed)')}</option>
+                <option value="large">{t('crops.spaceLarge', 'Large (Rooftop, backyard)')}</option>
               </select>
             </div>
             
@@ -335,9 +345,9 @@ const CropRecommendation = () => {
               style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}
             >
               {loading ? (
-                <><RiLoader4Line className="spin" /> Generating Recommendations...</>
+                <><RiLoader4Line className="spin" /> {t('crops.generating', 'Generating Recommendations...')}</>
               ) : (
-                <><RiSparklingLine /> Get Recommendations</>
+                <><RiSparklingLine /> {t('crops.getRecommendations', 'Get Recommendations')}</>
               )}
             </button>
           </form>
@@ -347,9 +357,11 @@ const CropRecommendation = () => {
             <div className="crop-results">
               <div className="results-header">
                 <h4>
-                  <RiSeedlingLine className="results-icon" /> Recommendations
+                  <RiSeedlingLine className="results-icon" /> {t('crops.recommendationsTitle', 'Recommendations')}
                 </h4>
-                <span className="result-count">{recommendations.length} crops found</span>
+                <span className="result-count">
+                  {t('crops.cropsFound', '{{count}} crops found', { count: recommendations.length })}
+                </span>
               </div>
               <div className="crop-grid">
                 {recommendations.map((crop, idx) => (
@@ -368,7 +380,7 @@ const CropRecommendation = () => {
                     setSelectedHistory(null);
                     setRecommendations([]);
                   }}>
-                    Close History
+                    {t('crops.closeHistory', 'Close History')}
                   </button>
                 </div>
               )}
@@ -399,10 +411,10 @@ const CropRecommendation = () => {
           onSubmit={async (plantPayload) => {
             try {
               await addPlant(plantPayload);
-              addNotification(`Added ${plantPayload.name} to your garden!`, 'success');
+              addNotification(t('crops.addedToGarden', { name: getLocalizedDynamicText(plantPayload.name, i18n.language) }), 'success');
               setSelectedCropForAdd(null);
             } catch (err) {
-              addNotification('Failed to add plant', 'error');
+              addNotification(t('crops.addFailed', 'Failed to add plant'), 'error');
             }
           }}
         />

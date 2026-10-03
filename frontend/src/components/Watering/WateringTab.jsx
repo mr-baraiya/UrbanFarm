@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   RiDropLine, 
   RiRefreshLine, 
@@ -14,12 +15,14 @@ import { getPlants, generateWateringSchedule, getWateringSchedules, updateWateri
 import { getWeather, getForecast } from '../../services/weatherService';
 import { useAuth } from '../../hooks/useAuth';
 import { useNotification } from '../../hooks/useNotification';
+import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import WateringSchedule from './WateringSchedule';
 import WateringHistory from './WateringHistory';
 import WeatherWidget from './WeatherWidget';
 import './WateringTab.css';
 
 const WateringTab = () => {
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const [plants, setPlants] = useState([]);
   const [selectedPlant, setSelectedPlant] = useState(null);
@@ -88,7 +91,7 @@ const WateringTab = () => {
       }
     } catch (error) {
       console.error('Failed to load data:', error);
-      addNotification('Failed to load data', 'error');
+      addNotification(t('watering.failedLoadData', 'Failed to load data'), 'error');
     } finally {
       setLoadingData(false);
     }
@@ -144,10 +147,10 @@ const WateringTab = () => {
     try {
       const sched = await generateWateringSchedule(selectedPlant._id);
       setSchedule(sched);
-      addNotification('Watering schedule generated successfully!', 'success');
+      addNotification(t('watering.scheduleGeneratedSuccess', 'Watering schedule generated successfully!'), 'success');
       loadData();
     } catch (error) {
-      addNotification('Failed to generate schedule', 'error');
+      addNotification(t('watering.scheduleGeneratedFailed', 'Failed to generate schedule'), 'error');
     } finally {
       setLoading(false);
     }
@@ -200,11 +203,11 @@ const WateringTab = () => {
       setHistory(prev => prev.map(h => h._id === schedule._id ? updatedSchedule : h));
       setFilteredHistory(prev => prev.map(h => h._id === schedule._id ? updatedSchedule : h));
       
-      addNotification('Watering status updated!', 'success');
+      addNotification(t('watering.statusUpdated', 'Watering status updated!'), 'success');
       loadData();
     } catch (error) {
       console.error('Failed to update schedule:', error);
-      addNotification('Failed to update schedule', 'error');
+      addNotification(t('watering.updateFailed', 'Failed to update schedule'), 'error');
     }
   };
 
@@ -247,11 +250,11 @@ const WateringTab = () => {
       setHistory(prev => prev.map(h => h._id === schedule._id ? updatedSchedule : h));
       setFilteredHistory(prev => prev.map(h => h._id === schedule._id ? updatedSchedule : h));
 
-      addNotification(hasSkipped ? 'Watering session skipped!' : 'Skip canceled', 'info');
+      addNotification(hasSkipped ? t('watering.sessionSkipped', 'Watering session skipped!') : t('watering.skipCanceled', 'Skip canceled'), 'info');
       loadData();
     } catch (error) {
       console.error('Failed to skip watering:', error);
-      addNotification('Failed to skip watering', 'error');
+      addNotification(t('watering.skipFailed', 'Failed to skip watering'), 'error');
     }
   };
 
@@ -300,11 +303,11 @@ const WateringTab = () => {
       if (adjustment === 'rain_delay') {
         updatedSchedule.weatherAdjusted = true;
         updatedSchedule.skipReason = 'Rain delay applied';
-        addNotification('Rain delay applied! Skipping watering for 3 days.', 'info');
+        addNotification(t('watering.rainDelayApplied', 'Rain delay applied! Skipping watering for 3 days.'), 'info');
       } else if (adjustment === 'hot_weather') {
         updatedSchedule.weatherAdjusted = true;
         updatedSchedule.skipReason = 'Heatwave boost applied';
-        addNotification('Heatwave boost applied! Increased all volumes by 20%.', 'info');
+        addNotification(t('watering.heatwaveBoostApplied', 'Heatwave boost applied! Increased all volumes by 20%.'), 'info');
       }
       
       await updateWateringSchedule(schedule._id, {
@@ -314,10 +317,10 @@ const WateringTab = () => {
       });
       
       setSchedule(updatedSchedule);
-      addNotification('Schedule adjusted successfully!', 'success');
+      addNotification(t('watering.adjustedSuccess', 'Schedule adjusted successfully!'), 'success');
       loadData();
     } catch (error) {
-      addNotification('Failed to adjust schedule', 'error');
+      addNotification(t('watering.adjustFailed', 'Failed to adjust schedule'), 'error');
     }
   };
 
@@ -334,32 +337,34 @@ const WateringTab = () => {
       });
       
       setSchedule(updatedSchedule);
-      addNotification('Volume updated successfully!', 'success');
+      addNotification(t('watering.volumeUpdated', 'Volume updated successfully!'), 'success');
       loadData();
     } catch (error) {
-      addNotification('Failed to update volume', 'error');
+      addNotification(t('watering.volumeUpdateFailed', 'Failed to update volume'), 'error');
     }
   };
 
   const getPlantName = (plantId) => {
-    if (!plantId) return 'Unknown Plant';
+    if (!plantId) return t('watering.unknownPlant', 'Unknown Plant');
     if (typeof plantId === 'object' && plantId.name) {
-      return plantId.name;
+      return getLocalizedDynamicText(plantId.name, i18n.language);
     }
     const pidStr = (typeof plantId === 'object' ? plantId._id : plantId)?.toString();
     if (pidStr) {
       const plant = plants.find(p => p._id.toString() === pidStr);
-      return plant?.name || 'Unknown Plant';
+      if (plant?.name) {
+        return getLocalizedDynamicText(plant.name, i18n.language);
+      }
     }
-    return 'Unknown Plant';
+    return t('watering.unknownPlant', 'Unknown Plant');
   };
 
   return (
     <div className="watering-tab">
       <h2>
-        <RiDropLine className="header-icon" /> Smart Watering
+        <RiDropLine className="header-icon" /> {t('watering.title', 'Smart Watering')}
       </h2>
-      <p className="subtitle">Intelligent watering schedules powered by weather data</p>
+      <p className="subtitle">{t('watering.subtitle', 'Intelligent watering schedules powered by weather data')}</p>
       
       <div className="watering-layout">
         {/* Left Column - Generate & Current Schedule */}
@@ -374,10 +379,10 @@ const WateringTab = () => {
           {/* Plant Selector & Generate */}
           <div className="watering-generate-section">
             <div className="plant-selector">
-              <label>Select Plant:</label>
+              <label>{t('watering.selectPlant', 'Select Plant:')}</label>
               {loadingData ? (
                 <div className="plant-selector-skeleton">
-                  <RiLoader4Line className="spin" /> Loading plants...
+                  <RiLoader4Line className="spin" /> {t('watering.loadingPlants', 'Loading plants...')}
                 </div>
               ) : (
                 <select 
@@ -392,7 +397,7 @@ const WateringTab = () => {
                   }}
                 >
                   {plants.map(p => (
-                    <option key={p._id} value={p._id}>{p.name}</option>
+                    <option key={p._id} value={p._id}>{getLocalizedDynamicText(p.name, i18n.language)}</option>
                   ))}
                 </select>
               )}
@@ -403,9 +408,9 @@ const WateringTab = () => {
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
               >
                 {loading ? (
-                  <><RiLoader4Line className="spin" /> Generating...</>
+                  <><RiLoader4Line className="spin" /> {t('watering.generatingSchedule', 'Generating...')}</>
                 ) : (
-                  <><RiRefreshLine /> Generate Schedule</>
+                  <><RiRefreshLine /> {t('watering.generateSchedule', 'Generate Schedule')}</>
                 )}
               </button>
             </div>
@@ -415,23 +420,23 @@ const WateringTab = () => {
           {schedule && schedule.schedule && schedule.schedule.length > 0 && (
             <div className="bulk-controls">
               <span className="controls-label" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                <RiFlashlightLine /> Quick Adjust:
+                <RiFlashlightLine /> {t('watering.quickAdjust', 'Quick Adjust:')}
               </span>
               <button 
                 className="control-btn hot"
                 onClick={() => handleBulkAdjust('hot_weather')}
-                title="Increase all volumes by 20% for hot weather"
+                title={t('watering.heatwaveBoostTitle', 'Increase all volumes by 20% for hot weather')}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
               >
-                <RiSunLine /> Heatwave Boost
+                <RiSunLine /> {t('watering.heatwaveBoost', 'Heatwave Boost')}
               </button>
               <button 
                 className="control-btn rain"
                 onClick={() => handleBulkAdjust('rain_delay')}
-                title="Skip watering for next 3 days due to rain"
+                title={t('watering.rainDelayTitle', 'Skip watering for next 3 days due to rain')}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
               >
-                <RiRainyLine /> Rain Delay
+                <RiRainyLine /> {t('watering.rainDelay', 'Rain Delay')}
               </button>
             </div>
           )}
@@ -452,10 +457,10 @@ const WateringTab = () => {
           ) : (
             <div className="no-schedule-box" style={{ background: '#ffffff', padding: '2rem', borderRadius: '16px', textAlign: 'center', border: '1px solid rgba(0,0,0,0.1)' }}>
               <p style={{ color: '#4a3f3a', marginBottom: '1rem', fontWeight: 500 }}>
-                No active watering schedule generated yet for {selectedPlant?.name || 'this plant'}.
+                {t('watering.noScheduleForPlant', { plant: (selectedPlant?.name ? getLocalizedDynamicText(selectedPlant.name, i18n.language) : t('watering.thisPlant', 'this plant')) })}
               </p>
               <button className="btn-primary" onClick={handleGenerate} disabled={loading}>
-                Generate Schedule for {selectedPlant?.name || 'Plant'}
+                {t('watering.generateScheduleForPlant', { plant: (selectedPlant?.name ? getLocalizedDynamicText(selectedPlant.name, i18n.language) : t('watering.plant', 'Plant')) })}
               </button>
             </div>
           )}

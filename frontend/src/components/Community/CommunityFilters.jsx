@@ -10,6 +10,8 @@ import {
   RiSearchLine, 
   RiMapPinLine 
 } from 'react-icons/ri';
+import { useTranslation } from 'react-i18next';
+import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import './CommunityFilters.css';
 
 const CommunityFilters = ({
@@ -22,6 +24,8 @@ const CommunityFilters = ({
   posts = [],
   user = null,
 }) => {
+  const { t } = useTranslation();
+
   const getCount = (cat) => {
     if (!Array.isArray(posts)) return 0;
     if (cat === 'all') return posts.length;
@@ -37,13 +41,13 @@ const CommunityFilters = ({
   };
 
   const filterOptions = [
-    { value: 'all', label: 'All Posts', icon: <RiApps2Line /> },
-    { value: 'my_posts', label: 'My Posts', icon: <RiUser3Line /> },
-    { value: 'showcase', label: 'Harvests', icon: <RiShoppingBasketLine /> },
-    { value: 'question', label: 'Plant Help', icon: <RiQuestionLine /> },
-    { value: 'tip', label: 'Tips', icon: <RiLightbulbLine /> },
-    { value: 'event', label: 'Events', icon: <RiCalendarEventLine /> },
-    { value: 'general', label: 'General', icon: <RiChat3Line /> },
+    { value: 'all', label: t('community.filters.all', 'All Posts'), icon: <RiApps2Line /> },
+    { value: 'my_posts', label: t('community.filters.myPosts', 'My Posts'), icon: <RiUser3Line /> },
+    { value: 'showcase', label: t('community.filters.harvests', 'Harvests'), icon: <RiShoppingBasketLine /> },
+    { value: 'question', label: t('community.filters.plantHelp', 'Plant Help'), icon: <RiQuestionLine /> },
+    { value: 'tip', label: t('community.filters.tips', 'Tips'), icon: <RiLightbulbLine /> },
+    { value: 'event', label: t('community.filters.events', 'Events'), icon: <RiCalendarEventLine /> },
+    { value: 'general', label: t('community.filters.general', 'General'), icon: <RiChat3Line /> },
   ];
 
   // Get unique regions from posts
@@ -74,7 +78,7 @@ const CommunityFilters = ({
           <span className="search-icon"><RiSearchLine /></span>
           <input
             type="text"
-            placeholder="Search community posts..."
+            placeholder={t('community.filters.searchPlaceholder', 'Search community posts...')}
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
           />
@@ -85,21 +89,25 @@ const CommunityFilters = ({
         {regions.length > 0 && (
           <div className="region-filter">
             <span className="region-label">
-              <RiMapPinLine /> Filter by Region:
+              <RiMapPinLine /> {t('community.filters.filterByRegion', 'Filter by Region:')}
             </span>
             <select 
               value={filterRegion} 
               onChange={(e) => onFilterRegionChange(e.target.value)}
               className="region-select"
             >
-              <option value="all">All Regions</option>
+              <option value="all">{t('community.filters.allRegions', 'All Regions')}</option>
               {regions.map((region) => (
-                <option key={region} value={region}>{region}</option>
+                <option key={region} value={region}>{getLocalizedDynamicText(region)}</option>
               ))}
             </select>
           </div>
         )}
-        <span className="post-count">{posts.length} {posts.length === 1 ? 'post' : 'posts'} total</span>
+        <span className="post-count">
+          {posts.length === 1 
+            ? t('community.filters.postTotal', '1 post total', { count: posts.length })
+            : t('community.filters.postsTotal', '{{count}} posts total', { count: posts.length })}
+        </span>
       </div>
     </div>
   );

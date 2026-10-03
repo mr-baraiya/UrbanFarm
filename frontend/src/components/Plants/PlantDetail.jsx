@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { 
   RiArrowLeftLine, 
   RiShoppingBasketLine, 
@@ -14,13 +15,15 @@ import {
   RiRulerLine,
   RiSaveLine,
   RiAddLine,
-  RiCameraLine
+  RiCameraLine,
+  RiCalendarEventLine
 } from 'react-icons/ri';
 import { TbPlant2 } from 'react-icons/tb';
 import { useAuth } from '../../hooks/useAuth';
 import { getPlantById, updatePlant, addTimelineEntry, uploadImage } from '../../services/plantService';
 import { useNotification } from '../../hooks/useNotification';
 import { formatDate, getStatusColor, getPlantImage } from '../../utils/helpers';
+import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import QRCodeModal from '../Common/QRCodeModal';
 import HarvestTrackerModal from './HarvestTrackerModal';
 import './PlantDetail.css';
@@ -29,21 +32,29 @@ const PlantDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t, i18n } = useTranslation();
   const [plant, setPlant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [showQR, setShowQR] = useState(false);
   const [showHarvest, setShowHarvest] = useState(false);
+  const [showTimelineModal, setShowTimelineModal] = useState(false);
   const [editData, setEditData] = useState({});
   const [uploadingImg, setUploadingImg] = useState(false);
+  const [timelineDate, setTimelineDate] = useState(new Date().toISOString().split('T')[0]);
   const [newHeight, setNewHeight] = useState('');
   const [newNotes, setNewNotes] = useState('');
+  const [submittingTimeline, setSubmittingTimeline] = useState(false);
   const { addNotification } = useNotification();
 
-  const isOwner = user && plant && (
-    (plant.userId?._id && plant.userId._id === user._id) || 
-    plant.userId === user._id || 
-    user.role === 'admin'
+  const isOwner = Boolean(
+    user && (
+      user.role === 'admin' ||
+      (plant?.userId?._id && String(plant.userId._id) === String(user._id || user.id)) || 
+      (plant?.userId && String(plant.userId) === String(user._id || user.id)) ||
+      (plant?.userId?.email && user.email && plant.userId.email.toLowerCase() === user.email.toLowerCase()) ||
+      (plant?.userId?.name && user.name && plant.userId.name.trim().toLowerCase() === user.name.trim().toLowerCase())
+    )
   );
 
   useEffect(() => {
@@ -58,7 +69,7 @@ const PlantDetail = () => {
       setEditData(data);
     } catch (error) {
       console.error('Failed to load plant:', error);
-      addNotification('Plant not found', 'error');
+      addNotification(t('plants.emptyTitle', 'Plant not found'), 'error');
       if (user) {
         navigate('/app/plants');
       }
@@ -76,10 +87,9 @@ const PlantDetail = () => {
       const uploadedUrl = await uploadImage(file);
       if (uploadedUrl) {
         setEditData((prev) => ({ ...prev, imageUrl: uploadedUrl }));
-        addNotification('Image uploaded to Cloudinary successfully!', 'success');
+        addNotification('Image uploaded successfully!', 'success');
       }
     } catch (err) {
-      // Fallback to local base64 preview if Cloudinary fails
       const reader = new FileReader();
       reader.onloadend = () => {
         setEditData((prev) => ({ ...prev, imageUrl: reader.result }));
@@ -96,61 +106,88 @@ const PlantDetail = () => {
     try {
       await updatePlant(id, editData);
       setPlant({ ...plant, ...editData });
-      addNotification('Plant updated successfully!', 'success');
+      addNotification(t('messages.savedSuccessfully', 'Plant updated successfully!'), 'success');
       setEditing(false);
     } catch (error) {
-      addNotification('Update failed', 'error');
+      addNotification(t('messages.operationFailed', 'Update failed'), 'error');
     }
   };
 
   const handleAddTimeline = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!newHeight && !newNotes) return;
+    setSubmittingTimeline(true);
     try {
-      await addTimelineEntry(id, { height: parseFloat(newHeight) || 0, notes: newNotes });
-      addNotification('Growth entry added!', 'success');
+      await addTimelineEntry(id, {
+        date: timelineDate ? new Date(timelineDate) : new Date(),
+        height: parseFloat(newHeight) || 0,
+        notes: newNotes
+      });
+      addNotification(t('messages.savedSuccessfully', 'Growth entry added!'), 'success');
       setNewHeight('');
       setNewNotes('');
+      setTimelineDate(new Date().toISOString().split('T')[0]);
+      setShowTimelineModal(false);
       loadPlant();
     } catch (error) {
-      addNotification('Failed to add entry', 'error');
+      addNotification(t('messages.operationFailed', 'Failed to add entry'), 'error');
+    } finally {
+      setSubmittingTimeline(false);
     }
   };
 
   if (loading) {
-    return <div className="plant-detail-loading">Loading...</div>;
+    return <div className="plant-detail-loading">{t('common.loading', 'Loading...')}</div>;
   }
 
   if (!plant) {
-    return <div className="plant-detail-error">Plant not found</div>;
+    return <div className="plant-detail-error">{t('plants.emptyTitle', 'Plant not found')}</div>;
   }
+
+  const getHealthDisplay = (h) => {
+    if (h === 'healthy') return { label: t('plants.healthy', 'Healthy'), color: '#10b981' };
+    if (h === 'warning') return { label: t('plants.needsWater', 'Needs Attention'), color: '#f59e0b' };
+    if (h === 'unhealthy') return { label: t('plants.atRisk', 'At Risk'), color: '#ef4444' };
+    return { label: t('plants.healthy', 'Healthy'), color: '#10b981' };
+  };
+
+  const getGrowthStageDisplay = (s) => {
+    if (s === 'seedling') return t('plants.seedling', 'Seedling');
+    if (s === 'growing') return t('plants.statusGrowing', 'Growing');
+    if (s === 'mature') return t('plants.statusMature', 'Mature');
+    if (s === 'harvested') return t('plants.harvested', 'Harvesting');
+    if (s === 'dead') return t('plants.statusDead', 'Ended');
+    return t('plants.statusGrowing', 'Growing');
+  };
 
   const statusColor = getStatusColor(plant.status);
   const plantImg = getPlantImage(plant);
+  const health = getHealthDisplay(plant.health);
+  const growthLabel = getGrowthStageDisplay(plant.status);
 
   return (
     <div className="plant-detail">
       {/* Header */}
       <div className="detail-header">
         <button className="back-btn" onClick={() => navigate(user ? '/app/plants' : '/')}>
-          <RiArrowLeftLine /> {user ? 'Back to Plants' : 'Back to Home'}
+          <RiArrowLeftLine /> {user ? t('plants.backToPlants', 'Back to Plants') : t('navigation.backToHome', 'Back to Home')}
         </button>
         <div className="detail-actions">
           {isOwner && (
             <button className="btn-secondary" onClick={() => setShowHarvest(true)}>
-              <RiShoppingBasketLine /> Log Harvest
+              <RiShoppingBasketLine /> {t('plants.logHarvest', 'Log Harvest')}
             </button>
           )}
           <button className="btn-secondary" onClick={() => setShowQR(true)}>
-            <RiQrCodeLine /> QR Code / Share
+            <RiQrCodeLine /> {t('plants.qrCodeShare', 'QR Code / Share')}
           </button>
           {isOwner && (
             <button className="btn-secondary" onClick={() => setEditing(!editing)}>
-              {editing ? <><RiCloseLine /> Cancel</> : <><RiEditLine /> Edit</>}
+              {editing ? <><RiCloseLine /> {t('common.cancel', 'Cancel')}</> : <><RiEditLine /> {t('common.edit', 'Edit')}</>}
             </button>
           )}
           <button className="btn-primary" onClick={() => navigate(user ? `/app/diagnose?plant=${plant._id}` : `/login`)}>
-            <RiMicroscopeLine /> Diagnose
+            <RiMicroscopeLine /> {t('navigation.diagnose', 'Diagnose')}
           </button>
         </div>
       </div>
@@ -161,26 +198,26 @@ const PlantDetail = () => {
           <div className="plant-header">
             <div className="plant-avatar" style={{ background: statusColor + '22' }}>
               {plantImg ? (
-                <img src={plantImg} alt={plant.name} />
+                <img src={plantImg} alt={getLocalizedDynamicText(plant.name, i18n.language)} />
               ) : (
                 <TbPlant2 className="plant-avatar-icon" />
               )}
             </div>
             <div className="plant-title">
-              <h2>{plant.name}</h2>
-              {plant.variety && <span className="variety">{plant.variety}</span>}
+              <h2>{getLocalizedDynamicText(plant.name, i18n.language)}</h2>
+              {plant.variety && (
+                <span className="variety">{getLocalizedDynamicText(plant.variety, i18n.language)}</span>
+              )}
               {plant.scientificName && (
-                <span className="scientific">{plant.scientificName}</span>
+                <span className="scientific">{getLocalizedDynamicText(plant.scientificName, i18n.language)}</span>
               )}
               <div className="plant-badges">
                 <span className="status-badge" style={{ background: statusColor + '22', color: statusColor }}>
-                  {plant.status}
+                  {growthLabel}
                 </span>
-                <span className={`health-badge ${plant.health || 'healthy'}`}>
+                <span className={`health-badge ${plant.health || 'healthy'}`} style={{ color: health.color }}>
                   <span className={`health-dot ${plant.health || 'healthy'}`} />
-                  {plant.health === 'healthy' ? 'Healthy' : 
-                   plant.health === 'warning' ? 'Needs Attention' : 
-                   'At Risk'}
+                  {health.label}
                 </span>
               </div>
             </div>
@@ -191,14 +228,14 @@ const PlantDetail = () => {
             <form onSubmit={handleEditSubmit} className="edit-form">
               <div className="form-row">
                 <div className="form-group">
-                  <label>Name</label>
+                  <label>{t('common.name', 'Name')}</label>
                   <input
                     value={editData.name || ''}
                     onChange={(e) => setEditData({...editData, name: e.target.value})}
                   />
                 </div>
                 <div className="form-group">
-                  <label>Variety</label>
+                  <label>{t('plants.plantName', 'Variety')}</label>
                   <input
                     value={editData.variety || ''}
                     onChange={(e) => setEditData({...editData, variety: e.target.value})}
@@ -206,7 +243,7 @@ const PlantDetail = () => {
                 </div>
               </div>
               <div className="form-group">
-                <label>Plant Photo</label>
+                <label>{t('diagnose.uploadImage', 'Plant Photo')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.25rem' }}>
                   <div style={{ width: '56px', height: '56px', borderRadius: '10px', overflow: 'hidden', background: statusColor + '22', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid var(--border-light, rgba(0,0,0,0.1))' }}>
                     {editData.imageUrl ? (
@@ -217,7 +254,7 @@ const PlantDetail = () => {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                     <label htmlFor="detailImageUpload" className="btn-secondary" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.85rem', padding: '0.4rem 0.9rem', margin: 0 }}>
-                      <RiCameraLine /> {uploadingImg ? 'Uploading...' : 'Upload Photo'}
+                      <RiCameraLine /> {uploadingImg ? t('common.loading', 'Uploading...') : t('diagnose.uploadImage', 'Upload Photo')}
                     </label>
                     <input
                       id="detailImageUpload"
@@ -233,14 +270,14 @@ const PlantDetail = () => {
                         onClick={() => setEditData({ ...editData, imageUrl: '' })}
                         style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.82rem', padding: '0.2rem 0.4rem' }}
                       >
-                        Remove
+                        {t('common.delete', 'Remove')}
                       </button>
                     )}
                   </div>
                 </div>
               </div>
               <div className="form-group">
-                <label>Notes</label>
+                <label>{t('plants.notes', 'Notes')}</label>
                 <textarea
                   value={editData.notes || ''}
                   onChange={(e) => setEditData({...editData, notes: e.target.value})}
@@ -249,7 +286,7 @@ const PlantDetail = () => {
               </div>
               <div className="form-actions">
                 <button type="submit" className="btn-primary">
-                  <RiSaveLine /> Save Changes
+                  <RiSaveLine /> {t('common.save', 'Save Changes')}
                 </button>
               </div>
             </form>
@@ -259,31 +296,31 @@ const PlantDetail = () => {
               <div className="detail-grid">
                 {plant.userId && (
                   <div className="detail-item">
-                    <span className="label">Planted By</span>
-                    <span className="value">{plant.userId.name || 'Urban Gardener'}</span>
+                    <span className="label">{t('plants.plantedBy', 'PLANTED BY')}</span>
+                    <span className="value">{getLocalizedDynamicText(plant.userId.name || 'Urban Gardener', i18n.language)}</span>
                   </div>
                 )}
                 <div className="detail-item">
-                  <span className="label">Garden</span>
-                  <span className="value">{plant.gardenId?.name || 'None'}</span>
+                  <span className="label">{t('navigation.gardens', 'GARDEN')}</span>
+                  <span className="value">{getLocalizedDynamicText(plant.gardenId?.name || t('common.none', 'None'), i18n.language)}</span>
                 </div>
                 <div className="detail-item">
-                  <span className="label">Planted</span>
-                  <span className="value">{plant.plantingDate ? formatDate(plant.plantingDate) : 'Not set'}</span>
+                  <span className="label">{t('plants.plantedDate', 'PLANTED')}</span>
+                  <span className="value">{plant.plantingDate ? formatDate(plant.plantingDate, i18n.language) : t('common.none', 'Not set')}</span>
                 </div>
                 <div className="detail-item">
-                  <span className="label">Water Frequency</span>
-                  <span className="value">Every {plant.waterFrequency !== undefined && plant.waterFrequency !== null ? plant.waterFrequency : 3} days</span>
+                  <span className="label">{t('plants.waterFrequency', 'WATER FREQUENCY')}</span>
+                  <span className="value">{t('plants.everyDays', 'Every {{days}} days', { days: plant.waterFrequency !== undefined && plant.waterFrequency !== null ? plant.waterFrequency : 3 })}</span>
                 </div>
                 <div className="detail-item">
-                  <span className="label">Sunlight</span>
+                  <span className="label">{t('crops.selectSunlight', 'SUNLIGHT')}</span>
                   <span className="value">
                     {plant.sunlight === 'full' ? (
-                      <><RiSunLine className="meta-icon sun" /> Full Sun</>
+                      <><RiSunLine className="meta-icon sun" /> {t('plants.fullSun', 'Full Sun')}</>
                     ) : plant.sunlight === 'partial' ? (
-                      <><RiSunCloudyLine className="meta-icon shade" /> Partial Shade</>
+                      <><RiSunCloudyLine className="meta-icon shade" /> {t('plants.partialShade', 'Partial Shade')}</>
                     ) : (
-                      <><RiSunCloudyLine className="meta-icon shade" /> Shade</>
+                      <><RiSunCloudyLine className="meta-icon shade" /> {t('plants.shade', 'Shade')}</>
                     )}
                   </span>
                 </div>
@@ -292,9 +329,9 @@ const PlantDetail = () => {
               {plant.notes && (
                 <div className="plant-notes">
                   <h4>
-                    <RiFileTextLine className="section-icon" /> Notes
+                    <RiFileTextLine className="section-icon" /> {t('plants.notes', 'Notes')}
                   </h4>
-                  <p>{plant.notes}</p>
+                  <p>{getLocalizedDynamicText(plant.notes, i18n.language)}</p>
                 </div>
               )}
             </>
@@ -302,28 +339,42 @@ const PlantDetail = () => {
 
           {/* Growth Timeline */}
           <div className="growth-timeline">
-            <h4>
-              <RiLineChartLine className="section-icon" /> Growth Timeline
-            </h4>
+            <div className="growth-timeline-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+              <h4 style={{ margin: 0 }}>
+                <RiLineChartLine className="section-icon" /> {t('plants.growthTimeline', 'Growth Timeline')}
+              </h4>
+              {isOwner && (
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => setShowTimelineModal(true)}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.35rem 0.85rem', fontSize: '0.85rem', cursor: 'pointer', borderRadius: '12px' }}
+                >
+                  <RiAddLine /> {t('plants.addTimelineEntry', 'Add Growth Entry')}
+                </button>
+              )}
+            </div>
+
             {plant.growthTimeline?.length === 0 ? (
-              <p className="no-timeline">No growth entries yet.</p>
+              <p className="no-timeline">{t('plants.noTimeline', 'No growth entries yet.')}</p>
             ) : (
               <div className="timeline-list">
                 {plant.growthTimeline?.map((entry, idx) => (
                   <div key={idx} className="timeline-item">
-                    <span className="timeline-date">{formatDate(entry.date)}</span>
+                    <span className="timeline-date">{formatDate(entry.date, i18n.language)}</span>
                     {entry.height && (
                       <span className="timeline-height">
                         <RiRulerLine className="ruler-icon" /> {entry.height} cm
                       </span>
                     )}
-                    {entry.notes && <span className="timeline-notes">{entry.notes}</span>}
+                    {entry.notes && <span className="timeline-notes">{getLocalizedDynamicText(entry.notes, i18n.language)}</span>}
                   </div>
                 ))}
               </div>
             )}
+
             {isOwner && (
-              <form onSubmit={handleAddTimeline} className="add-timeline">
+              <form onSubmit={handleAddTimeline} className="add-timeline" style={{ marginTop: '1.25rem' }}>
                 <input
                   type="number"
                   placeholder="Height (cm)"
@@ -333,18 +384,104 @@ const PlantDetail = () => {
                 />
                 <input
                   type="text"
-                  placeholder="Notes"
+                  placeholder={t('plants.notes', 'Notes')}
                   value={newNotes}
                   onChange={(e) => setNewNotes(e.target.value)}
                 />
                 <button type="submit" className="btn-primary">
-                  <RiAddLine /> Add Entry
+                  <RiAddLine /> {t('plants.addTimelineEntry', 'Add Entry')}
                 </button>
               </form>
             )}
           </div>
         </div>
       </div>
+
+      {/* Add Timeline Modal */}
+      {showTimelineModal && (
+        <div 
+          className="modal-overlay" 
+          onClick={() => setShowTimelineModal(false)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}
+        >
+          <div 
+            className="modal-container"
+            onClick={(e) => e.stopPropagation()}
+            style={{ background: 'var(--surface-primary, #ffffff)', borderRadius: '20px', padding: '1.75rem', width: '100%', maxWidth: '480px', boxShadow: '0 20px 50px rgba(0,0,0,0.2)', border: '1px solid var(--border)' }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
+              <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <RiLineChartLine style={{ color: 'var(--sage, #6b9080)' }} /> {t('plants.addTimelineEntry', 'Add Growth Entry')}
+              </h3>
+              <button 
+                onClick={() => setShowTimelineModal(false)}
+                style={{ background: 'none', border: 'none', fontSize: '1.4rem', cursor: 'pointer', color: 'var(--text-muted)' }}
+              >
+                <RiCloseLine />
+              </button>
+            </div>
+            
+            <form onSubmit={handleAddTimeline} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                  {t('common.date', 'Date')}
+                </label>
+                <input
+                  type="date"
+                  value={timelineDate}
+                  onChange={(e) => setTimelineDate(e.target.value)}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '12px', border: '1px solid var(--border)', boxSizing: 'border-box', background: 'var(--bg-primary)' }}
+                  required
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                  Height (cm)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  placeholder="e.g. 28.5"
+                  value={newHeight}
+                  onChange={(e) => setNewHeight(e.target.value)}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '12px', border: '1px solid var(--border)', boxSizing: 'border-box', background: 'var(--bg-primary)' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                  {t('plants.notes', 'Notes / Observations')}
+                </label>
+                <textarea
+                  placeholder="e.g. Healthy new leaves sprouted, ready for trimming"
+                  value={newNotes}
+                  onChange={(e) => setNewNotes(e.target.value)}
+                  rows="3"
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '12px', border: '1px solid var(--border)', boxSizing: 'border-box', background: 'var(--bg-primary)', resize: 'vertical' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.75rem' }}>
+                <button 
+                  type="button" 
+                  className="btn-secondary" 
+                  onClick={() => setShowTimelineModal(false)}
+                >
+                  {t('common.cancel', 'Cancel')}
+                </button>
+                <button 
+                  type="submit" 
+                  className="btn-primary"
+                  disabled={submittingTimeline || (!newHeight && !newNotes)}
+                >
+                  <RiAddLine /> {submittingTimeline ? t('common.loading', 'Adding...') : t('plants.addTimelineEntry', 'Add Entry')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* QR Code Modal */}
       {showQR && (

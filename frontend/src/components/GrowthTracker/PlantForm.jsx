@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { RiCameraLine, RiCloseLine, RiPlantLine, RiImageLine, RiDeleteBinLine } from 'react-icons/ri';
+import { useTranslation } from 'react-i18next';
 import { addPlant, updatePlant, getGardens, uploadImage } from '../../services/plantService';
-import { PLANT_STATUSES, SUNLIGHT_OPTIONS } from '../../utils/constants';
 import { useNotification } from '../../hooks/useNotification';
 import { validatePlantForm } from '../../utils/validators';
+import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import './PlantForm.css';
 
 const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onSubmit }) => {
+  const { t } = useTranslation();
   const [gardens, setGardens] = useState(propGardens || []);
   const [imagePreview, setImagePreview] = useState(plant?.imageUrl || null);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -25,6 +27,20 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onS
     imageUrl: '',
   });
   const { addNotification } = useNotification();
+
+  const statusOptions = [
+    { value: 'seedling', label: t('plants.form.statuses.seedling', 'Seedling') },
+    { value: 'growing', label: t('plants.form.statuses.growing', 'Growing') },
+    { value: 'mature', label: t('plants.form.statuses.mature', 'Mature') },
+    { value: 'harvested', label: t('plants.form.statuses.harvested', 'Harvested') },
+    { value: 'dead', label: t('plants.form.statuses.dead', 'Dead') },
+  ];
+
+  const sunlightOptions = [
+    { value: 'full', label: t('plants.form.sunlight.full', 'Full Sun') },
+    { value: 'partial', label: t('plants.form.sunlight.partial', 'Partial Sun') },
+    { value: 'shade', label: t('plants.form.sunlight.shade', 'Shade') },
+  ];
 
   useEffect(() => {
     if (!propGardens) {
@@ -80,7 +96,7 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onS
       if (cloudUrl) {
         setFormData((prev) => ({ ...prev, imageUrl: cloudUrl }));
         setImagePreview(cloudUrl);
-        addNotification('Photo uploaded to Cloudinary!', 'success');
+        addNotification(t('plants.notifications.photoUploaded', 'Photo uploaded to Cloudinary!'), 'success');
       }
     } catch (err) {
       console.warn('Direct upload error, saving local image:', err);
@@ -89,7 +105,7 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onS
       reader.onloadend = () => {
         setFormData((prev) => ({ ...prev, imageUrl: reader.result }));
         setImagePreview(reader.result);
-        addNotification('Photo set successfully!', 'success');
+        addNotification(t('plants.notifications.photoSet', 'Photo set successfully!'), 'success');
       };
       reader.readAsDataURL(file);
     } finally {
@@ -123,15 +139,15 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onS
         await onSubmit(payload);
       } else if (plant?._id) {
         await updatePlant(plant._id, payload);
-        addNotification('Plant updated successfully!', 'success');
+        addNotification(t('plants.notifications.plantUpdated', 'Plant updated successfully!'), 'success');
       } else {
         await addPlant(payload);
-        addNotification('Plant saved successfully!', 'success');
+        addNotification(t('plants.notifications.plantSaved', 'Plant saved successfully!'), 'success');
       }
 
       onClose();
     } catch (error) {
-      addNotification('Failed to save plant', 'error');
+      addNotification(t('plants.notifications.saveFailed', 'Failed to save plant'), 'error');
     } finally {
       setLoading(false);
     }
@@ -142,7 +158,7 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onS
       <div className="modal-content plant-form" onClick={(e) => e.stopPropagation()}>
         <div className="form-header">
           <h3>
-            <RiPlantLine className="form-header-icon" /> {plant ? 'Edit Plant' : 'Add New Plant'}
+            <RiPlantLine className="form-header-icon" /> {plant ? t('plants.form.editTitle', 'Edit Plant') : t('plants.form.createTitle', 'Add New Plant')}
           </h3>
           <button className="close-btn" onClick={onClose} aria-label="Close">
             <RiCloseLine />
@@ -152,14 +168,14 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onS
           {/* Image Upload Area */}
           <div className="form-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-              <label style={{ margin: 0 }}>Plant Photo</label>
+              <label style={{ margin: 0 }}>{t('plants.form.photoLabel', 'Plant Photo')}</label>
               {imagePreview && (
                 <button 
                   type="button" 
                   onClick={handleClearImage}
                   style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}
                 >
-                  <RiDeleteBinLine /> Remove Photo
+                  <RiDeleteBinLine /> {t('plants.form.removePhoto', 'Remove Photo')}
                 </button>
               )}
             </div>
@@ -170,14 +186,14 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onS
             >
               {uploadingImage ? (
                 <div className="upload-placeholder">
-                  <span style={{ fontSize: '0.9rem', color: '#2d6a4f', fontWeight: 600 }}>Uploading to Cloudinary...</span>
+                  <span style={{ fontSize: '0.9rem', color: '#2d6a4f', fontWeight: 600 }}>{t('plants.form.uploading', 'Uploading to Cloudinary...')}</span>
                 </div>
               ) : imagePreview ? (
                 <img src={imagePreview} alt="Plant preview" className="image-preview" />
               ) : (
                 <div className="upload-placeholder">
                   <RiCameraLine className="camera-icon" />
-                  <span>Click or drag photo to auto-upload</span>
+                  <span>{t('plants.form.uploadClick', 'Click or drag photo to auto-upload')}</span>
                 </div>
               )}
               <input
@@ -193,49 +209,49 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onS
 
           <div className="form-row">
             <div className="form-group">
-              <label>Plant Name *</label>
+              <label>{t('plants.form.nameLabel', 'Plant Name *')}</label>
               <input
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="e.g., Tomato"
+                placeholder={t('plants.form.namePlaceholder', 'e.g., Tomato')}
                 className={errors.name ? 'input-error' : ''}
               />
               {errors.name && <span className="error-text">{errors.name}</span>}
             </div>
             <div className="form-group">
-              <label>Variety</label>
+              <label>{t('plants.form.varietyLabel', 'Variety')}</label>
               <input
                 name="variety"
                 value={formData.variety}
                 onChange={handleChange}
-                placeholder="e.g., Cherry, Roma"
+                placeholder={t('plants.form.varietyPlaceholder', 'e.g., Cherry, Roma')}
               />
             </div>
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label>Scientific Name</label>
+              <label>{t('plants.form.scientificLabel', 'Scientific Name')}</label>
               <input
                 name="scientificName"
                 value={formData.scientificName}
                 onChange={handleChange}
-                placeholder="e.g., Solanum lycopersicum"
+                placeholder={t('plants.form.scientificPlaceholder', 'e.g., Solanum lycopersicum')}
               />
             </div>
             <div className="form-group">
-              <label>Garden *</label>
+              <label>{t('plants.form.gardenLabel', 'Garden *')}</label>
               <select
                 name="gardenId"
                 value={formData.gardenId}
                 onChange={handleChange}
                 className={errors.gardenId ? 'input-error' : ''}
               >
-                <option value="" disabled hidden>Select a garden</option>
+                <option value="" disabled hidden>{t('plants.form.selectGarden', 'Select a garden')}</option>
                 {gardens.map((g) => (
                   <option key={g._id} value={g._id}>
-                    {g.name}
+                    {getLocalizedDynamicText(g.name)}
                   </option>
                 ))}
               </select>
@@ -245,9 +261,9 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onS
 
           <div className="form-row">
             <div className="form-group">
-              <label>Status</label>
+              <label>{t('plants.form.statusLabel', 'Status')}</label>
               <select name="status" value={formData.status} onChange={handleChange}>
-                {PLANT_STATUSES.map((s) => (
+                {statusOptions.map((s) => (
                   <option key={s.value} value={s.value}>
                     {s.label}
                   </option>
@@ -255,9 +271,9 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onS
               </select>
             </div>
             <div className="form-group">
-              <label>Sunlight</label>
+              <label>{t('plants.form.sunlightLabel', 'Sunlight')}</label>
               <select name="sunlight" value={formData.sunlight} onChange={handleChange}>
-                {SUNLIGHT_OPTIONS.map((s) => (
+                {sunlightOptions.map((s) => (
                   <option key={s.value} value={s.value}>
                     {s.label}
                   </option>
@@ -268,7 +284,7 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onS
 
           <div className="form-row">
             <div className="form-group">
-              <label>Planting Date</label>
+              <label>{t('plants.form.plantingDateLabel', 'Planting Date')}</label>
               <input
                 type="date"
                 name="plantingDate"
@@ -277,7 +293,7 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onS
               />
             </div>
             <div className="form-group">
-              <label>Water Frequency (days)</label>
+              <label>{t('plants.form.waterFreqLabel', 'Water Frequency (days)')}</label>
               <input
                 type="number"
                 name="waterFrequency"
@@ -291,22 +307,22 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onS
           </div>
 
           <div className="form-group">
-            <label>Notes</label>
+            <label>{t('plants.form.notesLabel', 'Notes')}</label>
             <textarea
               name="notes"
               value={formData.notes}
               onChange={handleChange}
-              placeholder="Any special care instructions..."
+              placeholder={t('plants.form.notesPlaceholder', 'Any special care instructions...')}
               rows="2"
             />
           </div>
 
           <div className="form-actions">
             <button type="button" className="btn-secondary" onClick={onClose}>
-              Cancel
+              {t('common.cancel', 'Cancel')}
             </button>
             <button type="submit" className="btn-primary" disabled={loading || uploadingImage}>
-              {loading ? 'Saving...' : plant ? 'Update Plant' : 'Add Plant'}
+              {loading ? t('common.saving', 'Saving...') : plant ? t('plants.form.updateBtn', 'Update Plant') : t('plants.form.addBtn', 'Add Plant')}
             </button>
           </div>
         </form>

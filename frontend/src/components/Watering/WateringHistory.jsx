@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   RiFileList3Line, 
   RiCheckLine, 
@@ -11,6 +12,7 @@ import {
   RiLoader4Line
 } from 'react-icons/ri';
 import { TbPlant2 } from 'react-icons/tb';
+import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import './WateringHistory.css';
 
 const WateringHistory = ({ 
@@ -23,12 +25,14 @@ const WateringHistory = ({
   getPlantName,
   loading 
 }) => {
+  const { t, i18n } = useTranslation();
+
   const filterOptions = [
-    { value: 'all', label: 'All' },
-    { value: 'pending', label: 'Pending', icon: <RiTimeLine /> },
-    { value: 'completed', label: 'Completed', icon: <RiCheckLine /> },
-    { value: 'missed', label: 'Missed', icon: <RiCloseLine /> },
-    { value: 'skipped', label: 'Skipped', icon: <RiSkipForwardLine /> },
+    { value: 'all', label: t('watering.filterAll', 'All') },
+    { value: 'pending', label: t('watering.filterPending', 'Pending'), icon: <RiTimeLine /> },
+    { value: 'completed', label: t('watering.filterCompleted', 'Completed'), icon: <RiCheckLine /> },
+    { value: 'missed', label: t('watering.filterMissed', 'Missed'), icon: <RiCloseLine /> },
+    { value: 'skipped', label: t('watering.filterSkipped', 'Skipped'), icon: <RiSkipForwardLine /> },
   ];
 
   if (loading) {
@@ -36,12 +40,12 @@ const WateringHistory = ({
       <div className="watering-history loading-state-card">
         <div className="history-header">
           <h3>
-            <RiFileList3Line className="history-header-icon" /> Watering History
+            <RiFileList3Line className="history-header-icon" /> {t('watering.historyTitle', 'Watering History')}
           </h3>
         </div>
         <div className="history-loading-spinner-area">
           <RiLoader4Line className="spin history-spin-icon" />
-          <span className="history-loading-msg">Loading watering sessions...</span>
+          <span className="history-loading-msg">{t('watering.loadingSessions', 'Loading watering sessions...')}</span>
         </div>
         <div className="history-skeleton-list">
           <div className="history-skeleton-card shimmer"></div>
@@ -67,24 +71,24 @@ const WateringHistory = ({
     <div className="watering-history">
       <div className="history-header">
         <h3>
-          <RiFileList3Line className="history-header-icon" /> Watering History
+          <RiFileList3Line className="history-header-icon" /> {t('watering.historyTitle', 'Watering History')}
         </h3>
-        <span className="history-count">{history.length} sessions</span>
+        <span className="history-count">{t('watering.sessionsCount', { count: history.length, defaultValue: `${history.length} sessions` })}</span>
       </div>
 
       {/* Stats Summary */}
       <div className="history-stats">
         <div className="stat-item">
           <span className="stat-value">{completionRate}%</span>
-          <span className="stat-label">Completion Rate</span>
+          <span className="stat-label">{t('watering.completionRateUpper', 'COMPLETION RATE')}</span>
         </div>
         <div className="stat-item">
           <span className="stat-value">{totalEvents}</span>
-          <span className="stat-label">Total Events</span>
+          <span className="stat-label">{t('watering.totalEventsUpper', 'TOTAL EVENTS')}</span>
         </div>
         <div className="stat-item">
           <span className="stat-value">{handledEvents}</span>
-          <span className="stat-label">Handled</span>
+          <span className="stat-label">{t('watering.handledUpper', 'HANDLED')}</span>
         </div>
       </div>
 
@@ -111,8 +115,8 @@ const WateringHistory = ({
           <span className="no-history-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
             <RiDropLine style={{ color: '#0ea5e9' }} />
           </span>
-          <p>No watering schedules yet.</p>
-          <p className="sub-text">Generate a schedule for your plants!</p>
+          <p>{t('watering.noHistoryTitle', 'No watering schedules yet.')}</p>
+          <p className="sub-text">{t('watering.noHistorySubtitle', 'Generate a schedule for your plants!')}</p>
         </div>
       ) : (
         <div className="history-list">
@@ -128,35 +132,44 @@ const WateringHistory = ({
             }).length;
             
             let statusIcon = <RiTimeLine style={{ color: '#0ea5e9' }} />;
-            let statusLabel = 'Pending';
+            let statusClass = 'pending';
+            let statusText = t('watering.statusPending', 'Pending');
+
             if ((completed === events.length || handledCount === events.length) && events.length > 0) {
               statusIcon = <RiCheckLine style={{ color: '#10b981' }} />;
-              statusLabel = 'Completed';
+              statusClass = 'completed';
+              statusText = t('watering.statusCompleted', 'Completed');
             } else if (handledCount > 0) {
               statusIcon = <RiTimeLine style={{ color: '#f59e0b' }} />;
-              statusLabel = 'In Progress';
+              statusClass = 'inprogress';
+              statusText = t('watering.statusInProgress', 'In Progress');
             } else if (skipped > 0 && missed === 0) {
               statusIcon = <RiSkipForwardLine style={{ color: '#64748b' }} />;
-              statusLabel = 'Skipped';
+              statusClass = 'skipped';
+              statusText = t('watering.statusSkipped', 'Skipped');
             } else if (missed > 0) {
               statusIcon = <RiAlertLine style={{ color: '#ef4444' }} />;
-              statusLabel = 'Missed';
+              statusClass = 'missed';
+              statusText = t('watering.statusMissed', 'Missed');
             }
 
             // Determine display date: prefer latest completedAt timestamp or updatedAt date
             const completedWithTimestamp = events.filter(e => (e.completed || e.skipped) && e.completedAt);
-            let displayDate = item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '';
+            let displayDate = item.createdAt ? new Date(item.createdAt).toLocaleDateString(i18n.language) : '';
             if (completedWithTimestamp.length > 0) {
               const latestTime = completedWithTimestamp.reduce((max, e) => {
                 const t = new Date(e.completedAt).getTime();
                 return t > max ? t : max;
               }, 0);
               if (latestTime > 0) {
-                displayDate = new Date(latestTime).toLocaleDateString();
+                displayDate = new Date(latestTime).toLocaleDateString(i18n.language);
               }
             } else if (item.updatedAt) {
-              displayDate = new Date(item.updatedAt).toLocaleDateString();
+              displayDate = new Date(item.updatedAt).toLocaleDateString(i18n.language);
             }
+
+            const rawPlantName = getPlantName(item.plantId);
+            const localizedPlantName = getLocalizedDynamicText(rawPlantName, i18n.language);
 
             return (
               <div 
@@ -166,7 +179,7 @@ const WateringHistory = ({
               >
                 <div className="history-header-row">
                   <span className="history-plant-name">
-                    <TbPlant2 className="plant-icon" /> {getPlantName(item.plantId)}
+                    <TbPlant2 className="plant-icon" /> {localizedPlantName}
                   </span>
                   <span className="history-date">
                     {displayDate}
@@ -174,19 +187,19 @@ const WateringHistory = ({
                 </div>
                 
                 <div className="history-details">
-                  <span className={`history-status-badge ${statusLabel.toLowerCase().replace(' ', '')}`}>
-                    {statusIcon} {statusLabel}
+                  <span className={`history-status-badge ${statusClass}`}>
+                    {statusIcon} {statusText}
                   </span>
                   <span className="history-adj-badge">
-                    {handledCount}/{events.length} events
+                    {t('watering.eventsCount', { handled: handledCount, total: events.length, defaultValue: `${handledCount}/${events.length} events` })}
                   </span>
                   {item.weatherAdjusted && (
                     <span className="history-adj-badge">
-                      <RiSunCloudyLine /> Weather adjusted
+                      <RiSunCloudyLine /> {t('watering.weatherAdjustedTag', 'Weather adjusted')}
                     </span>
                   )}
                   {item.skipReason && (
-                    <span className="history-adj-badge">{item.skipReason}</span>
+                    <span className="history-adj-badge">{getLocalizedDynamicText(item.skipReason, i18n.language)}</span>
                   )}
                 </div>
               </div>

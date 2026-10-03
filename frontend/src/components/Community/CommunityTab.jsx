@@ -10,6 +10,7 @@ import {
   RiSeedlingLine 
 } from 'react-icons/ri';
 import { TbPlant2 } from 'react-icons/tb';
+import { useTranslation } from 'react-i18next';
 import { getCommunityPosts, createPost, updatePost, deletePost, deleteComment, toggleLike, getLeaderboard, addComment } from '../../services/plantService';
 import { useAuth } from '../../hooks/useAuth';
 import { useNotification } from '../../hooks/useNotification';
@@ -21,6 +22,7 @@ import Leaderboard, { LeaderboardRightRail } from './Leaderboard';
 import './CommunityTab.css';
 
 const CommunityTab = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
@@ -79,7 +81,7 @@ const CommunityTab = () => {
       setLeaderboard(leaderboardData || []);
     } catch (error) {
       console.error('Failed to load community data:', error);
-      addNotification('Failed to load posts', 'error');
+      addNotification(t('community.notifications.loadFailed', 'Failed to load posts'), 'error');
     } finally {
       setLoading(false);
     }
@@ -146,7 +148,7 @@ const CommunityTab = () => {
         };
       }));
     } catch (error) {
-      addNotification('Failed to update like', 'error');
+      addNotification(t('community.notifications.likeFailed', 'Failed to update like'), 'error');
     }
   };
 
@@ -156,9 +158,9 @@ const CommunityTab = () => {
       setPosts(posts.map(p => 
         p._id === postId ? updated : p
       ));
-      addNotification('Comment added!', 'success');
+      addNotification(t('community.notifications.commentAdded', 'Comment added!'), 'success');
     } catch (error) {
-      addNotification('Failed to add comment', 'error');
+      addNotification(t('community.notifications.commentFailed', 'Failed to add comment'), 'error');
     }
   };
 
@@ -166,34 +168,34 @@ const CommunityTab = () => {
     try {
       const updated = await deleteComment(postId, commentId);
       setPosts(posts.map(p => p._id === postId ? updated : p));
-      addNotification('Comment deleted', 'success');
+      addNotification(t('community.notifications.commentDeleted', 'Comment deleted'), 'success');
     } catch (error) {
-      addNotification('Failed to delete comment', 'error');
+      addNotification(t('community.notifications.commentDeleteFailed', 'Failed to delete comment'), 'error');
     }
   };
 
   const promptDeletePost = (postId) => {
     setConfirmConfig({
       isOpen: true,
-      title: 'Delete Community Post',
-      message: 'Are you sure you want to permanently delete this post?',
+      title: t('community.deleteModalTitle', 'Delete Community Post'),
+      message: t('community.deleteModalMsg', 'Are you sure you want to permanently delete this post?'),
       onConfirm: async () => {
         try {
           await deletePost(postId);
           setPosts(posts.filter(p => p._id !== postId));
-          addNotification('Post deleted successfully', 'success');
+          addNotification(t('community.notifications.postDeleted', 'Post deleted successfully'), 'success');
         } catch (error) {
-          addNotification('Failed to delete post', 'error');
+          addNotification(t('community.notifications.postDeleteFailed', 'Failed to delete post'), 'error');
         }
       }
     });
   };
 
   const getUserLevel = (userData) => {
-    if (!userData) return { level: 'Seedling', icon: <RiSeedlingLine style={{ color: '#65a30d' }} />, points: 0 };
+    if (!userData) return { level: t('community.levels.seedling', 'Seedling'), icon: <RiSeedlingLine style={{ color: '#65a30d' }} />, points: 0 };
     
     const currentUserId = (userData._id || userData.id)?.toString();
-    if (!currentUserId) return { level: 'Seedling', icon: <RiSeedlingLine style={{ color: '#65a30d' }} />, points: 0 };
+    if (!currentUserId) return { level: t('community.levels.seedling', 'Seedling'), icon: <RiSeedlingLine style={{ color: '#65a30d' }} />, points: 0 };
 
     const postCount = posts.filter(p => {
       const pUserId = (p.userId?._id || p.userId)?.toString();
@@ -221,10 +223,10 @@ const CommunityTab = () => {
     // Points rule: 10 pts per post, 2 pts per like received, 5 pts per comment made
     const totalPoints = (postCount * 10) + (likeCount * 2) + (commentCount * 5);
     
-    if (totalPoints >= 100) return { level: 'Master Gardener', icon: <RiMedalLine style={{ color: '#eab308' }} />, points: totalPoints };
-    if (totalPoints >= 50) return { level: 'Green Thumb', icon: <RiLeafLine style={{ color: '#16a34a' }} />, points: totalPoints };
-    if (totalPoints >= 20) return { level: 'Urban Farmer', icon: <TbPlant2 style={{ color: '#2c5e3b' }} />, points: totalPoints };
-    return { level: 'Seedling', icon: <RiSeedlingLine style={{ color: '#65a30d' }} />, points: totalPoints };
+    if (totalPoints >= 100) return { level: t('community.levels.masterGardener', 'Master Gardener'), icon: <RiMedalLine style={{ color: '#eab308' }} />, points: totalPoints };
+    if (totalPoints >= 50) return { level: t('community.levels.greenThumb', 'Green Thumb'), icon: <RiLeafLine style={{ color: '#16a34a' }} />, points: totalPoints };
+    if (totalPoints >= 20) return { level: t('community.levels.urbanFarmer', 'Urban Farmer'), icon: <TbPlant2 style={{ color: '#2c5e3b' }} />, points: totalPoints };
+    return { level: t('community.levels.seedling', 'Seedling'), icon: <RiSeedlingLine style={{ color: '#65a30d' }} />, points: totalPoints };
   };
 
   const userLevel = user ? getUserLevel(user) : null;
@@ -245,7 +247,7 @@ const CommunityTab = () => {
     return (
       <div className="community-loading">
         <div className="loading-spinner"></div>
-        <p>Loading community posts & leaderboard...</p>
+        <p>{t('community.loadingPosts', 'Loading community posts & leaderboard...')}</p>
       </div>
     );
   }
@@ -264,11 +266,11 @@ const CommunityTab = () => {
       <div className="community-header">
         <div className="header-left">
           <h2>
-            <RiTeamLine className="header-icon" /> UrbanFarm Social
+            <RiTeamLine className="header-icon" /> {t('community.socialHeader', 'UrbanFarm Social')}
           </h2>
           {userLevel && (
             <span className="user-level">
-              {userLevel.icon} {userLevel.level} • {userLevel.points} pts
+              {userLevel.icon} {userLevel.level} • {userLevel.points} {t('community.pts', 'pts')}
             </span>
           )}
         </div>
@@ -277,13 +279,13 @@ const CommunityTab = () => {
             className="btn-secondary leaderboard-btn"
             onClick={() => setShowLeaderboard(!showLeaderboard)}
           >
-            <RiTrophyLine style={{ color: '#d97706' }} /> Leaderboard
+            <RiTrophyLine style={{ color: '#d97706' }} /> {t('community.leaderboardBtn', 'Leaderboard')}
           </button>
           <button 
             className="btn-primary create-post-btn" 
             onClick={() => handleOpenComposer()}
           >
-            <RiAddLine /> Share Post
+            <RiAddLine /> {t('community.sharePostBtn', 'Share Post')}
           </button>
         </div>
       </div>
@@ -322,13 +324,13 @@ const CommunityTab = () => {
               <span className="empty-icon">
                 <TbPlant2 style={{ color: 'var(--primary, #6b9080)' }} />
               </span>
-              <h3>No posts yet</h3>
-              <p>Be the first to share your urban farming journey!</p>
+              <h3>{t('community.noPosts', 'No posts yet')}</h3>
+              <p>{t('community.noPostsSub', 'Be the first to share your urban farming journey!')}</p>
               <button 
                 className="btn-primary" 
                 onClick={() => handleOpenComposer()}
               >
-                <RiAddLine /> Share Your First Post
+                <RiAddLine /> {t('community.shareFirstPost', 'Share Your First Post')}
               </button>
             </div>
           ) : (
@@ -355,17 +357,17 @@ const CommunityTab = () => {
                     disabled={currentPage === 1}
                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   >
-                    <RiArrowLeftSLine /> Prev
+                    <RiArrowLeftSLine /> {t('community.prev', 'Prev')}
                   </button>
                   <span className="pagination-indicator">
-                    Page {currentPage} of {totalPages}
+                    {t('community.pageOf', 'Page {{current}} of {{total}}', { current: currentPage, total: totalPages })}
                   </span>
                   <button 
                     className="pagination-btn" 
                     disabled={currentPage === totalPages}
                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   >
-                    Next <RiArrowRightSLine />
+                    {t('community.next', 'Next')} <RiArrowRightSLine />
                   </button>
                 </div>
               )}

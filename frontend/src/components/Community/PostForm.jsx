@@ -1,20 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPost, updatePost, getPlants, getGardens } from '../../services/plantService';
 import { useNotification } from '../../hooks/useNotification';
 import { validatePostForm } from '../../utils/validators';
 import { getInitials } from '../../utils/helpers';
+import { useTranslation } from 'react-i18next';
+import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import { 
   RiImageAddLine, 
   RiCloseLine, 
   RiPriceTag3Line, 
   RiPlantLine, 
   RiShareForwardLine,
-  RiSendPlane2Fill
+  RiSendPlane2Fill,
+  RiShoppingBasketLine,
+  RiQuestionLine,
+  RiLightbulbLine,
+  RiCalendarEventLine,
+  RiChat3Line,
+  RiArrowDownSLine,
+  RiCheckLine
 } from 'react-icons/ri';
 import './PostForm.css';
 
 export const PostComposer = ({ user, onOpenComposer }) => {
-  const firstName = user?.name ? user.name.split(' ')[0] : 'Gardener';
+  const { t } = useTranslation();
+  const firstName = user?.name ? user.name.split(' ')[0] : t('community.composer.defaultUser', 'Gardener');
+  const localizedFirstName = getLocalizedDynamicText(firstName);
   const userAvatar = user?.profilePicture || null;
 
   return (
@@ -32,7 +43,7 @@ export const PostComposer = ({ user, onOpenComposer }) => {
           className="composer-input-trigger" 
           onClick={() => onOpenComposer()}
         >
-          <span>What's growing in your garden, {firstName}?</span>
+          <span>{t('community.composer.whatsGrowing', "What's growing in your garden, {{name}}?", { name: localizedFirstName })}</span>
         </button>
       </div>
       <div className="composer-affordance-row">
@@ -40,37 +51,37 @@ export const PostComposer = ({ user, onOpenComposer }) => {
           type="button" 
           className="composer-chip photo-chip" 
           onClick={() => onOpenComposer('photo')}
-          title="Upload a photo for your post"
+          title={t('community.composer.photoTooltip', 'Upload a photo for your post')}
         >
           <RiImageAddLine className="chip-icon" style={{ color: '#10b981' }} />
-          <span>Photo</span>
+          <span>{t('community.composer.photo', 'Photo')}</span>
         </button>
         <button 
           type="button" 
           className="composer-chip tag-chip" 
           onClick={() => onOpenComposer('tag')}
-          title="Add tags to categorize your post"
+          title={t('community.composer.tagTooltip', 'Add tags to categorize your post')}
         >
           <RiPriceTag3Line className="chip-icon" style={{ color: '#f59e0b' }} />
-          <span>Tag</span>
+          <span>{t('community.composer.tag', 'Tag')}</span>
         </button>
         <button 
           type="button" 
           className="composer-chip location-chip" 
           onClick={() => onOpenComposer('garden')}
-          title="Tag a garden or plant"
+          title={t('community.composer.gardenTooltip', 'Tag a garden or plant')}
         >
           <RiPlantLine className="chip-icon" style={{ color: '#06b6d4' }} />
-          <span>Garden</span>
+          <span>{t('community.composer.garden', 'Garden')}</span>
         </button>
         <button 
           type="button" 
           className="composer-chip share-chip" 
           onClick={() => onOpenComposer()}
-          title="Publish a community post"
+          title={t('community.composer.shareTooltip', 'Publish a community post')}
         >
           <RiShareForwardLine className="chip-icon" style={{ color: 'var(--primary, #6b9080)' }} />
-          <span>Share</span>
+          <span>{t('community.composer.share', 'Share')}</span>
         </button>
       </div>
     </div>
@@ -78,6 +89,7 @@ export const PostComposer = ({ user, onOpenComposer }) => {
 };
 
 const PostForm = ({ onClose, user, post = null, onPostSaved, initialFocus = null }) => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     title: post?.title || '',
     content: post?.content || '',
@@ -177,7 +189,7 @@ const PostForm = ({ onClose, user, post = null, onPostSaved, initialFocus = null
           category: formData.category,
           tags: formData.tags,
         });
-        addNotification('Post updated successfully!', 'success');
+        addNotification(t('community.notifications.postUpdated', 'Post updated successfully!'), 'success');
         if (onPostSaved) onPostSaved(updated);
       } else {
         // Create new post
@@ -191,30 +203,75 @@ const PostForm = ({ onClose, user, post = null, onPostSaved, initialFocus = null
         if (image) data.append('image', image);
 
         const newPost = await createPost(data);
-        addNotification('Post published successfully!', 'success');
+        addNotification(t('community.notifications.postCreated', 'Post published successfully!'), 'success');
         if (onPostSaved) onPostSaved(newPost);
       }
       onClose();
     } catch (error) {
-      addNotification('Failed to save post', 'error');
+      addNotification(t('community.notifications.postSaveFailed', 'Failed to save post'), 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  const categories = [
-    { value: 'showcase', label: '🌾 Harvest Showcase' },
-    { value: 'question', label: '🪴 Plant Help / Diagnose Request' },
-    { value: 'tip', label: '💡 Urban Tip / DIY' },
-    { value: 'event', label: '📅 Community Event' },
-    { value: 'general', label: '💬 General Discussion' },
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
+  const categoryDropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(e.target)) {
+        setCategoryDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const categoryOptions = [
+    { 
+      value: 'showcase', 
+      label: t('community.form.categories.showcase', 'Harvest Showcase'),
+      icon: <RiShoppingBasketLine />,
+      colorClass: 'showcase'
+    },
+    { 
+      value: 'question', 
+      label: t('community.form.categories.question', 'Plant Help / Diagnose Request'),
+      icon: <RiQuestionLine />,
+      colorClass: 'question'
+    },
+    { 
+      value: 'tip', 
+      label: t('community.form.categories.tip', 'Urban Tip / DIY'),
+      icon: <RiLightbulbLine />,
+      colorClass: 'tip'
+    },
+    { 
+      value: 'event', 
+      label: t('community.form.categories.event', 'Community Event'),
+      icon: <RiCalendarEventLine />,
+      colorClass: 'event'
+    },
+    { 
+      value: 'general', 
+      label: t('community.form.categories.general', 'General Discussion'),
+      icon: <RiChat3Line />,
+      colorClass: 'general'
+    },
   ];
+
+  const selectedCategoryObj = categoryOptions.find((c) => c.value === formData.category) || categoryOptions[4];
+
+  const handleSelectCategory = (val) => {
+    setFormData((prev) => ({ ...prev, category: val }));
+    setCategoryDropdownOpen(false);
+  };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content post-form" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h3>{post ? 'Edit Community Post' : 'Create Community Post'}</h3>
+          <h3>{post ? t('community.form.editTitle', 'Edit Community Post') : t('community.form.createTitle', 'Create Community Post')}</h3>
           <button className="close-btn" onClick={onClose} aria-label="Close modal">
             <RiCloseLine />
           </button>
@@ -223,23 +280,59 @@ const PostForm = ({ onClose, user, post = null, onPostSaved, initialFocus = null
         <form onSubmit={handleSubmit} noValidate>
           {/* Category & Title Row */}
           <div className="form-row">
-            <div className="form-group">
-              <label>Category *</label>
-              <select name="category" value={formData.category} onChange={handleChange}>
-                {categories.map((cat) => (
-                  <option key={cat.value} value={cat.value}>
-                    {cat.label}
-                  </option>
-                ))}
-              </select>
+            <div className="form-group" ref={categoryDropdownRef} style={{ position: 'relative' }}>
+              <label>{t('community.form.categoryLabel', 'Category *')}</label>
+              <div className="custom-category-select">
+                <button
+                  type="button"
+                  className={`custom-select-trigger ${categoryDropdownOpen ? 'open' : ''}`}
+                  onClick={() => setCategoryDropdownOpen((prev) => !prev)}
+                  aria-expanded={categoryDropdownOpen}
+                  aria-haspopup="listbox"
+                >
+                  <span className="custom-select-trigger-content">
+                    <span className={`category-icon-badge ${selectedCategoryObj.colorClass}`}>
+                      {selectedCategoryObj.icon}
+                    </span>
+                    <span className="category-label-text">{selectedCategoryObj.label}</span>
+                  </span>
+                  <RiArrowDownSLine className={`custom-select-arrow ${categoryDropdownOpen ? 'open' : ''}`} />
+                </button>
+
+                {categoryDropdownOpen && (
+                  <div className="custom-select-menu" role="listbox">
+                    {categoryOptions.map((cat) => {
+                      const isSelected = formData.category === cat.value;
+                      return (
+                        <button
+                          key={cat.value}
+                          type="button"
+                          className={`custom-select-option ${isSelected ? 'selected' : ''}`}
+                          onClick={() => handleSelectCategory(cat.value)}
+                          role="option"
+                          aria-selected={isSelected}
+                        >
+                          <span className="custom-select-option-left">
+                            <span className={`category-icon-badge ${cat.colorClass}`}>
+                              {cat.icon}
+                            </span>
+                            <span className="custom-select-option-name">{cat.label}</span>
+                          </span>
+                          {isSelected && <RiCheckLine className="custom-select-check" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
             <div className="form-group">
-              <label>Title *</label>
+              <label>{t('community.form.titleLabel', 'Title *')}</label>
               <input
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                placeholder="What's your post about?"
+                placeholder={t('community.form.titlePlaceholder', "What's your post about?")}
                 className={errors.title ? 'input-error' : ''}
               />
               {errors.title && <span className="error-text">{errors.title}</span>}
@@ -248,12 +341,12 @@ const PostForm = ({ onClose, user, post = null, onPostSaved, initialFocus = null
 
           {/* Content */}
           <div className="form-group">
-            <label>Content *</label>
+            <label>{t('community.form.contentLabel', 'Content *')}</label>
             <textarea
               name="content"
               value={formData.content}
               onChange={handleChange}
-              placeholder="Share your urban farming experience, questions, or tips..."
+              placeholder={t('community.form.contentPlaceholder', 'Share your urban farming experience, questions, or tips...')}
               rows="3"
               className={errors.content ? 'input-error' : ''}
             />
@@ -263,7 +356,7 @@ const PostForm = ({ onClose, user, post = null, onPostSaved, initialFocus = null
           {/* Image Upload - for new post */}
           {!post && (
             <div className="form-group">
-              <label>Photo / Harvest Image</label>
+              <label>{t('community.form.photoLabel', 'Photo / Harvest Image')}</label>
               <div 
                 className="image-upload-area" 
                 onClick={() => document.getElementById('imageInput').click()}
@@ -273,8 +366,8 @@ const PostForm = ({ onClose, user, post = null, onPostSaved, initialFocus = null
                 ) : (
                   <div className="upload-placeholder">
                     <RiImageAddLine style={{ fontSize: '28px', color: 'var(--primary, #6b9080)', marginBottom: '4px' }} />
-                    <span>Click to upload a photo</span>
-                    <span className="upload-sub">(Optional)</span>
+                    <span>{t('community.form.uploadPhoto', 'Click to upload a photo')}</span>
+                    <span className="upload-sub">{t('community.form.optional', '(Optional)')}</span>
                   </div>
                 )}
                 <input
@@ -292,23 +385,23 @@ const PostForm = ({ onClose, user, post = null, onPostSaved, initialFocus = null
           {!post && (
             <div className="form-row">
               <div className="form-group">
-                <label>Tag Plant (Optional)</label>
+                <label>{t('community.form.tagPlant', 'Tag Plant (Optional)')}</label>
                 <select name="plantId" value={formData.plantId} onChange={handleChange}>
-                  <option value="">None</option>
+                  <option value="">{t('community.form.none', 'None')}</option>
                   {plants.map((p) => (
                     <option key={p._id} value={p._id}>
-                      {p.name}
+                      {getLocalizedDynamicText(p.name)}
                     </option>
                   ))}
                 </select>
               </div>
               <div className="form-group">
-                <label>Tag Garden (Optional)</label>
+                <label>{t('community.form.tagGarden', 'Tag Garden (Optional)')}</label>
                 <select id="gardenSelect" name="gardenId" value={formData.gardenId} onChange={handleChange}>
-                  <option value="">None</option>
+                  <option value="">{t('community.form.none', 'None')}</option>
                   {gardens.map((g) => (
                     <option key={g._id} value={g._id}>
-                      {g.name}
+                      {getLocalizedDynamicText(g.name)}
                     </option>
                   ))}
                 </select>
@@ -318,18 +411,18 @@ const PostForm = ({ onClose, user, post = null, onPostSaved, initialFocus = null
 
           {/* Tags */}
           <div className="form-group">
-            <label>Tags (Topics)</label>
+            <label>{t('community.form.tagsLabel', 'Tags (Topics)')}</label>
             <div className="tag-input-group">
               <input
                 id="tagInput"
                 type="text"
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
-                placeholder="Add tags (e.g. tomato, balcony, organic)"
+                placeholder={t('community.form.tagsPlaceholder', 'Add tags (e.g. tomato, balcony, organic)')}
                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
               />
               <button type="button" className="btn-secondary add-tag-btn" onClick={handleAddTag}>
-                Add
+                {t('community.form.addTagBtn', 'Add')}
               </button>
             </div>
             {formData.tags.length > 0 && (
@@ -346,11 +439,15 @@ const PostForm = ({ onClose, user, post = null, onPostSaved, initialFocus = null
 
           <div className="form-actions">
             <button type="button" className="btn-secondary" onClick={onClose}>
-              Cancel
+              {t('common.cancel', 'Cancel')}
             </button>
             <button type="submit" className="btn-primary" disabled={loading}>
               <RiSendPlane2Fill style={{ fontSize: '0.95rem' }} />
-              {loading ? 'Publishing...' : post ? 'Save Changes' : 'Publish Post'}
+              {loading 
+                ? t('community.form.publishing', 'Publishing...') 
+                : post 
+                  ? t('community.form.saveChanges', 'Save Changes') 
+                  : t('community.form.publishPost', 'Publish Post')}
             </button>
           </div>
         </form>

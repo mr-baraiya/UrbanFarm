@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   RiFileList3Line, 
   RiSearchLine, 
@@ -9,6 +10,7 @@ import {
   RiCalendarEventLine
 } from 'react-icons/ri';
 import { TbLayersIntersect } from 'react-icons/tb';
+import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import './CropHistory.css';
 
 const CropHistory = ({ 
@@ -21,18 +23,28 @@ const CropHistory = ({
   filterType,
   onFilterChange
 }) => {
+  const { t, i18n } = useTranslation();
+
   const filterOptions = [
-    { value: 'all', label: 'All' },
-    { value: 'saved', label: 'Saved' },
+    { value: 'all', label: t('crops.filterAll', 'All') },
+    { value: 'saved', label: t('crops.filterSaved', 'Saved') },
   ];
+
+  const getDateLocale = () => {
+    if (i18n.language === 'gu') return 'gu-IN';
+    if (i18n.language === 'hi') return 'hi-IN';
+    return 'en-US';
+  };
 
   return (
     <div className="crop-history">
       <div className="history-header">
         <h3>
-          <RiFileList3Line className="history-header-icon" /> Recommendation History
+          <RiFileList3Line className="history-header-icon" /> {t('crops.historyTitle', 'Recommendation History')}
         </h3>
-        <span className="history-count">{history.length} sessions</span>
+        <span className="history-count">
+          {t('crops.sessionsCount', '{{count}} sessions', { count: history.length })}
+        </span>
       </div>
 
       <div className="history-filters">
@@ -42,7 +54,7 @@ const CropHistory = ({
           </span>
           <input
             type="text"
-            placeholder="Search by crop, soil, season..."
+            placeholder={t('crops.searchPlaceholder', 'Search by crop, soil, season...')}
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
           />
@@ -66,14 +78,17 @@ const CropHistory = ({
           <span className="no-history-icon">
             <RiSeedlingLine />
           </span>
-          <p>No recommendations yet.</p>
-          <p className="sub-text">Get your first crop suggestions!</p>
+          <p>{t('crops.noHistory', 'No recommendations yet.')}</p>
+          <p className="sub-text">{t('crops.startPrompt', 'Get your first crop suggestions!')}</p>
         </div>
       ) : (
         <div className="history-list">
           {history.map((item) => {
             const isSelected = selectedId === item._id;
-            const cropNames = item.recommendations?.map(r => r.cropName).slice(0, 3).join(', ');
+            const cropNames = item.recommendations
+              ?.map(r => getLocalizedDynamicText(r.cropName, i18n.language))
+              .slice(0, 3)
+              .join(', ');
             
             return (
               <div 
@@ -83,7 +98,7 @@ const CropHistory = ({
               >
                 <div className="history-header-row">
                   <span className="history-date">
-                    {new Date(item.createdAt).toLocaleDateString()}
+                    {new Date(item.createdAt).toLocaleDateString(getDateLocale())}
                   </span>
                   <button 
                     className="save-btn"
@@ -91,26 +106,28 @@ const CropHistory = ({
                       e.stopPropagation();
                       onSave(item._id);
                     }}
-                    title="Save/Bookmark"
+                    title={t('crops.saveBookmark', 'Save/Bookmark')}
                   >
                     {item.saved ? <RiStarFill style={{ color: '#f59e0b' }} /> : <RiStarLine />}
                   </button>
                 </div>
                 
                 <div className="history-crops">
-                  {cropNames || 'No crops'}
-                  {item.recommendations?.length > 3 && ` +${item.recommendations.length - 3} more`}
+                  {cropNames || t('crops.noCrops', 'No crops')}
+                  {item.recommendations?.length > 3 && (
+                    ` ${t('crops.plusMore', '+{{count}} more', { count: item.recommendations.length - 3 })}`
+                  )}
                 </div>
                 
                 <div className="history-params">
                   <span className="param-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                    <TbLayersIntersect /> {item.inputData?.soilType || 'N/A'}
+                    <TbLayersIntersect /> {getLocalizedDynamicText(item.inputData?.soilType, i18n.language) || 'N/A'}
                   </span>
                   <span className="param-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                     <RiTempColdLine /> {item.inputData?.temperature}°C
                   </span>
                   <span className="param-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                    <RiCalendarEventLine /> {item.inputData?.season || 'N/A'}
+                    <RiCalendarEventLine /> {getLocalizedDynamicText(item.inputData?.season, i18n.language) || 'N/A'}
                   </span>
                 </div>
               </div>

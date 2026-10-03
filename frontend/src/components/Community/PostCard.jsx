@@ -24,7 +24,9 @@ import {
   RiBookmarkLine,
   RiBookmarkFill
 } from 'react-icons/ri';
+import { useTranslation } from 'react-i18next';
 import { formatDate, getInitials } from '../../utils/helpers';
+import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import { useNotification } from '../../hooks/useNotification';
 import { validateRequired } from '../../utils/validators';
 import './PostCard.css';
@@ -60,6 +62,7 @@ const PostCard = ({
   onDeleteComment,
   userLevel 
 }) => {
+  const { t } = useTranslation();
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [isLiking, setIsLiking] = useState(false);
@@ -77,15 +80,15 @@ const PostCard = ({
   const commentInputRef = useRef(null);
   const { addNotification } = useNotification();
 
-  const getCategoryLabel = (category) => {
+  const getCategoryLabel = (categoryKey) => {
     const map = {
-      'question': { label: 'Plant Help', icon: <RiQuestionLine />, colorClass: 'question' },
-      'tip': { label: 'Urban Tip', icon: <RiLightbulbLine />, colorClass: 'tip' },
-      'showcase': { label: 'Harvest', icon: <RiShoppingBasketLine />, colorClass: 'showcase' },
-      'event': { label: 'Event', icon: <RiCalendarEventLine />, colorClass: 'event' },
-      'general': { label: 'General', icon: <RiChat3Line />, colorClass: 'general' },
+      'question': { label: t('community.categories.question', 'Plant Help'), icon: <RiQuestionLine />, colorClass: 'question' },
+      'tip': { label: t('community.categories.tip', 'Urban Tip'), icon: <RiLightbulbLine />, colorClass: 'tip' },
+      'showcase': { label: t('community.categories.showcase', 'Harvest'), icon: <RiShoppingBasketLine />, colorClass: 'showcase' },
+      'event': { label: t('community.categories.event', 'Event'), icon: <RiCalendarEventLine />, colorClass: 'event' },
+      'general': { label: t('community.categories.general', 'General'), icon: <RiChat3Line />, colorClass: 'general' },
     };
-    return map[category] || map.general;
+    return map[categoryKey] || map.general;
   };
 
   const category = getCategoryLabel(post.category);
@@ -117,7 +120,7 @@ const PostCard = ({
 
   const handleLike = async () => {
     if (!user) {
-      addNotification('Please login to like posts', 'info');
+      addNotification(t('community.notifications.loginToLike', 'Please login to like posts'), 'info');
       return;
     }
     if (isLiking) return;
@@ -135,41 +138,41 @@ const PostCard = ({
 
   const handleRepost = () => {
     if (!user) {
-      addNotification('Please login to repost', 'info');
+      addNotification(t('community.notifications.loginToRepost', 'Please login to repost'), 'info');
       return;
     }
     if (isReposted) {
       setIsReposted(false);
       setRepostCount((prev) => Math.max(0, prev - 1));
-      addNotification('Repost removed', 'info');
+      addNotification(t('community.notifications.repostRemoved', 'Repost removed'), 'info');
     } else {
       setIsReposted(true);
       setRepostCount((prev) => prev + 1);
-      addNotification('Reposted to your feed!', 'success');
+      addNotification(t('community.notifications.reposted', 'Reposted to your feed!'), 'success');
     }
   };
 
   const handleBookmark = () => {
     if (!user) {
-      addNotification('Please login to bookmark posts', 'info');
+      addNotification(t('community.notifications.loginToBookmark', 'Please login to bookmark posts'), 'info');
       return;
     }
     setIsBookmarked(!isBookmarked);
-    addNotification(isBookmarked ? 'Removed from bookmarks' : 'Saved to bookmarks!', 'success');
+    addNotification(isBookmarked ? t('community.notifications.bookmarkRemoved', 'Removed from bookmarks') : t('community.notifications.bookmarked', 'Saved to bookmarks!'), 'success');
   };
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!validateRequired(commentText)) return;
     if (!user) {
-      addNotification('Please login to comment', 'error');
+      addNotification(t('community.notifications.loginToComment', 'Please login to comment'), 'error');
       return;
     }
     try {
       await onAddComment(post._id, commentText.trim());
       setCommentText('');
     } catch (error) {
-      addNotification('Failed to add comment', 'error');
+      addNotification(t('community.notifications.commentFailed', 'Failed to add comment'), 'error');
     }
   };
 
@@ -203,11 +206,11 @@ const PostCard = ({
         document.body.removeChild(textArea);
       }
       setShared(true);
-      addNotification('Post link copied to clipboard!', 'success');
+      addNotification(t('community.notifications.copiedLink', 'Post link copied to clipboard!'), 'success');
       setShowShareModal(false);
       setTimeout(() => setShared(false), 2500);
     } catch (err) {
-      addNotification('Could not copy link', 'error');
+      addNotification(t('community.notifications.copyLinkFailed', 'Could not copy link'), 'error');
     }
   };
 
@@ -220,7 +223,7 @@ const PostCard = ({
           text: shareText,
           url: postUrl,
         });
-        addNotification('Post shared successfully!', 'success');
+        addNotification(t('community.notifications.sharedSuccess', 'Post shared successfully!'), 'success');
         setShowShareModal(false);
       } catch (err) {
         // cancelled by user
@@ -233,7 +236,7 @@ const PostCard = ({
   const handleShareWhatsApp = () => {
     const shareText = `"${post.title || 'UrbanFarm Post'}" by ${post.userId?.name || 'Gardener'}:\n${postUrl}`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
-    addNotification('Opening WhatsApp to share...', 'info');
+    addNotification(t('community.notifications.openingWhatsApp', 'Opening WhatsApp to share...'), 'info');
     setShowShareModal(false);
   };
 
@@ -268,9 +271,9 @@ const PostCard = ({
         <div className="x-header-info">
           <div className="x-author-row">
             <div className="x-author-left">
-              <span className="user-name x-user-name">{userName}</span>
+              <span className="user-name x-user-name">{getLocalizedDynamicText(userName)}</span>
               {userLevel && post.userId?._id === user?._id && (
-                <span className="user-level-badge" title={`Level ${userLevel.level}`}>
+                <span className="user-level-badge" title={`Level ${getLocalizedDynamicText(userLevel.level)}`}>
                   {userLevel.icon}
                 </span>
               )}
@@ -290,8 +293,8 @@ const PostCard = ({
                     <button 
                       className="owner-action-btn edit-btn" 
                       onClick={() => onEditPost(post)} 
-                      title="Edit post"
-                      aria-label="Edit post"
+                      title={t('community.card.editPost', 'Edit post')}
+                      aria-label={t('community.card.editPost', 'Edit post')}
                     >
                       <RiEditLine />
                     </button>
@@ -300,15 +303,15 @@ const PostCard = ({
                     <button 
                       className="owner-action-btn delete-btn" 
                       onClick={() => onDeletePost(post._id)} 
-                      title="Delete post"
-                      aria-label="Delete post"
+                      title={t('community.card.deletePost', 'Delete post')}
+                      aria-label={t('community.card.deletePost', 'Delete post')}
                     >
                       <RiDeleteBinLine />
                     </button>
                   )}
                 </div>
               ) : (
-                <button className="post-more-btn" aria-label="More options">
+                <button className="post-more-btn" aria-label={t('community.card.moreOptions', 'More options')}>
                   <RiMoreFill />
                 </button>
               )}
@@ -319,14 +322,14 @@ const PostCard = ({
 
       {/* Content Body & Media */}
       <div className="post-body-container x-post-body-wrap">
-        {post.title && <h4 className="post-title x-post-title">{post.title}</h4>}
-        <p className="post-body x-post-body">{truncateContent(post.content || '')}</p>
+        {post.title && <h4 className="post-title x-post-title">{getLocalizedDynamicText(post.title)}</h4>}
+        <p className="post-body x-post-body">{truncateContent(getLocalizedDynamicText(post.content || ''))}</p>
         {post.content && post.content.length > 300 && (
           <button 
             className="expand-btn"
             onClick={() => setIsExpanded(!isExpanded)}
           >
-            {isExpanded ? 'Show less' : 'Read more'}
+            {isExpanded ? t('community.card.showLess', 'Show less') : t('community.card.readMore', 'Read more')}
           </button>
         )}
       </div>
@@ -351,7 +354,7 @@ const PostCard = ({
         <button 
           className={`x-action-item action-reply ${showComments ? 'active' : ''}`}
           onClick={() => setShowComments(!showComments)}
-          title="Reply"
+          title={t('community.card.reply', 'Reply')}
         >
           <div className="x-icon-circle">
             <RiChat3Line />
@@ -363,7 +366,7 @@ const PostCard = ({
         <button 
           className={`x-action-item action-repost ${isReposted ? 'active' : ''}`}
           onClick={handleRepost}
-          title="Repost"
+          title={t('community.card.repost', 'Repost')}
         >
           <div className="x-icon-circle">
             <RiRepeatLine />
@@ -376,7 +379,7 @@ const PostCard = ({
           className={`x-action-item action-like ${isLiked ? 'active' : ''} ${likedAnimation ? 'anim-pop' : ''}`}
           onClick={handleLike}
           disabled={isLiking}
-          title="Like"
+          title={t('community.card.like', 'Like')}
         >
           <div className="x-icon-circle">
             {isLiked ? <RiHeartFill className="heart-filled" /> : <RiHeartLine />}
@@ -385,7 +388,7 @@ const PostCard = ({
         </button>
 
         {/* Views */}
-        <div className="x-action-item action-views" title="Views">
+        <div className="x-action-item action-views" title={t('community.card.views', 'Views')}>
           <div className="x-icon-circle">
             <RiBarChart2Line />
           </div>
@@ -397,7 +400,7 @@ const PostCard = ({
           <button 
             className={`x-action-item action-bookmark ${isBookmarked ? 'active' : ''}`}
             onClick={handleBookmark}
-            title="Bookmark"
+            title={t('community.card.bookmark', 'Bookmark')}
           >
             <div className="x-icon-circle">
               {isBookmarked ? <RiBookmarkFill /> : <RiBookmarkLine />}
@@ -407,7 +410,7 @@ const PostCard = ({
           <button 
             className="x-action-item action-share"
             onClick={() => setShowShareModal(true)}
-            title="Share"
+            title={t('community.card.share', 'Share')}
           >
             <div className="x-icon-circle">
               <RiShareLine />
@@ -421,14 +424,14 @@ const PostCard = ({
         <div className="comments-preview-section">
           {previewComments.map((comment, idx) => (
             <div key={idx} className="preview-comment-row">
-              <span className="preview-user">{comment.userId?.name || 'Gardener'}:</span>
-              <span className="preview-text">{(comment.content || '').slice(0, 90)}</span>
+              <span className="preview-user">{getLocalizedDynamicText(comment.userId?.name || 'Gardener')}:</span>
+              <span className="preview-text">{getLocalizedDynamicText((comment.content || '').slice(0, 90))}</span>
               <button 
                 className="btn-inline-reply"
                 onClick={() => handleReplyComment(comment.userId?.name || 'Gardener')}
-                title="Reply to comment"
+                title={t('community.card.reply', 'Reply')}
               >
-                <RiReplyLine /> Reply
+                <RiReplyLine /> {t('community.card.reply', 'Reply')}
               </button>
             </div>
           ))}
@@ -437,7 +440,7 @@ const PostCard = ({
               className="view-all-comments-btn" 
               onClick={() => setShowComments(true)}
             >
-              View all {commentsList.length} comments
+              {t('community.card.viewAllComments', 'View all {{count}} comments', { count: commentsList.length })}
             </button>
           )}
         </div>
@@ -447,7 +450,7 @@ const PostCard = ({
       {showComments && (
         <div className="post-comments-expanded">
           {commentsList.length === 0 ? (
-            <p className="no-comments">No comments yet. Be the first to reply!</p>
+            <p className="no-comments">{t('community.card.noComments', 'No comments yet. Be the first to reply!')}</p>
           ) : (
             <div className="comments-list">
               {commentsList.map((comment, idx) => {
@@ -469,29 +472,29 @@ const PostCard = ({
                     </div>
                     <div className="comment-body">
                       <div className="comment-meta">
-                        <span className="comment-author">{authorName}</span>
+                        <span className="comment-author">{getLocalizedDynamicText(authorName)}</span>
                         <span className="comment-time">{getRelativeTime(comment.createdAt)}</span>
                         <div className="comment-actions-right">
                           <button 
                             className="btn-reply-comment"
                             onClick={() => handleReplyComment(authorName)}
-                            title="Reply to user"
+                            title={t('community.card.reply', 'Reply')}
                           >
-                            <RiReplyLine /> Reply
+                            <RiReplyLine /> {t('community.card.reply', 'Reply')}
                           </button>
                           {isCommentAuthor && onDeleteComment && (
                             <button 
                               className="btn-delete-comment"
                               onClick={() => onDeleteComment(post._id, comment._id)}
-                              title="Delete comment"
-                              aria-label="Delete comment"
+                              title={t('community.card.deletePost', 'Delete comment')}
+                              aria-label={t('community.card.deletePost', 'Delete comment')}
                             >
                               <RiCloseLine />
                             </button>
                           )}
                         </div>
                       </div>
-                      <p className="comment-text">{comment.content}</p>
+                      <p className="comment-text">{getLocalizedDynamicText(comment.content)}</p>
                     </div>
                   </div>
                 );
@@ -503,17 +506,17 @@ const PostCard = ({
             <input
               ref={commentInputRef}
               type="text"
-              placeholder="Write a comment or reply..."
+              placeholder={t('community.card.commentPlaceholder', 'Write a comment or reply...')}
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               disabled={!user}
             />
             <button type="submit" disabled={!commentText.trim() || !user}>
-              Post
+              {t('community.card.postCommentBtn', 'Post')}
             </button>
           </form>
           {!user && (
-            <p className="login-prompt">Please log in to join the conversation</p>
+            <p className="login-prompt">{t('community.card.loginPrompt', 'Please log in to join the conversation')}</p>
           )}
         </div>
       )}
@@ -523,7 +526,7 @@ const PostCard = ({
         <div className="share-modal-overlay" onClick={() => setShowShareModal(false)}>
           <div className="share-modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="share-modal-header">
-              <h3>Share Post</h3>
+              <h3>{t('community.card.shareModalTitle', 'Share Post')}</h3>
               <button className="close-btn" onClick={() => setShowShareModal(false)} aria-label="Close">
                 <RiCloseLine />
               </button>
@@ -531,7 +534,10 @@ const PostCard = ({
 
             <div className="share-modal-body">
               <p className="share-post-preview-title">
-                "{post.title || 'UrbanFarm Community Post'}" by {userName}
+                {t('community.card.postBy', '"{{title}}" by {{author}}:', {
+                  title: getLocalizedDynamicText(post.title || 'UrbanFarm Community Post'),
+                  author: getLocalizedDynamicText(userName)
+                })}
               </p>
 
               {!showQrCode ? (
@@ -540,36 +546,36 @@ const PostCard = ({
                     <div className="share-option-icon icon-copy">
                       <RiFileCopyLine />
                     </div>
-                    <span>Copy Link</span>
+                    <span>{t('community.card.copyLink', 'Copy Link')}</span>
                   </button>
 
                   <button className="share-option-btn" onClick={handleShareWhatsApp}>
                     <div className="share-option-icon icon-whatsapp">
                       <RiWhatsappLine />
                     </div>
-                    <span>WhatsApp</span>
+                    <span>{t('community.card.whatsApp', 'WhatsApp')}</span>
                   </button>
 
                   <button className="share-option-btn" onClick={handleShareNative}>
                     <div className="share-option-icon icon-apps">
                       <RiShareForwardLine />
                     </div>
-                    <span>Other Apps</span>
+                    <span>{t('community.card.otherApps', 'Other Apps')}</span>
                   </button>
 
                   <button className="share-option-btn" onClick={() => setShowQrCode(true)}>
                     <div className="share-option-icon icon-qr">
                       <RiQrCodeLine />
                     </div>
-                    <span>QR Code</span>
+                    <span>{t('community.card.qrCode', 'QR Code')}</span>
                   </button>
                 </div>
               ) : (
                 <div className="qr-code-container">
-                  <p className="qr-sub">Scan QR Code to open this post</p>
+                  <p className="qr-sub">{t('community.card.scanQrCode', 'Scan QR Code to open this post')}</p>
                   <img src={qrCodeUrl} alt="Post QR Code" className="qr-code-img" />
                   <button className="btn-secondary" onClick={() => setShowQrCode(false)} style={{ marginTop: '0.85rem' }}>
-                    Back to options
+                    {t('community.card.backToOptions', 'Back to options')}
                   </button>
                 </div>
               )}

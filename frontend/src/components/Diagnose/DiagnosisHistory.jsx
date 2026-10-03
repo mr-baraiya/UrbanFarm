@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   RiFileList3Line, 
   RiSearchLine, 
@@ -8,6 +9,7 @@ import {
   RiPlantLine
 } from 'react-icons/ri';
 import { TbPlant2 } from 'react-icons/tb';
+import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import './DiagnosisHistory.css';
 
 const DiagnosisHistory = ({ 
@@ -19,38 +21,48 @@ const DiagnosisHistory = ({
   searchTerm,
   onSearchChange
 }) => {
+  const { t, i18n } = useTranslation();
+
   const getStatusBadge = (item) => {
     const isHealthy = item.isHealthy || item.diseaseName?.toLowerCase().includes('healthy');
     if (isHealthy) {
-      return { label: 'Healthy', color: '#2d6a4f', icon: <RiCheckLine /> };
+      return { label: t('diagnose.statusHealthy', 'Healthy'), color: '#2d6a4f', icon: <RiCheckLine /> };
     }
     if (item.isResolved) {
-      return { label: 'Resolved', color: '#10b981', icon: <RiCheckLine /> };
+      return { label: t('diagnose.statusResolved', 'Resolved'), color: '#10b981', icon: <RiCheckLine /> };
     }
     if (item.confidence > 0.7) {
-      return { label: 'Critical', color: '#ef4444', icon: <RiAlertLine /> };
+      return { label: t('diagnose.statusCritical', 'Critical'), color: '#ef4444', icon: <RiAlertLine /> };
     }
     if (item.confidence > 0.4) {
-      return { label: 'Monitoring', color: '#f59e0b', icon: <RiAlertLine /> };
+      return { label: t('diagnose.statusMonitoring', 'Monitoring'), color: '#f59e0b', icon: <RiAlertLine /> };
     }
-    return { label: 'Low Risk', color: '#10b981', icon: <RiCheckLine /> };
+    return { label: t('diagnose.statusLowRisk', 'Low Risk'), color: '#10b981', icon: <RiCheckLine /> };
   };
 
   const filterOptions = [
-    { value: 'all', label: 'All' },
-    { value: 'healthy', label: 'Healthy' },
-    { value: 'critical', label: 'Critical' },
-    { value: 'monitoring', label: 'Monitoring' },
-    { value: 'resolved', label: 'Resolved' },
+    { value: 'all', label: t('diagnose.filterAll', 'All') },
+    { value: 'healthy', label: t('diagnose.filterHealthy', 'Healthy') },
+    { value: 'critical', label: t('diagnose.filterCritical', 'Critical') },
+    { value: 'monitoring', label: t('diagnose.filterMonitoring', 'Monitoring') },
+    { value: 'resolved', label: t('diagnose.filterResolved', 'Resolved') },
   ];
+
+  const getDateLocale = () => {
+    if (i18n.language === 'gu') return 'gu-IN';
+    if (i18n.language === 'hi') return 'hi-IN';
+    return 'en-US';
+  };
 
   return (
     <div className="diagnosis-history">
       <div className="history-header">
         <h3>
-          <RiFileList3Line className="history-header-icon" /> Diagnosis History
+          <RiFileList3Line className="history-header-icon" /> {t('diagnose.historyTitle', 'Diagnosis History')}
         </h3>
-        <span className="history-count">{history.length} records</span>
+        <span className="history-count">
+          {t('diagnose.recordsCount', '{{count}} records', { count: history.length })}
+        </span>
       </div>
 
       {/* Filters */}
@@ -61,7 +73,7 @@ const DiagnosisHistory = ({
           </span>
           <input
             type="text"
-            placeholder="Search by disease or plant..."
+            placeholder={t('diagnose.searchPlaceholder', 'Search by disease or plant...')}
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
           />
@@ -85,8 +97,8 @@ const DiagnosisHistory = ({
           <span className="no-history-icon">
             <RiFileList3Line />
           </span>
-          <p>No diagnoses yet.</p>
-          <p className="sub-text">Upload a plant photo to get started!</p>
+          <p>{t('diagnose.noDiagnoses', 'No diagnoses yet.')}</p>
+          <p className="sub-text">{t('diagnose.startUpload', 'Upload a plant photo to get started!')}</p>
         </div>
       ) : (
         <div className="history-list">
@@ -110,7 +122,9 @@ const DiagnosisHistory = ({
                 
                 <div className="history-content">
                   <div className="history-header-row">
-                    <span className="history-disease">{item.diseaseName}</span>
+                    <span className="history-disease">
+                      {getLocalizedDynamicText(item.diseaseName, i18n.language)}
+                    </span>
                     <span className="history-status" style={{ color: status.color, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                       {status.icon} {status.label}
                     </span>
@@ -119,14 +133,14 @@ const DiagnosisHistory = ({
                   <div className="history-details">
                     {item.plantId?.name && (
                       <span className="history-plant" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <RiPlantLine /> {item.plantId.name}
+                        <RiPlantLine /> {getLocalizedDynamicText(item.plantId.name, i18n.language)}
                       </span>
                     )}
                     <span className="history-confidence">
-                      {Math.round(item.confidence * 100)}% confidence
+                      {t('diagnose.confidenceLabel', '{{percent}}% confidence', { percent: Math.round(item.confidence * 100) })}
                     </span>
                     <span className="history-date">
-                      {new Date(item.createdAt).toLocaleDateString()}
+                      {new Date(item.createdAt).toLocaleDateString(getDateLocale())}
                     </span>
                   </div>
                 </div>

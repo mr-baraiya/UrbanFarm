@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { RiRepeatLine } from 'react-icons/ri';
 import { TASK_TYPES, TASK_PRIORITIES } from '../../utils/constants';
 import { useNotification } from '../../hooks/useNotification';
 import { validateTaskForm } from '../../utils/validators';
+import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import './TaskForm.css';
 
 const TaskForm = ({ task, onClose, onSubmit, plants, gardens }) => {
+  const { t, i18n } = useTranslation();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -81,11 +84,33 @@ const TaskForm = ({ task, onClose, onSubmit, plants, gardens }) => {
     }
   };
 
+  const getTranslatedTypeLabel = (typeValue) => {
+    const map = {
+      watering: t('schedule.typeWatering', 'Watering'),
+      fertilizing: t('schedule.typeFertilizing', 'Fertilizing'),
+      planting: t('schedule.typePlanting', 'Planting'),
+      harvesting: t('schedule.typeHarvesting', 'Harvesting'),
+      pruning: t('schedule.typePruning', 'Pruning'),
+      pest_check: t('schedule.typePestCheck', 'Pest Check'),
+      other: t('schedule.typeOther', 'Other'),
+    };
+    return map[typeValue] || typeValue;
+  };
+
+  const getTranslatedPriorityLabel = (priorityValue) => {
+    const map = {
+      low: t('schedule.priorityLow', 'Low'),
+      medium: t('schedule.priorityMedium', 'Medium'),
+      high: t('schedule.priorityHigh', 'High'),
+    };
+    return map[priorityValue] || priorityValue;
+  };
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content task-form-modal" onClick={(e) => e.stopPropagation()}>
         <div className="task-form-header">
-          <h3>{task ? 'Edit Task' : 'Create New Task'}</h3>
+          <h3>{task ? t('schedule.editTaskModal', 'Edit Task') : t('schedule.createNewTask', 'Create New Task')}</h3>
           <button className="task-modal-close" onClick={onClose} type="button" aria-label="Close">
             ×
           </button>
@@ -93,45 +118,45 @@ const TaskForm = ({ task, onClose, onSubmit, plants, gardens }) => {
 
         <form onSubmit={handleSubmit} className="task-compact-form" noValidate>
           <div className="form-group">
-            <label>Task Title *</label>
+            <label>{t('schedule.taskTitleLabel', 'Task Title *')}</label>
             <input
               name="title"
               value={formData.title}
               onChange={handleChange}
-              placeholder="What needs to be done?"
+              placeholder={t('schedule.taskTitlePlaceholder', 'What needs to be done?')}
               className={errors.title ? 'input-error' : ''}
             />
             {errors.title && <span className="error-text">{errors.title}</span>}
           </div>
 
           <div className="form-group">
-            <label>Description</label>
+            <label>{t('schedule.descriptionLabel', 'Description')}</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Add details..."
+              placeholder={t('schedule.descriptionPlaceholder', 'Add details...')}
               rows="1"
             />
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label>Category</label>
+              <label>{t('schedule.categoryLabel', 'Category')}</label>
               <select name="type" value={formData.type} onChange={handleChange}>
-                {TASK_TYPES.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
+                {TASK_TYPES.map((typeItem) => (
+                  <option key={typeItem.value} value={typeItem.value}>
+                    {getTranslatedTypeLabel(typeItem.value)}
                   </option>
                 ))}
               </select>
             </div>
             <div className="form-group">
-              <label>Priority</label>
+              <label>{t('schedule.priorityLabel', 'Priority')}</label>
               <select name="priority" value={formData.priority} onChange={handleChange}>
                 {TASK_PRIORITIES.map((p) => (
                   <option key={p.value} value={p.value}>
-                    {p.label}
+                    {getTranslatedPriorityLabel(p.value)}
                   </option>
                 ))}
               </select>
@@ -140,24 +165,24 @@ const TaskForm = ({ task, onClose, onSubmit, plants, gardens }) => {
 
           <div className="form-row">
             <div className="form-group">
-              <label>Garden (optional)</label>
+              <label>{t('schedule.gardenOptional', 'Garden (optional)')}</label>
               <select name="gardenId" value={formData.gardenId} onChange={handleChange}>
-                <option value="">None</option>
+                <option value="">{t('schedule.noneOption', 'None')}</option>
                 {gardens?.map((g) => (
                   <option key={g._id} value={g._id}>
-                    {g.name}
+                    {getLocalizedDynamicText(g.name, i18n.language)}
                   </option>
                 ))}
               </select>
             </div>
 
             <div className="form-group">
-              <label>Plant (optional)</label>
+              <label>{t('schedule.plantOptional', 'Plant (optional)')}</label>
               <select name="plantId" value={formData.plantId} onChange={handleChange}>
-                <option value="">None</option>
+                <option value="">{t('schedule.noneOption', 'None')}</option>
                 {plants?.map((p) => (
                   <option key={p._id} value={p._id}>
-                    {p.name}
+                    {getLocalizedDynamicText(p.name, i18n.language)}
                   </option>
                 ))}
               </select>
@@ -166,7 +191,7 @@ const TaskForm = ({ task, onClose, onSubmit, plants, gardens }) => {
 
           <div className="form-row form-row-align-end">
             <div className="form-group">
-              <label>Due Date *</label>
+              <label>{t('schedule.dueDateLabel', 'Due Date *')}</label>
               <input
                 type="date"
                 name="dueDate"
@@ -187,7 +212,7 @@ const TaskForm = ({ task, onClose, onSubmit, plants, gardens }) => {
                   onChange={handleChange}
                 />
                 <span className="recurring-label-text">
-                  <RiRepeatLine /> Recurring Task
+                  <RiRepeatLine /> {t('schedule.recurringTask', 'Recurring Task')}
                 </span>
               </label>
             </div>
@@ -196,7 +221,7 @@ const TaskForm = ({ task, onClose, onSubmit, plants, gardens }) => {
           {formData.recurring && (
             <div className="form-row recurring-config-row">
               <div className="form-group">
-                <label>Repeat Every</label>
+                <label>{t('schedule.repeatEvery', 'Repeat Every')}</label>
                 <input
                   type="number"
                   name="recurringInterval"
@@ -207,11 +232,11 @@ const TaskForm = ({ task, onClose, onSubmit, plants, gardens }) => {
                 />
               </div>
               <div className="form-group">
-                <label>Unit</label>
+                <label>{t('schedule.unit', 'Unit')}</label>
                 <select name="recurringUnit" value={formData.recurringUnit} onChange={handleChange}>
-                  <option value="days">Days</option>
-                  <option value="weeks">Weeks</option>
-                  <option value="months">Months</option>
+                  <option value="days">{t('schedule.unitDays', 'Days')}</option>
+                  <option value="weeks">{t('schedule.unitWeeks', 'Weeks')}</option>
+                  <option value="months">{t('schedule.unitMonths', 'Months')}</option>
                 </select>
               </div>
             </div>
@@ -219,10 +244,10 @@ const TaskForm = ({ task, onClose, onSubmit, plants, gardens }) => {
 
           <div className="form-actions">
             <button type="button" className="btn-secondary" onClick={onClose}>
-              Cancel
+              {t('schedule.cancel', 'Cancel')}
             </button>
             <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Saving...' : task ? 'Update Task' : 'Create Task'}
+              {loading ? t('schedule.saving', 'Saving...') : task ? t('schedule.updateTask', 'Update Task') : t('schedule.createTask', 'Create Task')}
             </button>
           </div>
         </form>

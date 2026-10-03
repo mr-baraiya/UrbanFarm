@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   RiAwardLine, 
   RiCheckLine, 
-  RiLockLine,
+  RiLockLine, 
   RiTrophyLine,
   RiSparklingFill
 } from 'react-icons/ri';
@@ -11,6 +12,7 @@ import BadgeEmblem from './BadgeEmblem';
 import './Badges.css';
 
 const Badges = ({ badges: propBadges, stats = {} }) => {
+  const { t } = useTranslation();
   const [badges, setBadges] = useState(propBadges || []);
   const [loading, setLoading] = useState(!propBadges);
 
@@ -104,72 +106,72 @@ const Badges = ({ badges: propBadges, stats = {} }) => {
   const allBadges = [
     {
       id: 'first_sprout',
-      tier: 'Bronze Milestone',
+      tier: t('profile.badges.first_sprout.tier', 'Bronze Milestone'),
       themeColor: '#2d6a4f',
-      name: 'First Sprout',
-      description: 'Planted and registered your first seed or seedling into UrbanFarm.',
-      requirement: 'Add your first plant to any garden',
+      name: t('profile.badges.first_sprout.name', 'First Sprout'),
+      description: t('profile.badges.first_sprout.description', 'Planted and registered your first seed or seedling into UrbanFarm.'),
+      requirement: t('profile.badges.first_sprout.requirement', 'Add your first plant to any garden'),
     },
     {
       id: 'hydration_master',
-      tier: 'Water Master',
+      tier: t('profile.badges.hydration_master.tier', 'Water Master'),
       themeColor: '#0284c7',
-      name: 'Hydration Master',
-      description: 'Completed 10 regular watering sessions to keep plants thriving.',
-      requirement: `Complete 10 watering sessions (${Math.min(stats.totalWateringEvents || 0, 10)}/10)`,
+      name: t('profile.badges.hydration_master.name', 'Hydration Master'),
+      description: t('profile.badges.hydration_master.description', 'Completed 10 regular watering sessions to keep plants thriving.'),
+      requirement: t('profile.badges.hydration_master.requirement', 'Complete 10 watering sessions ({{current}}/10)', { current: Math.min(stats.totalWateringEvents || 0, 10) }),
     },
     {
       id: 'plant_doctor',
-      tier: 'Plant Health Specialist',
+      tier: t('profile.badges.plant_doctor.tier', 'Plant Health Specialist'),
       themeColor: '#7c3aed',
-      name: 'Plant Doctor',
-      description: 'Diagnosed plant diseases and health conditions with the AI scanner.',
-      requirement: 'Run your first disease diagnosis',
+      name: t('profile.badges.plant_doctor.name', 'Plant Doctor'),
+      description: t('profile.badges.plant_doctor.description', 'Diagnosed plant diseases and health conditions with the AI scanner.'),
+      requirement: t('profile.badges.plant_doctor.requirement', 'Run your first disease diagnosis'),
     },
     {
       id: 'first_harvest',
-      tier: 'Harvest Glory',
+      tier: t('profile.badges.first_harvest.tier', 'Harvest Glory'),
       themeColor: '#ea580c',
-      name: 'First Harvest',
-      description: 'Reaped the fresh fruits of your urban garden labour.',
-      requirement: 'Harvest your first crop',
+      name: t('profile.badges.first_harvest.name', 'First Harvest'),
+      description: t('profile.badges.first_harvest.description', 'Reaped the fresh fruits of your urban garden labour.'),
+      requirement: t('profile.badges.first_harvest.requirement', 'Harvest your first crop'),
     },
     {
       id: 'green_thumb',
-      tier: 'Emerald Mastery',
+      tier: t('profile.badges.green_thumb.tier', 'Emerald Mastery'),
       themeColor: '#059669',
-      name: 'Green Thumb',
-      description: 'Cultivated 5 or more active healthy urban plants simultaneously.',
-      requirement: `Grow 5+ plants (${Math.min(stats.totalPlants || 0, 5)}/5)`,
+      name: t('profile.badges.green_thumb.name', 'Green Thumb'),
+      description: t('profile.badges.green_thumb.description', 'Cultivated 5 or more active healthy urban plants simultaneously.'),
+      requirement: t('profile.badges.green_thumb.requirement', 'Grow 5+ plants ({{current}}/5)', { current: Math.min(stats.totalPlants || 0, 5) }),
     },
     {
       id: 'community_gardener',
-      tier: 'Community Champion',
+      tier: t('profile.badges.community_gardener.tier', 'Community Champion'),
       themeColor: '#4f46e5',
-      name: 'Community Gardener',
-      description: 'Shared knowledge, tips, and achievements with other city growers.',
-      requirement: `Share 5 community posts (${Math.min(stats.totalCommunityPosts || 0, 5)}/5)`,
+      name: t('profile.badges.community_gardener.name', 'Community Gardener'),
+      description: t('profile.badges.community_gardener.description', 'Shared knowledge, tips, and achievements with other city growers.'),
+      requirement: t('profile.badges.community_gardener.requirement', 'Share 5 community posts ({{current}}/5)', { current: Math.min(stats.totalCommunityPosts || 0, 5) }),
     },
     {
       id: 'gardening_guru',
-      tier: 'Master Seal',
+      tier: t('profile.badges.gardening_guru.tier', 'Master Seal'),
       themeColor: '#d97706',
-      name: 'Gardening Guru',
-      description: 'Attained supreme gardening knowledge and master experience.',
-      requirement: `Earn 100+ gardening points (${Math.min((stats.totalPlants || 0) * 10 + (stats.totalCommunityPosts || 0) * 10 + (stats.totalHarvests || 0) * 15, 100)}/100)`,
+      name: t('profile.badges.gardening_guru.name', 'Gardening Guru'),
+      description: t('profile.badges.gardening_guru.description', 'Attained supreme gardening knowledge and master experience.'),
+      requirement: t('profile.badges.gardening_guru.requirement', 'Earn 100+ gardening points ({{current}}/100)', { current: Math.min((stats.totalPlants || 0) * 10 + (stats.totalCommunityPosts || 0) * 10 + (stats.totalHarvests || 0) * 15, 100) }),
     },
     {
       id: 'weather_watcher',
-      tier: 'Microclimate Expert',
+      tier: t('profile.badges.weather_watcher.tier', 'Microclimate Expert'),
       themeColor: '#0891b2',
-      name: 'Weather Watcher',
-      description: 'Utilised hyper-local weather alerts and irrigation intelligence.',
-      requirement: `Register garden and check weather (${Math.min(stats.totalGardens || 0, 1)}/1)`,
+      name: t('profile.badges.weather_watcher.name', 'Weather Watcher'),
+      description: t('profile.badges.weather_watcher.description', 'Utilised hyper-local weather alerts and irrigation intelligence.'),
+      requirement: t('profile.badges.weather_watcher.requirement', 'Register garden and check weather ({{current}}/1)', { current: Math.min(stats.totalGardens || 0, 1) }),
     },
   ];
 
   if (loading) {
-    return <div className="badges-loading">Loading badges...</div>;
+    return <div className="badges-loading">{t('profile.badgesSection.loading', 'Loading badges...')}</div>;
   }
 
   const unlockedCount = allBadges.filter(b => getBadgeStatus(b.id)).length;
@@ -179,14 +181,14 @@ const Badges = ({ badges: propBadges, stats = {} }) => {
       <div className="badges-section-header">
         <div>
           <h3>
-            <RiAwardLine className="badges-header-icon" /> Badges & Achievements
+            <RiAwardLine className="badges-header-icon" /> {t('profile.badgesSection.title', 'Badges & Achievements')}
           </h3>
           <p className="badges-subtitle">
-            Earn distinctive achievement medallions as you grow and maintain your urban sanctuary!
+            {t('profile.badgesSection.subtitle', 'Earn distinctive achievement medallions as you grow and maintain your urban sanctuary!')}
           </p>
         </div>
         <div className="badges-counter-pill">
-          <RiSparklingFill /> {unlockedCount} / {allBadges.length} Unlocked
+          <RiSparklingFill /> {t('profile.badgesSection.unlocked', '{{count}} / {{total}} Unlocked', { count: unlockedCount, total: allBadges.length })}
         </div>
       </div>
       
@@ -224,7 +226,7 @@ const Badges = ({ badges: propBadges, stats = {} }) => {
                 </div>
                 <p className="badge-description">{badge.description}</p>
                 <p className="badge-requirement">
-                  <span className="req-label">Goal:</span> {badge.requirement}
+                  <span className="req-label">{t('profile.badgesSection.goal', 'Goal:')}</span> {badge.requirement}
                 </p>
                 {progress && !isUnlocked && (
                   <div className="badge-progress">
@@ -238,7 +240,7 @@ const Badges = ({ badges: propBadges, stats = {} }) => {
                       />
                     </div>
                     <span className="progress-text">
-                      Progress: {progress.current}/{progress.total}
+                      {t('profile.badgesSection.progress', 'Progress:')} {progress.current}/{progress.total}
                     </span>
                   </div>
                 )}
@@ -253,8 +255,8 @@ const Badges = ({ badges: propBadges, stats = {} }) => {
           <div className="badges-empty-icon">
             <RiTrophyLine />
           </div>
-          <p>Start earning badges by caring for your garden!</p>
-          <small>Water plants, run health diagnoses, and share with the community to unlock achievements.</small>
+          <p>{t('profile.badgesSection.emptyTitle', 'Start earning badges by caring for your garden!')}</p>
+          <small>{t('profile.badgesSection.emptySubtitle', 'Water plants, run health diagnoses, and share with the community to unlock achievements.')}</small>
         </div>
       )}
     </div>

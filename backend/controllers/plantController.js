@@ -107,13 +107,25 @@ exports.deletePlant = async (req, res, next) => {
 // @route   POST /api/plants/:id/timeline
 exports.addTimelineEntry = async (req, res, next) => {
   try {
-    const { height, notes, imageUrl } = req.body;
-    const plant = await Plant.findOne({ _id: req.params.id, userId: req.user.id });
+    const { date, height, notes, imageUrl } = req.body;
+    const query = req.user.role === 'admin' 
+      ? { _id: req.params.id } 
+      : { _id: req.params.id, userId: req.user.id };
+
+    const plant = await Plant.findOne(query);
     if (!plant) {
       return res.status(404).json({ success: false, message: 'Plant not found' });
     }
 
-    plant.growthTimeline.push({ date: new Date(), height, notes, imageUrl });
+    plant.growthTimeline.push({
+      date: date ? new Date(date) : new Date(),
+      height: height ? parseFloat(height) : undefined,
+      notes: notes || '',
+      imageUrl: imageUrl || ''
+    });
+    
+    // Sort timeline by date ascending
+    plant.growthTimeline.sort((a, b) => new Date(a.date) - new Date(b.date));
     await plant.save();
 
     res.status(201).json({ success: true, timeline: plant.growthTimeline });

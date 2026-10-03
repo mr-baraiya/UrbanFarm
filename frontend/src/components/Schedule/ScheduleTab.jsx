@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   RiCalendarEventLine, 
   RiCalendar2Line, 
@@ -22,6 +23,7 @@ import CalendarView from './CalendarView';
 import './ScheduleTab.css';
 
 const ScheduleTab = () => {
+  const { t, i18n } = useTranslation();
   const [tasks, setTasks] = useState([]);
   const [filteredTasks, setFilteredTasks] = useState([]);
   const [completedTasks, setCompletedTasks] = useState([]);
@@ -64,7 +66,7 @@ const ScheduleTab = () => {
       setGardens(gardensData || []);
     } catch (error) {
       console.error('Failed to load tasks:', error);
-      addNotification('Failed to load tasks', 'error');
+      addNotification(t('schedule.failedLoadTasks', 'Failed to load tasks'), 'error');
     } finally {
       setLoading(false);
     }
@@ -145,7 +147,7 @@ const ScheduleTab = () => {
         const now = new Date();
         const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
         if (new Date(task.dueDate) > todayEnd) {
-          addNotification('Cannot complete future tasks ahead of time', 'warning');
+          addNotification(t('schedule.cannotCompleteFuture', 'Cannot complete future tasks ahead of time'), 'warning');
           return;
         }
       }
@@ -154,9 +156,9 @@ const ScheduleTab = () => {
       if (task) {
         setCompletedTasks([...completedTasks, { ...task, completed: true }]);
       }
-      addNotification('Task completed successfully', 'success');
+      addNotification(t('schedule.taskCompletedSuccess', 'Task completed successfully'), 'success');
     } catch (error) {
-      const msg = error.response?.data?.message || 'Failed to complete task';
+      const msg = error.response?.data?.message || t('schedule.taskCompleteFailed', 'Failed to complete task');
       addNotification(msg, 'error');
     }
   };
@@ -172,9 +174,9 @@ const ScheduleTab = () => {
       await updateTask(id, { dueDate: newDate.toISOString() });
       task.dueDate = newDate.toISOString();
       setTasks([...tasks]);
-      addNotification('Task snoozed for 1 day', 'info');
+      addNotification(t('schedule.taskSnoozed', 'Task snoozed for 1 day'), 'info');
     } catch (error) {
-      addNotification('Failed to snooze task', 'error');
+      addNotification(t('schedule.taskSnoozeFailed', 'Failed to snooze task'), 'error');
     }
   };
 
@@ -189,16 +191,16 @@ const ScheduleTab = () => {
   const promptDeleteTask = (id) => {
     setConfirmConfig({
       isOpen: true,
-      title: 'Delete Task',
-      message: 'Are you sure you want to delete this scheduled task?',
+      title: t('schedule.deleteTaskTitle', 'Delete Task'),
+      message: t('schedule.deleteTaskConfirm', 'Are you sure you want to delete this scheduled task?'),
       onConfirm: async () => {
         try {
           await deleteTask(id);
           setTasks(tasks.filter((t) => t._id !== id));
           setCompletedTasks(completedTasks.filter((t) => t._id !== id));
-          addNotification('Task deleted', 'success');
+          addNotification(t('schedule.taskDeleted', 'Task deleted'), 'success');
         } catch (error) {
-          addNotification('Failed to delete task', 'error');
+          addNotification(t('schedule.taskDeleteFailed', 'Failed to delete task'), 'error');
         }
       },
     });
@@ -212,9 +214,9 @@ const ScheduleTab = () => {
       if (task) {
         setTasks([...tasks, { ...task, completed: false }]);
       }
-      addNotification('Task restored', 'success');
+      addNotification(t('schedule.taskRestored', 'Task restored'), 'success');
     } catch (error) {
-      addNotification('Failed to restore task', 'error');
+      addNotification(t('schedule.taskRestoreFailed', 'Failed to restore task'), 'error');
     }
   };
 
@@ -240,13 +242,13 @@ const ScheduleTab = () => {
       <div className="schedule-header">
         <div className="header-left">
           <h2>
-            <RiCalendarEventLine className="header-icon" /> Tasks & Schedule
+            <RiCalendarEventLine className="header-icon" /> {t('schedule.title', 'Tasks & Schedule')}
           </h2>
-          <span className="task-count">{tasks.length} active tasks</span>
+          <span className="task-count">{t('schedule.activeTasksCount', { count: tasks.length, defaultValue: `${tasks.length} active tasks` })}</span>
         </div>
         <div className="header-actions">
           <button className="btn-primary" onClick={() => setShowForm(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-            <RiAddLine /> Add Task
+            <RiAddLine /> {t('schedule.addTask', 'Add Task')}
           </button>
         </div>
       </div>
@@ -255,27 +257,27 @@ const ScheduleTab = () => {
       <div className="stats-overview">
         <div className="stat-card">
           <span className="stat-value">{stats.total}</span>
-          <span className="stat-label">Total Tasks</span>
+          <span className="stat-label">{t('schedule.totalTasks', 'Total Tasks')}</span>
         </div>
         <div className="stat-card">
           <span className="stat-value">{stats.completed}</span>
-          <span className="stat-label">Completed</span>
+          <span className="stat-label">{t('schedule.completed', 'Completed')}</span>
         </div>
         <div className={`stat-card ${stats.overdue > 0 ? 'warning' : ''}`}>
           <span className="stat-value">{stats.overdue}</span>
           <span className="stat-label">
             {stats.overdue > 0 ? (
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: '#dc2626', fontWeight: 600 }}>
-                <RiAlertLine /> Overdue
+                <RiAlertLine /> {t('schedule.overdue', 'Overdue')}
               </span>
             ) : (
-              'Overdue'
+              t('schedule.overdue', 'Overdue')
             )}
           </span>
         </div>
         <div className="stat-card">
           <span className="stat-value">{Math.round((stats.completed / (stats.total || 1)) * 100)}%</span>
-          <span className="stat-label">Completion Rate</span>
+          <span className="stat-label">{t('schedule.completionRate', 'Completion Rate')}</span>
         </div>
       </div>
 
@@ -287,7 +289,7 @@ const ScheduleTab = () => {
           </span>
           <input
             type="text"
-            placeholder="Search tasks..."
+            placeholder={t('schedule.searchPlaceholder', 'Search tasks...')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -297,26 +299,26 @@ const ScheduleTab = () => {
           <button 
             className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
             onClick={() => setViewMode('list')}
-            title="List View"
+            title={t('schedule.viewListTitle', 'List View')}
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
           >
-            <RiListCheck2 /> List
+            <RiListCheck2 /> {t('schedule.viewList', 'List')}
           </button>
           <button 
             className={`view-btn ${viewMode === 'calendar' ? 'active' : ''}`}
             onClick={() => setViewMode('calendar')}
-            title="Calendar View"
+            title={t('schedule.viewCalendarTitle', 'Calendar View')}
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
           >
-            <RiCalendar2Line /> Calendar
+            <RiCalendar2Line /> {t('schedule.viewCalendar', 'Calendar')}
           </button>
           <button 
             className={`view-btn ${viewMode === 'kanban' ? 'active' : ''}`}
             onClick={() => setViewMode('kanban')}
-            title="Kanban Board"
+            title={t('schedule.viewBoardTitle', 'Kanban Board')}
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
           >
-            <RiDashboardLine /> Board
+            <RiDashboardLine /> {t('schedule.viewBoard', 'Board')}
           </button>
         </div>
 
@@ -326,34 +328,34 @@ const ScheduleTab = () => {
             onChange={(e) => setFilterStatus(e.target.value)}
             className="filter-select"
           >
-            <option value="all">All Tasks</option>
-            <option value="today">Today</option>
-            <option value="week">This Week</option>
-            <option value="upcoming">Upcoming</option>
+            <option value="all">{t('schedule.filterAllTasks', 'All Tasks')}</option>
+            <option value="today">{t('schedule.filterToday', 'Today')}</option>
+            <option value="week">{t('schedule.filterThisWeek', 'This Week')}</option>
+            <option value="upcoming">{t('schedule.filterUpcoming', 'Upcoming')}</option>
           </select>
           <select 
             value={filterPriority} 
             onChange={(e) => setFilterPriority(e.target.value)}
             className="filter-select"
           >
-            <option value="all">All Priorities</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
+            <option value="all">{t('schedule.filterAllPriorities', 'All Priorities')}</option>
+            <option value="high">{t('schedule.priorityHigh', 'High')}</option>
+            <option value="medium">{t('schedule.priorityMedium', 'Medium')}</option>
+            <option value="low">{t('schedule.priorityLow', 'Low')}</option>
           </select>
           <select 
             value={filterType} 
             onChange={(e) => setFilterType(e.target.value)}
             className="filter-select"
           >
-            <option value="all">All Types</option>
-            <option value="watering">Watering</option>
-            <option value="fertilizing">Fertilizing</option>
-            <option value="planting">Planting</option>
-            <option value="harvesting">Harvesting</option>
-            <option value="pruning">Pruning</option>
-            <option value="pest_check">Pest Check</option>
-            <option value="other">Other</option>
+            <option value="all">{t('schedule.filterAllTypes', 'All Types')}</option>
+            <option value="watering">{t('schedule.typeWatering', 'Watering')}</option>
+            <option value="fertilizing">{t('schedule.typeFertilizing', 'Fertilizing')}</option>
+            <option value="planting">{t('schedule.typePlanting', 'Planting')}</option>
+            <option value="harvesting">{t('schedule.typeHarvesting', 'Harvesting')}</option>
+            <option value="pruning">{t('schedule.typePruning', 'Pruning')}</option>
+            <option value="pest_check">{t('schedule.typePestCheck', 'Pest Check')}</option>
+            <option value="other">{t('schedule.typeOther', 'Other')}</option>
           </select>
         </div>
 
@@ -361,7 +363,7 @@ const ScheduleTab = () => {
           className={`toggle-completed ${showCompleted ? 'active' : ''}`}
           onClick={() => setShowCompleted(!showCompleted)}
         >
-          {showCompleted ? 'Hide Completed' : `Show Completed (${completedTasks.length})`}
+          {showCompleted ? t('schedule.hideCompleted', 'Hide Completed') : t('schedule.showCompletedCount', { count: completedTasks.length, defaultValue: `Show Completed (${completedTasks.length})` })}
         </button>
       </div>
 
@@ -370,7 +372,7 @@ const ScheduleTab = () => {
         {loading ? (
           <div className="schedule-loading">
             <RiLoader4Line className="schedule-spin-icon" />
-            <p>Loading tasks & schedule...</p>
+            <p>{t('schedule.loadingTasks', 'Loading tasks & schedule...')}</p>
           </div>
         ) : viewMode === 'calendar' ? (
            <CalendarView 
@@ -384,7 +386,7 @@ const ScheduleTab = () => {
           <div className="kanban-board">
             <div className="kanban-column">
               <h4>
-                <RiListCheck2 /> To Do
+                <RiListCheck2 /> {t('schedule.toDo', 'To Do')}
               </h4>
               {filteredTasks.filter(t => !t.completed).map(task => (
                 <TaskCard
@@ -399,12 +401,12 @@ const ScheduleTab = () => {
                 />
               ))}
               {filteredTasks.filter(t => !t.completed).length === 0 && (
-                <div className="kanban-empty">No tasks</div>
+                <div className="kanban-empty">{t('schedule.noTasks', 'No tasks')}</div>
               )}
             </div>
             <div className="kanban-column">
               <h4>
-                <RiCheckLine /> Completed
+                <RiCheckLine /> {t('schedule.completedHeader', 'Completed')}
               </h4>
               {completedTasks.map(task => (
                 <TaskCard
@@ -421,7 +423,7 @@ const ScheduleTab = () => {
                 />
               ))}
               {completedTasks.length === 0 && (
-                <div className="kanban-empty">No completed tasks</div>
+                <div className="kanban-empty">{t('schedule.noCompletedTasks', 'No completed tasks')}</div>
               )}
             </div>
           </div>
@@ -429,7 +431,7 @@ const ScheduleTab = () => {
           // List View
           <div className="task-list">
             {/* Group by date */}
-            {groupTasksByDate(filteredTasks).map(({ label, tasks: groupedTasks }) => (
+            {groupTasksByDate(filteredTasks, t).map(({ label, tasks: groupedTasks }) => (
               <div key={label} className="task-group">
                 <h3 className="group-label" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
                   <RiCalendarEventLine /> {label}
@@ -453,8 +455,8 @@ const ScheduleTab = () => {
                 <span className="empty-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
                   <RiCheckDoubleLine style={{ color: '#10b981' }} />
                 </span>
-                <h3>All caught up!</h3>
-                <p>No tasks matching your filters</p>
+                <h3>{t('schedule.allCaughtUp', 'All caught up!')}</h3>
+                <p>{t('schedule.noTasksMatchingFilters', 'No tasks matching your filters')}</p>
               </div>
             )}
           </div>
@@ -466,9 +468,9 @@ const ScheduleTab = () => {
         <div className="completed-drawer">
           <div className="drawer-header">
             <h3 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-              <RiCheckLine /> Completed Tasks
+              <RiCheckLine /> {t('schedule.completedTasks', 'Completed Tasks')}
             </h3>
-            <span className="drawer-count">{completedTasks.length} tasks</span>
+            <span className="drawer-count">{t('schedule.tasksCount', { count: completedTasks.length, defaultValue: `${completedTasks.length} tasks` })}</span>
           </div>
           {completedTasks.map(task => (
             <TaskCard
@@ -499,16 +501,16 @@ const ScheduleTab = () => {
             try {
               if (editingTask) {
                 await updateTask(editingTask._id, data);
-                addNotification('Task updated!', 'success');
+                addNotification(t('schedule.taskUpdated', 'Task updated!'), 'success');
               } else {
                 await createTask(data);
-                addNotification('Task created!', 'success');
+                addNotification(t('schedule.taskCreated', 'Task created!'), 'success');
               }
               setShowForm(false);
               setEditingTask(null);
               loadData();
             } catch (error) {
-              addNotification('Failed to save task', 'error');
+              addNotification(t('schedule.taskSaveFailed', 'Failed to save task'), 'error');
             }
           }}
           plants={plants}
@@ -520,7 +522,7 @@ const ScheduleTab = () => {
 };
 
 // Helper function to group tasks by date
-const groupTasksByDate = (tasks) => {
+const groupTasksByDate = (tasks, t) => {
   const groups = [];
   const today = new Date();
   const tomorrow = new Date(today);
@@ -539,10 +541,10 @@ const groupTasksByDate = (tasks) => {
     return dueDate > weekEnd;
   });
 
-  if (todayTasks.length > 0) groups.push({ label: 'Today', tasks: todayTasks });
-  if (tomorrowTasks.length > 0) groups.push({ label: 'Tomorrow', tasks: tomorrowTasks });
-  if (weekTasks.length > 0) groups.push({ label: 'This Week', tasks: weekTasks });
-  if (futureTasks.length > 0) groups.push({ label: 'Upcoming', tasks: futureTasks });
+  if (todayTasks.length > 0) groups.push({ label: t ? t('schedule.groupToday', 'Today') : 'Today', tasks: todayTasks });
+  if (tomorrowTasks.length > 0) groups.push({ label: t ? t('schedule.groupTomorrow', 'Tomorrow') : 'Tomorrow', tasks: tomorrowTasks });
+  if (weekTasks.length > 0) groups.push({ label: t ? t('schedule.groupThisWeek', 'This Week') : 'This Week', tasks: weekTasks });
+  if (futureTasks.length > 0) groups.push({ label: t ? t('schedule.groupUpcoming', 'Upcoming') : 'Upcoming', tasks: futureTasks });
 
   return groups;
 };

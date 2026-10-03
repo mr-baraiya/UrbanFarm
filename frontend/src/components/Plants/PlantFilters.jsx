@@ -1,5 +1,7 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { RiSearchLine, RiCloseLine, RiCheckboxMultipleLine } from 'react-icons/ri';
+import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import './PlantFilters.css';
 
 const PlantFilters = ({
@@ -18,19 +20,21 @@ const PlantFilters = ({
   onSelectModeToggle,
   totalPlants,
 }) => {
+  const { t, i18n } = useTranslation();
+
   const statusOptions = [
-    { value: 'all', label: 'All Statuses' },
-    { value: 'seedling', label: 'Seedling' },
-    { value: 'growing', label: 'Growing' },
-    { value: 'mature', label: 'Mature' },
-    { value: 'harvested', label: 'Harvesting' },
+    { value: 'all', label: t('plants.allStatuses', 'All Statuses') },
+    { value: 'seedling', label: t('plants.seedling', 'Seedling') },
+    { value: 'growing', label: t('plants.statusGrowing', 'Growing') },
+    { value: 'mature', label: t('plants.statusMature', 'Mature') },
+    { value: 'harvested', label: t('plants.harvested', 'Harvesting') },
   ];
 
   const sortOptions = [
-    { value: 'recent', label: 'Recently Added' },
-    { value: 'name', label: 'Name (A-Z)' },
-    { value: 'health', label: 'Health Status' },
-    { value: 'status', label: 'Growth Stage' },
+    { value: 'recent', label: t('plants.recentlyAdded', 'Recently Added') },
+    { value: 'name', label: t('plants.sortName', 'Name (A-Z)') },
+    { value: 'health', label: t('plants.sortHealth', 'Health Status') },
+    { value: 'status', label: t('plants.sortStage', 'Growth Stage') },
   ];
 
   return (
@@ -42,12 +46,12 @@ const PlantFilters = ({
           </span>
           <input
             type="text"
-            placeholder="Search plants by name or variety..."
+            placeholder={t('plants.searchPlaceholder', 'Search plants by name or variety...')}
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
           />
           {searchTerm && (
-            <button className="clear-search" onClick={() => onSearchChange('')} aria-label="Clear search">
+            <button className="clear-search" onClick={() => onSearchChange('')} aria-label={t('common.clear', 'Clear search')}>
               <RiCloseLine />
             </button>
           )}
@@ -58,9 +62,9 @@ const PlantFilters = ({
             onClick={onSelectModeToggle}
           >
             {selectMode ? (
-              <><RiCloseLine /> Cancel</>
+              <><RiCloseLine /> {t('common.cancel', 'Cancel')}</>
             ) : (
-              <><RiCheckboxMultipleLine /> Select</>
+              <><RiCheckboxMultipleLine /> {t('common.select', 'Select')}</>
             )}
           </button>
         </div>
@@ -73,9 +77,11 @@ const PlantFilters = ({
             onChange={(e) => onGardenChange(e.target.value)}
             className="filter-select"
           >
-            <option value="">All Gardens</option>
+            <option value="">{t('plants.allGardens', 'All Gardens')}</option>
             {gardens.map(g => (
-              <option key={g._id} value={g._id}>{g.name}</option>
+              <option key={g._id} value={g._id}>
+                {getLocalizedDynamicText(g.name, i18n.language)}
+              </option>
             ))}
           </select>
 
@@ -103,7 +109,9 @@ const PlantFilters = ({
             ))}
           </select>
         </div>
-        <span className="result-count">{totalPlants} plants</span>
+        <span className="result-count">
+          {t('plants.plantsCount', '{{count}} plants', { count: totalPlants })}
+        </span>
       </div>
     </div>
   );

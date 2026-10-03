@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   RiSunLine, 
   RiMoonLine, 
@@ -15,17 +16,20 @@ import {
   RiAlertLine,
   RiLoader4Line
 } from 'react-icons/ri';
+import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import './WeatherWidget.css';
 
 const WeatherWidget = ({ weather, forecast, loading }) => {
+  const { t, i18n } = useTranslation();
+
   if (loading) {
     return (
       <div className="weather-widget weather-loading-card">
         <div className="weather-loader-header">
           <RiLoader4Line className="spin weather-spin-icon" />
           <div className="weather-loader-text">
-            <span className="weather-loader-title">Fetching Real-Time Weather...</span>
-            <span className="weather-loader-sub">Analyzing local climate & forecast data</span>
+            <span className="weather-loader-title">{t('watering.fetchingWeather', 'Fetching Real-Time Weather...')}</span>
+            <span className="weather-loader-sub">{t('watering.analyzingWeather', 'Analyzing local climate & forecast data')}</span>
           </div>
         </div>
         <div className="weather-shimmer-bar"></div>
@@ -41,7 +45,7 @@ const WeatherWidget = ({ weather, forecast, loading }) => {
         </span>
         <div className="weather-info">
           <span className="weather-temp">--°C</span>
-          <span className="weather-condition">Weather unavailable</span>
+          <span className="weather-condition">{t('watering.weatherUnavailable', 'Weather unavailable')}</span>
         </div>
       </div>
     );
@@ -83,24 +87,43 @@ const WeatherWidget = ({ weather, forecast, loading }) => {
     const rainToday = forecast?.list?.[0]?.rain?.['3h'] || 0;
     
     if (rainToday > 5) {
-      return { icon: <RiRainyLine style={{ color: '#38bdf8' }} />, text: 'Rain expected today - skip watering!' };
+      return { 
+        icon: <RiRainyLine style={{ color: '#38bdf8' }} />, 
+        text: t('watering.adviceRain', 'Rain expected today - skip watering!') 
+      };
     }
     if (temp > 35) {
-      return { icon: <RiAlertLine style={{ color: '#ef4444' }} />, text: 'Extreme heat - water in the evening!' };
+      return { 
+        icon: <RiAlertLine style={{ color: '#ef4444' }} />, 
+        text: t('watering.adviceExtremeHeat', 'Extreme heat - water in the evening!') 
+      };
     }
     if (temp > 30) {
-      return { icon: <RiSunLine style={{ color: '#f59e0b' }} />, text: 'Hot day - consider extra watering' };
+      return { 
+        icon: <RiSunLine style={{ color: '#f59e0b' }} />, 
+        text: t('watering.adviceHotDay', 'Hot day - consider extra watering') 
+      };
     }
     if (humidity > 80) {
-      return { icon: <RiDropLine style={{ color: '#0ea5e9' }} />, text: 'High humidity - reduce watering' };
+      return { 
+        icon: <RiDropLine style={{ color: '#0ea5e9' }} />, 
+        text: t('watering.adviceHighHumidity', 'High humidity - reduce watering') 
+      };
     }
     if (humidity < 30) {
-      return { icon: <RiWindyLine style={{ color: '#f97316' }} />, text: 'Low humidity - increase misting' };
+      return { 
+        icon: <RiWindyLine style={{ color: '#f97316' }} />, 
+        text: t('watering.adviceLowHumidity', 'Low humidity - increase misting') 
+      };
     }
-    return { icon: <RiLeafLine style={{ color: '#10b981' }} />, text: 'Optimal conditions - follow schedule' };
+    return { 
+      icon: <RiLeafLine style={{ color: '#10b981' }} />, 
+      text: t('watering.adviceOptimal', 'Optimal conditions - follow schedule') 
+    };
   };
 
   const adviceObj = getWateringAdvice(temp, condition, humidity, forecast);
+  const localizedCondition = getLocalizedDynamicText(condition, i18n.language);
 
   return (
     <div className="weather-widget">
@@ -110,7 +133,7 @@ const WeatherWidget = ({ weather, forecast, loading }) => {
         </span>
         <div className="weather-temp-info">
           <span className="weather-temp">{temp}°C</span>
-          <span className="weather-condition" style={{ textTransform: 'capitalize' }}>{condition}</span>
+          <span className="weather-condition" style={{ textTransform: 'capitalize' }}>{localizedCondition}</span>
         </div>
         <div className="weather-details">
           <span className="weather-humidity" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
@@ -128,7 +151,7 @@ const WeatherWidget = ({ weather, forecast, loading }) => {
       </div>
       {forecast && forecast.list && (
         <div className="weather-forecast">
-          <span className="forecast-label">3-Day Forecast:</span>
+          <span className="forecast-label">{t('watering.forecastLabel', '3-Day Forecast:')}</span>
           <div className="forecast-days">
             {forecast.list.slice(0, 3).map((day, idx) => {
               const dayTemp = Math.round(day.main?.temp || 0);
@@ -141,7 +164,7 @@ const WeatherWidget = ({ weather, forecast, loading }) => {
                   </span>
                   <span className="forecast-temp">{dayTemp}°C</span>
                   {dayRain > 0 && (
-                    <span className="forecast-rain" title="Rain expected" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                    <span className="forecast-rain" title={t('watering.rainExpected', 'Rain expected')} style={{ display: 'inline-flex', alignItems: 'center' }}>
                       <RiRainyLine style={{ color: '#38bdf8', fontSize: '0.8rem' }} />
                     </span>
                   )}

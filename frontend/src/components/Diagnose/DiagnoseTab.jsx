@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { 
   RiMicroscopeLine, 
   RiCameraLine, 
@@ -15,11 +16,13 @@ import { TbPlant2 } from 'react-icons/tb';
 import { diagnosePlant, getDiagnosisHistory, getPlants } from '../../services/plantService';
 import { useNotification } from '../../hooks/useNotification';
 import { getPlantImage } from '../../utils/helpers';
+import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import DiseaseResult from './DiseaseResult';
 import DiagnosisHistory from './DiagnosisHistory';
 import './DiagnoseTab.css';
 
 const DiagnoseTab = () => {
+  const { t, i18n } = useTranslation();
   const [searchParams] = useSearchParams();
   const plantIdParam = searchParams.get('plant');
   
@@ -74,7 +77,7 @@ const DiagnoseTab = () => {
           if (autoImg) {
             setPreview(autoImg);
           }
-          addNotification(`Selected ${targetPlant.name} for disease diagnosis`, 'info');
+          addNotification(t('diagnose.selectedPlantNotification', { name: getLocalizedDynamicText(targetPlant.name, i18n.language) }), 'info');
         }
       }
     } catch (error) {
@@ -92,10 +95,13 @@ const DiagnoseTab = () => {
     // Search filter
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(h => 
-        (h.diseaseName && h.diseaseName.toLowerCase().includes(term)) ||
-        (h.plantId?.name && h.plantId.name.toLowerCase().includes(term))
-      );
+      filtered = filtered.filter(h => {
+        const dName = (h.diseaseName || '').toLowerCase();
+        const localizedDName = getLocalizedDynamicText(h.diseaseName, i18n.language).toLowerCase();
+        const pName = (h.plantId?.name || '').toLowerCase();
+        const localizedPName = getLocalizedDynamicText(h.plantId?.name, i18n.language).toLowerCase();
+        return dName.includes(term) || localizedDName.includes(term) || pName.includes(term) || localizedPName.includes(term);
+      });
     }
     
     // Status filter
@@ -130,7 +136,7 @@ const DiagnoseTab = () => {
     if (file && file.type.startsWith('image/')) {
       handleImageFile(file);
     } else {
-      addNotification('Please drop an image file', 'error');
+      addNotification(t('diagnose.dropImageError', 'Please drop an image file'), 'error');
     }
   };
 
@@ -211,7 +217,7 @@ const DiagnoseTab = () => {
         const file = new File([blob], `leaf_photo_${Date.now()}.jpg`, { type: 'image/jpeg' });
         handleImageFile(file);
         stopCamera();
-        addNotification('Leaf photo captured successfully!', 'success');
+        addNotification(t('diagnose.photoCaptured', 'Leaf photo captured successfully!'), 'success');
       }
     }, 'image/jpeg', 0.92);
   };
@@ -250,7 +256,7 @@ const DiagnoseTab = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!image && !preview) {
-      addNotification('Please select a plant or provide an image for diagnosis', 'error');
+      addNotification(t('diagnose.selectPlantOrImage', 'Please select a plant or provide an image for diagnosis'), 'error');
       return;
     }
     setLoading(true);
@@ -266,10 +272,10 @@ const DiagnoseTab = () => {
     try {
       const diagnosis = await diagnosePlant(formData);
       setResult(diagnosis);
-      addNotification('Diagnosis complete!', 'success');
+      addNotification(t('diagnose.diagnosisComplete', 'Diagnosis complete!'), 'success');
       loadData(); // Refresh history
     } catch (error) {
-      addNotification('Diagnosis failed', 'error');
+      addNotification(t('diagnose.diagnosisFailed', 'Diagnosis failed'), 'error');
     } finally {
       setLoading(false);
     }
@@ -300,18 +306,18 @@ const DiagnoseTab = () => {
   return (
     <div className="diagnose-tab">
       <h2>
-        <RiMicroscopeLine className="header-icon" /> Plant Disease Diagnosis
+        <RiMicroscopeLine className="header-icon" /> {t('diagnose.title', 'Plant Disease Diagnosis')}
       </h2>
       
       <div className="diagnose-layout">
         {/* Left Column - Upload & Results */}
         <div className="diagnose-left">
           <div className="diagnose-upload-section">
-            <p>Upload a clear photo of your plant's leaves or select a plant to run AI disease detection.</p>
+            <p>{t('diagnose.subtitle', "Upload a clear photo of your plant's leaves or select a plant to run AI disease detection.")}</p>
             
             {/* Plant selector */}
             <div className="plant-selector">
-              <label>Select Plant for Context:</label>
+              <label>{t('diagnose.selectPlantContext', 'Select Plant for Context:')}</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', width: '100%' }}>
                 {activePlantObj && (
                   <div style={{ width: '38px', height: '38px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, border: '1px solid var(--border-light, rgba(0,0,0,0.1))' }}>
@@ -327,10 +333,10 @@ const DiagnoseTab = () => {
                   onChange={handlePlantSelect}
                   style={{ flex: 1 }}
                 >
-                  <option value="">-- No specific plant (General Diagnosis) --</option>
+                  <option value="">{t('diagnose.noSpecificPlant', '-- No specific plant (General Diagnosis) --')}</option>
                   {plants.map(p => (
                     <option key={p._id} value={p._id}>
-                      {p.name} {p.variety ? `(${p.variety})` : ''}
+                      {getLocalizedDynamicText(p.name, i18n.language)} {p.variety ? `(${p.variety})` : ''}
                     </option>
                   ))}
                 </select>
@@ -354,8 +360,8 @@ const DiagnoseTab = () => {
                   <span className="upload-icon">
                     <RiCameraLine />
                   </span>
-                  <span className="upload-text">Click or drag image to upload</span>
-                  <span className="upload-subtext">Supports JPG, PNG, WEBP</span>
+                  <span className="upload-text">{t('diagnose.dropImage', 'Click or drag image to upload')}</span>
+                  <span className="upload-subtext">{t('diagnose.supportsFormats', 'Supports JPG, PNG, WEBP')}</span>
                 </div>
               )}
               <input
@@ -373,14 +379,14 @@ const DiagnoseTab = () => {
                 className="btn-secondary"
                 onClick={handleCameraCapture}
               >
-                <RiCameraLine /> Take Photo
+                <RiCameraLine /> {t('diagnose.takePhoto', 'Take Photo')}
               </button>
               <button 
                 type="button" 
                 className="btn-secondary"
                 onClick={() => fileInputRef.current?.click()}
               >
-                <RiFolderUploadLine /> Browse Files
+                <RiFolderUploadLine /> {t('diagnose.browseFiles', 'Browse Files')}
               </button>
               <button 
                 type="submit" 
@@ -389,10 +395,10 @@ const DiagnoseTab = () => {
                 disabled={(!image && !preview) || loading}
               >
                 {loading ? (
-                  'Analyzing...'
+                  t('diagnose.analyzing', 'Analyzing...')
                 ) : (
                   <>
-                    <RiSparklingLine /> Run Diagnosis
+                    <RiSparklingLine /> {t('diagnose.runDiagnosis', 'Run Diagnosis')}
                   </>
                 )}
               </button>
@@ -440,9 +446,9 @@ const DiagnoseTab = () => {
           <div className="camera-modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="camera-modal-header">
               <h3>
-                <RiCameraLine /> Live Plant Leaf Camera
+                <RiCameraLine /> {t('diagnose.liveCamera', 'Live Plant Leaf Camera')}
               </h3>
-              <button className="camera-close-btn" onClick={stopCamera} aria-label="Close Camera">
+              <button className="camera-close-btn" onClick={stopCamera} aria-label={t('common.close', 'Close Camera')}>
                 <RiCloseLine />
               </button>
             </div>
@@ -452,10 +458,10 @@ const DiagnoseTab = () => {
             </div>
             <div className="camera-modal-actions">
               <button type="button" className="btn-secondary" onClick={handleSwitchCamera}>
-                <RiCameraSwitchLine /> Switch Camera
+                <RiCameraSwitchLine /> {t('diagnose.switchCamera', 'Switch Camera')}
               </button>
               <button type="button" className="btn-primary camera-snap-btn" onClick={handleSnapPhoto}>
-                <RiCameraLine /> Capture Photo
+                <RiCameraLine /> {t('diagnose.capturePhoto', 'Capture Photo')}
               </button>
             </div>
           </div>

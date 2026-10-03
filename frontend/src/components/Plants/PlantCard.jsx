@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   RiEyeLine, 
   RiDropLine, 
@@ -14,7 +15,8 @@ import {
   RiMore2Fill
 } from 'react-icons/ri';
 import { TbPlant2 } from 'react-icons/tb';
-import { getStatusColor, getHealthStatus, getGrowthStageLabel, getGrowthProgress, getPlantImage } from '../../utils/helpers';
+import { getStatusColor, getGrowthProgress, getPlantImage } from '../../utils/helpers';
+import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import './PlantCard.css';
 
 const PlantCard = ({ 
@@ -30,12 +32,29 @@ const PlantCard = ({
   onShowQR,
   onLogHarvest,
 }) => {
+  const { t, i18n } = useTranslation();
   const [showMenu, setShowMenu] = useState(false);
   const [imgError, setImgError] = useState(false);
 
-  const health = getHealthStatus(plant.health);
+  const getHealthDisplay = (h) => {
+    if (h === 'healthy') return { label: t('plants.healthy', 'Healthy'), color: '#10b981' };
+    if (h === 'warning') return { label: t('plants.needsWater', 'Needs Attention'), color: '#f59e0b' };
+    if (h === 'unhealthy') return { label: t('plants.atRisk', 'At Risk'), color: '#ef4444' };
+    return { label: t('plants.healthy', 'Healthy'), color: '#10b981' };
+  };
+
+  const getGrowthStageDisplay = (s) => {
+    if (s === 'seedling') return t('plants.seedling', 'Seedling');
+    if (s === 'growing') return t('plants.statusGrowing', 'Growing');
+    if (s === 'mature') return t('plants.statusMature', 'Mature');
+    if (s === 'harvested') return t('plants.harvested', 'Harvesting');
+    if (s === 'dead') return t('plants.statusDead', 'Ended');
+    return t('plants.statusGrowing', 'Growing');
+  };
+
+  const health = getHealthDisplay(plant.health);
   const growthProgress = getGrowthProgress(plant.status);
-  const growthLabel = getGrowthStageLabel(plant.status);
+  const growthLabel = getGrowthStageDisplay(plant.status);
   const statusColor = getStatusColor(plant.status);
   const plantImgUrl = getPlantImage(plant);
 
@@ -74,26 +93,26 @@ const PlantCard = ({
         )}
 
         <div className="plant-menu">
-          <button className="menu-btn" onClick={() => setShowMenu(!showMenu)} aria-label="Menu" title="Plant Options">
+          <button className="menu-btn" onClick={() => setShowMenu(!showMenu)} aria-label={t('plants.plantName', 'Plant Options')} title={t('plants.plantName', 'Plant Options')}>
             <RiMore2Fill />
           </button>
           {showMenu && (
             <div className="menu-dropdown">
               {onLogHarvest && (
                 <button onClick={() => { onLogHarvest(plant); setShowMenu(false); }}>
-                  <RiShoppingBasketLine /> Log Harvest
+                  <RiShoppingBasketLine /> {t('plants.logHarvest', 'Log Harvest')}
                 </button>
               )}
               {onShowQR && (
                 <button onClick={() => { onShowQR(plant); setShowMenu(false); }}>
-                  <RiQrCodeLine /> QR Code
+                  <RiQrCodeLine /> {t('plants.qrCode', 'QR Code')}
                 </button>
               )}
               <button onClick={() => { onEdit(); setShowMenu(false); }}>
-                <RiEditLine /> Edit
+                <RiEditLine /> {t('common.edit', 'Edit')}
               </button>
               <button onClick={() => { onDelete(); setShowMenu(false); }} className="danger">
-                <RiDeleteBinLine /> Delete
+                <RiDeleteBinLine /> {t('common.delete', 'Delete')}
               </button>
             </div>
           )}
@@ -103,7 +122,7 @@ const PlantCard = ({
           {!imgError && plantImgUrl ? (
             <img 
               src={plantImgUrl} 
-              alt={plant.name}
+              alt={getLocalizedDynamicText(plant.name, i18n.language)}
               onError={() => setImgError(true)}
               loading="lazy"
             />
@@ -115,12 +134,12 @@ const PlantCard = ({
 
       {/* Name & Details */}
       <div className="plant-info">
-        <h4 className="plant-name">{plant.name}</h4>
+        <h4 className="plant-name">{getLocalizedDynamicText(plant.name, i18n.language)}</h4>
         {plant.variety && (
-          <span className="plant-variety">{plant.variety}</span>
+          <span className="plant-variety">{getLocalizedDynamicText(plant.variety, i18n.language)}</span>
         )}
         {plant.scientificName && (
-          <span className="plant-scientific">{plant.scientificName}</span>
+          <span className="plant-scientific">{getLocalizedDynamicText(plant.scientificName, i18n.language)}</span>
         )}
       </div>
 
@@ -134,7 +153,7 @@ const PlantCard = ({
         </span>
         {daysOld !== null && (
           <span className="age-badge">
-            <RiCalendarEventLine className="badge-icon-sm" /> {daysOld} days
+            <RiCalendarEventLine className="badge-icon-sm" /> {t('plants.daysCount', '{{count}} days', { count: daysOld })}
           </span>
         )}
       </div>
@@ -150,21 +169,23 @@ const PlantCard = ({
             }}
           />
         </div>
-        <span className="progress-label">{growthProgress}% complete</span>
+        <span className="progress-label">
+          {t('plants.percentComplete', '{{percent}}% complete', { percent: growthProgress })}
+        </span>
       </div>
 
       {/* Garden & Water info */}
       <div className="plant-meta">
         {plant.gardenId?.name && (
           <span className="plant-garden">
-            <RiMapPin2Line className="meta-icon" /> {plant.gardenId.name}
+            <RiMapPin2Line className="meta-icon" /> {getLocalizedDynamicText(plant.gardenId.name, i18n.language)}
           </span>
         )}
         <span className="plant-water">
-          <RiDropLine className="meta-icon water" /> every {plant.waterFrequency !== undefined && plant.waterFrequency !== null ? plant.waterFrequency : 3}d
+          <RiDropLine className="meta-icon water" /> {t('plants.everyDays', 'every {{days}}d', { days: plant.waterFrequency !== undefined && plant.waterFrequency !== null ? plant.waterFrequency : 3 })}
         </span>
         {plant.sunlight && (
-          <span className="plant-sunlight" title={`Sunlight: ${plant.sunlight}`}>
+          <span className="plant-sunlight" title={`${t('crops.selectSunlight', 'Sunlight')}: ${plant.sunlight}`}>
             {plant.sunlight === 'full' ? (
               <RiSunLine className="meta-icon sun" />
             ) : (
@@ -176,22 +197,22 @@ const PlantCard = ({
 
       {/* Quick Actions */}
       <div className="plant-actions">
-        <button className="action-btn view" onClick={onViewDetails} title="View Details">
+        <button className="action-btn view" onClick={onViewDetails} title={t('common.viewDetails', 'View Details')}>
           <RiEyeLine />
         </button>
-        <button className="action-btn water" onClick={onQuickWater} title="Quick Water">
+        <button className="action-btn water" onClick={onQuickWater} title={t('plants.quickWater', 'Quick Water')}>
           <RiDropLine />
         </button>
-        <button className="action-btn diagnose" onClick={onQuickDiagnose} title="Quick Diagnose">
+        <button className="action-btn diagnose" onClick={onQuickDiagnose} title={t('plants.quickDiagnose', 'Quick Diagnose')}>
           <RiMicroscopeLine />
         </button>
         {onLogHarvest && (
-          <button className="action-btn harvest" onClick={() => onLogHarvest(plant)} title="Record Harvest">
+          <button className="action-btn harvest" onClick={() => onLogHarvest(plant)} title={t('plants.recordHarvest', 'Record Harvest')}>
             <RiShoppingBasketLine />
           </button>
         )}
         {onShowQR && (
-          <button className="action-btn qr" onClick={() => onShowQR(plant)} title="QR Code">
+          <button className="action-btn qr" onClick={() => onShowQR(plant)} title={t('plants.qrCode', 'QR Code')}>
             <RiQrCodeLine />
           </button>
         )}

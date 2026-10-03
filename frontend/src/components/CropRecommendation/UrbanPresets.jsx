@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   RiFlashlightLine, 
   RiBuildingLine, 
@@ -10,12 +11,14 @@ import { TbPlant2 } from 'react-icons/tb';
 import './UrbanPresets.css';
 
 const UrbanPresets = ({ onSelect, currentPreset }) => {
+  const { t } = useTranslation();
+
   const presets = [
     {
       id: 'container',
-      label: 'Balcony / Container Garden',
+      label: t('crops.presetContainer', 'Balcony / Container Garden'),
       icon: <TbPlant2 />,
-      description: 'Pots, planters, and containers',
+      description: t('crops.presetContainerDesc', 'Pots, planters, and containers'),
       inputs: {
         soilType: 'Potting Mix',
         ph: 6.5,
@@ -29,9 +32,9 @@ const UrbanPresets = ({ onSelect, currentPreset }) => {
     },
     {
       id: 'raised_bed',
-      label: 'Raised Bed',
+      label: t('crops.presetRaisedBed', 'Raised Bed'),
       icon: <RiInboxArchiveLine />,
-      description: 'Elevated garden beds',
+      description: t('crops.presetRaisedBedDesc', 'Elevated garden beds'),
       inputs: {
         soilType: 'Loam',
         ph: 6.8,
@@ -45,9 +48,9 @@ const UrbanPresets = ({ onSelect, currentPreset }) => {
     },
     {
       id: 'rooftop',
-      label: 'Rooftop Sunny Spot',
+      label: t('crops.presetRooftop', 'Rooftop Sunny Spot'),
       icon: <RiSunLine />,
-      description: 'Full sun, wind exposure',
+      description: t('crops.presetRooftopDesc', 'Full sun, wind exposure'),
       inputs: {
         soilType: 'Sandy Loam',
         ph: 6.5,
@@ -61,9 +64,9 @@ const UrbanPresets = ({ onSelect, currentPreset }) => {
     },
     {
       id: 'indoor',
-      label: 'Indoor / Windowsill',
+      label: t('crops.presetIndoor', 'Indoor / Windowsill'),
       icon: <RiHomeSmileLine />,
-      description: 'Indoor growing, limited light',
+      description: t('crops.presetIndoorDesc', 'Indoor growing, limited light'),
       inputs: {
         soilType: 'Potting Mix',
         ph: 6.3,
@@ -80,7 +83,7 @@ const UrbanPresets = ({ onSelect, currentPreset }) => {
   return (
     <div className="urban-presets">
       <h4>
-        <RiFlashlightLine className="header-icon" /> Quick Presets
+        <RiFlashlightLine className="header-icon" /> {t('crops.quickPresets', 'Quick Presets')}
       </h4>
       <div className="presets-grid">
         {presets.map((preset) => (

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   RiAlertLine, 
   RiLeafLine, 
@@ -12,9 +13,11 @@ import {
   RiArrowDownSLine 
 } from 'react-icons/ri';
 import { TbPlant2, TbBucket } from 'react-icons/tb';
+import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import './CropCard.css';
 
 const CropCard = ({ crop, spaceAvailable, existingPlants = [], onAddToPlants }) => {
+  const { t, i18n } = useTranslation();
   const [expanded, setExpanded] = useState(false);
 
   // Determine container suitability
@@ -22,14 +25,14 @@ const CropCard = ({ crop, spaceAvailable, existingPlants = [], onAddToPlants }) 
     const containerFriendly = ['tomato', 'pepper', 'lettuce', 'basil', 'mint', 'chili', 'eggplant', 'strawberry', 'herbs'];
     const deepRoot = ['carrot', 'potato', 'onion', 'garlic', 'parsnip'];
     
-    const name = cropName.toLowerCase();
+    const name = (cropName || '').toLowerCase();
     if (containerFriendly.some(c => name.includes(c))) {
-      return { label: 'Great for Containers', icon: <TbBucket />, color: '#a8d5ba' };
+      return { label: t('crops.greatForContainers', 'Great for Containers'), icon: <TbBucket />, color: '#a8d5ba' };
     }
     if (deepRoot.some(c => name.includes(c))) {
-      return { label: 'Needs Deep Root Space', icon: <RiAlertLine />, color: '#f0d5c0' };
+      return { label: t('crops.needsDeepRoot', 'Needs Deep Root Space'), icon: <RiAlertLine />, color: '#f0d5c0' };
     }
-    return { label: 'Adaptable', icon: <RiLeafLine />, color: '#d6eaf8' };
+    return { label: t('crops.adaptable', 'Adaptable'), icon: <RiLeafLine />, color: '#d6eaf8' };
   };
 
   const containerSuitability = getContainerSuitability(crop.cropName);
@@ -37,9 +40,9 @@ const CropCard = ({ crop, spaceAvailable, existingPlants = [], onAddToPlants }) 
   // Get space suitability
   const getSpaceSuitability = () => {
     const spaceMap = {
-      small: { label: 'Perfect for small spaces', color: '#a8d5ba' },
-      medium: { label: 'Good for medium spaces', color: '#d6eaf8' },
-      large: { label: 'Needs room to grow', color: '#f0d5c0' },
+      small: { label: t('crops.spaceSmallDesc', 'Perfect for small spaces'), color: '#a8d5ba' },
+      medium: { label: t('crops.spaceMediumDesc', 'Good for medium spaces'), color: '#d6eaf8' },
+      large: { label: t('crops.spaceLargeDesc', 'Needs room to grow'), color: '#f0d5c0' },
     };
     return spaceMap[spaceAvailable] || spaceMap.medium;
   };
@@ -48,7 +51,7 @@ const CropCard = ({ crop, spaceAvailable, existingPlants = [], onAddToPlants }) 
 
   // Get climate warnings
   const getClimateWarning = () => {
-    const name = crop.cropName.toLowerCase();
+    const name = (crop.cropName || '').toLowerCase();
     const temp = 25; // This would come from the form
     
     if (name.includes('lettuce') && temp > 30) {
@@ -76,7 +79,7 @@ const CropCard = ({ crop, spaceAvailable, existingPlants = [], onAddToPlants }) 
       'strawberry': ['lettuce', 'spinach', 'garlic'],
     };
     
-    const name = cropName.toLowerCase();
+    const name = (cropName || '').toLowerCase();
     for (const [key, plants] of Object.entries(companions)) {
       if (name.includes(key)) {
         return plants;
@@ -92,17 +95,19 @@ const CropCard = ({ crop, spaceAvailable, existingPlants = [], onAddToPlants }) 
     existingPlants.some(p => p.name.toLowerCase().includes(c.toLowerCase()))
   );
 
+  const localizedCropName = getLocalizedDynamicText(crop.cropName, i18n.language);
+
   return (
     <div className="crop-card" onClick={() => setExpanded(!expanded)}>
       <div className="crop-card-header">
-        <h4>{crop.cropName}</h4>
+        <h4>{localizedCropName}</h4>
         <span className="container-badge" style={{ background: containerSuitability.color + '33', color: containerSuitability.color.includes('#') ? containerSuitability.color : '#4a3f3a', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
           {containerSuitability.icon} {containerSuitability.label}
         </span>
       </div>
       
       <div className="crop-confidence">
-        Confidence: {Math.round(crop.confidence * 100)}%
+        {t('crops.confidenceLabel', 'Confidence: {{percent}}%', { percent: Math.round(crop.confidence * 100) })}
         <div className="confidence-bar-mini">
           <div 
             className="confidence-fill-mini" 
@@ -114,7 +119,7 @@ const CropCard = ({ crop, spaceAvailable, existingPlants = [], onAddToPlants }) 
         </div>
       </div>
       
-      <p className="crop-reason">{crop.reason}</p>
+      <p className="crop-reason">{getLocalizedDynamicText(crop.reason, i18n.language)}</p>
       
       <div className="crop-badges">
         <span className="space-badge" style={{ background: spaceSuitability.color + '33' }}>
@@ -124,7 +129,7 @@ const CropCard = ({ crop, spaceAvailable, existingPlants = [], onAddToPlants }) 
 
       {climateWarning.warning && (
         <div className="climate-warning" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-          {climateWarning.icon} {climateWarning.message}
+          {climateWarning.icon} {getLocalizedDynamicText(climateWarning.message, i18n.language)}
         </div>
       )}
 
@@ -132,33 +137,35 @@ const CropCard = ({ crop, spaceAvailable, existingPlants = [], onAddToPlants }) 
         <div className="crop-expanded">
           <div className="crop-tips">
             <strong style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <RiLeafLine /> Planting Tips:
+              <RiLeafLine /> {t('crops.plantingTips', 'Planting Tips:')}
             </strong>
-            <p>{crop.plantingTips}</p>
+            <p>{getLocalizedDynamicText(crop.plantingTips, i18n.language)}</p>
           </div>
           
           <div className="crop-yield">
             <strong style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <RiScales3Line /> Expected Yield:
+              <RiScales3Line /> {t('crops.expectedYield', 'Expected Yield:')}
             </strong>
-            <span>{crop.expectedYield}</span>
+            <span>{getLocalizedDynamicText(crop.expectedYield, i18n.language)}</span>
           </div>
 
           {companions.length > 0 && (
             <div className="crop-companions">
               <strong style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <RiTeamLine /> Companion Plants:
+                <RiTeamLine /> {t('crops.companionPlants', 'Companion Plants:')}
               </strong>
               <div className="companion-tags">
                 {companions.map((c, i) => (
                   <span key={i} className={`companion-tag ${matchingCompanions.includes(c) ? 'has' : ''}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                    {c} {matchingCompanions.includes(c) && <RiCheckLine style={{ color: '#10b981' }} />}
+                    {getLocalizedDynamicText(c, i18n.language)} {matchingCompanions.includes(c) && <RiCheckLine style={{ color: '#10b981' }} />}
                   </span>
                 ))}
               </div>
               {matchingCompanions.length > 0 && (
                 <div className="companion-match">
-                  Great! You already grow {matchingCompanions.join(', ')} - they grow well together!
+                  {t('crops.companionMatch', 'Great! You already grow {{plants}} - they grow well together!', {
+                    plants: matchingCompanions.map(c => getLocalizedDynamicText(c, i18n.language)).join(', ')
+                  })}
                 </div>
               )}
             </div>
@@ -173,13 +180,13 @@ const CropCard = ({ crop, spaceAvailable, existingPlants = [], onAddToPlants }) 
             }}
             style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem' }}
           >
-            <RiAddLine /> Add to My Plants
+            <RiAddLine /> {t('crops.addToMyPlants', 'Add to My Plants')}
           </button>
         </div>
       )}
       
       <div className="crop-expand-hint" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
-        {expanded ? <><RiArrowUpSLine /> Show less</> : <><RiArrowDownSLine /> Click for more details</>}
+        {expanded ? <><RiArrowUpSLine /> {t('crops.showLess', 'Show less')}</> : <><RiArrowDownSLine /> {t('crops.clickMoreDetails', 'Click for more details')}</>}
       </div>
     </div>
   );
