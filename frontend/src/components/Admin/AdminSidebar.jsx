@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { NavLink, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   FaChartLine,
   FaUsers,
@@ -15,20 +16,22 @@ import {
   FaTimes,
 } from 'react-icons/fa';
 import { useAuth } from '../../hooks/useAuth';
+import LanguageSelector from '../Common/LanguageSelector';
 import './AdminSidebar.css';
 
 const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
+  const { t } = useTranslation();
   const { logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const navItems = [
-    { path: '/admin', label: 'Dashboard', icon: <FaChartLine />, end: true },
-    { path: '/admin/users', label: 'User Management', icon: <FaUsers /> },
-    { path: '/admin/gardens', label: 'Gardens & Plants', icon: <FaSeedling /> },
-    { path: '/admin/moderation', label: 'Moderation Hub', icon: <FaShieldAlt /> },
-    { path: '/admin/leads', label: 'Guest Leads', icon: <FaAddressBook /> },
-    { path: '/admin/logs', label: 'Audit Trail', icon: <FaHistory /> },
-    { path: '/admin/settings', label: 'System Settings', icon: <FaCog /> },
+    { path: '/admin', label: t('navigation.dashboard'), icon: <FaChartLine />, end: true },
+    { path: '/admin/users', label: t('navigation.userManagement'), icon: <FaUsers /> },
+    { path: '/admin/gardens', label: t('navigation.gardensPlants'), icon: <FaSeedling /> },
+    { path: '/admin/moderation', label: t('navigation.moderationHub'), icon: <FaShieldAlt /> },
+    { path: '/admin/leads', label: t('navigation.guestLeads'), icon: <FaAddressBook /> },
+    { path: '/admin/logs', label: t('navigation.auditTrail'), icon: <FaHistory /> },
+    { path: '/admin/settings', label: t('navigation.systemSettings'), icon: <FaCog /> },
   ];
 
   const closeMobile = () => setMobileOpen(false);
@@ -64,7 +67,7 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
 
         <nav className="admin-sidebar-nav">
           <div className="admin-nav-section-label">
-            {!isCollapsed && <span>Management</span>}
+            {!isCollapsed && <span>{t('navigation.management')}</span>}
           </div>
           {navItems.map((item) => (
             <NavLink
@@ -82,10 +85,11 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
           ))}
         </nav>
 
-        <div className="admin-sidebar-footer">
-          <button onClick={logout} className="admin-exit-btn" title="Logout">
+        <div className="admin-sidebar-footer" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {!isCollapsed && <LanguageSelector />}
+          <button onClick={logout} className="admin-exit-btn" title={t('navigation.logout')}>
             <FaSignOutAlt />
-            {!isCollapsed && <span>Logout</span>}
+            {!isCollapsed && <span>{t('navigation.logout')}</span>}
           </button>
         </div>
       </aside>
@@ -111,7 +115,7 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
 
             <nav className="admin-drawer-nav">
               <div className="admin-nav-section-label">
-                <span>Management</span>
+                <span>{t('navigation.management')}</span>
               </div>
               {navItems.map((item) => (
                 <NavLink
@@ -129,7 +133,8 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
               ))}
             </nav>
 
-            <div className="admin-drawer-footer">
+            <div className="admin-drawer-footer" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <LanguageSelector />
               <button
                 onClick={() => {
                   logout();
@@ -138,7 +143,7 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
                 className="admin-exit-btn"
               >
                 <FaSignOutAlt />
-                <span>Logout</span>
+                <span>{t('navigation.logout')}</span>
               </button>
             </div>
           </div>

@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { FaLeaf, FaBars, FaTimes, FaUser, FaUserPlus, FaTachometerAlt } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
+import LanguageSelector from '../Common/LanguageSelector';
 import './GuestNavbar.css';
 
 const GuestNavbar = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -28,19 +31,19 @@ const GuestNavbar = () => {
         {/* Desktop Navigation Links */}
         <nav className="guest-nav-links-desktop">
           <NavLink to="/" end className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`}>
-            Home
+            {t('navigation.home')}
           </NavLink>
           <NavLink to="/about" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`}>
-            About
+            {t('navigation.about')}
           </NavLink>
           <NavLink to="/features" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`}>
-            Features
+            {t('navigation.features')}
           </NavLink>
           <NavLink to="/contact" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`}>
-            Contact
+            {t('navigation.contact')}
           </NavLink>
           <NavLink to="/faq" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`}>
-            FAQ
+            {t('navigation.faq')}
           </NavLink>
         </nav>
 
@@ -51,15 +54,15 @@ const GuestNavbar = () => {
               onClick={() => navigate(user.role === 'admin' ? '/admin' : '/app')}
               className="guest-btn guest-btn-primary"
             >
-              <FaTachometerAlt /> Open Dashboard
+              <FaTachometerAlt /> {t('navigation.openDashboard')}
             </button>
           ) : (
             <div className="guest-auth-group">
               <Link to="/login" className="guest-btn guest-btn-outline">
-                <FaUser /> Sign In
+                <FaUser /> {t('navigation.signIn')}
               </Link>
               <Link to="/register" className="guest-btn guest-btn-primary">
-                <FaUserPlus /> Register
+                <FaUserPlus /> {t('navigation.register')}
               </Link>
             </div>
           )}
@@ -99,31 +102,34 @@ const GuestNavbar = () => {
 
             <div className="guest-drawer-links">
               <NavLink to="/" end className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`} onClick={closeMenu}>
-                Home
+                {t('navigation.home')}
               </NavLink>
               <NavLink to="/about" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`} onClick={closeMenu}>
-                About
+                {t('navigation.about')}
               </NavLink>
               <NavLink to="/features" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`} onClick={closeMenu}>
-                Features
+                {t('navigation.features')}
               </NavLink>
               <NavLink to="/contact" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`} onClick={closeMenu}>
-                Contact
+                {t('navigation.contact')}
               </NavLink>
               <NavLink to="/faq" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`} onClick={closeMenu}>
-                FAQ
+                {t('navigation.faq')}
               </NavLink>
             </div>
 
             <div className="guest-drawer-footer">
+              <div className="mobile-lang-wrapper" style={{ marginBottom: "1rem" }}>
+                <LanguageSelector />
+              </div>
               {user ? (
                 <Link to={user.role === 'admin' ? '/admin' : '/app'} className="guest-btn guest-btn-primary guest-btn-block" onClick={closeMenu}>
-                  <FaTachometerAlt /> Dashboard
+                  <FaTachometerAlt /> {t('navigation.dashboard')}
                 </Link>
               ) : (
                 <div className="mobile-auth-buttons">
-                  <Link to="/login" className="guest-btn guest-btn-outline" onClick={closeMenu}>Sign In</Link>
-                  <Link to="/register" className="guest-btn guest-btn-primary" onClick={closeMenu}>Register</Link>
+                  <Link to="/login" className="guest-btn guest-btn-outline" onClick={closeMenu}>{t('navigation.signIn')}</Link>
+                  <Link to="/register" className="guest-btn guest-btn-primary" onClick={closeMenu}>{t('navigation.register')}</Link>
                 </div>
               )}
             </div>

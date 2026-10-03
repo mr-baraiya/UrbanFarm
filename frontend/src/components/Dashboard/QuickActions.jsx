@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { 
   RiFlashlightLine, 
   RiMicroscopeLine, 
@@ -11,34 +12,35 @@ import PlantForm from '../GrowthTracker/PlantForm';
 import './QuickActions.css';
 
 const QuickActions = ({ onActionComplete }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [showPlantForm, setShowPlantForm] = useState(false);
 
   const actions = [
     { 
       id: 'add-plant', 
-      label: 'Add Plant', 
+      labelKey: 'dashboard.addPlant', 
       icon: <TbPlant2 />, 
       color: '#52b788',
       action: () => setShowPlantForm(true)
     },
     { 
       id: 'diagnose', 
-      label: 'Diagnose Leaf', 
+      labelKey: 'dashboard.diagnosePlant', 
       icon: <RiMicroscopeLine />, 
       color: '#8b5cf6',
       action: () => navigate('/app/diagnose')
     },
     { 
       id: 'watering', 
-      label: 'Log Watering', 
+      labelKey: 'dashboard.logWatering', 
       icon: <RiDropLine />, 
       color: '#0ea5e9',
       action: () => navigate('/app/watering')
     },
     { 
       id: 'schedule', 
-      label: 'Add Task', 
+      labelKey: 'dashboard.addTask', 
       icon: <RiCalendarEventLine />, 
       color: '#f59e0b',
       action: () => navigate('/app/schedule')
@@ -49,7 +51,7 @@ const QuickActions = ({ onActionComplete }) => {
     <>
       <div className="quick-actions">
         <h3>
-          <RiFlashlightLine className="qa-header-icon" /> Quick Actions
+          <RiFlashlightLine className="qa-header-icon" /> {t('dashboard.quickActions')}
         </h3>
         <div className="actions-grid">
           {actions.map((action) => (
@@ -60,7 +62,7 @@ const QuickActions = ({ onActionComplete }) => {
               onClick={action.action}
             >
               <span className="action-icon">{action.icon}</span>
-              <span className="action-label">{action.label}</span>
+              <span className="action-label">{t(action.labelKey)}</span>
             </button>
           ))}
         </div>

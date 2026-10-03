@@ -1,0 +1,54 @@
+.footer-language-selector {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: 0.85rem;
+  width: 100%;
+}
+
+.lang-options-inline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.inline-lang-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary, #475569);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 7px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.inline-lang-btn:hover {
+  color: var(--emerald, #1b4332);
+  background: rgba(45, 106, 79, 0.1);
+}
+
+.inline-lang-btn.active {
+  color: #1b4332;
+  font-weight: 700;
+  background: rgba(45, 106, 79, 0.18);
+  border-color: rgba(45, 106, 79, 0.3);
+}
+
+.lang-divider {
+  color: var(--text-secondary, #94a3b8);
+  font-weight: 400;
+  font-size: 0.8rem;
+  opacity: 0.4;
+  user-select: none;
+}

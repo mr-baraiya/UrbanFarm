@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   FaRobot,
   FaCloudSunRain,
@@ -17,132 +18,131 @@ import {
   FaStar,
   FaBolt,
   FaChartLine,
-  FaCogs,
 } from 'react-icons/fa';
 import './FeaturesPage.css';
 
-
 const FeaturesPage = () => {
+  const { t } = useTranslation();
   const [activeFeature, setActiveFeature] = useState(0);
 
   const featureList = [
     {
       id: 'disease-diagnosis',
-      title: 'AI Plant Disease Diagnosis',
-      badge: 'Computer Vision AI',
+      title: t('featuresPage.f1Title'),
+      badge: t('featuresPage.f1Badge'),
       icon: <FaRobot />,
       miniIcon: <FaMicroscope />,
       accent: '#27ae60',
       accentDark: '#1e8449',
-      summary: 'Instantly detect diseases, pathogens, and pests from a single leaf photo with 98.4% accuracy.',
+      summary: t('featuresPage.f1Summary'),
       details: [
-        '98.4% diagnostic accuracy trained on 100,000+ plant datasets',
-        'Supports 30+ urban crop species — tomatoes, peppers, herbs & more',
-        'Organic treatment protocols: neem oil, biological controls, pruning',
-        'Tracks diagnosis history to monitor recovery over time',
+        t('featuresPage.f1Detail1'),
+        t('featuresPage.f1Detail2'),
+        t('featuresPage.f1Detail3'),
+        t('featuresPage.f1Detail4'),
       ],
       visual: {
-        title: 'Diagnosis Engine',
+        title: t('featuresPage.f1VisualTitle'),
         stats: [
-          { label: 'Detection Accuracy', value: '98.4%', good: true },
-          { label: 'Species Supported', value: '30+ Crops', good: true },
-          { label: 'Analysis Time', value: '< 2 seconds', good: true },
+          { label: t('featuresPage.f1Stat1Label'), value: '98.4%', good: true },
+          { label: t('featuresPage.f1Stat2Label'), value: '30+ Crops', good: true },
+          { label: t('featuresPage.f1Stat3Label'), value: '< 2 seconds', good: true },
         ],
-        tag: '🛡️ Powered by UrbanFarm Vision AI',
+        tag: t('featuresPage.f1VisualTag'),
       },
-      ctaText: 'Try AI Diagnosis',
+      ctaText: t('featuresPage.f1Cta'),
       ctaLink: '/register',
     },
     {
       id: 'smart-irrigation',
-      title: 'Weather-Based Smart Irrigation',
-      badge: 'Microclimate Sync',
+      title: t('featuresPage.f2Title'),
+      badge: t('featuresPage.f2Badge'),
       icon: <FaCloudSunRain />,
       miniIcon: <FaTint />,
       accent: '#2980b9',
       accentDark: '#1f618d',
-      summary: 'Dynamic watering schedules that sync with live local weather to cut water waste by up to 40%.',
+      summary: t('featuresPage.f2Summary'),
       details: [
-        'Automated rain delays — skips sessions when rain is forecast',
-        'Adapts to humidity, temperature, sunlight hours & soil type',
-        'Growth-stage aware: seedling vs flowering vs mature watering',
-        'Save up to 40% on household water usage',
+        t('featuresPage.f2Detail1'),
+        t('featuresPage.f2Detail2'),
+        t('featuresPage.f2Detail3'),
+        t('featuresPage.f2Detail4'),
       ],
       visual: {
-        title: 'Irrigation Dashboard',
+        title: t('featuresPage.f2VisualTitle'),
         stats: [
-          { label: 'Water Saved', value: 'Up to 40%', good: true },
-          { label: 'Weather Sync', value: 'Live Updates', good: true },
-          { label: 'Rain Detection', value: 'Auto Delay', good: true },
+          { label: t('featuresPage.f2Stat1Label'), value: 'Up to 40%', good: true },
+          { label: t('featuresPage.f2Stat2Label'), value: 'Live Updates', good: true },
+          { label: t('featuresPage.f2Stat3Label'), value: 'Auto Delay', good: true },
         ],
-        tag: '🌧️ Real-Time Microclimate Sync Active',
+        tag: t('featuresPage.f2VisualTag'),
       },
-      ctaText: 'Set Up Irrigation',
+      ctaText: t('featuresPage.f2Cta'),
       ctaLink: '/register',
     },
     {
       id: 'garden-management',
-      title: 'Balcony & Bed Space Management',
-      badge: 'Space Optimization',
+      title: t('featuresPage.f3Title'),
+      badge: t('featuresPage.f3Badge'),
       icon: <FaSeedling />,
       miniIcon: <FaMapMarkedAlt />,
       accent: '#7d3c98',
       accentDark: '#6c3483',
-      summary: 'Virtual mapping for raised beds, balcony pots, hydroponic towers, and rooftop plots.',
+      summary: t('featuresPage.f3Summary'),
       details: [
-        'Track planting dates, variety, and projected harvest windows',
-        'Visual growth logs with photo timelines and height records',
-        'Sunlight exposure calculator & companion planting compatibility',
-        'Automated alerts for fertilizing, pruning, and replanting cycles',
+        t('featuresPage.f3Detail1'),
+        t('featuresPage.f3Detail2'),
+        t('featuresPage.f3Detail3'),
+        t('featuresPage.f3Detail4'),
       ],
       visual: {
-        title: 'Garden Map View',
+        title: t('featuresPage.f3VisualTitle'),
         stats: [
-          { label: 'Space Tracking', value: 'Multi-Zone', good: true },
-          { label: 'Growth Logs', value: 'Photo + Data', good: true },
-          { label: 'Smart Alerts', value: 'Automated', good: true },
+          { label: t('featuresPage.f3Stat1Label'), value: 'Multi-Zone', good: true },
+          { label: t('featuresPage.f3Stat2Label'), value: 'Photo + Data', good: true },
+          { label: t('featuresPage.f3Stat3Label'), value: 'Automated', good: true },
         ],
-        tag: '🗺️ Full Garden Space Intelligence',
+        tag: t('featuresPage.f3VisualTag'),
       },
-      ctaText: 'Map Your Garden',
+      ctaText: t('featuresPage.f3Cta'),
       ctaLink: '/register',
     },
     {
       id: 'community',
-      title: 'Community Knowledge & Seed Swaps',
-      badge: 'Urban Network',
+      title: t('featuresPage.f4Title'),
+      badge: t('featuresPage.f4Badge'),
       icon: <FaUsers />,
       miniIcon: <FaComments />,
       accent: '#d35400',
       accentDark: '#b94600',
-      summary: 'A vibrant social platform where urban growers share advice, trade seeds, and solve challenges together.',
+      summary: t('featuresPage.f4Summary'),
       details: [
-        'Q&A forum categorized by crop type, pest control & climate',
-        'Showcase balcony harvests with photo galleries',
-        'Agronomist-verified expert badges for reliable advice',
-        'Local seed exchange locator for rare heirloom varieties',
+        t('featuresPage.f4Detail1'),
+        t('featuresPage.f4Detail2'),
+        t('featuresPage.f4Detail3'),
+        t('featuresPage.f4Detail4'),
       ],
       visual: {
-        title: 'Community Hub',
+        title: t('featuresPage.f4VisualTitle'),
         stats: [
-          { label: 'Active Members', value: '12,500+', good: true },
-          { label: 'Expert Verified', value: 'Agronomists', good: true },
-          { label: 'Seed Library', value: 'Heirloom+', good: true },
+          { label: t('featuresPage.f4Stat1Label'), value: '12,500+', good: true },
+          { label: t('featuresPage.f4Stat2Label'), value: 'Agronomists', good: true },
+          { label: t('featuresPage.f4Stat3Label'), value: 'Heirloom+', good: true },
         ],
-        tag: '🤝 Peer-Verified Urban Farming Community',
+        tag: t('featuresPage.f4VisualTag'),
       },
-      ctaText: 'Join the Community',
+      ctaText: t('featuresPage.f4Cta'),
       ctaLink: '/register',
     },
   ];
 
   const quickFeatures = [
-    { icon: <FaBell />, title: 'Smart Notifications', desc: 'Never miss watering, pruning, or harvest windows.' },
-    { icon: <FaChartLine />, title: 'Growth Analytics', desc: 'Track yield trends over weeks and seasons.' },
-    { icon: <FaLeaf />, title: 'Plant Health Score', desc: 'Live composite health score for every plant.' },
-    { icon: <FaShieldAlt />, title: 'AI Guard Engine', desc: 'Continuous background monitoring 24/7.' },
-    { icon: <FaStar />, title: 'Harvest Planner', desc: 'Forecast exact harvest dates by growth data.' },
-    { icon: <FaBolt />, title: 'Instant Insights', desc: "Real-time tips based on your plants' status." },
+    { icon: <FaBell />, title: t('featuresPage.q1Title'), desc: t('featuresPage.q1Desc') },
+    { icon: <FaChartLine />, title: t('featuresPage.q2Title'), desc: t('featuresPage.q2Desc') },
+    { icon: <FaLeaf />, title: t('featuresPage.q3Title'), desc: t('featuresPage.q3Desc') },
+    { icon: <FaShieldAlt />, title: t('featuresPage.q4Title'), desc: t('featuresPage.q4Desc') },
+    { icon: <FaStar />, title: t('featuresPage.q5Title'), desc: t('featuresPage.q5Desc') },
+    { icon: <FaBolt />, title: t('featuresPage.q6Title'), desc: t('featuresPage.q6Desc') },
   ];
 
   const active = featureList[activeFeature];
@@ -153,15 +153,15 @@ const FeaturesPage = () => {
       {/* Hero */}
       <section className="fp-hero">
         <div className="fp-container fp-text-center">
-          <span className="fp-section-tag">COMPREHENSIVE TOOLKIT</span>
-          <h1 className="fp-hero-title">Smart Features Built for<br /><span className="fp-gradient-text">Modern Urban Farming</span></h1>
+          <span className="fp-section-tag">{t('featuresPage.heroTag')}</span>
+          <h1 className="fp-hero-title">{t('featuresPage.heroTitlePrefix')}<br /><span className="fp-gradient-text">{t('featuresPage.heroTitleHighlight')}</span></h1>
           <p className="fp-hero-subtitle">
-            From computer vision pathogen scans to automated weather irrigation — discover how UrbanFarm makes city agriculture effortless and high-yielding.
+            {t('featuresPage.heroSubtitle')}
           </p>
           <div className="fp-hero-badges">
-            <span className="fp-hero-pill"><FaCheckCircle /> AI-Powered</span>
-            <span className="fp-hero-pill"><FaCheckCircle /> Real-Time Sync</span>
-            <span className="fp-hero-pill"><FaCheckCircle /> Zero Setup</span>
+            <span className="fp-hero-pill"><FaCheckCircle /> {t('featuresPage.heroPillAi')}</span>
+            <span className="fp-hero-pill"><FaCheckCircle /> {t('featuresPage.heroPillSync')}</span>
+            <span className="fp-hero-pill"><FaCheckCircle /> {t('featuresPage.heroPillZero')}</span>
           </div>
         </div>
       </section>
@@ -170,9 +170,9 @@ const FeaturesPage = () => {
       <section className="fp-section">
         <div className="fp-container">
           <div className="fp-text-center fp-section-header">
-            <span className="fp-section-tag">CORE FEATURES</span>
-            <h2>Everything Your Urban Farm Needs</h2>
-            <p>Click any feature to explore capabilities in depth.</p>
+            <span className="fp-section-tag">{t('featuresPage.coreTag')}</span>
+            <h2>{t('featuresPage.coreTitle')}</h2>
+            <p>{t('featuresPage.coreSubtitle')}</p>
           </div>
 
           {/* Tab Navigation */}
@@ -239,9 +239,9 @@ const FeaturesPage = () => {
       <section className="fp-section fp-section-alt">
         <div className="fp-container">
           <div className="fp-text-center fp-section-header">
-            <span className="fp-section-tag">BUILT-IN TOOLS</span>
-            <h2>Plus Everything in Between</h2>
-            <p>Dozens of intelligent micro-features to keep your garden thriving.</p>
+            <span className="fp-section-tag">{t('featuresPage.builtinTag')}</span>
+            <h2>{t('featuresPage.builtinTitle')}</h2>
+            <p>{t('featuresPage.builtinSubtitle')}</p>
           </div>
           <div className="fp-quick-grid">
             {quickFeatures.map((f, i) => (
@@ -259,15 +259,15 @@ const FeaturesPage = () => {
       <section className="fp-cta-section">
         <div className="fp-container fp-text-center">
           <div className="fp-cta-inner">
-            <span className="fp-section-tag">GET STARTED TODAY</span>
-            <h2>Ready to Experience These Features Live?</h2>
-            <p>Create a free account in under 60 seconds and start monitoring your urban farm.</p>
+            <span className="fp-section-tag">{t('featuresPage.ctaTag')}</span>
+            <h2>{t('featuresPage.ctaTitle')}</h2>
+            <p>{t('featuresPage.ctaSubtitle')}</p>
             <div className="fp-cta-group">
               <Link to="/register" className="fp-cta-btn fp-cta-btn-lg">
-                Get Started Free <FaArrowRight />
+                {t('featuresPage.getStartedFree')} <FaArrowRight />
               </Link>
               <Link to="/about" className="fp-cta-ghost-btn">
-                Learn More
+                {t('featuresPage.learnMore')}
               </Link>
             </div>
           </div>

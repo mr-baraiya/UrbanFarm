@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import { getGardens, getPlants, getTasks, getDiagnosisHistory } from '../../services/plantService';
 import { getWeather } from '../../services/weatherService';
+import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import { 
   RiPlantLine, 
   RiCalendarEventLine, 
@@ -20,6 +22,7 @@ import GardenHealth from './GardenHealth';
 import './Dashboard.css';
 
 const Dashboard = () => {
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const [stats, setStats] = useState({ gardens: 0, plants: 0, tasks: 0, diagnoses: 0 });
   const [activities, setActivities] = useState([]);
@@ -62,14 +65,12 @@ const Dashboard = () => {
         diagnoses: diagnosesData?.length || 0,
       });
 
-      // Calculate health score
       calculateHealthScore(plantsData, tasksData, diagnosesData);
 
-      // Prepare recent activity
       const recent = [
         ...(plantsData?.slice(0, 3).map(p => ({ 
           type: 'plant', 
-          text: `Added ${p.name}`, 
+          text: `${t('dashboard.actAdded')}: ${p.name}`, 
           date: p.createdAt,
           icon: '🌱'
         })) || []),
@@ -81,7 +82,7 @@ const Dashboard = () => {
         })) || []),
         ...(diagnosesData?.slice(0, 2).map(d => ({ 
           type: 'diagnosis', 
-          text: `Diagnosed: ${d.diseaseName}`, 
+          text: `${t('dashboard.actDiagnosed')}: ${d.diseaseName}`, 
           date: d.createdAt,
           icon: '🔬'
         })) || [])
@@ -109,31 +110,21 @@ const Dashboard = () => {
   };
 
   const calculateHealthScore = (plantsData, tasksData, diagnosesData) => {
-    let score = 85; // Start with base score
-    
-    // Deduct for pending tasks
+    let score = 85;
     if (tasksData?.length > 3) {
       score -= Math.min(tasksData.length * 2, 20);
     }
-    
-    // Deduct for unhealthy plants
     const unhealthyPlants = plantsData?.filter(p => p.health === 'unhealthy' || p.health === 'warning') || [];
     if (unhealthyPlants.length > 0) {
       score -= unhealthyPlants.length * 5;
     }
-    
-    // Deduct for recent disease diagnoses
     const recentDiagnoses = diagnosesData?.filter(d => 
       new Date(d.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
     ) || [];
     if (recentDiagnoses.length > 0) {
       score -= recentDiagnoses.length * 3;
     }
-    
-    // Bonus for having a garden
     if (gardens.length > 0) score += 5;
-    
-    // Ensure score stays between 0-100
     setHealthScore(Math.max(0, Math.min(100, score)));
   };
 
@@ -141,7 +132,7 @@ const Dashboard = () => {
     return (
       <div className="dashboard-loading">
         <div className="loading-spinner"></div>
-        <p>Loading your garden...</p>
+        <p>{t('common.loading')}</p>
       </div>
     );
   }
@@ -152,8 +143,8 @@ const Dashboard = () => {
         {/* Header with Welcome and Weather */}
         <div className="dashboard-header">
           <div className="header-left">
-            <h1>Welcome back{user?.name ? `, ${user.name}` : ''}!</h1>
-            <p className="header-subtitle">Here's what's happening in your urban garden today</p>
+            <h1>{t('dashboard.welcomeBack')}{user?.name ? `, ${getLocalizedDynamicText(user.name, i18n.language)}` : ''}!</h1>
+            <p className="header-subtitle">{t('dashboard.subtitle')}</p>
           </div>
           <div className="header-right">
             <WeatherWidget weather={weather} loading={loadingWeather} />
@@ -165,34 +156,26 @@ const Dashboard = () => {
 
         {/* Stats Grid */}
         <div className="stats-grid">
-          <StatsCard title="Gardens" value={stats.gardens} icon={<RiPlantLine />} color="#6b9080" />
-          <StatsCard title="Plants" value={stats.plants} icon={<TbPlant2 />} color="#2d6a4f" />
-          <StatsCard title="Pending Tasks" value={stats.tasks} icon={<RiCalendarEventLine />} color="#d97706" />
-          <StatsCard title="Diagnoses" value={stats.diagnoses} icon={<RiMicroscopeLine />} color="#0284c7" />
+          <StatsCard title={t('dashboard.totalGardens')} value={stats.gardens} icon={<RiPlantLine />} color="#6b9080" />
+          <StatsCard title={t('dashboard.totalPlants')} value={stats.plants} icon={<TbPlant2 />} color="#2d6a4f" />
+          <StatsCard title={t('dashboard.activeTasks')} value={stats.tasks} icon={<RiCalendarEventLine />} color="#d97706" />
+          <StatsCard title={t('diagnose.title')} value={stats.diagnoses} icon={<RiMicroscopeLine />} color="#0284c7" />
         </div>
 
         {/* Two-column layout for main content */}
         <div className="dashboard-main">
           {/* Left Column */}
           <div className="dashboard-left">
-            {/* Quick Actions */}
             <QuickActions onActionComplete={fetchDashboardData} />
-
-            {/* AI Insights */}
             <AIInsights plants={plants} weather={weather} />
-
-            {/* Plant Gallery */}
             <PlantGallery plants={plants} />
           </div>
 
           {/* Right Column */}
           <div className="dashboard-right">
-            {/* Today's Tasks */}
             <TodayTasks tasks={tasks} onTaskUpdate={fetchDashboardData} />
-
-            {/* Recent Activity */}
             <div className="recent-activity-section">
-              <h3><RiHistoryLine className="section-title-icon" /> Recent Activity</h3>
+              <h3><RiHistoryLine className="section-title-icon" /> {t('dashboard.recentActivity')}</h3>
               <RecentActivity activities={activities} />
             </div>
           </div>

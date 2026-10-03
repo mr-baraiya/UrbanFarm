@@ -1,9 +1,12 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { RiPlantLine, RiAddLine, RiDashboardLine, RiLightbulbLine } from 'react-icons/ri';
 import { TbPlant2 } from 'react-icons/tb';
 import './EmptyGardens.css';
 
 const EmptyGardens = ({ onCreateClick }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="empty-gardens">
       <div className="empty-content">
@@ -17,27 +20,24 @@ const EmptyGardens = ({ onCreateClick }) => {
             <TbPlant2 className="pot-svg" />
           </div>
         </div>
-        <h2>You haven't added any gardens yet</h2>
-        <p>
-          Set up your first balcony, rooftop, or backyard plot to start tracking 
-          your urban farming journey!
-        </p>
+        <h2>{t('gardens.emptyTitle')}</h2>
+        <p>{t('gardens.emptyDesc')}</p>
         <div className="empty-actions">
           <button className="btn-primary" onClick={onCreateClick}>
-            <RiAddLine /> Create First Garden
+            <RiAddLine /> {t('gardens.addGarden')}
           </button>
           <button className="btn-secondary" onClick={() => window.location.href = '/app/dashboard'}>
-            <RiDashboardLine /> Go to Dashboard
+            <RiDashboardLine /> {t('navigation.dashboard')}
           </button>
         </div>
         <div className="empty-tips">
           <h4>
-            <RiLightbulbLine className="tip-icon" /> Tips for your first garden:
+            <RiLightbulbLine className="tip-icon" /> {t('featuresPage.builtinTitle')}:
           </h4>
           <ul>
-            <li>Start small with a balcony or windowsill garden</li>
-            <li>Choose plants that match your sunlight conditions</li>
-            <li>Use good quality potting soil for best results</li>
+            <li>{t('landing.whyItem1')}</li>
+            <li>{t('landing.whyItem2')}</li>
+            <li>{t('landing.whyItem3')}</li>
           </ul>
         </div>
       </div>

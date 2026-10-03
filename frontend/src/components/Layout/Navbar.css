@@ -247,6 +247,21 @@
   margin-top: auto;
   padding-top: 0.75rem;
   border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.mobile-lang-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 0.4rem 0.25rem;
+  background: var(--mist, rgba(142, 168, 157, 0.1));
+  border-radius: var(--radius-sm, 10px);
+  border: 1px solid var(--border, #e2e8f0);
+  box-sizing: border-box;
 }
 
 .mobile-nav-logout {

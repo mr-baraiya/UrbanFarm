@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, NavLink } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../hooks/useAuth";
+import LanguageSelector from "../Common/LanguageSelector";
+import { getLocalizedDynamicText } from "../../utils/localizationHelper";
 import {
   RiHome4Line,
   RiShieldUserLine,
@@ -21,33 +24,34 @@ import {
 import "./Navbar.css";
 
 const Navbar = () => {
+  const { t, i18n } = useTranslation();
   const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const sidebarLinks = [
-    { to: "/app/dashboard", label: "Dashboard", icon: <RiDashboardLine /> },
-    { to: "/app/gardens", label: "Gardens", icon: <RiPlantLine /> },
-    { to: "/app/plants", label: "Plants", icon: <RiSeedlingLine /> },
-    { to: "/app/diagnose", label: "Diagnose", icon: <RiMicroscopeLine /> },
-    { to: "/app/crops", label: "Crop AI", icon: <RiSparklingLine /> },
-    { to: "/app/watering", label: "Watering", icon: <RiDropLine /> },
-    { to: "/app/schedule", label: "Schedule", icon: <RiCalendarEventLine /> },
-    { to: "/app/community", label: "Community", icon: <RiTeamLine /> },
-    { to: "/app/profile", label: "Profile", icon: <RiUser3Line /> },
+    { to: "/app/dashboard", label: t("navigation.dashboard"), icon: <RiDashboardLine /> },
+    { to: "/app/gardens", label: t("navigation.gardens"), icon: <RiPlantLine /> },
+    { to: "/app/plants", label: t("navigation.plants"), icon: <RiSeedlingLine /> },
+    { to: "/app/diagnose", label: t("navigation.diagnose"), icon: <RiMicroscopeLine /> },
+    { to: "/app/crops", label: t("navigation.cropAI"), icon: <RiSparklingLine /> },
+    { to: "/app/watering", label: t("navigation.watering"), icon: <RiDropLine /> },
+    { to: "/app/schedule", label: t("navigation.schedule"), icon: <RiCalendarEventLine /> },
+    { to: "/app/community", label: t("navigation.community"), icon: <RiTeamLine /> },
+    { to: "/app/profile", label: t("navigation.profile"), icon: <RiUser3Line /> },
   ];
 
   return (
     <nav className="navbar">
       <div className="navbar-left">
         <Link to="/app" className="logo">Urban Farm</Link>
-        <Link to="/" className="nav-landing-link" title="Back to Home">
+        <Link to="/" className="nav-landing-link" title={t("navigation.home")}>
           <RiHome4Line />
-          <span>Home</span>
+          <span>{t("navigation.home")}</span>
         </Link>
         {user?.role === "admin" && (
-          <Link to="/admin" className="nav-admin-link" title="Admin Control Panel">
+          <Link to="/admin" className="nav-admin-link" title={t("navigation.adminPanel")}>
             <RiShieldUserLine />
-            <span>Admin Panel</span>
+            <span>{t("navigation.adminPanel")}</span>
           </Link>
         )}
       </div>
@@ -56,10 +60,10 @@ const Navbar = () => {
       <div className="navbar-right">
         {user && (
           <>
-            <span className="user-name">{user.name}</span>
+            <span className="user-name">{getLocalizedDynamicText(user.name, i18n.language)}</span>
             <button className="logout-btn" onClick={logout}>
               <RiLogoutBoxRLine />
-              Sign out
+              {t("navigation.logout")}
             </button>
           </>
         )}
@@ -88,7 +92,7 @@ const Navbar = () => {
             )}
             <div className={`mobile-nav-drawer ${menuOpen ? "open" : ""}`}>
               <div className="mobile-nav-user-header">
-                <span className="mobile-nav-user">{user.name}</span>
+                <span className="mobile-nav-user">{getLocalizedDynamicText(user.name, i18n.language)}</span>
                 <button
                   className="mobile-nav-close"
                   onClick={() => setMenuOpen(false)}
@@ -123,7 +127,7 @@ const Navbar = () => {
                   <span className="icon">
                     <RiHome4Line />
                   </span>
-                  <span>Back to Home Page</span>
+                  <span>{t("navigation.backToHome")}</span>
                 </Link>
                 {user.role === "admin" && (
                   <Link
@@ -134,12 +138,15 @@ const Navbar = () => {
                     <span className="icon">
                       <RiShieldUserLine />
                     </span>
-                    <span>Admin Control Panel</span>
+                    <span>{t("navigation.adminPanel")}</span>
                   </Link>
                 )}
               </div>
 
               <div className="mobile-nav-footer">
+                <div className="mobile-lang-wrapper">
+                  <LanguageSelector />
+                </div>
                 <button
                   className="mobile-nav-logout"
                   onClick={() => {
@@ -147,7 +154,7 @@ const Navbar = () => {
                     setMenuOpen(false);
                   }}
                 >
-                  <RiLogoutBoxRLine /> Sign out
+                  <RiLogoutBoxRLine /> {t("navigation.logout")}
                 </button>
               </div>
             </div>

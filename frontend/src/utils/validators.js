@@ -386,3 +386,29 @@ export const validateLeadForm = (data) => {
     message: VALIDATION_RULES.leadMessage,
   });
 };
+
+export const validateForgotPasswordForm = (data) => {
+  return validateForm(data, {
+    email: VALIDATION_RULES.email,
+  });
+};
+
+export const validateResetPasswordForm = (data) => {
+  const errors = {};
+  const passErr = validateField(data?.password, VALIDATION_RULES.password);
+  if (passErr) {
+    errors.password = passErr;
+  }
+
+  if (!data?.confirmPassword || !data.confirmPassword.trim()) {
+    errors.confirmPassword = 'Please confirm your password';
+  } else if (data.password !== data.confirmPassword) {
+    errors.confirmPassword = 'Passwords do not match';
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+    firstError: Object.values(errors)[0] || null,
+  };
+};

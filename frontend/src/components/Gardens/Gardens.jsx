@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   RiPlantLine, 
   RiDownload2Line, 
@@ -20,6 +21,7 @@ import EmptyGardens from './EmptyGardens';
 import './Gardens.css';
 
 const Gardens = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [gardens, setGardens] = useState([]);
   const [filteredGardens, setFilteredGardens] = useState([]);
@@ -224,19 +226,19 @@ const Gardens = () => {
       <div className="gardens-header">
         <div className="header-left">
           <h2>
-            <RiPlantLine className="gardens-header-icon" /> My Gardens
+            <RiPlantLine className="gardens-header-icon" /> {t('gardens.title')}
+            <span className="garden-count">{gardens.length} {t('gardens.gardensCount', { count: gardens.length })}</span>
           </h2>
-          <span className="garden-count">{gardens.length} gardens</span>
         </div>
         <div className="header-actions">
           <button className="btn-secondary" onClick={() => handleExportData('csv')}>
-            <RiDownload2Line /> Export CSV
+            <RiDownload2Line /> {t('gardens.exportCSV')}
           </button>
           <button className="btn-secondary" onClick={() => handleExportData('json')}>
-            <RiDownload2Line /> Export JSON
+            <RiDownload2Line /> {t('gardens.exportJSON')}
           </button>
           <button className="btn-primary" onClick={() => setShowForm(true)}>
-            <RiAddLine /> New Garden
+            <RiAddLine /> {t('gardens.addGarden')}
           </button>
         </div>
       </div>
@@ -258,8 +260,8 @@ const Gardens = () => {
           <span className="no-results-icon">
             <RiSearchLine />
           </span>
-          <h3>No gardens found</h3>
-          <p>Try adjusting your search or filters</p>
+          <h3>{t('gardens.noGardensFound')}</h3>
+          <p>{t('gardens.tryAdjusting')}</p>
         </div>
       ) : (
         <>

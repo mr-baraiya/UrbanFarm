@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   RiSearchLine, 
   RiCloseLine, 
@@ -22,14 +23,16 @@ const GardenFilters = ({
   onViewModeChange,
   totalGardens,
 }) => {
+  const { t } = useTranslation();
+
   const filterOptions = [
-    { value: 'all', label: 'All', icon: null },
-    { value: 'balcony', label: 'Balcony', icon: <RiBuilding4Line className="pill-icon" /> },
-    { value: 'rooftop', label: 'Rooftop', icon: <RiBuilding2Line className="pill-icon" /> },
-    { value: 'terrace', label: 'Terrace', icon: <RiHome4Line className="pill-icon" /> },
-    { value: 'indoor', label: 'Indoor', icon: <TbPlant2 className="pill-icon" /> },
-    { value: 'backyard', label: 'Backyard', icon: <RiTreeLine className="pill-icon" /> },
-    { value: 'community', label: 'Community', icon: <RiTeamLine className="pill-icon" /> },
+    { value: 'all', labelKey: 'common.all', icon: null },
+    { value: 'balcony', labelKey: 'gardens.balcony', icon: <RiBuilding4Line className="pill-icon" /> },
+    { value: 'rooftop', labelKey: 'gardens.rooftop', icon: <RiBuilding2Line className="pill-icon" /> },
+    { value: 'terrace', labelKey: 'gardens.terrace', icon: <RiHome4Line className="pill-icon" /> },
+    { value: 'indoor', labelKey: 'gardens.indoor', icon: <TbPlant2 className="pill-icon" /> },
+    { value: 'backyard', labelKey: 'gardens.backyard', icon: <RiTreeLine className="pill-icon" /> },
+    { value: 'community', labelKey: 'gardens.community', icon: <RiTeamLine className="pill-icon" /> },
   ];
 
   return (
@@ -41,12 +44,12 @@ const GardenFilters = ({
           </span>
           <input
             type="text"
-            placeholder="Search gardens by name or location..."
+            placeholder={t('gardens.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
           />
           {searchTerm && (
-            <button className="clear-search" onClick={() => onSearchChange('')} aria-label="Clear search">
+            <button className="clear-search" onClick={() => onSearchChange('')} aria-label={t('common.clear')}>
               <RiCloseLine />
             </button>
           )}
@@ -80,11 +83,11 @@ const GardenFilters = ({
               onClick={() => onFilterChange(option.value)}
             >
               {option.icon}
-              <span>{option.label}</span>
+              <span>{t(option.labelKey)}</span>
             </button>
           ))}
         </div>
-        <span className="result-count">{totalGardens} gardens</span>
+        <span className="result-count">{totalGardens} {t('gardens.gardensCount', { count: totalGardens })}</span>
       </div>
     </div>
   );

@@ -1,12 +1,16 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { RiCalendarEventLine, RiMicroscopeLine, RiLeafLine } from 'react-icons/ri';
 import { TbPlant2 } from 'react-icons/tb';
 import { formatDate } from '../../utils/helpers';
+import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import './RecentActivity.css';
 
 const RecentActivity = ({ activities }) => {
+  const { t, i18n } = useTranslation();
+
   if (activities.length === 0) {
-    return <p className="no-activity">No recent activity</p>;
+    return <p className="no-activity">{t('dashboard.noRecentActivity')}</p>;
   }
 
   const getActivityIcon = (type) => {
@@ -26,8 +30,8 @@ const RecentActivity = ({ activities }) => {
       {activities.map((act, idx) => (
         <li key={idx} className="activity-item">
           <span className="activity-icon">{getActivityIcon(act.type)}</span>
-          <span className="activity-text">{act.text}</span>
-          <span className="activity-date">{formatDate(act.date)}</span>
+          <span className="activity-text">{getLocalizedDynamicText(act.text, i18n.language)}</span>
+          <span className="activity-date">{formatDate(act.date, i18n.language)}</span>
         </li>
       ))}
     </ul>

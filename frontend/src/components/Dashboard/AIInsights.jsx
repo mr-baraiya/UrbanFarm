@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   RiSparklingLine, 
   RiShoppingBasketLine, 
@@ -11,11 +12,12 @@ import { TbPlant2 } from 'react-icons/tb';
 import './AIInsights.css';
 
 const AIInsights = ({ plants, weather }) => {
+  const { t } = useTranslation();
   const [insight, setInsight] = useState(null);
 
   useEffect(() => {
     generateInsight();
-  }, [plants, weather]);
+  }, [plants, weather, t]);
 
   const generateInsight = () => {
     const insights = [];
@@ -29,7 +31,7 @@ const AIInsights = ({ plants, weather }) => {
         const plant = growingPlants[0];
         insights.push({
           icon: <TbPlant2 className="insight-svg-icon growing" />,
-          text: `${plant.name} is growing well! ${plant.waterFrequency ? `Water every ${plant.waterFrequency} days.` : ''}`,
+          text: `${plant.name} ${t('dashboard.growingWell')} ${plant.waterFrequency ? `${t('dashboard.waterEvery')} ${plant.waterFrequency} ${t('dashboard.days')}` : ''}`,
           priority: 'info'
         });
       }
@@ -38,7 +40,7 @@ const AIInsights = ({ plants, weather }) => {
         const plant = maturePlants[0];
         insights.push({
           icon: <RiShoppingBasketLine className="insight-svg-icon harvest" />,
-          text: `${plant.name} is ready for harvest! Check your plants.`,
+          text: `${plant.name} ${t('dashboard.readyForHarvest')}`,
           priority: 'success'
         });
       }
@@ -52,7 +54,7 @@ const AIInsights = ({ plants, weather }) => {
       if (temp > 30) {
         insights.push({
           icon: <RiSunLine className="insight-svg-icon heat" />,
-          text: 'High temperature detected! Water your plants in the morning or evening.',
+          text: t('dashboard.highTempWarning'),
           priority: 'warning'
         });
       }
@@ -60,7 +62,7 @@ const AIInsights = ({ plants, weather }) => {
       if (condition.toLowerCase().includes('rain')) {
         insights.push({
           icon: <RiRainyLine className="insight-svg-icon rain" />,
-          text: 'Rain expected! You can skip today\'s watering schedule.',
+          text: t('dashboard.rainExpectedInfo'),
           priority: 'info'
         });
       }
@@ -68,7 +70,7 @@ const AIInsights = ({ plants, weather }) => {
       if (temp < 5) {
         insights.push({
           icon: <RiSnowyLine className="insight-svg-icon frost" />,
-          text: 'Frost risk! Protect sensitive plants or bring them indoors.',
+          text: t('dashboard.frostRiskWarning'),
           priority: 'warning'
         });
       }
@@ -79,19 +81,19 @@ const AIInsights = ({ plants, weather }) => {
     if (month >= 2 && month <= 5) {
       insights.push({
         icon: <TbPlant2 className="insight-svg-icon spring" />,
-        text: 'Spring is here! Great time for planting new crops.',
+        text: t('dashboard.springTip'),
         priority: 'info'
       });
     } else if (month >= 6 && month <= 8) {
       insights.push({
         icon: <RiSunLine className="insight-svg-icon summer" />,
-        text: 'Summer growing season! Ensure consistent watering.',
+        text: t('dashboard.summerTip'),
         priority: 'info'
       });
     } else if (month >= 9 && month <= 11) {
       insights.push({
         icon: <RiLeafLine className="insight-svg-icon fall" />,
-        text: 'Fall harvest season! Collect seeds for next year.',
+        text: t('dashboard.fallTip'),
         priority: 'info'
       });
     }
@@ -100,7 +102,7 @@ const AIInsights = ({ plants, weather }) => {
     if (insights.length === 0) {
       insights.push({
         icon: <RiLeafLine className="insight-svg-icon default" />,
-        text: 'Keep up the great work! Your garden is doing well.',
+        text: t('dashboard.defaultTip'),
         priority: 'info'
       });
     }
@@ -118,7 +120,7 @@ const AIInsights = ({ plants, weather }) => {
       <div className="insight-header">
         <span className="insight-icon">{insight.icon}</span>
         <span className="insight-badge">
-          <RiSparklingLine className="ai-spark-icon" /> AI Suggestion
+          <RiSparklingLine className="ai-spark-icon" /> {t('dashboard.aiSuggestion')}
         </span>
       </div>
       <p className="insight-text">{insight.text}</p>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   RiSunLine, 
   RiMoonLine, 
@@ -20,6 +21,7 @@ import { getForecast } from '../../services/weatherService';
 import './WeatherWidget.css';
 
 const WeatherWidget = ({ weather, loading, city }) => {
+  const { t } = useTranslation();
   const [showForecast, setShowForecast] = useState(false);
   const [forecastData, setForecastData] = useState(null);
   const [loadingForecast, setLoadingForecast] = useState(false);
@@ -64,7 +66,7 @@ const WeatherWidget = ({ weather, loading, city }) => {
       return (
         <>
           <RiSunLine className="weather-advice-icon heat" />
-          <span>High heat! Water plants in early morning or evening.</span>
+          <span>{t('dashboard.weatherHighHeatAdvice')}</span>
         </>
       );
     }
@@ -72,7 +74,7 @@ const WeatherWidget = ({ weather, loading, city }) => {
       return (
         <>
           <RiRainyLine className="weather-advice-icon rain" />
-          <span>Rain expected. Skip automated watering today.</span>
+          <span>{t('dashboard.weatherRainAdvice')}</span>
         </>
       );
     }
@@ -80,7 +82,7 @@ const WeatherWidget = ({ weather, loading, city }) => {
       return (
         <>
           <RiSnowyLine className="weather-advice-icon frost" />
-          <span>Frost risk! Protect sensitive plants.</span>
+          <span>{t('dashboard.weatherFrostAdvice')}</span>
         </>
       );
     }
@@ -88,14 +90,14 @@ const WeatherWidget = ({ weather, loading, city }) => {
       return (
         <>
           <RiWindyLine className="weather-advice-icon dry" />
-          <span>Low humidity. Consider misting leafy plants.</span>
+          <span>{t('dashboard.weatherLowHumidityAdvice')}</span>
         </>
       );
     }
     return (
       <>
         <TbPlant2 className="weather-advice-icon optimal" />
-        <span>Ideal conditions for outdoor garden growth!</span>
+        <span>{t('dashboard.weatherIdealAdvice')}</span>
       </>
     );
   };
@@ -117,7 +119,7 @@ const WeatherWidget = ({ weather, loading, city }) => {
   };
 
   if (loading) {
-    return <div className="weather-widget loading">Loading weather...</div>;
+    return <div className="weather-widget loading">{t('common.loading')}</div>;
   }
 
   if (!weather) {
@@ -128,7 +130,7 @@ const WeatherWidget = ({ weather, loading, city }) => {
         </div>
         <div className="weather-info">
           <span className="weather-temp">--°C</span>
-          <span className="weather-condition">Weather unavailable</span>
+          <span className="weather-condition">{t('dashboard.weatherUnavailable')}</span>
         </div>
       </div>
     );
@@ -154,9 +156,9 @@ const WeatherWidget = ({ weather, loading, city }) => {
           <button 
             className="btn-forecast-toggle" 
             onClick={handleOpenForecast} 
-            title="View 7-Day Forecast"
+            title={t('dashboard.view7DayForecast')}
           >
-            <RiCalendar2Line className="btn-icon" /> 7-Day
+            <RiCalendar2Line className="btn-icon" /> {t('dashboard.view7DayForecast')}
           </button>
         </div>
         <div className="weather-details">
@@ -182,15 +184,15 @@ const WeatherWidget = ({ weather, loading, city }) => {
           <div className="forecast-modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="forecast-modal-header">
               <h3>
-                <RiSunCloudyLine className="forecast-header-icon" /> 7-Day Weather & Gardening Forecast ({city || weather?.name || 'Local'})
+                <RiSunCloudyLine className="forecast-header-icon" /> {t('dashboard.forecastTitle')} ({city || weather?.name || 'Local'})
               </h3>
-              <button className="forecast-close-btn" onClick={() => setShowForecast(false)} aria-label="Close">
+              <button className="forecast-close-btn" onClick={() => setShowForecast(false)} aria-label={t('common.close')}>
                 <RiCloseLine />
               </button>
             </div>
             <div className="forecast-modal-body">
               {loadingForecast ? (
-                <div className="forecast-loading">Loading 7-day forecast...</div>
+                <div className="forecast-loading">{t('dashboard.loadingForecast')}</div>
               ) : forecastData?.list ? (
                 <div className="forecast-list">
                   {forecastData.list.slice(0, 7).map((item, idx) => {
@@ -211,11 +213,11 @@ const WeatherWidget = ({ weather, loading, city }) => {
                         </div>
                         <div className="f-advice">
                           {fTemp > 28 ? (
-                            <span className="advice-pill heat"><RiDropLine /> Water heavy</span>
+                            <span className="advice-pill heat"><RiDropLine /> {t('dashboard.waterHeavy')}</span>
                           ) : fCond.includes('rain') ? (
-                            <span className="advice-pill rain"><RiRainyLine /> Natural rain</span>
+                            <span className="advice-pill rain"><RiRainyLine /> {t('dashboard.naturalRain')}</span>
                           ) : (
-                            <span className="advice-pill optimal"><RiCheckLine /> Optimal</span>
+                            <span className="advice-pill optimal"><RiCheckLine /> {t('dashboard.optimal')}</span>
                           )}
                         </div>
                       </div>
@@ -223,7 +225,7 @@ const WeatherWidget = ({ weather, loading, city }) => {
                   })}
                 </div>
               ) : (
-                <div className="forecast-empty">Forecast data currently unavailable.</div>
+                <div className="forecast-empty">{t('dashboard.forecastUnavailable')}</div>
               )}
             </div>
           </div>

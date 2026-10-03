@@ -51,6 +51,8 @@ const UserSchema = new mongoose.Schema(
     },
     climateZone: String,
     urbanSpaceType: String,
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
     preferences: {
       showAdvancedTips: {
         type: Boolean,

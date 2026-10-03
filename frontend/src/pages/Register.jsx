@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { RiArrowLeftLine } from "react-icons/ri";
 import { FaExclamationCircle } from "react-icons/fa";
 import { useAuth } from "../hooks/useAuth";
@@ -9,6 +10,7 @@ import { validateRegisterForm } from "../utils/validators";
 import "./Auth.css";
 
 const Register = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -32,7 +34,6 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Centralized form validation
     const { isValid, errors: formErrors } = validateRegisterForm(formData);
     if (!isValid) {
       setErrors(formErrors);
@@ -45,48 +46,16 @@ const Register = () => {
     try {
       const data = await register(formData);
       login(data.user, data.token);
-      addNotification("Account created. Your garden is ready.", "success");
+      addNotification(t("auth.registerSuccess"), "success");
       navigate("/app");
     } catch (error) {
       console.error("Registration error:", error);
 
       if (error.response) {
-        const status = error.response.status;
-        const data = error.response.data;
-
-        if (status === 400) {
-          if (data.message === "Email already registered") {
-            setErrors((prev) => ({ ...prev, email: "This email is already registered." }));
-            addNotification(
-              "This email is already registered. Please login or use a different email.",
-              "error",
-            );
-          } else if (data.message.includes("Validation")) {
-            addNotification(data.message, "error");
-          } else {
-            addNotification(
-              data.message || "Please check your input and try again.",
-              "error",
-            );
-          }
-        } else if (status === 500) {
-          addNotification("Server error. Please try again later.", "error");
-        } else {
-          addNotification(
-            data.message || "Registration failed. Please try again.",
-            "error",
-          );
-        }
-      } else if (error.request) {
-        addNotification(
-          "Cannot reach the server. Please check your connection.",
-          "error",
-        );
+        const errorMessage = error.response.data?.message || t("messages.operationFailed");
+        addNotification(errorMessage, "error");
       } else {
-        addNotification(
-          "An unexpected error occurred. Please try again.",
-          "error",
-        );
+        addNotification(t("messages.networkError"), "error");
       }
     } finally {
       setLoading(false);
@@ -97,18 +66,18 @@ const Register = () => {
     <div className="auth-page">
       <div className="auth-card">
         <Link to="/" className="auth-back-home">
-          <RiArrowLeftLine /> Back to Home
+          <RiArrowLeftLine /> {t("navigation.home")}
         </Link>
-        <h2>Create an account</h2>
-        <p className="auth-subtitle">Set up your city garden in a few steps.</p>
+        <h2>{t("auth.registerTitle")}</h2>
+        <p className="auth-subtitle">{t("auth.registerSubtitle")}</p>
         <form onSubmit={handleSubmit} noValidate>
           <div className="form-group">
-            <label>Full Name *</label>
+            <label>{t("auth.fullName")} *</label>
             <input
               name="name"
               value={formData.name}
               onChange={handleChange}
-              placeholder="John Doe"
+              placeholder={t("auth.namePlaceholder")}
               className={errors.name ? "input-error" : ""}
             />
             {errors.name && (
@@ -118,13 +87,13 @@ const Register = () => {
             )}
           </div>
           <div className="form-group">
-            <label>Email *</label>
+            <label>{t("auth.email")} *</label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="your@email.com"
+              placeholder={t("auth.emailPlaceholder")}
               className={errors.email ? "input-error" : ""}
             />
             {errors.email && (
@@ -134,13 +103,13 @@ const Register = () => {
             )}
           </div>
           <div className="form-group">
-            <label>Password (min 6 characters) *</label>
+            <label>{t("auth.password")} *</label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="Choose a password"
+              placeholder={t("auth.passwordPlaceholder")}
               className={errors.password ? "input-error" : ""}
             />
             {errors.password && (
@@ -150,7 +119,7 @@ const Register = () => {
             )}
           </div>
           <div className="form-group">
-            <label>Gardening Level</label>
+            <label>{t("profile.gardenerLevel")}</label>
             <select
               name="gardeningLevel"
               value={formData.gardeningLevel}
@@ -162,11 +131,12 @@ const Register = () => {
             </select>
           </div>
           <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? "Creating Account..." : "Create Account"}
+            {loading ? t("common.loading") : t("auth.registerButton")}
           </button>
         </form>
         <p className="auth-footer">
-          Already have an account? <Link to="/login">Login here</Link>
+          {t("auth.alreadyHaveAccount")}{" "}
+          <Link to="/login">{t("navigation.signIn")}</Link>
         </p>
       </div>
     </div>

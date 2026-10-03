@@ -1,23 +1,49 @@
 /**
  * Format date to readable string
  */
-export const formatDate = (dateStr) => {
+export const formatDate = (dateStr, lang = null) => {
   if (!dateStr) return '';
   const d = new Date(dateStr);
-  return d.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
+  const currentLang = (lang || localStorage.getItem('language') || 'en').split('-')[0];
+  const localeMap = {
+    gu: 'gu-IN',
+    hi: 'hi-IN',
+    en: 'en-US'
+  };
+  const locale = localeMap[currentLang] || 'en-US';
+  try {
+    return d.toLocaleDateString(locale, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  } catch (e) {
+    return d.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  }
 };
 
 /**
  * Format time
  */
-export const formatTime = (dateStr) => {
+export const formatTime = (dateStr, lang = null) => {
   if (!dateStr) return '';
   const d = new Date(dateStr);
-  return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  const currentLang = (lang || localStorage.getItem('language') || 'en').split('-')[0];
+  const localeMap = {
+    gu: 'gu-IN',
+    hi: 'hi-IN',
+    en: 'en-US'
+  };
+  const locale = localeMap[currentLang] || 'en-US';
+  try {
+    return d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+  } catch (e) {
+    return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  }
 };
 
 /**

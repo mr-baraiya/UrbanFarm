@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   RiDashboardLine,
   RiPlantLine,
@@ -14,24 +15,26 @@ import {
   RiCloseLine,
 } from "react-icons/ri";
 import { useAuth } from "../../hooks/useAuth";
+import LanguageSelector from "../Common/LanguageSelector";
 import "./Sidebar.css";
 
 const Sidebar = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
 
   if (user?.role === "admin") return null;
 
   const links = [
-    { to: "/app/dashboard", label: "Dashboard", icon: <RiDashboardLine /> },
-    { to: "/app/gardens", label: "Gardens", icon: <RiPlantLine /> },
-    { to: "/app/plants", label: "Plants", icon: <RiSeedlingLine /> },
-    { to: "/app/diagnose", label: "Diagnose", icon: <RiMicroscopeLine /> },
-    { to: "/app/crops", label: "Crop AI", icon: <RiSparklingLine /> },
-    { to: "/app/watering", label: "Watering", icon: <RiDropLine /> },
-    { to: "/app/schedule", label: "Schedule", icon: <RiCalendarEventLine /> },
-    { to: "/app/community", label: "Community", icon: <RiTeamLine /> },
-    { to: "/app/profile", label: "Profile", icon: <RiUser3Line /> },
+    { to: "/app/dashboard", label: t("navigation.dashboard"), icon: <RiDashboardLine /> },
+    { to: "/app/gardens", label: t("navigation.gardens"), icon: <RiPlantLine /> },
+    { to: "/app/plants", label: t("navigation.plants"), icon: <RiSeedlingLine /> },
+    { to: "/app/diagnose", label: t("navigation.diagnose"), icon: <RiMicroscopeLine /> },
+    { to: "/app/crops", label: t("navigation.cropAI"), icon: <RiSparklingLine /> },
+    { to: "/app/watering", label: t("navigation.watering"), icon: <RiDropLine /> },
+    { to: "/app/schedule", label: t("navigation.schedule"), icon: <RiCalendarEventLine /> },
+    { to: "/app/community", label: t("navigation.community"), icon: <RiTeamLine /> },
+    { to: "/app/profile", label: t("navigation.profile"), icon: <RiUser3Line /> },
   ];
 
   return (
@@ -68,6 +71,9 @@ const Sidebar = () => {
             </li>
           ))}
         </ul>
+        <div className="sidebar-language-wrapper">
+          <LanguageSelector />
+        </div>
       </aside>
     </>
   );

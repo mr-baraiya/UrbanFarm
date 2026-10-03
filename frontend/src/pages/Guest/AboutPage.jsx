@@ -1,46 +1,45 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
-  FaLeaf,
   FaBullseye,
   FaGlobe,
-  FaUsers,
   FaHandHoldingHeart,
   FaSeedling,
   FaRecycle,
   FaArrowRight,
-  FaLinkedin,
-  FaGithub,
 } from 'react-icons/fa';
 import './AboutPage.css';
 
 const AboutPage = () => {
+  const { t } = useTranslation();
+
   const teamMembers = [
     {
-      name: 'Dr. Alistair Vance',
-      role: 'Lead Agronomist & Co-Founder',
-      bio: '15+ years in precision agriculture and urban hydroponics. Ph.D. in Crop Physiology.',
+      name: t('about.member1Name'),
+      role: t('about.member1Role'),
+      bio: t('about.member1Bio'),
       iconBg: '#27ae60',
       initials: 'AV',
     },
     {
-      name: 'Sophia Sterling',
-      role: 'Chief Technology Officer',
-      bio: 'Former AI Vision research scientist specializing in mobile plant pathogen detection.',
+      name: t('about.member2Name'),
+      role: t('about.member2Role'),
+      bio: t('about.member2Bio'),
       iconBg: '#2980b9',
       initials: 'SS',
     },
     {
-      name: 'Devon Reyes',
-      role: 'Head of Product & Sustainability',
-      bio: 'Passionate rooftop farmer and circular ecology advocate. Built 30+ community gardens.',
+      name: t('about.member3Name'),
+      role: t('about.member3Role'),
+      bio: t('about.member3Bio'),
       iconBg: '#8e44ad',
       initials: 'DR',
     },
     {
-      name: 'Aria Thorne',
-      role: 'Community Growth Lead',
-      bio: 'Connecting city growers globally. Facilitates seed swaps and urban farming workshops.',
+      name: t('about.member4Name'),
+      role: t('about.member4Role'),
+      bio: t('about.member4Bio'),
       iconBg: '#d35400',
       initials: 'AT',
     },
@@ -49,18 +48,18 @@ const AboutPage = () => {
   const sustainabilityPillars = [
     {
       icon: <FaRecycle />,
-      title: 'Zero Food Miles',
-      desc: 'By producing food directly on urban rooftops and balconies, we eliminate transport emissions and packaging waste.',
+      title: t('about.pillar1Title'),
+      desc: t('about.pillar1Desc'),
     },
     {
       icon: <FaSeedling />,
-      title: 'Biodiversity Enhancement',
-      desc: 'Urban gardens act as crucial pollinator corridors for bees, butterflies, and native urban wildlife.',
+      title: t('about.pillar2Title'),
+      desc: t('about.pillar2Desc'),
     },
     {
       icon: <FaHandHoldingHeart />,
-      title: 'Organic Care Protocols',
-      desc: 'Our AI diagnostics exclusively recommend natural biological pest controls and organic soil treatments.',
+      title: t('about.pillar3Title'),
+      desc: t('about.pillar3Desc'),
     },
   ];
 
@@ -69,10 +68,10 @@ const AboutPage = () => {
       {/* Header Banner */}
       <section className="about-hero">
         <div className="about-container text-center">
-          <span className="section-tag">OUR MISSION & VISION</span>
-          <h1>Cultivating Greener, Resilient Cities One Bed at a Time</h1>
+          <span className="section-tag">{t('about.tagMissionVision')}</span>
+          <h1>{t('about.heroH1')}</h1>
           <p className="about-hero-subtitle">
-            UrbanFarm was born out of a simple realization: city spaces hold vast untapped potential to produce fresh, nutrient-dense organic food right where people live.
+            {t('about.heroSubtitle')}
           </p>
         </div>
       </section>
@@ -84,18 +83,18 @@ const AboutPage = () => {
             <div className="story-icon">
               <FaBullseye />
             </div>
-            <h2>Our Mission</h2>
+            <h2>{t('about.missionTitle')}</h2>
             <p>
-              To democratize sustainable food production by equipping urban dwellers with accessible, AI-powered tools, weather intelligence, and community knowledge needed to cultivate high-yield micro-farms.
+              {t('about.missionDesc')}
             </p>
           </div>
           <div className="story-card">
             <div className="story-icon">
               <FaGlobe />
             </div>
-            <h2>The Project Story</h2>
+            <h2>{t('about.storyTitle')}</h2>
             <p>
-              Started in 2024 as an open-source initiative by agronomists and developers, UrbanFarm grew into a global movement. Today, our algorithms monitor over 85,000 plants across 45 countries, saving millions of liters of water annually.
+              {t('about.storyDesc')}
             </p>
           </div>
         </div>
@@ -105,9 +104,9 @@ const AboutPage = () => {
       <section className="about-sustainability-section">
         <div className="about-container">
           <div className="section-header text-center">
-            <span className="section-tag">ECOLOGICAL COMMITMENT</span>
-            <h2>Sustainability at the Core</h2>
-            <p>We build technologies that honor ecological balance and conserve urban natural resources.</p>
+            <span className="section-tag">{t('about.tagEcological')}</span>
+            <h2>{t('about.sustainabilityTitle')}</h2>
+            <p>{t('about.sustainabilitySubtitle')}</p>
           </div>
 
           <div className="pillars-grid">
@@ -126,8 +125,8 @@ const AboutPage = () => {
       <section className="about-team-section">
         <div className="about-container">
           <div className="section-header text-center">
-            <span className="section-tag">MEET THE TEAM</span>
-            <h2>Driven by Passion for Agriculture & Tech</h2>
+            <span className="section-tag">{t('about.tagTeam')}</span>
+            <h2>{t('about.teamTitle')}</h2>
           </div>
 
           <div className="team-grid">
@@ -139,10 +138,6 @@ const AboutPage = () => {
                 <h3>{m.name}</h3>
                 <span className="team-role">{m.role}</span>
                 <p>{m.bio}</p>
-                <div className="team-socials">
-                  <a href="#linkedin" aria-label="LinkedIn"><FaLinkedin /></a>
-                  <a href="#github" aria-label="GitHub"><FaGithub /></a>
-                </div>
               </div>
             ))}
           </div>
@@ -152,14 +147,14 @@ const AboutPage = () => {
       {/* Impact Stats */}
       <section className="about-impact-banner">
         <div className="about-container text-center">
-          <h2>Ready to be part of the urban farming revolution?</h2>
-          <p>Join our growing network of balcony growers, rooftop farmers, and community gardens.</p>
+          <h2>{t('about.impactBannerTitle')}</h2>
+          <p>{t('about.impactBannerSubtitle')}</p>
           <div className="about-cta-group">
             <Link to="/register" className="landing-btn landing-btn-primary">
-              Join UrbanFarm Today <FaArrowRight />
+              {t('about.joinToday')} <FaArrowRight />
             </Link>
             <Link to="/contact" className="landing-btn landing-btn-secondary">
-              Get in Touch
+              {t('about.getInTouch')}
             </Link>
           </div>
         </div>

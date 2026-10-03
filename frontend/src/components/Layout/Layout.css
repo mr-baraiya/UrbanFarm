@@ -15,10 +15,12 @@
 .page-content {
   flex: 1;
   padding: clamp(1.25rem, 3vw, 2.5rem);
+  padding-bottom: 2.5rem;
   margin-left: 220px;
   min-height: calc(100vh - 64px - 60px);
   max-width: 100%;
   overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 /* Admin layout without sidebar */

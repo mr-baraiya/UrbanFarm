@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { RiArrowLeftLine } from "react-icons/ri";
 import { FaExclamationCircle } from "react-icons/fa";
 import { useAuth } from "../hooks/useAuth";
@@ -9,6 +10,7 @@ import { validateLoginForm } from "../utils/validators";
 import "./Auth.css";
 
 const Login = () => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
@@ -45,36 +47,21 @@ const Login = () => {
     try {
       const data = await login({ email, password });
 
-      // ✅ Log the response for debugging
-      console.log("🔐 Login response:", data);
-      console.log("👤 User data:", data.user);
-      console.log("👑 User role:", data.user?.role);
-
-      // Store user in context
       authLogin(data.user, data.token);
-      addNotification("Welcome back.", "success");
+      addNotification(t("auth.loginSuccess"), "success");
 
-      // ✅ Check role and redirect
       if (data.user?.role === "admin") {
-        console.log("🔐 Redirecting to admin panel...");
         navigate("/admin");
       } else {
-        console.log("🔐 Redirecting to user dashboard...");
         navigate("/app");
       }
     } catch (error) {
       console.error("❌ Login error:", error);
-
       if (error.response) {
-        console.error("Response data:", error.response.data);
-        const errorMessage = error.response.data?.message || "Login failed";
+        const errorMessage = error.response.data?.message || t("auth.invalidCredentials");
         addNotification(errorMessage, "error");
-      } else if (error.request) {
-        console.error("No response received");
-        addNotification("Server not responding. Please try again.", "error");
       } else {
-        console.error("Error message:", error.message);
-        addNotification(error.message || "Login failed", "error");
+        addNotification(t("messages.networkError"), "error");
       }
     } finally {
       setLoading(false);
@@ -85,18 +72,18 @@ const Login = () => {
     <div className="auth-page">
       <div className="auth-card">
         <Link to="/" className="auth-back-home">
-          <RiArrowLeftLine /> Back to Home
+          <RiArrowLeftLine /> {t("navigation.home")}
         </Link>
-        <h2>Welcome back</h2>
-        <p className="auth-subtitle">Sign in to manage your city garden.</p>
+        <h2>{t("auth.loginTitle")}</h2>
+        <p className="auth-subtitle">{t("auth.loginSubtitle")}</p>
         <form onSubmit={handleSubmit} noValidate>
           <div className="form-group">
-            <label>Email</label>
+            <label>{t("auth.email")}</label>
             <input
               type="email"
               value={email}
               onChange={handleEmailChange}
-              placeholder="your@email.com"
+              placeholder={t("auth.emailPlaceholder")}
               className={errors.email ? "input-error" : ""}
             />
             {errors.email && (
@@ -106,12 +93,17 @@ const Login = () => {
             )}
           </div>
           <div className="form-group">
-            <label>Password</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+              <label style={{ margin: 0 }}>{t("auth.password")}</label>
+              <Link to="/forgot-password" style={{ fontSize: '0.85rem', color: 'var(--sage)', textDecoration: 'none', fontWeight: '500' }}>
+                {t("auth.forgotPassword")}
+              </Link>
+            </div>
             <input
               type="password"
               value={password}
               onChange={handlePasswordChange}
-              placeholder="Enter your password"
+              placeholder={t("auth.passwordPlaceholder")}
               className={errors.password ? "input-error" : ""}
             />
             {errors.password && (
@@ -121,15 +113,13 @@ const Login = () => {
             )}
           </div>
           <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
+            {loading ? t("common.loading") : t("auth.loginButton")}
           </button>
         </form>
         <p className="auth-footer">
-          Don't have an account? <Link to="/register">Register here</Link>
+          {t("auth.dontHaveAccount")}{" "}
+          <Link to="/register">{t("auth.registerButton")}</Link>
         </p>
-        <div className="auth-hint">
-          <small>Admin accounts open the admin panel automatically.</small>
-        </div>
       </div>
     </div>
   );

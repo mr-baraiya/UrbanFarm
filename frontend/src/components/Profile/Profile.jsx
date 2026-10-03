@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   RiUser3Line, 
   RiEditLine, 
@@ -24,6 +25,7 @@ import { GARDENING_LEVELS } from '../../utils/constants';
 import './Profile.css';
 
 const Profile = () => {
+  const { i18n, t } = useTranslation();
   const { user, login } = useAuth();
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -212,6 +214,12 @@ const Profile = () => {
                 {GARDENING_LEVELS.find(l => l.value === user?.gardeningLevel)?.label || 'Beginner'}
               </span>
             </div>
+            <div className="info-item">
+              <span className="info-label">Language / ભાષા</span>
+              <span className="info-value">
+                {i18n.language === 'gu' ? 'ગુજરાતી (Gujarati)' : i18n.language === 'hi' ? 'हिन्दी (Hindi)' : 'English'}
+              </span>
+            </div>
           </div>
 
           {user?.preferences?.showAdvancedTips && (
@@ -315,7 +323,24 @@ const Profile = () => {
           </div>
 
           <div className="form-section">
-            <h4>Preferences</h4>
+            <h4>Preferences & Language</h4>
+            <div className="form-group">
+              <label>Application Language / ભાષા પસંદગી</label>
+              <select
+                value={i18n.language || 'en'}
+                onChange={(e) => {
+                  const newLang = e.target.value;
+                  i18n.changeLanguage(newLang);
+                  localStorage.setItem('language', newLang);
+                  localStorage.setItem('has_chosen_language', 'true');
+                  document.documentElement.lang = newLang;
+                }}
+              >
+                <option value="en">English</option>
+                <option value="gu">ગુજરાતી (Gujarati)</option>
+                <option value="hi">हिन्दी (Hindi)</option>
+              </select>
+            </div>
             <div className="form-group checkbox">
               <label>
                 <input

@@ -13,10 +13,14 @@ import ContactPage from "./pages/Guest/ContactPage";
 import FaqPage from "./pages/Guest/FaqPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import MainApp from "./pages/MainApp";
 import AdminPanel from "./pages/AdminPanel";
 import ProtectedRoute from "./components/Common/ProtectedRoute";
 import AdminRoute from "./components/Common/AdminRoute";
+import FirstVisitLanguageModal from "./components/Common/FirstVisitLanguageModal";
+import ScrollToTop from "./components/Common/ScrollToTop";
 import { useAuth } from "./hooks/useAuth";
 
 function App() {
@@ -42,6 +46,8 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop />
+      <FirstVisitLanguageModal />
       <Routes>
         {/* Guest Public Routes */}
         <Route element={<GuestLayout />}>
@@ -79,6 +85,8 @@ function App() {
             )
           }
         />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
         {/* User Routes */}
         <Route

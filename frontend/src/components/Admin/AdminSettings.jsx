@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import api from '../../services/api';
 import {
   FaCog,
@@ -7,11 +8,12 @@ import {
   FaFileCsv,
   FaCheckCircle,
   FaSync,
-  FaExclamationCircle,
+  FaGlobe,
 } from 'react-icons/fa';
 import './AdminSettings.css';
 
 const AdminSettings = () => {
+  const { i18n, t } = useTranslation();
   const [exporting, setExporting] = useState(false);
 
   const services = [
@@ -53,6 +55,42 @@ const AdminSettings = () => {
       </div>
 
       <div className="admin-settings-grid">
+        {/* Language Preference Card */}
+        <div className="admin-card">
+          <div className="admin-card-header">
+            <h3><FaGlobe /> Admin Panel Language / ભાષા સેટિંગ</h3>
+          </div>
+          <p className="admin-card-desc">
+            Select your preferred interface language for the admin control panel and platform operations.
+          </p>
+          <div style={{ marginTop: '16px' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600 }}>Active Language</label>
+            <select
+              style={{
+                width: '100%',
+                padding: '10px 14px',
+                borderRadius: '8px',
+                border: '1px solid rgba(255,255,255,0.15)',
+                background: 'rgba(255,255,255,0.05)',
+                color: 'inherit',
+                fontSize: '0.95rem'
+              }}
+              value={i18n.language || 'en'}
+              onChange={(e) => {
+                const newLang = e.target.value;
+                i18n.changeLanguage(newLang);
+                localStorage.setItem('language', newLang);
+                localStorage.setItem('has_chosen_language', 'true');
+                document.documentElement.lang = newLang;
+              }}
+            >
+              <option value="en" style={{ background: '#1a2f23', color: '#fff' }}>English (Default)</option>
+              <option value="gu" style={{ background: '#1a2f23', color: '#fff' }}>ગુજરાતી (Gujarati)</option>
+              <option value="hi" style={{ background: '#1a2f23', color: '#fff' }}>हिन्दी (Hindi)</option>
+            </select>
+          </div>
+        </div>
+
         <div className="admin-card">
           <div className="admin-card-header">
             <h3><FaServer /> External Services & API Health</h3>

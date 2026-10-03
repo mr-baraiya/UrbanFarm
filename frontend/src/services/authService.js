@@ -46,3 +46,13 @@ export const getBadges = async () => {
   const response = await api.get('/users/badges');
   return response.data.badges;
 };
+
+export const forgotPassword = async (email) => {
+  const response = await api.post('/auth/forgot-password', { email });
+  return response.data;
+};
+
+export const resetPassword = async (token, password) => {
+  const response = await api.post(`/auth/reset-password/${token}`, { password });
+  return response.data;
+};

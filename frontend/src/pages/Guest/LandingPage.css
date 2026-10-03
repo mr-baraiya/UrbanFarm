@@ -283,16 +283,8 @@
 .intro-list li {
   font-size: 0.95rem;
   color: var(--text);
-  position: relative;
-  padding-left: 1.5rem;
-}
-
-.intro-list li::before {
-  content: '✓';
-  position: absolute;
-  left: 0;
-  color: #27ae60;
-  font-weight: 800;
+  display: flex;
+  align-items: center;
 }
 
 .intro-visual-card {

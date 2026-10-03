@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import api from '../../services/api';
 import { useNotification } from '../../hooks/useNotification';
 import { validateContactForm } from '../../utils/validators';
@@ -14,6 +15,7 @@ import {
 import './ContactPage.css';
 
 const ContactPage = () => {
+  const { t } = useTranslation();
   const { addNotification } = useNotification();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -47,7 +49,7 @@ const ContactPage = () => {
     try {
       const res = await api.post('/contact', formData);
       addNotification(
-        res.data?.message || 'Thank you! Your inquiry has been received. Our team will contact you shortly.',
+        res.data?.message || t('contact.successMsg'),
         'success'
       );
       // Reset form state cleanly
@@ -62,7 +64,7 @@ const ContactPage = () => {
     } catch (error) {
       console.error('Contact submission error:', error);
       addNotification(
-        error.response?.data?.message || 'Failed to submit inquiry. Please try again.',
+        error.response?.data?.message || t('messages.operationFailed'),
         'error'
       );
     } finally {
@@ -75,10 +77,10 @@ const ContactPage = () => {
       {/* Hero Header */}
       <section className="contact-hero">
         <div className="contact-container text-center">
-          <span className="section-tag">GET IN TOUCH</span>
-          <h1>We'd Love to Hear From You</h1>
+          <span className="section-tag">{t('contact.tagHero')}</span>
+          <h1>{t('contact.heroTitle')}</h1>
           <p className="contact-hero-subtitle">
-            Have questions about UrbanFarm features, enterprise partnerships, or urban gardening advice? Send us a message!
+            {t('contact.heroSubtitle')}
           </p>
         </div>
       </section>
@@ -88,38 +90,38 @@ const ContactPage = () => {
         <div className="contact-container contact-grid">
           {/* Left: Contact Info Card */}
           <div className="contact-info-card">
-            <h2>Contact Information</h2>
+            <h2>{t('contact.infoTitle')}</h2>
             <p className="info-desc">
-              Reach out via form or through our direct channels. Our agronomy support team typically responds within 24 hours.
+              {t('contact.infoDesc')}
             </p>
 
             <ul className="info-list">
               <li>
                 <div className="info-icon"><FaEnvelope /></div>
                 <div>
-                  <strong>Email Us</strong>
-                  <span>support@urbanfarm.io</span>
+                  <strong>{t('contact.emailLabelTitle')}</strong>
+                  <span>{t('contact.emailVal')}</span>
                 </div>
               </li>
               <li>
                 <div className="info-icon"><FaPhone /></div>
                 <div>
-                  <strong>Call Us</strong>
-                  <span>+1 (800) 555-FARM (3276)</span>
+                  <strong>{t('contact.phoneLabelTitle')}</strong>
+                  <span>{t('contact.phoneVal')}</span>
                 </div>
               </li>
               <li>
                 <div className="info-icon"><FaMapMarkerAlt /></div>
                 <div>
-                  <strong>Headquarters</strong>
-                  <span>100 AgriTech Plaza, Suite 400, Green City</span>
+                  <strong>{t('contact.headquartersTitle')}</strong>
+                  <span>{t('contact.headquartersVal')}</span>
                 </div>
               </li>
               <li>
                 <div className="info-icon"><FaClock /></div>
                 <div>
-                  <strong>Operating Hours</strong>
-                  <span>Monday – Friday: 9:00 AM – 6:00 PM EST</span>
+                  <strong>{t('contact.hoursTitle')}</strong>
+                  <span>{t('contact.hoursVal')}</span>
                 </div>
               </li>
             </ul>
@@ -127,9 +129,9 @@ const ContactPage = () => {
             <div className="info-highlight-box">
               <FaCheckCircle style={{ color: '#27ae60', fontSize: '1.2rem', marginTop: '0.1rem' }} />
               <div>
-                <strong>Active Support Guarantee</strong>
+                <strong>{t('contact.guaranteeTitle')}</strong>
                 <p style={{ margin: '0.2rem 0 0', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                  All guest submissions are tracked in our Admin Inquiry System for prompt follow-up.
+                  {t('contact.guaranteeDesc')}
                 </p>
               </div>
             </div>
@@ -137,16 +139,16 @@ const ContactPage = () => {
 
           {/* Right: Contact Form */}
           <div className="contact-form-card">
-            <h2>Send Us a Message</h2>
+            <h2>{t('contact.formTitle')}</h2>
             <form onSubmit={handleSubmit} noValidate className="contact-form">
               <div className="form-group">
-                <label>Full Name <span className="required">*</span></label>
+                <label>{t('contact.nameLabel')} <span className="required">*</span></label>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="e.g. Jane Doe"
+                  placeholder={t('contact.namePlaceholder')}
                   className={errors.name ? 'input-error' : ''}
                 />
                 {errors.name && <span className="error-text"><FaExclamationCircle /> {errors.name}</span>}
@@ -154,62 +156,62 @@ const ContactPage = () => {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Email Address <span className="required">*</span></label>
+                  <label>{t('contact.emailLabel')} <span className="required">*</span></label>
                   <input
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="e.g. jane@example.com"
+                    placeholder={t('contact.emailPlaceholder')}
                     className={errors.email ? 'input-error' : ''}
                   />
                   {errors.email && <span className="error-text"><FaExclamationCircle /> {errors.email}</span>}
                 </div>
 
                 <div className="form-group">
-                  <label>Phone Number (Optional)</label>
+                  <label>{t('contact.phoneLabel')}</label>
                   <input
                     type="tel"
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    placeholder="e.g. +1 (555) 000-1234"
+                    placeholder={t('contact.phonePlaceholder')}
                   />
                 </div>
               </div>
 
               <div className="form-group">
-                <label>Subject / Topic <span className="required">*</span></label>
+                <label>{t('contact.subjectLabel')} <span className="required">*</span></label>
                 <select
                   name="subject"
                   value={formData.subject}
                   onChange={handleChange}
                   className={errors.subject ? 'input-error' : ''}
                 >
-                  <option value="General Inquiry">General Inquiry</option>
-                  <option value="AI Diagnosis Support">AI Diagnosis Support</option>
-                  <option value="Weather Irrigation Query">Weather Irrigation Query</option>
-                  <option value="Partnership & Enterprise">Partnership & Enterprise</option>
-                  <option value="Report an Issue">Report an Issue</option>
+                  <option value="General Inquiry">{t('contact.subjectOption1')}</option>
+                  <option value="AI Diagnosis Support">{t('contact.subjectOption2')}</option>
+                  <option value="Weather Irrigation Query">{t('contact.subjectOption3')}</option>
+                  <option value="Partnership & Enterprise">{t('contact.subjectOption4')}</option>
+                  <option value="Report an Issue">{t('contact.subjectOption5')}</option>
                 </select>
                 {errors.subject && <span className="error-text"><FaExclamationCircle /> {errors.subject}</span>}
               </div>
 
               <div className="form-group">
-                <label>Your Message <span className="required">*</span></label>
+                <label>{t('contact.messageLabel')} <span className="required">*</span></label>
                 <textarea
                   name="message"
                   rows="5"
                   value={formData.message}
                   onChange={handleChange}
-                  placeholder="How can we help your urban farm?"
+                  placeholder={t('contact.messagePlaceholder')}
                   className={errors.message ? 'input-error' : ''}
                 />
                 {errors.message && <span className="error-text"><FaExclamationCircle /> {errors.message}</span>}
               </div>
 
               <button type="submit" className="landing-btn landing-btn-primary btn-full" disabled={loading}>
-                {loading ? 'Sending Message...' : <><FaPaperPlane /> Send Message</>}
+                {loading ? t('contact.sendingMsg') : <><FaPaperPlane /> {t('contact.sendButton')}</>}
               </button>
             </form>
           </div>

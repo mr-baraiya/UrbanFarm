@@ -58,7 +58,7 @@
 .dashboard-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 1.75rem;
   flex-wrap: wrap;
   gap: 1.5rem;
@@ -66,21 +66,30 @@
   padding-bottom: 1.5rem;
 }
 
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-width: 620px;
+}
+
 .header-left h1 {
   font-family: "Fraunces", serif;
   color: var(--text-main);
-  font-size: 2.1rem;
+  font-size: 2rem;
   font-weight: 700;
   letter-spacing: -0.025em;
-  margin: 0 0 0.4rem 0;
-  line-height: 1.2;
+  margin: 0;
+  line-height: 1.25;
 }
 
 .header-subtitle {
   color: var(--text-muted);
-  font-size: 0.98rem;
+  font-size: 0.95rem;
   margin: 0;
   font-weight: 500;
+  line-height: 1.5;
+  display: block;
 }
 
 /* Stats Grid - 4 equal columns with clean theme contour */
