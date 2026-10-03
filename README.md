@@ -7,7 +7,7 @@
 | | URL |
 |---|---|
 | **Frontend** | [https://urbanfarm.baraiyavishalbhai32.workers.dev](https://urbanfarm.baraiyavishalbhai32.workers.dev) |
-| **Backend API** | [https://urbanfarm-server.vercel.app](https://urbanfarm-server.vercel.app) |
+| **Backend Server** | [https://urbanfarm-server.vercel.app](https://urbanfarm-server.vercel.app) |
 | **Health Check** | [https://urbanfarm-server.vercel.app/health](https://urbanfarm-server.vercel.app/health) |
 
 > **Frontend** hosted on **Cloudflare Workers** · **Backend** hosted on **Vercel Serverless**
