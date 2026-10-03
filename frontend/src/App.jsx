@@ -23,6 +23,12 @@ import FirstVisitLanguageModal from "./components/Common/FirstVisitLanguageModal
 import ScrollToTop from "./components/Common/ScrollToTop";
 import { useAuth } from "./hooks/useAuth";
 
+import PlantDetail from "./components/Plants/PlantDetail";
+import CommunityTab from "./components/Community/CommunityTab";
+import Layout from "./components/Layout/Layout";
+import GuestNavbar from "./components/Guest/GuestNavbar";
+import GuestFooter from "./components/Guest/GuestFooter";
+
 function App() {
   const { user, loading } = useAuth();
 
@@ -58,6 +64,82 @@ function App() {
           <Route path="/faq" element={<FaqPage />} />
         </Route>
 
+        {/* Public Plant Detail Routes (Accessible with or without login) */}
+        <Route
+          path="/app/plants/:id"
+          element={
+            user ? (
+              <Layout>
+                <PlantDetail />
+              </Layout>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'var(--background)', color: 'var(--text)' }}>
+                <GuestNavbar />
+                <main style={{ flex: 1, padding: '2rem 1.25rem', maxWidth: '1200px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
+                  <PlantDetail />
+                </main>
+                <GuestFooter />
+              </div>
+            )
+          }
+        />
+        <Route
+          path="/plants/:id"
+          element={
+            user ? (
+              <Layout>
+                <PlantDetail />
+              </Layout>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'var(--background)', color: 'var(--text)' }}>
+                <GuestNavbar />
+                <main style={{ flex: 1, padding: '2rem 1.25rem', maxWidth: '1200px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
+                  <PlantDetail />
+                </main>
+                <GuestFooter />
+              </div>
+            )
+          }
+        />
+
+        {/* Public Community Feed & Post Routes (Accessible with or without login) */}
+        <Route
+          path="/app/community"
+          element={
+            user ? (
+              <Layout>
+                <CommunityTab />
+              </Layout>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'var(--background)', color: 'var(--text)' }}>
+                <GuestNavbar />
+                <main style={{ flex: 1, padding: '2rem 1.25rem', maxWidth: '1280px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
+                  <CommunityTab />
+                </main>
+                <GuestFooter />
+              </div>
+            )
+          }
+        />
+        <Route
+          path="/community"
+          element={
+            user ? (
+              <Layout>
+                <CommunityTab />
+              </Layout>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'var(--background)', color: 'var(--text)' }}>
+                <GuestNavbar />
+                <main style={{ flex: 1, padding: '2rem 1.25rem', maxWidth: '1280px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
+                  <CommunityTab />
+                </main>
+                <GuestFooter />
+              </div>
+            )
+          }
+        />
+
         {/* Auth Routes */}
         <Route
           path="/login"
@@ -88,7 +170,7 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-        {/* User Routes */}
+        {/* User Protected Routes */}
         <Route
           path="/app/*"
           element={

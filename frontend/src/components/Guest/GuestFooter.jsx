@@ -86,9 +86,11 @@ const GuestFooter = () => {
       </div>
 
       <div className="footer-bottom">
-        <div className="footer-bottom-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-          <p>© {new Date().getFullYear()} UrbanFarm. {t('footer.rightsReserved')} {t('footer.craftedPrefix')} <FaHeart style={{ color: '#e74c3c' }} /> {t('footer.craftedSuffix')}</p>
-          <LanguageSelector />
+        <div className="footer-bottom-container">
+          <p className="footer-copyright">
+            © {new Date().getFullYear()} UrbanFarm. {t('footer.rightsReserved')} {t('footer.craftedPrefix')} <FaHeart style={{ color: '#e74c3c' }} /> {t('footer.craftedSuffix')}
+          </p>
+          <LanguageSelector className="footer-lang-selector" />
         </div>
       </div>
     </footer>

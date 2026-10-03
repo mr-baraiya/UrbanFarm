@@ -61,7 +61,7 @@ const QuickActions = ({ onActionComplete }) => {
           {actions.map((action) => (
             <button
               key={action.id}
-              className="action-btn"
+              className="quick-action-btn"
               style={{ 
                 '--action-color': action.color,
                 '--action-bg': action.bg 

@@ -1,19 +1,20 @@
 .footer-language-selector {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 4px;
   background: transparent;
   border: none;
   padding: 0;
   font-size: 0.85rem;
-  width: 100%;
+  width: auto;
+  flex-shrink: 0;
 }
 
 .lang-options-inline {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 3px;
   flex-wrap: nowrap;
   white-space: nowrap;
@@ -22,27 +23,29 @@
 
 .inline-lang-btn {
   background: transparent;
-  border: 1px solid transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
   color: var(--text-secondary, #475569);
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  padding: 4px 7px;
-  border-radius: 6px;
+  padding: 2px 4px 4px;
+  border-radius: 0;
   transition: all 0.2s ease;
   white-space: nowrap;
 }
 
 .inline-lang-btn:hover {
-  color: var(--emerald, #1b4332);
-  background: rgba(45, 106, 79, 0.1);
+  color: var(--sage, #2d6a4f);
+  background: transparent;
+  border-bottom-color: rgba(45, 106, 79, 0.4);
 }
 
 .inline-lang-btn.active {
-  color: #1b4332;
+  color: var(--sage, #1b4332);
   font-weight: 700;
-  background: rgba(45, 106, 79, 0.18);
-  border-color: rgba(45, 106, 79, 0.3);
+  background: transparent;
+  border-bottom: 2px solid var(--sage, #2d6a4f);
 }
 
 .lang-divider {

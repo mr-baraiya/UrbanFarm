@@ -53,6 +53,20 @@ const CommunityTab = () => {
     applyFilters();
   }, [posts, filterType, filterRegion, searchTerm]);
 
+  useEffect(() => {
+    if (!loading && window.location.hash) {
+      const targetId = window.location.hash.replace('#', '');
+      setTimeout(() => {
+        const el = document.getElementById(targetId);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.classList.add('highlight-post');
+          setTimeout(() => el.classList.remove('highlight-post'), 2500);
+        }
+      }, 400);
+    }
+  }, [loading, posts]);
+
   const loadData = async () => {
     setLoading(true);
     try {

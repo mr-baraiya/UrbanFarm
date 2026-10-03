@@ -53,12 +53,13 @@ exports.getPlants = async (req, res, next) => {
   }
 };
 
-// @desc    Get single plant
+// @desc    Get single plant (public or authenticated)
 // @route   GET /api/plants/:id
 exports.getPlantById = async (req, res, next) => {
   try {
-    const plant = await Plant.findOne({ _id: req.params.id, userId: req.user.id })
-      .populate('gardenId', 'name');
+    const plant = await Plant.findById(req.params.id)
+      .populate('gardenId', 'name location')
+      .populate('userId', 'name location profilePicture');
     if (!plant) {
       return res.status(404).json({ success: false, message: 'Plant not found' });
     }

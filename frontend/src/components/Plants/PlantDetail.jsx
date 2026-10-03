@@ -17,6 +17,7 @@ import {
   RiCameraLine
 } from 'react-icons/ri';
 import { TbPlant2 } from 'react-icons/tb';
+import { useAuth } from '../../hooks/useAuth';
 import { getPlantById, updatePlant, addTimelineEntry, uploadImage } from '../../services/plantService';
 import { useNotification } from '../../hooks/useNotification';
 import { formatDate, getStatusColor, getPlantImage } from '../../utils/helpers';
@@ -27,6 +28,7 @@ import './PlantDetail.css';
 const PlantDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [plant, setPlant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -37,6 +39,12 @@ const PlantDetail = () => {
   const [newHeight, setNewHeight] = useState('');
   const [newNotes, setNewNotes] = useState('');
   const { addNotification } = useNotification();
+
+  const isOwner = user && plant && (
+    (plant.userId?._id && plant.userId._id === user._id) || 
+    plant.userId === user._id || 
+    user.role === 'admin'
+  );
 
   useEffect(() => {
     loadPlant();
@@ -51,7 +59,9 @@ const PlantDetail = () => {
     } catch (error) {
       console.error('Failed to load plant:', error);
       addNotification('Plant not found', 'error');
-      navigate('/app/plants');
+      if (user) {
+        navigate('/app/plants');
+      }
     } finally {
       setLoading(false);
     }
@@ -122,20 +132,24 @@ const PlantDetail = () => {
     <div className="plant-detail">
       {/* Header */}
       <div className="detail-header">
-        <button className="back-btn" onClick={() => navigate('/app/plants')}>
-          <RiArrowLeftLine /> Back to Plants
+        <button className="back-btn" onClick={() => navigate(user ? '/app/plants' : '/')}>
+          <RiArrowLeftLine /> {user ? 'Back to Plants' : 'Back to Home'}
         </button>
         <div className="detail-actions">
-          <button className="btn-secondary" onClick={() => setShowHarvest(true)}>
-            <RiShoppingBasketLine /> Log Harvest
-          </button>
+          {isOwner && (
+            <button className="btn-secondary" onClick={() => setShowHarvest(true)}>
+              <RiShoppingBasketLine /> Log Harvest
+            </button>
+          )}
           <button className="btn-secondary" onClick={() => setShowQR(true)}>
-            <RiQrCodeLine /> QR Code
+            <RiQrCodeLine /> QR Code / Share
           </button>
-          <button className="btn-secondary" onClick={() => setEditing(!editing)}>
-            {editing ? <><RiCloseLine /> Cancel</> : <><RiEditLine /> Edit</>}
-          </button>
-          <button className="btn-primary" onClick={() => navigate(`/app/diagnose?plant=${plant._id}`)}>
+          {isOwner && (
+            <button className="btn-secondary" onClick={() => setEditing(!editing)}>
+              {editing ? <><RiCloseLine /> Cancel</> : <><RiEditLine /> Edit</>}
+            </button>
+          )}
+          <button className="btn-primary" onClick={() => navigate(user ? `/app/diagnose?plant=${plant._id}` : `/login`)}>
             <RiMicroscopeLine /> Diagnose
           </button>
         </div>
@@ -243,6 +257,12 @@ const PlantDetail = () => {
             <>
               {/* Details Grid */}
               <div className="detail-grid">
+                {plant.userId && (
+                  <div className="detail-item">
+                    <span className="label">Planted By</span>
+                    <span className="value">{plant.userId.name || 'Urban Gardener'}</span>
+                  </div>
+                )}
                 <div className="detail-item">
                   <span className="label">Garden</span>
                   <span className="value">{plant.gardenId?.name || 'None'}</span>
@@ -302,24 +322,26 @@ const PlantDetail = () => {
                 ))}
               </div>
             )}
-            <form onSubmit={handleAddTimeline} className="add-timeline">
-              <input
-                type="number"
-                placeholder="Height (cm)"
-                value={newHeight}
-                onChange={(e) => setNewHeight(e.target.value)}
-                step="0.1"
-              />
-              <input
-                type="text"
-                placeholder="Notes"
-                value={newNotes}
-                onChange={(e) => setNewNotes(e.target.value)}
-              />
-              <button type="submit" className="btn-primary">
-                <RiAddLine /> Add Entry
-              </button>
-            </form>
+            {isOwner && (
+              <form onSubmit={handleAddTimeline} className="add-timeline">
+                <input
+                  type="number"
+                  placeholder="Height (cm)"
+                  value={newHeight}
+                  onChange={(e) => setNewHeight(e.target.value)}
+                  step="0.1"
+                />
+                <input
+                  type="text"
+                  placeholder="Notes"
+                  value={newNotes}
+                  onChange={(e) => setNewNotes(e.target.value)}
+                />
+                <button type="submit" className="btn-primary">
+                  <RiAddLine /> Add Entry
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </div>

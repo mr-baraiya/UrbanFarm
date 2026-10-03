@@ -6,6 +6,9 @@
   box-shadow: 0 8px 24px rgba(31, 58, 48, 0.04);
   margin-bottom: 1.5rem;
   transition: var(--transition-smooth, all 0.25s ease);
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .garden-health:hover {

@@ -85,7 +85,7 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
           ))}
         </nav>
 
-        <div className="admin-sidebar-footer" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div className="admin-sidebar-footer">
           {!isCollapsed && <LanguageSelector />}
           <button onClick={logout} className="admin-exit-btn" title={t('navigation.logout')}>
             <FaSignOutAlt />
@@ -133,7 +133,7 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
               ))}
             </nav>
 
-            <div className="admin-drawer-footer" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div className="admin-drawer-footer">
               <LanguageSelector />
               <button
                 onClick={() => {

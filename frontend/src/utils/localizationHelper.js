@@ -129,27 +129,39 @@ export const getLocalizedDynamicText = (text, lang = null) => {
     }
   }
 
-  // 4. Plant Dictionary match (handles plant names like "Mint", "Rose3", "Guava Plant", "Bell Pepper")
+  // 4. Plant Dictionary match (handles plant names like "Mint", "Rose 2", "Guava Plant", "Bell Pepper (500ml)", "Banana (700ml)")
+  // First extract any trailing volume/parenthetical detail e.g., "(700ml)", "(1L)", "(500ml)"
+  let vol = '';
+  let cleanPlantStr = str;
+  const volMatch = str.match(/\s*(\([^)]+\))\s*$/);
+  if (volMatch) {
+    vol = ` ${volMatch[1].trim()}`;
+    cleanPlantStr = str.replace(/\s*(\([^)]+\))\s*$/, '').trim();
+  }
+
+  const cleanLower = cleanPlantStr.toLowerCase();
+
   for (const item of PLANT_DICTIONARY) {
     for (const kw of item.keywords) {
-      if (lowerStr.includes(kw)) {
-        // Extract numbers or suffixes e.g., "Rose3" -> "3", "Plant" -> "નો છોડ"
-        let extra = '';
-        const numMatch = str.match(/\d+/);
-        if (numMatch) {
-          extra += numMatch[0];
-        }
-
-        const volMatch = str.match(/\([^)]+\)/);
-        let vol = volMatch ? ` ${volMatch[0]}` : '';
-
+      if (cleanLower.includes(kw)) {
         let baseName = item[currentLang];
-        if (lowerStr.includes('plant') && !baseName.includes('છોડ') && !baseName.includes('पौधा')) {
+
+        if (cleanLower.includes('plant') && !baseName.includes('છોડ') && !baseName.includes('पौधा')) {
           if (currentLang === 'gu') baseName += 'નો છોડ';
           if (currentLang === 'hi') baseName += ' का पौधा';
         }
 
-        return `${baseName}${extra}${vol}`;
+        // Check if there is an explicit plant index/number suffix strictly in cleanPlantStr (e.g., "Rose 2" or "Rose #2")
+        const remaining = cleanPlantStr.replace(new RegExp(kw, 'i'), '').replace(/plant/i, '').trim();
+        let suffix = '';
+        if (remaining) {
+          const cleanSuffix = remaining.replace(/^[-\s#]+/, '').trim();
+          if (cleanSuffix) {
+            suffix = ` ${cleanSuffix}`;
+          }
+        }
+
+        return `${baseName}${suffix}${vol}`;
       }
     }
   }

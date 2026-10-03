@@ -79,8 +79,6 @@ const Navbar = () => {
           {menuOpen ? <RiCloseLine /> : <RiMenuLine />}
         </button>
       )}
-
-      {/* Render Backdrop & Mobile Drawer at document.body via Portal */}
       {user &&
         createPortal(
           <>

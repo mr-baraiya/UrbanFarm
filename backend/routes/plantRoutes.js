@@ -8,7 +8,7 @@ const {
   deletePlant,
   addTimelineEntry,
 } = require('../controllers/plantController');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, optionalProtect } = require('../middleware/authMiddleware');
 const { plantValidation } = require('../middleware/validationMiddleware');
 
 router.route('/')
@@ -16,7 +16,7 @@ router.route('/')
   .get(protect, getPlants);
 
 router.route('/:id')
-  .get(protect, getPlantById)  // ✅ Make sure this route exists
+  .get(optionalProtect, getPlantById)
   .put(protect, updatePlant)
   .delete(protect, deletePlant);
 

@@ -220,3 +220,23 @@
     justify-content: flex-start;
   }
 }
+
+/* Post Deep Link Target Highlight */
+.post-card.highlight-post {
+  animation: post-pulse-highlight 2.5s cubic-bezier(0.16, 1, 0.3, 1);
+  border-color: var(--sage, #2d6a4f) !important;
+}
+
+@keyframes post-pulse-highlight {
+  0% {
+    box-shadow: 0 0 0 6px rgba(45, 106, 79, 0.35), 0 12px 36px rgba(45, 106, 79, 0.2);
+    transform: scale(1.015);
+  }
+  70% {
+    box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.15), 0 6px 20px rgba(45, 106, 79, 0.1);
+  }
+  100% {
+    box-shadow: none;
+    transform: scale(1);
+  }
+}

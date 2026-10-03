@@ -116,19 +116,26 @@
   transition: transform var(--transition), background var(--transition);
 }
 
-/* Mobile Hamburger */
 .mobile-toggle {
   display: none;
-  background: none;
-  border: 1px solid var(--border);
+  background: var(--surface-primary, #ffffff);
+  border: 1px solid var(--border-light, rgba(107, 144, 128, 0.25));
   border-radius: 8px;
-  font-size: 1.4rem;
-  color: var(--ink);
+  font-size: 1.35rem;
+  color: var(--text-main, #1f3a30);
   cursor: pointer;
-  padding: 0.3rem 0.5rem;
+  padding: 0.35rem 0.55rem;
   line-height: 1;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  margin-left: auto;
+  transition: all 0.2s ease;
+}
+
+.mobile-toggle:hover {
+  background: var(--bg-primary, #f6fff8);
+  border-color: var(--accent-sage, #6b9080);
 }
 
 /* Mobile Backdrop Overlay */
@@ -290,8 +297,11 @@
 @media (max-width: 768px) {
   .navbar {
     height: 60px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     position: fixed;
+    padding: 0 0.85rem;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .navbar-right {

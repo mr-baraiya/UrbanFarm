@@ -8,7 +8,7 @@ const Footer = () => {
   return (
     <footer className="footer">
       <div className="footer-content-bar">
-        <p>© {new Date().getFullYear()} {t('footer.tagline')}</p>
+        <p className="footer-copyright">© {new Date().getFullYear()} {t('footer.tagline')}</p>
       </div>
     </footer>
   );
