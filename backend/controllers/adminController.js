@@ -685,24 +685,21 @@ const getCSVForType = async (type) => {
 // @route   GET /api/admin/export/bundle
 exports.exportSystemBundle = async (req, res, next) => {
   try {
-    const { ZipArchive } = await import('archiver');
+    const archiver = require('archiver');
+    const { PassThrough } = require('stream');
+
     const timestamp = new Date().toISOString().slice(0, 10);
     const zipFilename = `urbanfarm_full_system_backup_${timestamp}.zip`;
-    const archive = new ZipArchive({ zlib: { level: 9 } });
 
-    res.setHeader('Content-Type', 'application/zip');
-    res.setHeader('Content-Disposition', `attachment; filename="${zipFilename}"`);
-    res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
-
-    archive.pipe(res);
-
+    // Collect all CSV data first
     const types = ['users', 'gardens', 'plants', 'posts', 'logs', 'leads'];
     const summaryCounts = {};
+    const csvResults = [];
 
     for (const t of types) {
       const result = await getCSVForType(t);
       if (result) {
-        archive.append(result.data, { name: result.filename });
+        csvResults.push(result);
         summaryCounts[t] = result.count;
       }
     }
@@ -714,7 +711,35 @@ exports.exportSystemBundle = async (req, res, next) => {
       totalTables: types.length,
       records: summaryCounts,
     };
-    archive.append(JSON.stringify(manifest, null, 2), { name: 'backup_manifest.json' });
+
+    // Build ZIP into a buffer using PassThrough + archiver
+    await new Promise((resolve, reject) => {
+      const chunks = [];
+      const pass = new PassThrough();
+      const archive = archiver('zip', { zlib: { level: 9 } });
+
+      pass.on('data', (chunk) => chunks.push(chunk));
+      pass.on('end', () => {
+        const zipBuffer = Buffer.concat(chunks);
+        res.setHeader('Content-Type', 'application/zip');
+        res.setHeader('Content-Disposition', `attachment; filename="${zipFilename}"`);
+        res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+        res.setHeader('Content-Length', zipBuffer.length);
+        res.status(200).end(zipBuffer);
+        resolve();
+      });
+      pass.on('error', reject);
+      archive.on('error', reject);
+
+      archive.pipe(pass);
+
+      for (const result of csvResults) {
+        archive.append(result.data, { name: result.filename });
+      }
+      archive.append(JSON.stringify(manifest, null, 2), { name: 'backup_manifest.json' });
+
+      archive.finalize();
+    });
 
     await AdminLog.create({
       adminId: req.user.id,
@@ -722,8 +747,6 @@ exports.exportSystemBundle = async (req, res, next) => {
       targetType: 'system',
       details: { format: 'zip', counts: summaryCounts },
     });
-
-    await archive.finalize();
   } catch (error) {
     console.error('Error generating system bundle zip:', error);
     next(error);
