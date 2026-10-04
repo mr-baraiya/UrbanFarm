@@ -303,9 +303,10 @@
 .urban-bot-message-row {
   display: flex;
   align-items: flex-start;
-  gap: 0.5rem;
-  max-width: 88%;
+  gap: 0.55rem;
+  max-width: 95%;
   min-width: 0;
+  width: 100%;
   animation: bot-msg-fade 0.2s ease;
 }
 
@@ -317,10 +318,12 @@
 .urban-bot-message-row.user-row {
   align-self: flex-end;
   flex-direction: row-reverse;
+  max-width: 85%;
 }
 
 .urban-bot-message-row.bot-row {
   align-self: flex-start;
+  max-width: 95%;
 }
 
 .msg-bot-avatar {
@@ -362,6 +365,7 @@
 }
 
 .urban-bot-bubble.bot {
+  flex: 1;
   background-color: var(--surface, #ffffff);
   color: var(--text, #1f3a30);
   border: 1px solid var(--border, rgba(107, 144, 128, 0.2));
