@@ -91,7 +91,6 @@ const AdminDashboard = () => {
       value: stats.totalUsers,
       sub: `${stats.activeUsers} ${t('admin.statCards.active', 'active')}`,
       color: '#6366f1',
-      bg: 'rgba(99, 102, 241, 0.12)',
     },
     {
       icon: <FaShieldAlt />,
@@ -99,7 +98,6 @@ const AdminDashboard = () => {
       value: stats.totalAdmins,
       sub: t('admin.statCards.platformAdmins', 'Platform admins'),
       color: '#8b5cf6',
-      bg: 'rgba(139, 92, 246, 0.12)',
     },
     {
       icon: <FaTree />,
@@ -107,7 +105,6 @@ const AdminDashboard = () => {
       value: stats.totalGardens,
       sub: t('admin.statCards.acrossUsers', 'Across all users'),
       color: '#10b981',
-      bg: 'rgba(16, 185, 129, 0.12)',
     },
     {
       icon: <FaSeedling />,
@@ -115,7 +112,6 @@ const AdminDashboard = () => {
       value: stats.totalPlants,
       sub: `${stats.plantHealth?.healthy || 0} ${t('admin.statCards.healthy', 'healthy')}`,
       color: '#14b8a6',
-      bg: 'rgba(20, 184, 166, 0.12)',
     },
     {
       icon: <FaComments />,
@@ -123,7 +119,6 @@ const AdminDashboard = () => {
       value: stats.totalPosts,
       sub: t('admin.statCards.publishedPosts', 'Published posts'),
       color: '#3b82f6',
-      bg: 'rgba(59, 130, 246, 0.12)',
     },
     {
       icon: <FaFlag />,
@@ -131,7 +126,6 @@ const AdminDashboard = () => {
       value: stats.flaggedPosts,
       sub: t('admin.statCards.needsReview', 'Needs review'),
       color: stats.flaggedPosts > 0 ? '#ef4444' : '#10b981',
-      bg: stats.flaggedPosts > 0 ? 'rgba(239, 68, 68, 0.12)' : 'rgba(16, 185, 129, 0.12)',
     },
   ];
 
@@ -161,7 +155,7 @@ const AdminDashboard = () => {
       <div className="admin-stats-grid">
         {statCards.map((stat, idx) => (
           <div key={idx} className="admin-stat-card">
-            <div className="stat-icon-box" style={{ background: stat.bg, color: stat.color }}>
+            <div className="stat-icon-box" style={{ color: stat.color }}>
               {stat.icon}
             </div>
             <div className="stat-content">

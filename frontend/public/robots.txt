@@ -1,0 +1,20 @@
+# UrbanFarm Assistant robots.txt
+User-agent: *
+Allow: /
+Allow: /app/diagnosis
+Allow: /app/watering
+Allow: /app/gardens
+Allow: /app/crops
+Allow: /app/community
+Allow: /contact
+Allow: /faq
+Allow: /login
+Allow: /register
+
+# Disallow private admin portals and internal API endpoints
+Disallow: /admin/
+Disallow: /api/admin/
+Disallow: /api/chat/
+
+# Sitemap location
+Sitemap: https://urbanfarm.baraiyavishalbhai32.workers.dev/sitemap.xml

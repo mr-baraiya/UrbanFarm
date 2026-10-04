@@ -95,10 +95,97 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Favicon handler to avoid 500 error on browser requests
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
+// SEO Robots.txt Endpoint
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain');
+  res.send(`# UrbanFarm Assistant robots.txt
+User-agent: *
+Allow: /
+Allow: /app/diagnosis
+Allow: /app/watering
+Allow: /app/gardens
+Allow: /app/crops
+Allow: /app/community
+Allow: /contact
+Allow: /faq
+Allow: /login
+Allow: /register
+
+Disallow: /admin/
+Disallow: /api/admin/
+Disallow: /api/chat/
+
+Sitemap: https://urbanfarm.baraiyavishalbhai32.workers.dev/sitemap.xml`);
+});
+
+// SEO Sitemap.xml Endpoint
+app.get('/sitemap.xml', (req, res) => {
+  res.type('application/xml');
+  res.send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/</loc>
+    <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/app/diagnosis</loc>
+    <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/app/watering</loc>
+    <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/app/gardens</loc>
+    <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/app/crops</loc>
+    <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/app/community</loc>
+    <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/contact</loc>
+    <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/faq</loc>
+    <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+</urlset>`);
+});
+
 // Database connection middleware for Serverless (Vercel) & local
 app.use(async (req, res, next) => {
-  // Allow health checks, root, favicon, and OPTIONS without waiting on DB if DB is down
-  if (req.method === 'OPTIONS' || req.path === '/health' || req.path === '/' || req.path === '/favicon.ico') {
+  // Allow health checks, root, favicon, sitemap, robots, and OPTIONS without waiting on DB if DB is down
+  if (
+    req.method === 'OPTIONS' ||
+    req.path === '/health' ||
+    req.path === '/' ||
+    req.path === '/favicon.ico' ||
+    req.path === '/robots.txt' ||
+    req.path === '/sitemap.xml'
+  ) {
     return next();
   }
   try {

@@ -13,10 +13,11 @@ import {
   FaStar,
 } from 'react-icons/fa';
 import { useAuth } from '../../hooks/useAuth';
+import SEO from '../../components/SEO/SEO';
 import './LandingPage.css';
 
 const LandingPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('diagnosis');
 
@@ -74,6 +75,12 @@ const LandingPage = () => {
 
   return (
     <div className="landing-page">
+      <SEO
+        title={t('landing.heroTitle', 'UrbanFarm – Next-Gen Smart Urban Agriculture & AI Plant Guide')}
+        description={t('landing.heroSubtitle', 'Manage your urban garden with AI-powered plant disease detection, weather-based smart watering, and urban crop recommendations.')}
+        keywords="urban farming, AI plant diagnosis, smart watering, garden tracker, plant disease detection, urban crops, balcony farming, organic agriculture"
+        lang={i18n.language}
+      />
       {/* Hero Section */}
       <section className="landing-hero">
         <div className="hero-container">
