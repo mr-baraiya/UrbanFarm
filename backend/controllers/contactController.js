@@ -99,13 +99,17 @@ exports.updateContactLead = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Lead record not found' });
     }
 
-    await AdminLog.create({
-      adminId: req.user.id,
-      action: 'update_contact_lead',
-      targetType: 'contact_lead',
-      targetId: lead._id,
-      details: updateData,
-    });
+    try {
+      await AdminLog.create({
+        adminId: req.user.id,
+        action: 'update_contact_lead',
+        targetType: 'contact_lead',
+        targetId: lead._id,
+        details: updateData,
+      });
+    } catch (logErr) {
+      console.error('AdminLog creation warning (update_contact_lead):', logErr.message);
+    }
 
     res.status(200).json({ success: true, lead });
   } catch (error) {
@@ -123,13 +127,17 @@ exports.deleteContactLead = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Lead record not found' });
     }
 
-    await AdminLog.create({
-      adminId: req.user.id,
-      action: 'delete_contact_lead',
-      targetType: 'contact_lead',
-      targetId: req.params.id,
-      details: { email: lead.email, subject: lead.subject },
-    });
+    try {
+      await AdminLog.create({
+        adminId: req.user.id,
+        action: 'delete_contact_lead',
+        targetType: 'contact_lead',
+        targetId: req.params.id,
+        details: { email: lead.email, subject: lead.subject },
+      });
+    } catch (logErr) {
+      console.error('AdminLog creation warning (delete_contact_lead):', logErr.message);
+    }
 
     res.status(200).json({ success: true, message: 'Contact lead deleted' });
   } catch (error) {
@@ -154,13 +162,18 @@ exports.createContactLead = async (req, res, next) => {
       message,
       status: status || 'new',
     });
-    await AdminLog.create({
-      adminId: req.user.id,
-      action: 'create_contact_lead',
-      targetType: 'contact_lead',
-      targetId: lead._id,
-      details: { name: lead.name, email: lead.email, subject: lead.subject },
-    });
+    try {
+      await AdminLog.create({
+        adminId: req.user.id,
+        action: 'create_contact_lead',
+        targetType: 'contact_lead',
+        targetId: lead._id,
+        details: { name: lead.name, email: lead.email, subject: lead.subject },
+      });
+    } catch (logErr) {
+      console.error('AdminLog creation warning (create_contact_lead):', logErr.message);
+    }
+
     res.status(201).json({ success: true, lead });
   } catch (error) {
     next(error);

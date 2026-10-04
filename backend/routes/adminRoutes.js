@@ -22,6 +22,7 @@ const {
   moderatePost,
   getAdminLogs,
   exportCSVData,
+  exportSystemBundle,
 } = require('../controllers/adminController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
@@ -34,6 +35,14 @@ const {
 
 // All admin routes require authentication + admin role
 router.use(protect, admin);
+
+// Disable HTTP caching for all dynamic admin routes
+router.use((req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  next();
+});
 
 router.get('/stats', getAdminStats);
 
@@ -69,6 +78,7 @@ router.delete('/leads/:id', deleteContactLead);
 
 // Logs & CSV Export
 router.get('/logs', getAdminLogs);
+router.get('/export/bundle', exportSystemBundle);
 router.get('/export/:type', exportCSVData);
 
 module.exports = router;

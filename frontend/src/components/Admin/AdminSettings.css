@@ -65,3 +65,169 @@
 .backup-actions {
   margin-top: 1.25rem;
 }
+
+/* Language Settings Controls */
+.language-selector-group {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.settings-field-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.15rem;
+}
+
+/* Language quick toggle cards */
+.language-pill-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.75rem;
+}
+
+.language-pill-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.85rem 0.75rem;
+  border-radius: var(--radius-sm, 10px);
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: all var(--transition, 0.2s ease);
+  position: relative;
+  text-align: center;
+}
+
+.language-pill-btn:hover {
+  border-color: var(--primary);
+  background: var(--surface-strong);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(107, 144, 128, 0.12);
+}
+
+.language-pill-btn.active {
+  border-color: var(--primary);
+  background: rgba(107, 144, 128, 0.14);
+  color: var(--primary-dark, var(--text));
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(107, 144, 128, 0.18);
+}
+
+.language-pill-btn .lang-native {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.language-pill-btn .lang-label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.language-pill-btn.active .lang-native {
+  color: var(--primary);
+}
+
+.language-pill-btn .lang-check-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 0.85rem;
+  color: var(--primary);
+}
+
+/* Full System Bundle & Individual Exports */
+.full-bundle-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  padding: 0.85rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm, 8px);
+  background-color: var(--primary, #2d6a4f);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(45, 106, 79, 0.25);
+  transition: all var(--transition, 0.2s ease);
+}
+
+.full-bundle-btn:hover:not(:disabled) {
+  background-color: var(--primary-dark, #1b4332);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(45, 106, 79, 0.35);
+}
+
+.full-bundle-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.individual-exports-section {
+  margin-top: 1.4rem;
+  padding-top: 1.15rem;
+  border-top: 1px dashed var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.individual-exports-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.individual-exports-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.65rem;
+}
+
+.individual-export-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-sm, 6px);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition, 0.2s ease);
+}
+
+.individual-export-btn:hover:not(:disabled) {
+  border-color: var(--primary);
+  background: var(--surface-strong);
+  color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(107, 144, 128, 0.15);
+}
+
+.individual-export-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+

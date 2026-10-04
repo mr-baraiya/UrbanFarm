@@ -3,6 +3,8 @@ const Garden = require('../models/Garden');
 const Plant = require('../models/Plant');
 const CommunityPost = require('../models/CommunityPost');
 const AdminLog = require('../models/AdminLog');
+const ContactLead = require('../models/ContactLead');
+const { ZipArchive } = require('archiver');
 
 // @desc    Get system overview stats (admin)
 // @route   GET /api/admin/stats
@@ -620,51 +622,130 @@ exports.getAdminLogs = async (req, res, next) => {
   }
 };
 
+// Helper to escape CSV cell values safely
+const escapeCSV = (val) => {
+  if (val === null || val === undefined) return '""';
+  const str = String(val).replace(/"/g, '""');
+  return `"${str}"`;
+};
+
+// Helper to generate CSV data and metadata for each model
+const getCSVForType = async (type) => {
+  if (type === 'users') {
+    const users = await User.find().select('-password').sort({ createdAt: -1 });
+    let csvData = 'ID,Name,Email,Role,Active,GardeningLevel,CreatedAt\n';
+    users.forEach((u) => {
+      csvData += `${escapeCSV(u._id)},${escapeCSV(u.name)},${escapeCSV(u.email)},${escapeCSV(u.role)},${escapeCSV(u.isActive)},${escapeCSV(u.gardeningLevel)},${escapeCSV(u.createdAt)}\n`;
+    });
+    return { filename: 'urbanfarm_users_export.csv', data: csvData, count: users.length };
+  } else if (type === 'gardens') {
+    const gardens = await Garden.find().populate('userId', 'email').sort({ createdAt: -1 });
+    let csvData = 'ID,GardenName,OwnerEmail,Location,Size,PlantCount,CreatedAt\n';
+    gardens.forEach((g) => {
+      const owner = g.userId?.email || 'N/A';
+      csvData += `${escapeCSV(g._id)},${escapeCSV(g.name)},${escapeCSV(owner)},${escapeCSV(g.location || '')},${escapeCSV(g.size || 0)},${escapeCSV(g.plants?.length || 0)},${escapeCSV(g.createdAt)}\n`;
+    });
+    return { filename: 'urbanfarm_gardens_export.csv', data: csvData, count: gardens.length };
+  } else if (type === 'plants') {
+    const plants = await Plant.find().populate('userId', 'email').populate('gardenId', 'name').sort({ createdAt: -1 });
+    let csvData = 'ID,PlantName,ScientificName,GardenName,OwnerEmail,Health,Status,CreatedAt\n';
+    plants.forEach((p) => {
+      const owner = p.userId?.email || 'N/A';
+      const gName = p.gardenId?.name || 'N/A';
+      csvData += `${escapeCSV(p._id)},${escapeCSV(p.name)},${escapeCSV(p.scientificName || '')},${escapeCSV(gName)},${escapeCSV(owner)},${escapeCSV(p.health)},${escapeCSV(p.status)},${escapeCSV(p.createdAt)}\n`;
+    });
+    return { filename: 'urbanfarm_plants_export.csv', data: csvData, count: plants.length };
+  } else if (type === 'posts') {
+    const posts = await CommunityPost.find().populate('userId', 'email').sort({ createdAt: -1 });
+    let csvData = 'ID,Title,Category,AuthorEmail,IsApproved,IsFlagged,LikesCount,CommentsCount,CreatedAt\n';
+    posts.forEach((p) => {
+      const author = p.userId?.email || 'N/A';
+      csvData += `${escapeCSV(p._id)},${escapeCSV(p.title || '')},${escapeCSV(p.category)},${escapeCSV(author)},${escapeCSV(p.isApproved)},${escapeCSV(p.isFlagged)},${escapeCSV(p.likes?.length || 0)},${escapeCSV(p.comments?.length || 0)},${escapeCSV(p.createdAt)}\n`;
+    });
+    return { filename: 'urbanfarm_community_posts_export.csv', data: csvData, count: posts.length };
+  } else if (type === 'logs') {
+    const logs = await AdminLog.find().populate('adminId', 'email').sort({ createdAt: -1 });
+    let csvData = 'ID,AdminEmail,Action,TargetType,TargetID,CreatedAt\n';
+    logs.forEach((l) => {
+      const adminEmail = l.adminId?.email || 'System';
+      csvData += `${escapeCSV(l._id)},${escapeCSV(adminEmail)},${escapeCSV(l.action)},${escapeCSV(l.targetType)},${escapeCSV(l.targetId || '')},${escapeCSV(l.createdAt)}\n`;
+    });
+    return { filename: 'urbanfarm_audit_logs_export.csv', data: csvData, count: logs.length };
+  } else if (type === 'leads') {
+    const leads = await ContactLead.find().sort({ createdAt: -1 });
+    let csvData = 'ID,Name,Email,Phone,Subject,Status,Notes,CreatedAt\n';
+    leads.forEach((l) => {
+      csvData += `${escapeCSV(l._id)},${escapeCSV(l.name)},${escapeCSV(l.email)},${escapeCSV(l.phone || '')},${escapeCSV(l.subject)},${escapeCSV(l.status)},${escapeCSV(l.notes || '')},${escapeCSV(l.createdAt)}\n`;
+    });
+    return { filename: 'urbanfarm_guest_leads_export.csv', data: csvData, count: leads.length };
+  }
+  return null;
+};
+
+// @desc    Export full system bundle as ZIP (all CSVs + JSON manifest)
+// @route   GET /api/admin/export/bundle
+exports.exportSystemBundle = async (req, res, next) => {
+  try {
+    const timestamp = new Date().toISOString().slice(0, 10);
+    const zipFilename = `urbanfarm_full_system_backup_${timestamp}.zip`;
+    const archive = new ZipArchive({ zlib: { level: 9 } });
+
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="${zipFilename}"`);
+    res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+
+    archive.pipe(res);
+
+    const types = ['users', 'gardens', 'plants', 'posts', 'logs', 'leads'];
+    const summaryCounts = {};
+
+    for (const t of types) {
+      const result = await getCSVForType(t);
+      if (result) {
+        archive.append(result.data, { name: result.filename });
+        summaryCounts[t] = result.count;
+      }
+    }
+
+    const manifest = {
+      platform: 'UrbanFarm Assistant',
+      exportedAt: new Date().toISOString(),
+      exportedBy: req.user?.email || 'admin',
+      totalTables: types.length,
+      records: summaryCounts,
+    };
+    archive.append(JSON.stringify(manifest, null, 2), { name: 'backup_manifest.json' });
+
+    await AdminLog.create({
+      adminId: req.user.id,
+      action: 'export_full_system_bundle',
+      targetType: 'system',
+      details: { format: 'zip', counts: summaryCounts },
+    });
+
+    await archive.finalize();
+  } catch (error) {
+    console.error('Error generating system bundle zip:', error);
+    next(error);
+  }
+};
+
 // @desc    Export system data as CSV (admin)
 // @route   GET /api/admin/export/:type
 exports.exportCSVData = async (req, res, next) => {
   try {
     const { type } = req.params;
-    let csvData = '';
-    let filename = `urbanfarm_${type}_export.csv`;
 
-    if (type === 'users') {
-      const users = await User.find().select('-password').sort({ createdAt: -1 });
-      csvData = 'ID,Name,Email,Role,Active,GardeningLevel,CreatedAt\n';
-      users.forEach((u) => {
-        csvData += `"${u._id}","${u.name}","${u.email}","${u.role}","${u.isActive}","${u.gardeningLevel}","${u.createdAt}"\n`;
+    if (type === 'bundle') {
+      return exports.exportSystemBundle(req, res, next);
+    }
+
+    const result = await getCSVForType(type);
+    if (!result) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid export type. Supported: users, gardens, plants, posts, logs, leads, bundle',
       });
-    } else if (type === 'gardens') {
-      const gardens = await Garden.find().populate('userId', 'email').sort({ createdAt: -1 });
-      csvData = 'ID,GardenName,OwnerEmail,Location,Size,PlantCount,CreatedAt\n';
-      gardens.forEach((g) => {
-        const owner = g.userId?.email || 'N/A';
-        csvData += `"${g._id}","${g.name}","${owner}","${g.location || ''}","${g.size || 0}","${g.plants?.length || 0}","${g.createdAt}"\n`;
-      });
-    } else if (type === 'plants') {
-      const plants = await Plant.find().populate('userId', 'email').populate('gardenId', 'name').sort({ createdAt: -1 });
-      csvData = 'ID,PlantName,ScientificName,GardenName,OwnerEmail,Health,Status,CreatedAt\n';
-      plants.forEach((p) => {
-        const owner = p.userId?.email || 'N/A';
-        const gName = p.gardenId?.name || 'N/A';
-        csvData += `"${p._id}","${p.name}","${p.scientificName || ''}","${gName}","${owner}","${p.health}","${p.status}","${p.createdAt}"\n`;
-      });
-    } else if (type === 'posts') {
-      const posts = await CommunityPost.find().populate('userId', 'email').sort({ createdAt: -1 });
-      csvData = 'ID,Title,Category,AuthorEmail,IsApproved,IsFlagged,LikesCount,CommentsCount,CreatedAt\n';
-      posts.forEach((p) => {
-        const author = p.userId?.email || 'N/A';
-        csvData += `"${p._id}","${p.title.replace(/"/g, '""')}","${p.category}","${author}","${p.isApproved}","${p.isFlagged}","${p.likes?.length || 0}","${p.comments?.length || 0}","${p.createdAt}"\n`;
-      });
-    } else if (type === 'logs') {
-      const logs = await AdminLog.find().populate('adminId', 'email').sort({ createdAt: -1 });
-      csvData = 'ID,AdminEmail,Action,TargetType,TargetID,CreatedAt\n';
-      logs.forEach((l) => {
-        const adminEmail = l.adminId?.email || 'System';
-        csvData += `"${l._id}","${adminEmail}","${l.action}","${l.targetType}","${l.targetId || ''}","${l.createdAt}"\n`;
-      });
-    } else {
-      return res.status(400).json({ success: false, message: 'Invalid export type' });
     }
 
     await AdminLog.create({
@@ -675,9 +756,11 @@ exports.exportCSVData = async (req, res, next) => {
     });
 
     res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.status(200).send(csvData);
+    res.setHeader('Content-Disposition', `attachment; filename="${result.filename}"`);
+    res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+    res.status(200).send(result.data);
   } catch (error) {
     next(error);
   }
-};
+};
+

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import api from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
 import {
@@ -21,6 +22,7 @@ import {
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
@@ -66,56 +68,68 @@ const AdminDashboard = () => {
     }
   };
 
+  const getRoleLabel = (role) => {
+    const r = (role || '').toLowerCase();
+    if (r === 'admin') return t('auth.admin', 'Admin');
+    if (r === 'agronomist') return t('auth.agronomist', 'Agronomist');
+    return t('auth.gardener', 'User');
+  };
+
+  const getCategoryLabel = (cat) => {
+    if (!cat) return '';
+    return t(`community.categories.${cat.toLowerCase()}`, cat);
+  };
+
   if (loading || !stats) {
-    return <div className="admin-loading-spinner">Loading admin dashboard...</div>;
+    return <div className="admin-loading-spinner">{t('admin.loadingDashboard', 'Loading admin dashboard...')}</div>;
   }
 
   const statCards = [
     {
       icon: <FaUsers />,
-      label: 'Total Users',
+      label: t('admin.statCards.totalUsers', 'Total Users'),
       value: stats.totalUsers,
-      sub: `${stats.activeUsers} active`,
+      sub: `${stats.activeUsers} ${t('admin.statCards.active', 'active')}`,
       color: '#6366f1',
       bg: 'rgba(99, 102, 241, 0.12)',
     },
     {
       icon: <FaShieldAlt />,
-      label: 'Admins',
+      label: t('admin.statCards.admins', 'Admins'),
       value: stats.totalAdmins,
-      sub: 'Platform admins',
+      sub: t('admin.statCards.platformAdmins', 'Platform admins'),
       color: '#8b5cf6',
       bg: 'rgba(139, 92, 246, 0.12)',
     },
     {
       icon: <FaTree />,
-      label: 'Total Gardens',
+      label: t('admin.statCards.totalGardens', 'Total Gardens'),
       value: stats.totalGardens,
-      sub: 'Across all users',
+      sub: t('admin.statCards.acrossUsers', 'Across all users'),
       color: '#10b981',
       bg: 'rgba(16, 185, 129, 0.12)',
     },
     {
       icon: <FaSeedling />,
-      label: 'Plants Growing',
+      label: t('admin.statCards.plantsGrowing', 'Plants Growing'),
       value: stats.totalPlants,
-      sub: `${stats.plantHealth?.healthy || 0} healthy`,
+      sub: `${stats.plantHealth?.healthy || 0} ${t('admin.statCards.healthy', 'healthy')}`,
       color: '#14b8a6',
       bg: 'rgba(20, 184, 166, 0.12)',
     },
     {
       icon: <FaComments />,
-      label: 'Community Posts',
+      label: t('admin.statCards.communityPosts', 'Community Posts'),
       value: stats.totalPosts,
-      sub: 'Published posts',
+      sub: t('admin.statCards.publishedPosts', 'Published posts'),
       color: '#3b82f6',
       bg: 'rgba(59, 130, 246, 0.12)',
     },
     {
       icon: <FaFlag />,
-      label: 'Flagged Posts',
+      label: t('admin.statCards.flaggedPosts', 'Flagged Posts'),
       value: stats.flaggedPosts,
-      sub: 'Needs review',
+      sub: t('admin.statCards.needsReview', 'Needs review'),
       color: stats.flaggedPosts > 0 ? '#ef4444' : '#10b981',
       bg: stats.flaggedPosts > 0 ? 'rgba(239, 68, 68, 0.12)' : 'rgba(16, 185, 129, 0.12)',
     },
@@ -125,17 +139,20 @@ const AdminDashboard = () => {
     <div className="admin-dashboard">
       <div className="admin-page-header">
         <div>
-          <h2>Admin Dashboard</h2>
+          <h2>{t('admin.title', 'Admin Dashboard')}</h2>
           <p>
-            Welcome back, <strong>{user?.name}</strong>. Here is your platform overview.
+            {t('admin.welcomeOverview', {
+              name: user?.name || t('admin.adminUser', 'Admin User'),
+              defaultValue: 'Welcome back, {{name}}. Here is your platform overview.',
+            })}
           </p>
         </div>
         <div className="admin-header-actions">
           <button className="admin-btn admin-btn-outline" onClick={() => handleExportCSV('users')}>
-            <FaFileCsv /> Export Users
+            <FaFileCsv /> {t('admin.exportUsers', 'Export Users')}
           </button>
           <button className="admin-btn admin-btn-outline" onClick={() => handleExportCSV('plants')}>
-            <FaFileCsv /> Export Plants
+            <FaFileCsv /> {t('admin.exportPlants', 'Export Plants')}
           </button>
         </div>
       </div>
@@ -159,7 +176,7 @@ const AdminDashboard = () => {
       {/* Plant Health Distribution */}
       <div className="admin-card plant-health-card">
         <div className="admin-card-header">
-          <h3><FaLeaf /> Plant Health Distribution</h3>
+          <h3><FaLeaf /> {t('admin.plantHealth.title', 'Plant Health Distribution')}</h3>
         </div>
         <div className="health-bar-container">
           <div className="health-bar">
@@ -168,17 +185,17 @@ const AdminDashboard = () => {
                 <div
                   className="health-segment healthy"
                   style={{ width: `${(stats.plantHealth.healthy / stats.totalPlants) * 100}%` }}
-                  title={`Healthy: ${stats.plantHealth.healthy}`}
+                  title={`${t('admin.plantHealth.healthy', 'Healthy')}: ${stats.plantHealth.healthy}`}
                 />
                 <div
                   className="health-segment warning"
                   style={{ width: `${(stats.plantHealth.warning / stats.totalPlants) * 100}%` }}
-                  title={`Warning: ${stats.plantHealth.warning}`}
+                  title={`${t('admin.plantHealth.warning', 'Warning')}: ${stats.plantHealth.warning}`}
                 />
                 <div
                   className="health-segment unhealthy"
                   style={{ width: `${(stats.plantHealth.unhealthy / stats.totalPlants) * 100}%` }}
-                  title={`Unhealthy: ${stats.plantHealth.unhealthy}`}
+                  title={`${t('admin.plantHealth.unhealthy', 'Unhealthy')}: ${stats.plantHealth.unhealthy}`}
                 />
               </>
             ) : (
@@ -187,13 +204,13 @@ const AdminDashboard = () => {
           </div>
           <div className="health-legend">
             <span className="legend-item">
-              <FaCheckCircle style={{ color: '#10b981' }} /> Healthy: {stats.plantHealth?.healthy || 0}
+              <FaCheckCircle style={{ color: '#10b981' }} /> {t('admin.plantHealth.healthy', 'Healthy')}: {stats.plantHealth?.healthy || 0}
             </span>
             <span className="legend-item">
-              <FaExclamationTriangle style={{ color: '#f59e0b' }} /> Warning: {stats.plantHealth?.warning || 0}
+              <FaExclamationTriangle style={{ color: '#f59e0b' }} /> {t('admin.plantHealth.warning', 'Warning')}: {stats.plantHealth?.warning || 0}
             </span>
             <span className="legend-item">
-              <FaExclamationTriangle style={{ color: '#ef4444' }} /> Unhealthy: {stats.plantHealth?.unhealthy || 0}
+              <FaExclamationTriangle style={{ color: '#ef4444' }} /> {t('admin.plantHealth.unhealthy', 'Unhealthy')}: {stats.plantHealth?.unhealthy || 0}
             </span>
           </div>
         </div>
@@ -203,13 +220,13 @@ const AdminDashboard = () => {
       <div className="admin-recent-grid">
         <div className="admin-card">
           <div className="admin-card-header">
-            <h3><FaUsers /> Recent Users</h3>
+            <h3><FaUsers /> {t('admin.recentUsers.title', 'Recent Users')}</h3>
             <button className="admin-btn-link" onClick={() => navigate('/admin/users')}>
-              View All <FaArrowRight />
+              {t('admin.recentUsers.viewAll', t('common.viewAll', 'View All'))} <FaArrowRight />
             </button>
           </div>
           {recentUsers.length === 0 ? (
-            <p className="admin-empty-msg">No users registered yet.</p>
+            <p className="admin-empty-msg">{t('admin.recentUsers.empty', 'No users registered yet.')}</p>
           ) : (
             <div className="recent-list">
               {recentUsers.map((u) => (
@@ -219,7 +236,7 @@ const AdminDashboard = () => {
                     <strong>{u.name}</strong>
                     <small>{u.email}</small>
                   </div>
-                  <span className={`role-badge ${u.role}`}>{u.role}</span>
+                  <span className={`role-badge ${u.role}`}>{getRoleLabel(u.role)}</span>
                 </div>
               ))}
             </div>
@@ -228,13 +245,13 @@ const AdminDashboard = () => {
 
         <div className="admin-card">
           <div className="admin-card-header">
-            <h3><FaComments /> Recent Posts</h3>
+            <h3><FaComments /> {t('admin.recentPosts.title', 'Recent Posts')}</h3>
             <button className="admin-btn-link" onClick={() => navigate('/admin/moderation')}>
-              View All <FaArrowRight />
+              {t('admin.recentPosts.viewAll', t('common.viewAll', 'View All'))} <FaArrowRight />
             </button>
           </div>
           {recentPosts.length === 0 ? (
-            <p className="admin-empty-msg">No posts created yet.</p>
+            <p className="admin-empty-msg">{t('admin.recentPosts.empty', 'No posts created yet.')}</p>
           ) : (
             <div className="recent-list">
               {recentPosts.map((p) => (
@@ -250,9 +267,15 @@ const AdminDashboard = () => {
                   </div>
                   <div className="recent-info">
                     <strong>{p.title}</strong>
-                    <small>by {p.userId?.name || 'Anonymous'} · {p.category}</small>
+                    <small>
+                      {t('admin.recentPosts.byAuthor', {
+                        author: p.userId?.name || t('admin.anonymous', 'Anonymous'),
+                        category: getCategoryLabel(p.category),
+                        defaultValue: `by ${p.userId?.name || 'Anonymous'} · ${getCategoryLabel(p.category)}`,
+                      })}
+                    </small>
                   </div>
-                  <span className={`category-badge ${p.category}`}>{p.category}</span>
+                  <span className={`category-badge ${p.category}`}>{getCategoryLabel(p.category)}</span>
                 </div>
               ))}
             </div>
@@ -263,32 +286,32 @@ const AdminDashboard = () => {
       {/* Quick Actions */}
       <div className="admin-card">
         <div className="admin-card-header">
-          <h3><FaChartLine /> Quick Actions</h3>
+          <h3><FaChartLine /> {t('admin.quickActions.title', 'Quick Actions')}</h3>
         </div>
         <div className="quick-actions-grid">
           <button className="quick-action-card" onClick={() => navigate('/admin/users')}>
             <FaUserPlus />
-            <span>Manage Users</span>
+            <span>{t('admin.quickActions.manageUsers', t('navigation.userManagement', 'Manage Users'))}</span>
           </button>
           <button className="quick-action-card" onClick={() => navigate('/admin/gardens')}>
             <FaTree />
-            <span>Gardens & Plants</span>
+            <span>{t('admin.quickActions.gardensPlants', t('navigation.gardensPlants', 'Gardens & Plants'))}</span>
           </button>
           <button className="quick-action-card" onClick={() => navigate('/admin/moderation')}>
             <FaShieldAlt />
-            <span>Moderation Hub</span>
+            <span>{t('admin.quickActions.moderationHub', t('navigation.moderationHub', 'Moderation Hub'))}</span>
           </button>
           <button className="quick-action-card" onClick={() => navigate('/admin/logs')}>
             <FaHistory />
-            <span>Audit Trail</span>
+            <span>{t('admin.quickActions.auditTrail', t('navigation.auditTrail', 'Audit Trail'))}</span>
           </button>
           <button className="quick-action-card" onClick={() => navigate('/admin/settings')}>
             <FaFileCsv />
-            <span>Export & Settings</span>
+            <span>{t('admin.quickActions.settings', t('navigation.systemSettings', 'Export & Settings'))}</span>
           </button>
           <button className="quick-action-card exit" onClick={() => navigate('/app')}>
             <FaLeaf />
-            <span>Switch to Farmer View</span>
+            <span>{t('admin.quickActions.switchFarmer', 'Switch to Farmer View')}</span>
           </button>
         </div>
       </div>
