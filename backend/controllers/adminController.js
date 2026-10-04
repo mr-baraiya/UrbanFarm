@@ -4,7 +4,6 @@ const Plant = require('../models/Plant');
 const CommunityPost = require('../models/CommunityPost');
 const AdminLog = require('../models/AdminLog');
 const ContactLead = require('../models/ContactLead');
-const { ZipArchive } = require('archiver');
 
 // @desc    Get system overview stats (admin)
 // @route   GET /api/admin/stats
@@ -686,6 +685,7 @@ const getCSVForType = async (type) => {
 // @route   GET /api/admin/export/bundle
 exports.exportSystemBundle = async (req, res, next) => {
   try {
+    const { ZipArchive } = await import('archiver');
     const timestamp = new Date().toISOString().slice(0, 10);
     const zipFilename = `urbanfarm_full_system_backup_${timestamp}.zip`;
     const archive = new ZipArchive({ zlib: { level: 9 } });
