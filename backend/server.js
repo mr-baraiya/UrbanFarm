@@ -120,27 +120,50 @@ Sitemap: https://urbanfarm.baraiyavishalbhai32.workers.dev/sitemap.xml`);
 
 // SEO Sitemap.xml Endpoint
 app.get('/sitemap.xml', (req, res) => {
-  res.type('application/xml');
+  res.header('Content-Type', 'application/xml; charset=utf-8');
   res.send(`<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/</loc>
     <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
     <changefreq>daily</changefreq>
-    <priority>1.0</priority>
+    <priority>1.00</priority>
   </url>
   <url>
-    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/app/diagnosis</loc>
+    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/about</loc>
+    <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/features</loc>
+    <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/contact</loc>
+    <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
+  </url>
+  <url>
+    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/faq</loc>
+    <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
+  </url>
+  <url>
+    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/app/diagnose</loc>
     <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.9</priority>
+    <priority>0.90</priority>
   </url>
   <url>
     <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/app/watering</loc>
     <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.9</priority>
+    <priority>0.90</priority>
   </url>
   <url>
     <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/app/gardens</loc>
@@ -158,19 +181,19 @@ app.get('/sitemap.xml', (req, res) => {
     <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/app/community</loc>
     <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+    <priority>0.80</priority>
   </url>
   <url>
-    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/contact</loc>
+    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/login</loc>
     <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.60</priority>
   </url>
   <url>
-    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/faq</loc>
+    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/register</loc>
     <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.60</priority>
   </url>
 </urlset>`);
 });

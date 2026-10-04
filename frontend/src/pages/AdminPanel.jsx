@@ -27,6 +27,7 @@ const AdminPanel = () => {
           <Route path="/moderation" element={<ContentModeration />} />
           <Route path="/leads" element={<AdminGuestLeads />} />
           <Route path="/logs" element={<AdminAuditLogs />} />
+          <Route path="/audit" element={<AdminAuditLogs />} />
           <Route path="/settings" element={<AdminSettings />} />
         </Routes>
       </main>

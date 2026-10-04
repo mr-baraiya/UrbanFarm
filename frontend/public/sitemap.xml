@@ -1,91 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-
-  <!-- Main Homepage -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/</loc>
     <lastmod>2026-10-04</lastmod>
     <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://urbanfarm.baraiyavishalbhai32.workers.dev/?lang=en"/>
-    <xhtml:link rel="alternate" hreflang="hi" href="https://urbanfarm.baraiyavishalbhai32.workers.dev/?lang=hi"/>
-    <xhtml:link rel="alternate" hreflang="gu" href="https://urbanfarm.baraiyavishalbhai32.workers.dev/?lang=gu"/>
+    <priority>1.00</priority>
   </url>
-
-  <!-- AI Plant Disease Diagnosis -->
   <url>
-    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/app/diagnosis</loc>
+    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/about</loc>
+    <lastmod>2026-10-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/features</loc>
+    <lastmod>2026-10-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/contact</loc>
+    <lastmod>2026-10-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
+  </url>
+  <url>
+    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/faq</loc>
+    <lastmod>2026-10-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
+  </url>
+  <url>
+    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/app/diagnose</loc>
     <lastmod>2026-10-04</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://urbanfarm.baraiyavishalbhai32.workers.dev/app/diagnosis?lang=en"/>
-    <xhtml:link rel="alternate" hreflang="hi" href="https://urbanfarm.baraiyavishalbhai32.workers.dev/app/diagnosis?lang=hi"/>
-    <xhtml:link rel="alternate" hreflang="gu" href="https://urbanfarm.baraiyavishalbhai32.workers.dev/app/diagnosis?lang=gu"/>
+    <priority>0.90</priority>
   </url>
-
-  <!-- Smart Watering Schedule -->
   <url>
     <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/app/watering</loc>
     <lastmod>2026-10-04</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.9</priority>
+    <priority>0.90</priority>
   </url>
-
-  <!-- My Gardens & Plant Tracker -->
   <url>
     <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/app/gardens</loc>
     <lastmod>2026-10-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
-
-  <!-- AI Crop Recommendation -->
   <url>
     <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/app/crops</loc>
     <lastmod>2026-10-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
-
-  <!-- Community Hub -->
   <url>
     <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/app/community</loc>
     <lastmod>2026-10-04</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+    <priority>0.80</priority>
   </url>
-
-  <!-- Contact & Support -->
-  <url>
-    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/contact</loc>
-    <lastmod>2026-10-04</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <!-- FAQ -->
-  <url>
-    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/faq</loc>
-    <lastmod>2026-10-04</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <!-- Sign In & Registration -->
   <url>
     <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/login</loc>
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.60</priority>
   </url>
-
   <url>
     <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/register</loc>
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.60</priority>
   </url>
-
 </urlset>

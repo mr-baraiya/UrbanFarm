@@ -6,6 +6,7 @@
 
 const VALID_PLATFORM_ROUTES = [
   '/app/diagnosis',
+  '/app/diagnose',
   '/app/watering',
   '/app/gardens',
   '/app/crops',
@@ -17,11 +18,13 @@ const VALID_PLATFORM_ROUTES = [
   '/admin/moderation',
   '/admin/leads',
   '/admin/audit',
+  '/admin/logs',
   '/admin/settings',
 ];
 
 const PLATFORM_ROUTES = {
   diagnosis: '/app/diagnosis',
+  diagnose: '/app/diagnose',
   watering: '/app/watering',
   gardens: '/app/gardens',
   crops: '/app/crops',
@@ -33,6 +36,7 @@ const PLATFORM_ROUTES = {
   adminModeration: '/admin/moderation',
   adminLeads: '/admin/leads',
   adminAudit: '/admin/audit',
+  adminLogs: '/admin/logs',
   adminSettings: '/admin/settings',
 };
 

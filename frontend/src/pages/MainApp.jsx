@@ -22,6 +22,7 @@ const MainApp = () => {
         <Route path="/plants" element={<Plants />} />
         <Route path="/plants/:id" element={<PlantDetail />} />
         <Route path="/diagnose" element={<DiagnoseTab />} />
+        <Route path="/diagnosis" element={<DiagnoseTab />} />
         <Route path="/crops" element={<CropRecommendation />} />
         <Route path="/watering" element={<WateringTab />} />
         <Route path="/schedule" element={<ScheduleTab />} />
