@@ -73,6 +73,11 @@ export const getDiagnosisHistory = async () => {
   return res.data.diagnoses;
 };
 
+export const getDiagnosisById = async (id) => {
+  const res = await api.get(`/disease/${id}`);
+  return res.data.diagnosis;
+};
+
 // Crop Recommendations
 export const getCropRecommendations = async (data) => {
   const res = await api.post('/crops/recommend', data);

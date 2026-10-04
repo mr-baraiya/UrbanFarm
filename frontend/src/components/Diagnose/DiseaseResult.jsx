@@ -12,17 +12,24 @@ import {
   RiMedicineBottleLine, 
   RiShieldCheckLine, 
   RiSparklingLine,
-  RiCloseLine
+  RiCloseLine,
+  RiFileCopyLine,
+  RiWhatsappLine,
+  RiShareForwardLine,
+  RiQrCodeLine
 } from 'react-icons/ri';
 import { useNotification } from '../../hooks/useNotification';
 import { getConfidenceEmoji } from '../../utils/helpers';
 import { getLocalizedDynamicText } from '../../utils/localizationHelper';
+import { getPublicShareUrl } from '../../utils/shareUtils';
 import './DiseaseResult.css';
 
 const DiseaseResult = ({ result, isHistory, onAddToSchedule, onClose }) => {
   const { t, i18n } = useTranslation();
   const { addNotification } = useNotification();
   const [copied, setCopied] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [showQrCode, setShowQrCode] = useState(false);
   const diseaseNameRaw = result.disease || result.diseaseName || '';
   const descRaw = result.description || '';
   const treatmentRaw = result.treatment || '';
@@ -130,29 +137,17 @@ const DiseaseResult = ({ result, isHistory, onAddToSchedule, onClose }) => {
     ? t('diagnose.categoryHealthy', 'Healthy')
     : getLocalizedDynamicText(diseaseNameRaw || 'General Condition', i18n.language);
 
-  const handleShare = async () => {
-    const shareText = `🌱 UrbanFarm Botanical Diagnosis\nCondition: ${localizedDiseaseName || 'Plant Check'}\nCategory: ${category}\nConfidence: ${Math.round((result.confidence || 0) * 100)}%\n\nTreatment Summary:\n${treatmentSteps.slice(0, 2).map(s => getLocalizedDynamicText(s, i18n.language)).join('\n')}\n\nDiagnosed via Krishi AI: ${window.location.href}`;
+  const reportId = result._id || result.id;
+  const path = reportId ? `/diagnose/report/${reportId}` : '/diagnose';
+  const publicUrl = getPublicShareUrl(path);
 
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `UrbanFarm Diagnosis - ${localizedDiseaseName}`,
-          text: shareText,
-          url: window.location.href,
-        });
-        addNotification(t('diagnose.sharedSuccess', 'Diagnosis shared successfully!'), 'success');
-        return;
-      } catch (err) {
-        if (err.name === 'AbortError') return; // User closed native share dialog
-      }
-    }
-
+  const handleCopyLink = async () => {
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(shareText);
+        await navigator.clipboard.writeText(publicUrl);
       } else {
         const textArea = document.createElement('textarea');
-        textArea.value = shareText;
+        textArea.value = publicUrl;
         textArea.style.position = 'fixed';
         textArea.style.left = '-999999px';
         document.body.appendChild(textArea);
@@ -162,11 +157,37 @@ const DiseaseResult = ({ result, isHistory, onAddToSchedule, onClose }) => {
         document.body.removeChild(textArea);
       }
       setCopied(true);
+      addNotification(t('diagnose.copiedSuccess', 'Diagnosis link copied to clipboard!'), 'success');
+      setShowShareModal(false);
       setTimeout(() => setCopied(false), 2500);
-      addNotification(t('diagnose.copiedSuccess', 'Diagnosis summary copied to clipboard!'), 'success');
     } catch (err) {
-      console.error('Clipboard copy error:', err);
       addNotification(t('diagnose.copyFailed', 'Unable to copy to clipboard'), 'error');
+    }
+  };
+
+  const handleShareWhatsApp = () => {
+    const summaryText = `🌱 UrbanFarm Botanical Diagnosis Report\nCondition: ${localizedDiseaseName || 'Plant Check'}\nCategory: ${category}\nConfidence: ${Math.round((result.confidence || 0) * 100)}%\n\nDiagnosed via Krishi AI:\n${publicUrl}`;
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(summaryText)}`, '_blank');
+    addNotification(t('community.notifications.openingWhatsApp', 'Opening WhatsApp to share...'), 'info');
+    setShowShareModal(false);
+  };
+
+  const handleShareNative = async () => {
+    const summaryText = `🌱 UrbanFarm Botanical Diagnosis Report\nCondition: ${localizedDiseaseName || 'Plant Check'}\nCategory: ${category}\nConfidence: ${Math.round((result.confidence || 0) * 100)}%\n\nDiagnosed via Krishi AI:`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `UrbanFarm Diagnosis Report - ${localizedDiseaseName}`,
+          text: summaryText,
+          url: publicUrl,
+        });
+        addNotification(t('diagnose.sharedSuccess', 'Diagnosis shared successfully!'), 'success');
+        setShowShareModal(false);
+      } catch (err) {
+        // cancelled by user
+      }
+    } else {
+      handleCopyLink();
     }
   };
 
@@ -302,7 +323,7 @@ const DiseaseResult = ({ result, isHistory, onAddToSchedule, onClose }) => {
         <button 
           type="button" 
           className={`btn-secondary report-btn ${copied ? 'copied-btn' : ''}`}
-          onClick={handleShare}
+          onClick={() => { setShowShareModal(true); setShowQrCode(false); }}
           style={copied ? { background: '#2d6a4f', color: '#ffffff', borderColor: '#2d6a4f' } : {}}
         >
           {copied ? (
@@ -312,6 +333,73 @@ const DiseaseResult = ({ result, isHistory, onAddToSchedule, onClose }) => {
           )}
         </button>
       </div>
+
+      {showShareModal && (
+        <div className="share-modal-overlay" onClick={() => setShowShareModal(false)}>
+          <div className="share-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="share-modal-header">
+              <h3>{t('community.card.shareModalTitle', 'Share Diagnosis Report')}</h3>
+              <button className="close-btn" onClick={() => setShowShareModal(false)} aria-label="Close">
+                <RiCloseLine />
+              </button>
+            </div>
+
+            <div className="share-modal-body">
+              <p className="share-post-preview-title">
+                {localizedDiseaseName} ({category})
+              </p>
+
+              {!showQrCode ? (
+                <div className="share-options-grid">
+                  <button className="share-option-btn" onClick={handleCopyLink}>
+                    <div className="share-option-icon icon-copy">
+                      <RiFileCopyLine />
+                    </div>
+                    <span>{t('community.card.copyLink', 'Copy Link')}</span>
+                  </button>
+
+                  <button className="share-option-btn" onClick={handleShareWhatsApp}>
+                    <div className="share-option-icon icon-whatsapp">
+                      <RiWhatsappLine />
+                    </div>
+                    <span>{t('community.card.whatsApp', 'WhatsApp')}</span>
+                  </button>
+
+                  <button className="share-option-btn" onClick={handleShareNative}>
+                    <div className="share-option-icon icon-apps">
+                      <RiShareForwardLine />
+                    </div>
+                    <span>{t('community.card.otherApps', 'Other Apps')}</span>
+                  </button>
+
+                  <button className="share-option-btn" onClick={() => setShowQrCode(true)}>
+                    <div className="share-option-icon icon-qr">
+                      <RiQrCodeLine />
+                    </div>
+                    <span>{t('community.card.qrCode', 'QR Code')}</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="qr-code-container" style={{ textAlign: 'center', padding: '1rem 0' }}>
+                  <p className="qr-sub" style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1rem' }}>
+                    {t('community.card.scanQrCode', 'Scan QR Code to view this diagnosis report')}
+                  </p>
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(publicUrl)}&color=2c5e3b&bgcolor=ffffff`} 
+                    alt="Report QR Code"
+                    style={{ width: '180px', height: '180px', borderRadius: '12px', border: '1px solid #e2e8f0' }}
+                  />
+                  <div style={{ marginTop: '1rem' }}>
+                    <button className="btn-secondary" onClick={() => setShowQrCode(false)} style={{ padding: '0.35rem 1rem', fontSize: '0.85rem' }}>
+                      Back to Share Options
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Additional info */}
       {result.scientificName && (

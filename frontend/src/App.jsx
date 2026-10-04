@@ -25,6 +25,8 @@ import { useAuth } from "./hooks/useAuth";
 
 import PlantDetail from "./components/Plants/PlantDetail";
 import CommunityTab from "./components/Community/CommunityTab";
+import DiagnoseTab from "./components/Diagnose/DiagnoseTab";
+import PublicDiagnosisReport from "./pages/Guest/PublicDiagnosisReport";
 import Layout from "./components/Layout/Layout";
 import GuestNavbar from "./components/Guest/GuestNavbar";
 import GuestFooter from "./components/Guest/GuestFooter";
@@ -141,6 +143,34 @@ function App() {
             )
           }
         />
+
+        {/* Public Dedicated Plant Diagnosis Report Routes */}
+        <Route path="/diagnose/report/:id" element={<PublicDiagnosisReport />} />
+        <Route path="/app/diagnose/report/:id" element={<PublicDiagnosisReport />} />
+        <Route path="/diagnosis/report/:id" element={<PublicDiagnosisReport />} />
+
+        {/* Public Plant Diagnosis Tool Routes */}
+        {['/diagnose', '/app/diagnose', '/diagnosis', '/app/diagnosis'].map((path) => (
+          <Route
+            key={path}
+            path={path}
+            element={
+              user ? (
+                <Layout>
+                  <DiagnoseTab />
+                </Layout>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'var(--background)', color: 'var(--text)' }}>
+                  <GuestNavbar />
+                  <main style={{ flex: 1, padding: '2rem 1.25rem', maxWidth: '1200px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
+                    <DiagnoseTab />
+                  </main>
+                  <GuestFooter />
+                </div>
+              )
+            }
+          />
+        ))}
 
         {/* Auth Routes */}
         <Route
