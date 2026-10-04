@@ -242,43 +242,6 @@
   flex-shrink: 0;
 }
 
-/* Language selector pills inside header */
-.bot-header-lang-pills {
-  display: inline-flex;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.25);
-  border-radius: 20px;
-  padding: 2px;
-  gap: 2px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  margin-right: 0.15rem;
-}
-
-.bot-lang-pill {
-  background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 0.68rem;
-  font-weight: 600;
-  padding: 3px 6px;
-  border-radius: 14px;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  line-height: 1.1;
-  outline: none;
-}
-
-.bot-lang-pill:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.18);
-}
-
-.bot-lang-pill.active {
-  background: #ffffff;
-  color: #1b4332;
-  font-weight: 700;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
-}
 
 .bot-icon-btn {
   background: rgba(255, 255, 255, 0.12);

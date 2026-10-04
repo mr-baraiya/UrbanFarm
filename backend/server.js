@@ -92,10 +92,13 @@ app.options('*', (req, res) => {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Favicon handler to avoid 500 error on browser requests
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+
 // Database connection middleware for Serverless (Vercel) & local
 app.use(async (req, res, next) => {
-  // Allow health checks, root, and OPTIONS without waiting on DB if DB is down
-  if (req.method === 'OPTIONS' || req.path === '/health' || req.path === '/') {
+  // Allow health checks, root, favicon, and OPTIONS without waiting on DB if DB is down
+  if (req.method === 'OPTIONS' || req.path === '/health' || req.path === '/' || req.path === '/favicon.ico') {
     return next();
   }
   try {
@@ -105,7 +108,7 @@ app.use(async (req, res, next) => {
     console.error('Database connection error in request middleware:', error.message);
     res.status(500).json({
       success: false,
-      message: 'Database connection failed. Please check MONGO_URI configuration.',
+      message: 'Database connection failed. Please check MONGO_URI configuration in Vercel environment variables.',
       error: error.message
     });
   }

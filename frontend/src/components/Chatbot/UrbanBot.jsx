@@ -286,15 +286,6 @@ const UrbanBot = () => {
   const utteranceRef = useRef(null);
   const latestTranscriptRef = useRef('');
 
-  // Switch language directly from within the chatbot
-  const handleSwitchLanguage = (newLangCode) => {
-    if (newLangCode === currentLang) return;
-    stopSpeaking();
-    stopListening();
-    i18n.changeLanguage(newLangCode);
-    localStorage.setItem('language', newLangCode);
-    document.documentElement.lang = newLangCode;
-  };
 
   // Dedicated helper to cancel active voice recognition cleanly
   const stopListening = () => {
@@ -952,26 +943,6 @@ const UrbanBot = () => {
             </div>
 
             <div className="bot-header-controls">
-              {/* Language Selector Pills inside Chatbot Header */}
-              <div className="bot-header-lang-pills" role="radiogroup" aria-label="Select chat language">
-                {[
-                  { code: 'en', label: 'EN', title: 'English' },
-                  { code: 'gu', label: 'ગુજ', title: 'ગુજરાતી (Gujarati)' },
-                  { code: 'hi', label: 'हिं', title: 'हिन्दी (Hindi)' },
-                ].map((item) => (
-                  <button
-                    key={item.code}
-                    type="button"
-                    className={`bot-lang-pill ${currentLang === item.code ? 'active' : ''}`}
-                    onClick={() => handleSwitchLanguage(item.code)}
-                    title={`Switch chat language to ${item.title}`}
-                    aria-label={`Switch chat language to ${item.title}`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-
               <button
                 type="button"
                 className={`bot-icon-btn ${soundEnabled ? 'active-sound' : 'muted-sound'}`}
