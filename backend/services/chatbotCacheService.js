@@ -3,7 +3,8 @@
  * Tracks request metrics, latency, intent frequency, cache hits, and user feedback.
  */
 
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID } = require('crypto');
+const uuidv4 = () => randomUUID();
 
 // In-memory cache map: key -> { data, expiresAt }
 const responseCache = new Map();
