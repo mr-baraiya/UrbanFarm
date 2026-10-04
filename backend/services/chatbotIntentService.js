@@ -197,18 +197,14 @@ function detectIntent(text, language = 'en', history = []) {
   }
 
   if (maxScore < 2) {
-    // If user text is completely outside agriculture and UrbanFarm
-    if (lower.match(/(movie|cricket|song|football|politics|bitcoin|crypto|fashion|car|finance)/i)) {
-      return {
-        intent: 'unknown',
-        confidence: 0.9,
-        route: PLATFORM_ROUTES.diagnosis,
-        quickActions: [
-          { label: lang === 'gu' ? 'કૃષિ સેવાઓ' : lang === 'hi' ? 'कृषि सेवाएं' : 'Farming Services', path: PLATFORM_ROUTES.diagnosis }
-        ]
-      };
+    // Check if user query is out of agricultural & farming domain
+    const isOutOfTopic = lower.match(/(movie|cricket|song|football|game|gaming|politics|bitcoin|crypto|fashion|car|bike|finance|stock|python|java|coding|code|program|math|physics|chemistry|history|actor|actress|ipl|match|singer|song|film|joke|relationship|president|election)/i);
+
+    if (isOutOfTopic || !isFollowUp) {
+      topIntent = 'unknown';
+    } else {
+      topIntent = 'general';
     }
-    topIntent = 'general';
   }
 
   // Map intent to route and quick actions
