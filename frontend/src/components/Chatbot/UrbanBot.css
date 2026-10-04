@@ -292,17 +292,20 @@
   flex: 1;
   padding: 1rem;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
   background-color: var(--background, #f9faf9);
+  scrollbar-width: thin;
 }
 
 .urban-bot-message-row {
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
-  max-width: 90%;
+  max-width: 88%;
+  min-width: 0;
   animation: bot-msg-fade 0.2s ease;
 }
 
@@ -347,6 +350,9 @@
   line-height: 1.5;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   word-break: break-word;
+  overflow-wrap: break-word;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .urban-bot-bubble.user {
@@ -383,14 +389,28 @@
 /* Quick Action Chips inside bot message */
 .msg-action-chips {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  min-width: 0;
+  max-width: 100%;
   gap: 0.4rem;
   margin-top: 0.65rem;
   padding-top: 0.5rem;
+  padding-bottom: 0.2rem;
   border-top: 1px dashed var(--border, rgba(107, 144, 128, 0.25));
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.msg-action-chips::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 .msg-action-btn {
+  flex-shrink: 0;
+  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -527,11 +547,25 @@
 
 .msg-followup-chips {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  min-width: 0;
+  max-width: 100%;
   gap: 0.35rem;
+  padding-bottom: 0.2rem;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.msg-followup-chips::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 .msg-followup-chip {
+  flex-shrink: 0;
+  white-space: nowrap;
   background: rgba(45, 106, 79, 0.08);
   border: 1px solid rgba(45, 106, 79, 0.22);
   color: var(--primary, #2d6a4f);
@@ -623,10 +657,13 @@
   background-color: var(--surface, #ffffff);
   border-top: 1px solid var(--border, rgba(107, 144, 128, 0.15));
   scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .urban-bot-chips-bar::-webkit-scrollbar {
-  display: none;
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 .urban-bot-chip {

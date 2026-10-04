@@ -279,6 +279,7 @@ const UrbanBot = () => {
   const [copiedMsgId, setCopiedMsgId] = useState(null);
   const [failedMessage, setFailedMessage] = useState(null);
   const [speechError, setSpeechError] = useState(null);
+  const [dynamicChips, setDynamicChips] = useState(null);
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -832,6 +833,13 @@ const UrbanBot = () => {
 
       setMessages((prev) => [...prev, botReply]);
 
+      // Update bottom chips bar with dynamic follow-up suggestions from this response
+      if (botReply.followUpSuggestions && botReply.followUpSuggestions.length > 0) {
+        setDynamicChips(
+          botReply.followUpSuggestions.map((sug) => ({ label: sug, query: sug }))
+        );
+      }
+
       if (soundEnabled) {
         speakText(botReply.text, botReply.id);
       }
@@ -862,11 +870,12 @@ const UrbanBot = () => {
     stopSpeaking();
     sessionStorage.removeItem('urbanfarm_chatbot_history');
     setFailedMessage(null);
+    setDynamicChips(null);
     setMessages([createInitialGreeting(currentLang)]);
   };
 
-  const currentChips =
-    quickSuggestions[currentLang] || quickSuggestions.en;
+  // Use dynamic follow-up chips after a bot response, else fall back to static defaults
+  const currentChips = dynamicChips || (quickSuggestions[currentLang] || quickSuggestions.en);
 
   const renderMessageContent = (text) => {
     const parts = text.split('\n');
@@ -1016,33 +1025,9 @@ const UrbanBot = () => {
                             }
                           }}
                         >
-                          <FaExternalLinkAlt className="action-link-icon" />
                           <span>{act.label}</span>
                         </button>
                       ))}
-                    </div>
-                  )}
-
-                  {/* Follow-up Suggestions Chips */}
-                  {msg.followUpSuggestions && msg.followUpSuggestions.length > 0 && (
-                    <div className="msg-followup-container">
-                      <div className="msg-followup-title">
-                        <FaSeedling className="followup-leaf-icon" />
-                        <span>{t('chatbot.suggestedQuestions', 'Suggested questions:')}</span>
-                      </div>
-                      <div className="msg-followup-chips">
-                        {msg.followUpSuggestions.map((sug, sIdx) => (
-                          <button
-                            key={sIdx}
-                            type="button"
-                            className="msg-followup-chip"
-                            onClick={() => handleSendMessage(sug)}
-                            disabled={loading}
-                          >
-                            <span>{sug}</span>
-                          </button>
-                        ))}
-                      </div>
                     </div>
                   )}
 
@@ -1155,7 +1140,6 @@ const UrbanBot = () => {
                 onClick={() => handleSendMessage(chip.query)}
                 disabled={loading}
               >
-                <span className="chip-emoji">{chip.icon || '🌱'}</span>
                 <span>{chip.label}</span>
               </button>
             ))}

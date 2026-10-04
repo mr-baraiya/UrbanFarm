@@ -1789,7 +1789,8 @@
       "exportPlants": "Plants",
       "exportPosts": "Community Posts",
       "exportLogs": "Audit Logs",
-      "exportLeads": "Guest Leads"
+      "exportLeads": "Guest Leads",
+      "exportChatlogs": "Chatbot Logs"
     },
     "pagination": {
       "rowsPerPage": "Rows per page:",

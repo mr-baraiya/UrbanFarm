@@ -1,5 +1,6 @@
 const chatbotService = require('../services/chatbotService');
 const { recordFeedback: saveFeedback, getAnalyticsSummary } = require('../services/chatbotCacheService');
+const ChatLog = require('../models/ChatLog');
 
 // @desc    Send a message to Krishi AI Chatbot Assistant
 // @route   POST /api/chat/message
@@ -43,11 +44,36 @@ exports.sendMessage = async (req, res, next) => {
         }))
       : [];
 
+    const userContext = {
+      role: req.user?.role || 'guest',
+      name: req.user?.name || null,
+    };
+
+    const startTime = Date.now();
     const result = await chatbotService.generateChatbotResponse(
       trimmed,
       lang,
-      sanitizedHistory
+      sanitizedHistory,
+      userContext
     );
+    const latencyMs = Date.now() - startTime;
+
+    // Persist conversation log to DB (non-blocking — fire & forget)
+    ChatLog.create({
+      userId: req.user?._id || null,
+      language: lang,
+      userMessage: trimmed,
+      botReply: result.text,
+      intent: result.intent || 'general',
+      source: result.source || 'gemini',
+      confidence: result.confidence || null,
+      latencyMs,
+      followUpSuggestions: result.followUpSuggestions || [],
+      ipAddress: req.ip || req.headers['x-forwarded-for'] || null,
+      userAgent: req.headers['user-agent'] ? req.headers['user-agent'].slice(0, 200) : null,
+    }).catch((err) => {
+      console.warn('[ChatLog] DB save failed (non-critical):', err.message);
+    });
 
     res.status(200).json({
       success: true,
@@ -65,6 +91,7 @@ exports.sendMessage = async (req, res, next) => {
     next(error);
   }
 };
+
 
 // @desc    Record user feedback (thumbs up / thumbs down) for AI responses
 // @route   POST /api/chat/feedback

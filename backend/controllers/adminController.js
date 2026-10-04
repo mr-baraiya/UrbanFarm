@@ -4,6 +4,7 @@ const Plant = require('../models/Plant');
 const CommunityPost = require('../models/CommunityPost');
 const AdminLog = require('../models/AdminLog');
 const ContactLead = require('../models/ContactLead');
+const ChatLog = require('../models/ChatLog');
 
 // @desc    Get system overview stats (admin)
 // @route   GET /api/admin/stats
@@ -677,6 +678,13 @@ const getCSVForType = async (type) => {
       csvData += `${escapeCSV(l._id)},${escapeCSV(l.name)},${escapeCSV(l.email)},${escapeCSV(l.phone || '')},${escapeCSV(l.subject)},${escapeCSV(l.status)},${escapeCSV(l.notes || '')},${escapeCSV(l.createdAt)}\n`;
     });
     return { filename: 'urbanfarm_guest_leads_export.csv', data: csvData, count: leads.length };
+  } else if (type === 'chatlogs') {
+    const logs = await ChatLog.find().sort({ createdAt: -1 }).limit(10000);
+    let csvData = 'ID,Language,Intent,Source,UserMessage,BotReply,LatencyMs,UserId,IP,CreatedAt\n';
+    logs.forEach((l) => {
+      csvData += `${escapeCSV(l._id)},${escapeCSV(l.language)},${escapeCSV(l.intent)},${escapeCSV(l.source)},${escapeCSV(l.userMessage)},${escapeCSV(l.botReply)},${escapeCSV(l.latencyMs || '')},${escapeCSV(l.userId || 'guest')},${escapeCSV(l.ipAddress || '')},${escapeCSV(l.createdAt)}\n`;
+    });
+    return { filename: 'urbanfarm_chatbot_logs_export.csv', data: csvData, count: logs.length };
   }
   return null;
 };
@@ -692,7 +700,7 @@ exports.exportSystemBundle = async (req, res, next) => {
     const zipFilename = `urbanfarm_full_system_backup_${timestamp}.zip`;
 
     // Collect all CSV data first
-    const types = ['users', 'gardens', 'plants', 'posts', 'logs', 'leads'];
+    const types = ['users', 'gardens', 'plants', 'posts', 'logs', 'leads', 'chatlogs'];
     const summaryCounts = {};
     const csvResults = [];
 
@@ -767,7 +775,7 @@ exports.exportCSVData = async (req, res, next) => {
     if (!result) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid export type. Supported: users, gardens, plants, posts, logs, leads, bundle',
+        message: 'Invalid export type. Supported: users, gardens, plants, posts, logs, leads, chatlogs, bundle',
       });
     }
 

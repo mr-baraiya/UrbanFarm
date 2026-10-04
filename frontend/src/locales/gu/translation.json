@@ -1790,7 +1790,8 @@
       "exportPlants": "છોડ",
       "exportPosts": "સમુદાય પોસ્ટ્સ",
       "exportLogs": "ઑડિટ લૉગ્સ",
-      "exportLeads": "પૂછપરછ લીડ્સ"
+      "exportLeads": "પૂછપરછ લીડ્સ",
+      "exportChatlogs": "ચેટબોટ લૉગ્સ"
     },
     "pagination": {
       "rowsPerPage": "પૃષ્ઠ દીઠ પંક્તિઓ:",

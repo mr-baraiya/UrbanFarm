@@ -18,6 +18,7 @@ import {
   FaComments,
   FaHistory,
   FaAddressBook,
+  FaRobot,
 } from 'react-icons/fa';
 import './AdminSettings.css';
 
@@ -150,6 +151,7 @@ const AdminSettings = () => {
     { type: 'posts', file: 'community_posts', label: t('admin.settings.exportPosts', 'Community Posts'), icon: <FaComments /> },
     { type: 'logs', file: 'audit_logs', label: t('admin.settings.exportLogs', 'Audit Logs'), icon: <FaHistory /> },
     { type: 'leads', file: 'guest_leads', label: t('admin.settings.exportLeads', 'Guest Leads'), icon: <FaAddressBook /> },
+    { type: 'chatlogs', file: 'chatbot_logs', label: t('admin.settings.exportChatlogs', 'Chatbot Logs'), icon: <FaRobot /> },
   ];
 
   return (

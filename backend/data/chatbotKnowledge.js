@@ -11,6 +11,13 @@ const VALID_PLATFORM_ROUTES = [
   '/app/crops',
   '/app/community',
   '/contact',
+  '/admin/dashboard',
+  '/admin/users',
+  '/admin/gardens',
+  '/admin/moderation',
+  '/admin/leads',
+  '/admin/audit',
+  '/admin/settings',
 ];
 
 const PLATFORM_ROUTES = {
@@ -20,6 +27,13 @@ const PLATFORM_ROUTES = {
   crops: '/app/crops',
   community: '/app/community',
   contact: '/contact',
+  adminDashboard: '/admin/dashboard',
+  adminUsers: '/admin/users',
+  adminGardens: '/admin/gardens',
+  adminModeration: '/admin/moderation',
+  adminLeads: '/admin/leads',
+  adminAudit: '/admin/audit',
+  adminSettings: '/admin/settings',
 };
 
 const KNOWLEDGE_BASE = {
@@ -421,12 +435,12 @@ const KNOWLEDGE_BASE = {
       route: '/app/diagnosis',
       steps: `Hello! I am Krishi AI, your Intelligent AI Farming Guide for UrbanFarm. 🌿
 I am here to guide you step-by-step with:
-- 🌿 AI Plant Disease Diagnosis from photos (/app/diagnosis)
-- 💧 Smart weather-based watering schedules (/app/watering)
-- 🏡 Managing urban gardens & container plants (/app/gardens)
-- 🌾 Tailored crop suggestions for balconies & terraces (/app/crops)
-- 💬 Connecting with urban farmers on the Community Hub (/app/community)
-- 🐛 Organic pest control & homemade bio-fertilizer recipes
+- AI Plant Disease Diagnosis from photos (/app/diagnosis)
+- Smart weather-based watering schedules (/app/watering)
+- Managing urban gardens & container plants (/app/gardens)
+- Tailored crop suggestions for balconies & terraces (/app/crops)
+- Connecting with urban farmers on the Community Hub (/app/community)
+- Organic pest control & homemade bio-fertilizer recipes
 
 What would you like assistance with today?`,
       quickActionLabel: 'Diagnose Plants',
@@ -441,12 +455,12 @@ What would you like assistance with today?`,
       route: '/app/diagnosis',
       steps: `નમસ્તે! હું કૃષિ AI છું, તમારી અર્બનફાર્મ કૃષિ સહાયક. 🌿
 હું તમને નીચેની બાબતોમાં પગલાંવાર સહાય કરી શકું છું:
-- 🌿 ફોટો દ્વારા છોડના રોગનું નિદાન કરવું (/app/diagnosis)
-- 💧 હવામાન આધારિત સ્માર્ટ પાણી આપવાનું સમયપત્રક (/app/watering)
-- 🏡 બાલ્કની અને ટેરેસ બગીચાનું આયોજન (/app/gardens)
-- 🌾 ઋતુ મુજબ યોગ્ય પાકની પસંદગી (/app/crops)
-- 💬 અર્બનફાર્મ કમ્યુનિટીમાં ચર્ચા (/app/community)
-- 🐛 ઓર્ગેનિક જીવાત નિયંત્રણ અને દેશી ખાતરો
+- ફોટો દ્વારા છોડના રોગનું નિદાન કરવું (/app/diagnosis)
+- હવામાન આધારિત સ્માર્ટ પાણી આપવાનું સમયપત્રક (/app/watering)
+- બાલ્કની અને ટેરેસ બગીચાનું આયોજન (/app/gardens)
+- ઋતુ મુજબ યોગ્ય પાકની પસંદગી (/app/crops)
+- અર્બનફાર્મ કમ્યુનિટીમાં ચર્ચા (/app/community)
+- ઓર્ગેનિક જીવાત નિયંત્રણ અને દેશી ખાતરો
 
 આજે હું તમને કઈ રીતે મદદ કરી શકું?`,
       quickActionLabel: 'રોગ નિદાન ખોલો',
@@ -461,12 +475,12 @@ What would you like assistance with today?`,
       route: '/app/diagnosis',
       steps: `नमस्ते! मैं कृषि AI हूँ, आपकी अर्बनफार्म कृषि सहायक। 🌿
 मैं निम्नलिखित कार्यों में आपकी चरण-दर-चरण सहायता कर सकती हूँ:
-- 🌿 पत्तों की फोटो से पौधे के रोग का निदान (/app/diagnosis)
-- 💧 मौसम आधारित स्मार्ट सिंचाई शेड्यूल (/app/watering)
-- 🏡 छत व बालकनी के लिए बगीचे का प्रबंधन (/app/gardens)
-- 🌾 मौसम के अनुसार बेहतरीन फसलों के सुझाव (/app/crops)
-- 💬 किसान कम्युनिटी में चर्चा और अनुभव साझा करना (/app/community)
-- 🐛 जैविक कीट नियंत्रण और घरेलू खाद बनाने के उपाय
+- पत्तों की फोटो से पौधे के रोग का निदान (/app/diagnosis)
+- मौसम आधारित स्मार्ट सिंचाई शेड्यूल (/app/watering)
+- छत व बालकनी के लिए बगीचे का प्रबंधन (/app/gardens)
+- मौसम के अनुसार बेहतरीन फसलों के सुझाव (/app/crops)
+- किसान कम्युनिटी में चर्चा और अनुभव साझा करना (/app/community)
+- जैविक कीट नियंत्रण और घरेलू खाद बनाने के उपाय
 
 आज मैं आपकी क्या सहायता कर सकती हूँ?`,
       quickActionLabel: 'रोग निदान खोलें',

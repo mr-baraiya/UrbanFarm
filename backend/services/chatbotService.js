@@ -7,7 +7,33 @@ const { getCachedResponse, setCachedResponse, logQuery } = require('./chatbotCac
 /**
  * Build rich rule-based fallback response from local verified knowledge base
  */
-function buildRichFallbackResponse(message, lang, detected) {
+function buildRichFallbackResponse(message, lang, detected, userContext = { role: 'guest' }) {
+  const role = (userContext?.role || 'guest').toLowerCase();
+  const lowerMsg = String(message || '').toLowerCase();
+
+  // Check if message asks about admin functions
+  const isAdminQuery = lowerMsg.match(/(admin|add user|delete user|audit log|export csv|guest lead|system setting|user management)/i);
+  if (isAdminQuery && role !== 'admin') {
+    const text = lang === 'gu'
+      ? '⚠️ **વહીવટી સુરક્ષા સૂચના**: વપરાશકર્તાઓ ઉમેરવા, ઓડિટ લોગ જોવા અથવા સિસ્ટમ ડેટા એક્સપોર્ટ કરવા જેવા એડમિન કાર્યો માટે એડમિનિસ્ટ્રેટર (Administrator) એક્સેસ જરૂરી છે. જો તમે સિસ્ટમ એડમિન છો, તો કૃપા કરીને એડમિન એકાઉન્ટ વડે સાઇન ઇન કરો.'
+      : lang === 'hi'
+      ? '⚠️ **प्रशासनिक सुरक्षा सूचना**: नए उपयोगकर्ता जोड़ना, ऑडिट लॉग देखना या सिस्टम डेटा निर्यात करना केवल एडमिन (Administrator) के लिए उपलब्ध है। यदि आप एडमिन हैं, तो कृपया एडमिन खाते से साइन इन करें।'
+      : '⚠️ **Administrative Security Notice**: Accessing administrative controls (such as user management, audit logs, or system data export) requires Administrator privileges. If you are an admin, please sign in with your admin account.';
+
+    return {
+      text,
+      intent: 'security',
+      confidence: 1.0,
+      entities: { plant: null, disease: null, space: null },
+      quickActions: [{ label: lang === 'gu' ? 'સંપર્ક કરો' : lang === 'hi' ? 'संपर्क करें' : 'Contact Support', path: '/contact' }],
+      followUpSuggestions: [
+        lang === 'gu' ? 'મદદ જોઈતી હોય તો ક્યાં સંપર્ક કરવો?' : lang === 'hi' ? 'सहायता के लिए कहाँ संपर्क करें?' : 'How to contact support?'
+      ],
+      safetyNotice: null,
+      source: 'fallback'
+    };
+  }
+
   const kbGroup = KNOWLEDGE_BASE[detected.intent] || KNOWLEDGE_BASE.general;
   const kbData = kbGroup[lang] || kbGroup.en;
 
@@ -51,9 +77,9 @@ function buildRichFallbackResponse(message, lang, detected) {
 
 /**
  * Generate AI chatbot response using Gemini API with structured JSON output,
- * context awareness, retry mechanism, and rich offline fallback.
+ * role-aware context & security guardrails, retry mechanism, and rich offline fallback.
  */
-exports.generateChatbotResponse = async (userMessage, language = 'en', history = []) => {
+exports.generateChatbotResponse = async (userMessage, language = 'en', history = [], userContext = { role: 'guest', name: null }) => {
   const startTime = Date.now();
   const lang = ['gu', 'hi'].includes(language) ? language : 'en';
   const cleanMessage = String(userMessage || '').trim();
@@ -61,24 +87,30 @@ exports.generateChatbotResponse = async (userMessage, language = 'en', history =
   // 1. Intent & Entity Detection from input + previous history
   const detected = detectIntent(cleanMessage, lang, history);
 
-  // 2. Check in-memory cache for repeated common questions
-  const cached = getCachedResponse(cleanMessage, lang, detected.extractedPlant);
-  if (cached) {
-    logQuery({
-      message: cleanMessage,
-      language: lang,
-      intent: detected.intent,
-      source: 'cache',
-      latencyMs: Date.now() - startTime
-    });
-    return cached;
+  // 2. Check in-memory cache for repeated common questions (only for standard queries)
+  const userRole = (userContext?.role || 'guest').toLowerCase();
+  const userName = userContext?.name || null;
+  const isSecurityQuery = cleanMessage.match(/(admin|add user|delete user|audit log|export csv|guest lead|system setting|user management)/i);
+
+  if (!isSecurityQuery) {
+    const cached = getCachedResponse(cleanMessage, lang, detected.extractedPlant);
+    if (cached) {
+      logQuery({
+        message: cleanMessage,
+        language: lang,
+        intent: detected.intent,
+        source: 'cache',
+        latencyMs: Date.now() - startTime
+      });
+      return cached;
+    }
   }
 
   const apiKey = aiConfig.gemini.apiKey || process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
     console.warn('⚠️ Gemini API key not found, using rich local knowledge base');
-    const fallbackResult = buildRichFallbackResponse(cleanMessage, lang, detected);
+    const fallbackResult = buildRichFallbackResponse(cleanMessage, lang, detected, userContext);
     logQuery({
       message: cleanMessage,
       language: lang,
@@ -89,14 +121,52 @@ exports.generateChatbotResponse = async (userMessage, language = 'en', history =
     return fallbackResult;
   }
 
-  // 3. Build System Instruction for Gemini with strict language guarantee
+  // 3. Build Role-Aware System Instruction for Gemini
+  let roleContextInstruction = '';
+  if (userRole === 'admin') {
+    roleContextInstruction = `
+CURRENT USER ROLE: ADMIN (Platform Administrator ${userName ? '(' + userName + ')' : ''})
+- The active user is an authenticated Platform Administrator.
+- ACCESSIBLE ADMIN ROUTES: /admin/dashboard, /admin/users, /admin/gardens, /admin/moderation, /admin/leads, /admin/audit, /admin/settings, and standard app routes.
+- GUIDANCE INSTRUCTIONS:
+  1. You can fully assist with all administrative tasks: adding/editing users, viewing audit logs, exporting CSV/ZIP backups, moderating community posts, managing guest leads, checking API health.
+  2. Provide step-by-step guidance for using Admin Panel sections (/admin/*).
+  3. Include quickActions targeting /admin/* routes when relevant (e.g. /admin/users, /admin/settings, /admin/audit).`;
+  } else if (userRole === 'user') {
+    roleContextInstruction = `
+CURRENT USER ROLE: USER (Registered Urban Farmer ${userName ? '(' + userName + ')' : ''})
+- The active user is a logged-in standard user.
+- ACCESSIBLE APPLICATION ROUTES: /app/dashboard, /app/gardens, /app/plants, /app/diagnosis, /app/watering, /app/crops, /app/community, /app/profile, /contact.
+- GUIDANCE INSTRUCTIONS & SECURITY GUARDRAILS:
+  1. Guide them on managing their balcony/terrace gardens, diagnosing plant diseases, scheduling watering, using Crop AI, and posting in the community.
+  2. STRICT SECURITY GUARDRAIL: If this user asks how to perform Administrator functions (e.g., "how to delete another user", "how to export database audit logs", "how to change user roles", "how to view guest leads", "how to access admin panel"):
+     - Inform them politely in target language (${lang}) that administrative functions are strictly restricted to Platform Administrators (/admin/*).
+     - DO NOT provide step-by-step instructions as if they can access admin controls.
+     - Direct them to contact support (/contact) if they need administrative assistance.`;
+  } else {
+    roleContextInstruction = `
+CURRENT USER ROLE: GUEST (Unauthenticated Visitor)
+- The active user is NOT logged in (Browsing as Guest).
+- ACCESSIBLE ROUTES: Public pages (/contact, /login, /register, Home, About, Features).
+- GUIDANCE INSTRUCTIONS & STRICT SECURITY GUARDRAILS:
+  1. Answer general urban agriculture questions, explain platform features, and answer public FAQs.
+  2. IF GUEST ASKS HOW TO USE PERSONAL FARM TOOLS (e.g., "how to add a plant to my garden", "how to track watering"): Explain the feature concept and inform them politely that saving gardens requires signing in or registering for an account. Suggest quickActions to /contact or registration.
+  3. CRITICAL SECURITY GUARDRAIL (ADMIN QUESTIONS): If a GUEST asks how an admin adds a user, how to access admin settings, how to view audit logs, how to export backend logs, or how to moderate posts:
+     - YOU MUST NOT provide step-by-step instructions for executing admin commands as if the guest has access!
+     - Explain clearly and politely in target language (${lang}):
+       a) "Performing administrative actions (such as managing users, viewing audit logs, or system settings) requires a registered Administrator account."
+       b) "If you are an administrator, please Sign In with your admin credentials to access the Admin Panel."
+       c) "If you are a visitor, you can Register for a farmer account to start tracking your urban gardens."
+     - Offer quickAction options to Sign In or Register (/contact or public links).`;
+  }
+
   let langPersona = 'Respond in warm, clear, professional English as a female agricultural guide.';
   let langRequirement = 'Language Requirement: Respond completely in English.';
   if (lang === 'gu') {
     langPersona = 'તમારે સંપૂર્ણ જવાબ ફક્ત શુદ્ધ, સરળ અને પ્રેમાળ ગુજરાતી લિપિમાં (Gujarati language & script) આપવાનો છે. તમે એક પ્રવીણ સ્ત્રી કૃષિ સહાયક (કૃષિ AI) છો, તેથી હંમેશાં સ્ત્રીવાચક વાક્યપ્રયોગ કરો (જેમ કે: "હું તમારી સહાયક છું", "હું મદદ કરી શકું છું"). કોઈપણ સંજોગોમાં અંગ્રેજી કે હિન્દીમાં જવાબ આપવો નહીં.';
     langRequirement = 'CRITICAL LANGUAGE DIRECTIVE: The user has selected GUJARATI (ગુજરાતી). You MUST generate all text fields ("reply", quickAction labels, followUpSuggestions, safetyNotice) STRICTLY in Gujarati (ગુજરાતી) script. Do NOT respond in English or Hindi.';
   } else if (lang === 'hi') {
-    langPersona = 'आपको पूरा उत्तर केवल सरल, स्पष्ट और आदरणीय हिन्दी भाषा (Hindi language in Devanagari script) में देना है। आप एक महिला कृषि विशेषज्ञ (कृषि AI) हैं, इसलिए हमेशा स्त्रीलिंग क्रियाओं और सर्वनामों का ही उपयोग करें (जैसे: "मैं कर सकती हूँ", "मैं सहायता करूँगी", "सलाह देती हूँ", आदि। कभी भी पुल्लिंग जैसे "करूंगा" या "सकता हूँ" न लिखें)। किसी भी परिस्थिति में अंग्रेजी या गुजराती में उत्तर न दें।';
+    langPersona = 'आपको पूरा उत्तर केवल सरल, स्पष्ट और आदरणीय हिन्दी भाषा (Hindi language in Devanagari script) में देना है। आप एक महिला कृषि विशेषज्ञ (कृषि AI) हैं, इसलिए हमेशा स्त्रीलिंग क्रियाओं और सर्वनामों का ही उपयोग करें (जैसे: "मैं कर सकती हूँ", "मैं सहायता करूँगी", "सलाह देती हूँ", आदि। कभी भी पुल्लिंग जैसे "करऊंगा" या "सकता हूँ" न लिखें)। किसी भी परिस्थिति में अंग्रेजी या गुजराती में उत्तर न दें।';
     langRequirement = 'CRITICAL LANGUAGE DIRECTIVE: The user has selected HINDI (हिन्दी). You MUST generate all text fields ("reply", quickAction labels, followUpSuggestions, safetyNotice) STRICTLY in Hindi (Devanagari script). Do NOT respond in English or Gujarati.';
   }
 
@@ -108,14 +178,17 @@ IDENTITY & FEMALE PERSONA:
 - In Gujarati: Introduce yourself as "કૃષિ AI, તમારી કૃષિ સહાયક" with a warm, caring, polite feminine tone.
 - In English: Introduce yourself as "Krishi AI", your intelligent AI farming guide.
 
+${roleContextInstruction}
+
 PLATFORM GROUNDING & ACTUAL FEATURES:
-You represent the UrbanFarm platform. The ONLY real routes in the application are:
-1. AI Plant Disease Diagnosis: /app/diagnosis (Users upload photos of sick leaves to detect diseases, confidence score, and get organic cures)
-2. Smart Weather-Based Watering: /app/watering (Calculates 7-day irrigation schedule linked to local weather)
-3. My Gardens & Plant Tracker: /app/gardens (Add balcony/terrace gardens and track individual plants)
-4. AI Crop Recommendation: /app/crops (Suggests high-yield urban crops based on season, soil, and space)
-5. Community Hub: /app/community (Share harvest photos, discuss with urban farmers, exchange gardening tips)
-6. Contact & Support: /contact (Get in touch with the platform agronomist team)
+You represent the UrbanFarm platform. The real routes in the application are:
+1. AI Plant Disease Diagnosis: /app/diagnosis
+2. Smart Weather-Based Watering: /app/watering
+3. My Gardens & Plant Tracker: /app/gardens
+4. AI Crop Recommendation: /app/crops
+5. Community Hub: /app/community
+6. Contact & Support: /contact
+7. Admin Tools (Admin Role Only): /admin/dashboard, /admin/users, /admin/gardens, /admin/moderation, /admin/leads, /admin/audit, /admin/settings.
 NEVER invent non-existent features, fake payment checkouts, drone delivery, or in-person farm visits.
 
 SAFETY GUARDRAILS:
@@ -127,8 +200,8 @@ SAFETY GUARDRAILS:
 RESPONSE FORMAT:
 You MUST respond with a valid JSON object strictly matching this schema:
 {
-  "reply": "Formatted markdown text in the target language (${lang}) with friendly feminine tone, concise bullet points or steps.",
-  "intent": "diagnosis | watering | crops | gardens | community | weather | pests | fertilizer | safety | greeting | unknown",
+  "reply": "Formatted markdown text in the target language (${lang}) respecting the user's role (${userRole}) and language guidelines.",
+  "intent": "diagnosis | watering | crops | gardens | community | weather | pests | fertilizer | safety | greeting | security | unknown",
   "entities": {
     "plant": "identified plant name or null",
     "disease": "identified symptom/disease or null",
@@ -137,7 +210,7 @@ You MUST respond with a valid JSON object strictly matching this schema:
   "quickActions": [
     {
       "label": "Action button text in target language (${lang})",
-      "path": "Must be one of /app/diagnosis, /app/watering, /app/gardens, /app/crops, /app/community, /contact"
+      "path": "Valid route appropriate for the user's role (${userRole})"
     }
   ],
   "followUpSuggestions": [

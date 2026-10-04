@@ -1790,7 +1790,8 @@
       "exportPlants": "पौधे",
       "exportPosts": "सामुदायिक पोस्ट",
       "exportLogs": "ऑडिट लॉग",
-      "exportLeads": "संपर्क लीड"
+      "exportLeads": "संपर्क लीड",
+      "exportChatlogs": "चैटबॉट लॉग"
     },
     "pagination": {
       "rowsPerPage": "प्रति पृष्ठ पंक्तियाँ:",
