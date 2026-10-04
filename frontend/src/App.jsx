@@ -28,6 +28,7 @@ import CommunityTab from "./components/Community/CommunityTab";
 import Layout from "./components/Layout/Layout";
 import GuestNavbar from "./components/Guest/GuestNavbar";
 import GuestFooter from "./components/Guest/GuestFooter";
+import UrbanBot from "./components/Chatbot/UrbanBot";
 
 function App() {
   const { user, loading } = useAuth();
@@ -54,6 +55,7 @@ function App() {
     <Router>
       <ScrollToTop />
       <FirstVisitLanguageModal />
+      <UrbanBot />
       <Routes>
         {/* Guest Public Routes */}
         <Route element={<GuestLayout />}>

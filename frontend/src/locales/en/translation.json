@@ -1810,6 +1810,16 @@
     "missingFields": "Please fill in all required fields.",
     "sessionExpired": "Session expired. Please sign in again."
   },
+  "chatbot": {
+    "openTitle": "Chat with Krishi AI",
+    "title": "Krishi AI",
+    "subtitle": "Your Intelligent AI Farming Guide",
+    "online": "Online",
+    "clearChat": "Clear chat history",
+    "placeholder": "Ask Krishi AI about diagnosis, watering, gardens...",
+    "listeningPlaceholder": "Krishi AI is listening... speak now",
+    "disclaimer": "Krishi AI provides smart agricultural guidance. Verify regional climatic factors."
+  },
   "footer": {
     "rightsReserved": "All rights reserved.",
     "craftedPrefix": "Crafted with",

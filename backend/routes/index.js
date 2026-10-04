@@ -14,6 +14,7 @@ const adminRoutes = require('./adminRoutes');
 const uploadRoutes = require('./uploadRoutes');
 const weatherRoutes = require('./weatherRoutes');
 const contactRoutes = require('./contactRoutes');
+const chatbotRoutes = require('./chatbotRoutes');
 
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
@@ -28,5 +29,6 @@ router.use('/admin', adminRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/weather', weatherRoutes);
 router.use('/contact', contactRoutes);
+router.use('/chat', chatbotRoutes);
 
 module.exports = router;

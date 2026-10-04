@@ -11,33 +11,91 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
+  'http://localhost:5000',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:3000',
   'https://urbanfarm.baraiyavishalbhai32.workers.dev',
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl, Postman)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin) || (process.env.NODE_ENV !== 'production' && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin))) {
-      callback(null, true);
-    } else {
-      callback(new Error(`CORS policy: Origin ${origin} is not allowed`));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Cache-Control', 'Pragma', 'Accept-Language'],
-  exposedHeaders: ['Content-Disposition']
-}));
+const isOriginAllowed = (origin) => {
+  if (!origin) return true;
+  const cleanOrigin = origin.trim().replace(/\/+$/, '');
+  if (allowedOrigins.some((o) => o.replace(/\/+$/, '') === cleanOrigin)) return true;
+  // Match Cloudflare Workers & Vercel deployments of UrbanFarm
+  if (/^https:\/\/urbanfarm[a-zA-Z0-9-]*\.baraiyavishalbhai32\.workers\.dev$/i.test(cleanOrigin)) return true;
+  if (/^https:\/\/urbanfarm[a-zA-Z0-9-]*\.vercel\.app$/i.test(cleanOrigin)) return true;
+  if (/^https:\/\/[a-zA-Z0-9-]+\.workers\.dev$/i.test(cleanOrigin)) return true;
+  if (process.env.NODE_ENV !== 'production' && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(cleanOrigin)) return true;
+  return false;
+};
+
+// 1. Immediate Preflight & CORS Header Interceptor (Runs first, before DB or body parsers)
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+
+  if (origin && isOriginAllowed(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization, X-Requested-With, Cache-Control, Pragma, Accept-Language, Accept, X-CSRF-Token'
+    );
+    res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+    res.setHeader('Access-Control-Max-Age', '86400');
+  }
+
+  // Preflight OPTIONS requests must immediately respond with 204 No Content
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+
+  next();
+});
+
+// 2. Standard CORS middleware for route-level safety
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (isOriginAllowed(origin)) {
+        callback(null, true);
+      } else {
+        callback(null, false);
+      }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'Cache-Control',
+      'Pragma',
+      'Accept-Language',
+      'Accept',
+      'X-CSRF-Token'
+    ],
+    exposedHeaders: ['Content-Disposition'],
+  })
+);
+
+app.options('*', (req, res) => {
+  const origin = req.headers.origin;
+  if (origin && isOriginAllowed(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  }
+  res.status(204).end();
+});
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Database connection middleware for Serverless (Vercel) & local
 app.use(async (req, res, next) => {
-  // Allow health checks without waiting on DB if DB is down
-  if (req.path === '/health' || req.path === '/') {
+  // Allow health checks, root, and OPTIONS without waiting on DB if DB is down
+  if (req.method === 'OPTIONS' || req.path === '/health' || req.path === '/') {
     return next();
   }
   try {
