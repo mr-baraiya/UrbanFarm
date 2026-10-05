@@ -39,6 +39,15 @@ const GuestNavbar = () => {
           <NavLink to="/features" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`}>
             {t('navigation.features')}
           </NavLink>
+          <NavLink to="/demo" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`}>
+            {t('navigation.demo')}
+          </NavLink>
+          <NavLink to="/rewards" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`}>
+            {t('navigation.rewards')}
+          </NavLink>
+          <NavLink to="/market-prices" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`}>
+            {t('navigation.marketPrices')}
+          </NavLink>
           <NavLink to="/contact" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`}>
             {t('navigation.contact')}
           </NavLink>
@@ -109,6 +118,15 @@ const GuestNavbar = () => {
               </NavLink>
               <NavLink to="/features" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`} onClick={closeMenu}>
                 {t('navigation.features')}
+              </NavLink>
+              <NavLink to="/demo" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`} onClick={closeMenu}>
+                {t('navigation.demo')}
+              </NavLink>
+              <NavLink to="/rewards" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`} onClick={closeMenu}>
+                {t('navigation.rewards')}
+              </NavLink>
+              <NavLink to="/market-prices" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`} onClick={closeMenu}>
+                {t('navigation.marketPrices')}
               </NavLink>
               <NavLink to="/contact" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`} onClick={closeMenu}>
                 {t('navigation.contact')}

@@ -11,6 +11,9 @@ import AboutPage from "./pages/Guest/AboutPage";
 import FeaturesPage from "./pages/Guest/FeaturesPage";
 import ContactPage from "./pages/Guest/ContactPage";
 import FaqPage from "./pages/Guest/FaqPage";
+import DemoPage from "./pages/Guest/DemoPage";
+import RewardsPage from "./pages/Guest/RewardsPage";
+import MarketPricesPage from "./pages/Guest/MarketPricesPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -66,6 +69,9 @@ function App() {
           <Route path="/features" element={<FeaturesPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/faq" element={<FaqPage />} />
+          <Route path="/demo" element={<DemoPage />} />
+          <Route path="/rewards" element={<RewardsPage />} />
+          <Route path="/market-prices" element={<MarketPricesPage />} />
         </Route>
 
         {/* Public Plant Detail Routes (Accessible with or without login) */}

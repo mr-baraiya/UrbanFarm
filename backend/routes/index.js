@@ -15,6 +15,7 @@ const uploadRoutes = require('./uploadRoutes');
 const weatherRoutes = require('./weatherRoutes');
 const contactRoutes = require('./contactRoutes');
 const chatbotRoutes = require('./chatbotRoutes');
+const marketRoutes = require('./marketRoutes');
 
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
@@ -30,5 +31,6 @@ router.use('/upload', uploadRoutes);
 router.use('/weather', weatherRoutes);
 router.use('/contact', contactRoutes);
 router.use('/chat', chatbotRoutes);
+router.use('/market', marketRoutes);
 
 module.exports = router;

@@ -1,0 +1,521 @@
+/* ==========================================================================
+   REWARDS & BADGES PAGE STYLES (Guest Folder)
+   ========================================================================== */
+
+.rewards-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--background, #f8faf9);
+  color: var(--text, #1e293b);
+}
+
+.rewards-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* --------------------------------------------------------------------------
+   HERO SECTION
+   -------------------------------------------------------------------------- */
+.rewards-hero {
+  padding: 4.5rem 1.25rem 3rem;
+  background:
+    radial-gradient(ellipse at 30% 0%, rgba(39, 174, 96, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 10%, rgba(41, 128, 185, 0.12) 0%, transparent 50%),
+    var(--surface, #ffffff);
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  position: relative;
+  overflow: hidden;
+}
+
+.slogan-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.1rem;
+  background: rgba(39, 174, 96, 0.12);
+  color: var(--primary, #27ae60);
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-bottom: 1rem;
+}
+
+.rewards-hero-title {
+  font-size: clamp(2rem, 4.5vw, 3.2rem);
+  font-weight: 800;
+  color: var(--text, #1e293b);
+  margin: 0 0 1rem;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.rewards-gradient-text {
+  background: linear-gradient(135deg, #27ae60 0%, #2980b9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.rewards-hero-subtitle {
+  font-size: 1.05rem;
+  color: var(--text-secondary, #64748b);
+  line-height: 1.6;
+  max-width: 700px;
+  margin: 0 auto 2rem;
+}
+
+/* Filter Bar */
+.rewards-filter-bar {
+  display: inline-flex;
+  gap: 0.5rem;
+  padding: 0.4rem;
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 40px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.rewards-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.25rem;
+  border-radius: 30px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary, #64748b);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.rewards-filter-btn:hover {
+  color: var(--text, #1e293b);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.rewards-filter-btn.active {
+  background: #27ae60;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+}
+
+/* --------------------------------------------------------------------------
+   CONTENT SECTION & BADGES GRID
+   -------------------------------------------------------------------------- */
+.rewards-content-section {
+  padding: 3.5rem 0;
+}
+
+.rewards-section-title {
+  margin-bottom: 2.5rem;
+}
+
+.rewards-section-title h2 {
+  font-size: 1.85rem;
+  font-weight: 800;
+  margin: 0 0 0.4rem;
+  color: var(--text, #1e293b);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.rewards-section-title .title-icon {
+  color: #e67e22;
+}
+
+.rewards-section-title p {
+  font-size: 0.95rem;
+  color: var(--text-secondary, #64748b);
+  margin: 0;
+}
+
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 4rem;
+}
+
+.badge-card {
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.badge-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  border-color: #27ae60;
+}
+
+.badge-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.badge-icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.badge-xp-pill {
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 0.25rem 0.65rem;
+  background: rgba(39, 174, 96, 0.12);
+  color: #27ae60;
+  border-radius: 20px;
+}
+
+.badge-tier-tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+.badge-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin: 0 0 0.4rem;
+  color: var(--text, #1e293b);
+}
+
+.badge-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary, #64748b);
+  line-height: 1.5;
+  margin: 0 0 1.25rem;
+  flex: 1;
+}
+
+/* Eligibility Box */
+.eligibility-box {
+  background: var(--background, #f8faf9);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 12px;
+  padding: 0.85rem;
+}
+
+.elig-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-secondary, #64748b);
+  margin-bottom: 0.35rem;
+}
+
+.elig-text {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text, #1e293b);
+  margin: 0 0 0.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  line-height: 1.35;
+}
+
+.check-ic {
+  color: #27ae60;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.elig-step-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #64748b;
+  background: rgba(0, 0, 0, 0.04);
+  padding: 0.2rem 0.55rem;
+  border-radius: 10px;
+}
+
+.lock-ic {
+  font-size: 0.65rem;
+}
+
+/* --------------------------------------------------------------------------
+   SLOGAN SPOTLIGHT BANNER
+   -------------------------------------------------------------------------- */
+.slogan-spotlight-card {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-radius: 24px;
+  padding: 3.5rem 2rem;
+  text-align: center;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.spotlight-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.9rem;
+  background: rgba(39, 174, 96, 0.25);
+  color: #2ecc71;
+  border-radius: 30px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 1rem;
+}
+
+.slogan-spotlight-card h2 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin: 0 0 0.8rem;
+
+}
+
+.slogan-spotlight-card p {
+  font-size: 1.05rem;
+  opacity: 0.85;
+  max-width: 650px;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
+}
+
+.spotlight-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Shared Buttons */
+.rewards-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0.8rem 1.6rem;
+  border-radius: 30px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: none;
+}
+
+.rewards-btn-primary {
+  background: #27ae60;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(39, 174, 96, 0.35);
+}
+
+.rewards-btn-primary:hover {
+  background: #1e8449;
+  transform: translateY(-2px);
+}
+
+.rewards-btn-outline {
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.rewards-btn-outline:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+/* --------------------------------------------------------------------------
+   MODAL PREVIEW
+   -------------------------------------------------------------------------- */
+.badge-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+.badge-modal-card {
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 24px;
+  max-width: 480px;
+  width: 100%;
+  padding: 2.25rem 2rem;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  animation: modalPop 0.25s ease;
+}
+
+@keyframes modalPop {
+  from { transform: scale(0.92); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-secondary, #64748b);
+}
+
+.modal-icon-header {
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  margin: 0 auto 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0.3rem 0 0.5rem;
+  color: var(--text, #1e293b);
+}
+
+.modal-desc {
+  font-size: 0.95rem;
+  color: var(--text-secondary, #64748b);
+  line-height: 1.5;
+  margin: 0 0 1.5rem;
+}
+
+.modal-eligibility-details {
+  background: var(--background, #f8faf9);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 16px;
+  padding: 1.2rem;
+  margin-bottom: 1.25rem;
+  text-align: left;
+}
+
+.modal-eligibility-details h4 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+  color: var(--text-secondary, #64748b);
+}
+
+.modal-elig-text {
+  font-size: 0.92rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modal-reward-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #27ae60;
+  background: rgba(39, 174, 96, 0.12);
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+}
+
+.modal-unlock-notice {
+  font-size: 0.82rem;
+  color: var(--text-secondary, #64748b);
+  margin: 0 0 1.5rem;
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   RESPONSIVE DESIGN (MOBILE COMPATIBILITY)
+   -------------------------------------------------------------------------- */
+@media (max-width: 1100px) {
+  .badges-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .rewards-hero {
+    padding: 3rem 1rem 2rem;
+  }
+
+  .badges-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .slogan-spotlight-card {
+    padding: 2.5rem 1.25rem;
+  }
+
+  .slogan-spotlight-card h2 {
+    font-size: 1.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .badges-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rewards-filter-bar {
+    width: 100%;
+  }
+
+  .rewards-filter-btn {
+    flex: 1;
+    justify-content: center;
+    font-size: 0.78rem;
+    padding: 0.45rem 0.65rem;
+  }
+}
