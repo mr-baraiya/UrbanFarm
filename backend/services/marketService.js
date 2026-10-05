@@ -79,7 +79,6 @@ const fetchMarketPrices = async (forceRefresh = false) => {
     return {
       success: true,
       source: 'Government of India / Data.gov.in (AGMARKNET)',
-      apiKeyUsed: process.env.DATA_GOV_API_KEY || DEFAULT_API_KEY,
       lastUpdated: new Date(memoryCache.lastUpdated).toISOString(),
       cached: true,
       count: memoryCache.data.length,
@@ -128,7 +127,6 @@ const fetchMarketPrices = async (forceRefresh = false) => {
       return {
         success: true,
         source: 'Government of India / Data.gov.in (AGMARKNET Live API)',
-        apiKeyUsed: apiKey,
         lastUpdated: new Date(now).toISOString(),
         cached: false,
         count: formattedRecords.length,
@@ -148,7 +146,6 @@ const fetchMarketPrices = async (forceRefresh = false) => {
   return {
     success: true,
     source: 'Government of India / Data.gov.in (AGMARKNET)',
-    apiKeyUsed: apiKey,
     lastUpdated: new Date(now).toISOString(),
     cached: true,
     count: INITIAL_AGMARKNET_DATA.length,
