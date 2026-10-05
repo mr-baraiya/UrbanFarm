@@ -48,7 +48,7 @@ const GuestFooter = () => {
             <li><Link to="/">{t('navigation.home')}</Link></li>
             <li><Link to="/about">{t('navigation.about')}</Link></li>
             <li><Link to="/features">{t('navigation.features')}</Link></li>
-            <li><Link to="/demo">{t('navigation.demo')}</Link></li>
+            <li><Link to="/live-preview">{t('navigation.demo')}</Link></li>
             <li><Link to="/rewards">{t('navigation.rewards')}</Link></li>
             <li><Link to="/market-prices">{t('navigation.marketPrices')}</Link></li>
             <li><Link to="/faq">{t('navigation.faq')}</Link></li>

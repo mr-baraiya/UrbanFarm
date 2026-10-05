@@ -70,6 +70,7 @@ function App() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/faq" element={<FaqPage />} />
           <Route path="/demo" element={<DemoPage />} />
+          <Route path="/live-preview" element={<DemoPage />} />
           <Route path="/rewards" element={<RewardsPage />} />
           <Route path="/market-prices" element={<MarketPricesPage />} />
         </Route>

@@ -131,6 +131,7 @@ export const BadgeEmblem = ({ id, isUnlocked = false, size = 76 }) => {
         );
 
       case 'plant_doctor':
+      case 'disease_detective':
         return (
           <g>
             <defs>
@@ -191,6 +192,7 @@ export const BadgeEmblem = ({ id, isUnlocked = false, size = 76 }) => {
         );
 
       case 'first_harvest':
+      case 'master_harvester':
         return (
           <g>
             <defs>
@@ -243,6 +245,7 @@ export const BadgeEmblem = ({ id, isUnlocked = false, size = 76 }) => {
         );
 
       case 'green_thumb':
+      case 'green_thumb_pioneer':
         return (
           <g>
             <defs>
@@ -300,6 +303,7 @@ export const BadgeEmblem = ({ id, isUnlocked = false, size = 76 }) => {
         );
 
       case 'community_gardener':
+      case 'community_mentor':
         return (
           <g>
             <defs>
@@ -341,6 +345,7 @@ export const BadgeEmblem = ({ id, isUnlocked = false, size = 76 }) => {
         );
 
       case 'gardening_guru':
+      case 'soil_alchemist':
         return (
           <g>
             <defs>

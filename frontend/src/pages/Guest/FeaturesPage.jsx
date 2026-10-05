@@ -18,7 +18,15 @@ import {
   FaStar,
   FaBolt,
   FaChartLine,
+  FaAward,
+  FaStore,
+  FaShareAlt,
+  FaGlobe,
+  FaDatabase,
+  FaMobileAlt,
+  FaMapMarkerAlt,
 } from 'react-icons/fa';
+import SEO from '../../components/SEO/SEO';
 import './FeaturesPage.css';
 
 const FeaturesPage = () => {
@@ -51,16 +59,16 @@ const FeaturesPage = () => {
         tag: t('featuresPage.f1VisualTag'),
       },
       ctaText: t('featuresPage.f1Cta'),
-      ctaLink: '/register',
+      ctaLink: '/live-preview',
     },
     {
-      id: 'smart-irrigation',
+      id: 'market-prices',
       title: t('featuresPage.f2Title'),
       badge: t('featuresPage.f2Badge'),
-      icon: <FaCloudSunRain />,
-      miniIcon: <FaTint />,
-      accent: '#2980b9',
-      accentDark: '#1f618d',
+      icon: <FaChartLine />,
+      miniIcon: <FaStore />,
+      accent: '#f39c12',
+      accentDark: '#d68910',
       summary: t('featuresPage.f2Summary'),
       details: [
         t('featuresPage.f2Detail1'),
@@ -71,23 +79,23 @@ const FeaturesPage = () => {
       visual: {
         title: t('featuresPage.f2VisualTitle'),
         stats: [
-          { label: t('featuresPage.f2Stat1Label'), value: 'Up to 40%', good: true },
-          { label: t('featuresPage.f2Stat2Label'), value: 'Live Updates', good: true },
-          { label: t('featuresPage.f2Stat3Label'), value: 'Auto Delay', good: true },
+          { label: t('featuresPage.f2Stat1Label'), value: '21+ States', good: true },
+          { label: t('featuresPage.f2Stat2Label'), value: '50+ Mandis', good: true },
+          { label: t('featuresPage.f2Stat3Label'), value: '60+ Types', good: true },
         ],
         tag: t('featuresPage.f2VisualTag'),
       },
       ctaText: t('featuresPage.f2Cta'),
-      ctaLink: '/register',
+      ctaLink: '/market-prices',
     },
     {
-      id: 'garden-management',
+      id: 'smart-irrigation',
       title: t('featuresPage.f3Title'),
       badge: t('featuresPage.f3Badge'),
-      icon: <FaSeedling />,
-      miniIcon: <FaMapMarkedAlt />,
-      accent: '#7d3c98',
-      accentDark: '#6c3483',
+      icon: <FaCloudSunRain />,
+      miniIcon: <FaTint />,
+      accent: '#2980b9',
+      accentDark: '#1f618d',
       summary: t('featuresPage.f3Summary'),
       details: [
         t('featuresPage.f3Detail1'),
@@ -98,9 +106,9 @@ const FeaturesPage = () => {
       visual: {
         title: t('featuresPage.f3VisualTitle'),
         stats: [
-          { label: t('featuresPage.f3Stat1Label'), value: 'Multi-Zone', good: true },
-          { label: t('featuresPage.f3Stat2Label'), value: 'Photo + Data', good: true },
-          { label: t('featuresPage.f3Stat3Label'), value: 'Automated', good: true },
+          { label: t('featuresPage.f3Stat1Label'), value: 'Up to 40%', good: true },
+          { label: t('featuresPage.f3Stat2Label'), value: 'Live Updates', good: true },
+          { label: t('featuresPage.f3Stat3Label'), value: 'Auto Delay', good: true },
         ],
         tag: t('featuresPage.f3VisualTag'),
       },
@@ -108,13 +116,13 @@ const FeaturesPage = () => {
       ctaLink: '/register',
     },
     {
-      id: 'community',
+      id: 'garden-management',
       title: t('featuresPage.f4Title'),
       badge: t('featuresPage.f4Badge'),
-      icon: <FaUsers />,
-      miniIcon: <FaComments />,
-      accent: '#d35400',
-      accentDark: '#b94600',
+      icon: <FaSeedling />,
+      miniIcon: <FaMapMarkedAlt />,
+      accent: '#8e44ad',
+      accentDark: '#6c3483',
       summary: t('featuresPage.f4Summary'),
       details: [
         t('featuresPage.f4Detail1'),
@@ -125,36 +133,99 @@ const FeaturesPage = () => {
       visual: {
         title: t('featuresPage.f4VisualTitle'),
         stats: [
-          { label: t('featuresPage.f4Stat1Label'), value: '12,500+', good: true },
-          { label: t('featuresPage.f4Stat2Label'), value: 'Agronomists', good: true },
-          { label: t('featuresPage.f4Stat3Label'), value: 'Heirloom+', good: true },
+          { label: t('featuresPage.f4Stat1Label'), value: 'Multi-Zone', good: true },
+          { label: t('featuresPage.f4Stat2Label'), value: 'Photo Logs', good: true },
+          { label: t('featuresPage.f4Stat3Label'), value: 'Smart Alerts', good: true },
         ],
         tag: t('featuresPage.f4VisualTag'),
       },
       ctaText: t('featuresPage.f4Cta'),
       ctaLink: '/register',
     },
+    {
+      id: 'rewards-gamification',
+      title: t('featuresPage.f5Title'),
+      badge: t('featuresPage.f5Badge'),
+      icon: <FaAward />,
+      miniIcon: <FaStar />,
+      accent: '#e67e22',
+      accentDark: '#ca6f1e',
+      summary: t('featuresPage.f5Summary'),
+      details: [
+        t('featuresPage.f5Detail1'),
+        t('featuresPage.f5Detail2'),
+        t('featuresPage.f5Detail3'),
+        t('featuresPage.f5Detail4'),
+      ],
+      visual: {
+        title: t('featuresPage.f5VisualTitle'),
+        stats: [
+          { label: t('featuresPage.f5Stat1Label'), value: '8 Medallions', good: true },
+          { label: t('featuresPage.f5Stat2Label'), value: '1,470+ XP', good: true },
+          { label: t('featuresPage.f5Stat3Label'), value: '4 Tiers', good: true },
+        ],
+        tag: t('featuresPage.f5VisualTag'),
+      },
+      ctaText: t('featuresPage.f5Cta'),
+      ctaLink: '/rewards',
+    },
+    {
+      id: 'community-ai',
+      title: t('featuresPage.f6Title'),
+      badge: t('featuresPage.f6Badge'),
+      icon: <FaUsers />,
+      miniIcon: <FaComments />,
+      accent: '#16a085',
+      accentDark: '#117864',
+      summary: t('featuresPage.f6Summary'),
+      details: [
+        t('featuresPage.f6Detail1'),
+        t('featuresPage.f6Detail2'),
+        t('featuresPage.f6Detail3'),
+        t('featuresPage.f6Detail4'),
+      ],
+      visual: {
+        title: t('featuresPage.f6VisualTitle'),
+        stats: [
+          { label: t('featuresPage.f6Stat1Label'), value: '24/7 Krishi AI', good: true },
+          { label: t('featuresPage.f6Stat2Label'), value: '3 Languages', good: true },
+          { label: t('featuresPage.f6Stat3Label'), value: 'Heirloom+', good: true },
+        ],
+        tag: t('featuresPage.f6VisualTag'),
+      },
+      ctaText: t('featuresPage.f6Cta'),
+      ctaLink: '/register',
+    },
   ];
 
   const quickFeatures = [
     { icon: <FaBell />, title: t('featuresPage.q1Title'), desc: t('featuresPage.q1Desc') },
-    { icon: <FaChartLine />, title: t('featuresPage.q2Title'), desc: t('featuresPage.q2Desc') },
+    { icon: <FaMapMarkerAlt />, title: t('featuresPage.q2Title'), desc: t('featuresPage.q2Desc') },
     { icon: <FaLeaf />, title: t('featuresPage.q3Title'), desc: t('featuresPage.q3Desc') },
-    { icon: <FaShieldAlt />, title: t('featuresPage.q4Title'), desc: t('featuresPage.q4Desc') },
-    { icon: <FaStar />, title: t('featuresPage.q5Title'), desc: t('featuresPage.q5Desc') },
-    { icon: <FaBolt />, title: t('featuresPage.q6Title'), desc: t('featuresPage.q6Desc') },
+    { icon: <FaShareAlt />, title: t('featuresPage.q4Title'), desc: t('featuresPage.q4Desc') },
+    { icon: <FaGlobe />, title: t('featuresPage.q5Title'), desc: t('featuresPage.q5Desc') },
+    { icon: <FaSeedling />, title: t('featuresPage.q6Title'), desc: t('featuresPage.q6Desc') },
+    { icon: <FaChartLine />, title: t('featuresPage.q7Title'), desc: t('featuresPage.q7Desc') },
+    { icon: <FaMobileAlt />, title: t('featuresPage.q8Title'), desc: t('featuresPage.q8Desc') },
   ];
 
   const active = featureList[activeFeature];
 
   return (
     <div className="features-page">
+      <SEO
+        title="Comprehensive Smart Farming Features | UrbanFarm"
+        description="Explore UrbanFarm's full suite of smart features: AI plant disease diagnosis, live AGMARKNET mandi prices, smart irrigation, and achievement rewards."
+      />
 
       {/* Hero */}
       <section className="fp-hero">
         <div className="fp-container fp-text-center">
           <span className="fp-section-tag">{t('featuresPage.heroTag')}</span>
-          <h1 className="fp-hero-title">{t('featuresPage.heroTitlePrefix')}<br /><span className="fp-gradient-text">{t('featuresPage.heroTitleHighlight')}</span></h1>
+          <h1 className="fp-hero-title">
+            {t('featuresPage.heroTitlePrefix')}<br />
+            <span className="fp-gradient-text">{t('featuresPage.heroTitleHighlight')}</span>
+          </h1>
           <p className="fp-hero-subtitle">
             {t('featuresPage.heroSubtitle')}
           </p>
@@ -266,7 +337,7 @@ const FeaturesPage = () => {
               <Link to="/register" className="fp-cta-btn fp-cta-btn-lg">
                 {t('featuresPage.getStartedFree')} <FaArrowRight />
               </Link>
-              <Link to="/about" className="fp-cta-ghost-btn">
+              <Link to="/live-preview" className="fp-cta-ghost-btn">
                 {t('featuresPage.learnMore')}
               </Link>
             </div>

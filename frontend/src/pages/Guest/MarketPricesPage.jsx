@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   FaSync,
@@ -7,441 +8,450 @@ import {
   FaList,
   FaCheckCircle,
   FaExclamationTriangle,
-  FaInfoCircle,
   FaCalendarAlt,
-  FaMapMarkerAlt
+  FaMapMarkerAlt,
+  FaLandmark,
+  FaTimes,
+  FaFilter,
+  FaStore,
+  FaArrowRight,
+  FaCompass,
+  FaChevronLeft,
+  FaChevronRight,
+  FaLeaf,
+  FaAppleAlt,
+  FaSeedling,
+  FaGlobeAsia,
+  FaLocationArrow
 } from 'react-icons/fa';
-import { RiSparklingLine } from 'react-icons/ri';
 import SEO from '../../components/SEO/SEO';
 import { getMarketPrices } from '../../services/marketService';
 import './MarketPricesPage.css';
 
-// Translation map for API data (Commodities, States, Districts, Markets, Units, Variety)
-const API_TRANSLATIONS = {
-  commodities: {
-    'Groundnut': { hi: 'मूंगफली', gu: 'મગફળી' },
-    'Cotton': { hi: 'कपास (रुआ)', gu: 'કપાસ' },
-    'Wheat': { hi: 'गेहूं', gu: 'ઘઉં' },
-    'Maize': { hi: 'मक्का', gu: 'મકાઈ' },
-    'Bajra': { hi: 'बाजरा', gu: 'બાજરો' },
-    'Cumin (Jeera)': { hi: 'जीरा', gu: 'જીરું' },
-    'Castor Seed': { hi: 'अरंडी (एरंड)', gu: 'દિવેલા / એરંડા' },
-    'Gram (Chana)': { hi: 'चना', gu: 'ચણા' },
-    'Onion': { hi: 'प्याज', gu: 'ડુંગળી' },
-    'Potato': { hi: 'आलू', gu: 'બટાકા' },
-    'Tomato': { hi: 'टमाटर', gu: 'ટામેટા' },
-    'Okra (Bhindi)': { hi: 'भिंडी', gu: 'ભીંડા' },
-    'Green Chilli': { hi: 'हरी मिर्च', gu: 'લીલા મરચાં' },
-    'Cabbage': { hi: 'पत्ता गोभी', gu: 'કોબીજ' },
-    'Cauliflower': { hi: 'फूल गोभी', gu: 'ફૂલકોબી' },
-    'Spinach (Palak)': { hi: 'पालक', gu: 'પાલક' },
-    'Coriander (Dhania)': { hi: 'धनिया', gu: 'કોથમીર / ધાણા' },
-    'Green Peas (Matar)': { hi: 'हरी मटर', gu: 'લીલા વટાણા' },
-    'Brinjal (Eggplant)': { hi: 'बैंगन', gu: 'રીંગણ' },
-    'Bottle Gourd (Lauki)': { hi: 'लौकी', gu: 'દૂધી' },
-    'Bitter Gourd (Karela)': { hi: 'करेला', gu: 'કારેલા' },
-    'Rose (Gulab)': { hi: 'गुलाब', gu: 'ગુલાબ' },
-    'Jasmine (Mogra)': { hi: 'मोगरा / चमेली', gu: 'મોગરો / જુઈ' },
-    'Marigold (Genda)': { hi: 'गेंदा', gu: 'ગલગોટો' },
-    'Chrysanthemum (Guldaudi)': { hi: 'गुलदाउदी', gu: 'સેવંતી / ગુલદાઉદી' }
-  },
-  states: {
-    'Gujarat': { hi: 'गुजरात', gu: 'ગુજરાત' },
-    'Maharashtra': { hi: 'महाराष्ट्र', gu: 'મહારાષ્ટ્ર' },
-    'Punjab': { hi: 'पंजाब', gu: 'પંજાબ' },
-    'Madhya Pradesh': { hi: 'मध्य प्रदेश', gu: 'મધ્ય પ્રદેશ' },
-    'Rajasthan': { hi: 'राजस्थान', gu: 'રાજસ્થાન' },
-    'Uttar Pradesh': { hi: 'उत्तर प्रदेश', gu: 'ઉત્તર પ્રદેશ' },
-    'Karnataka': { hi: 'कर्नाटक', gu: 'કર્ણાટક' },
-    'Tamil Nadu': { hi: 'तमिलनाडु', gu: 'તમિલનાડુ' },
-    'Delhi': { hi: 'दिल्ली', gu: 'દિલ્હી' },
-    'Haryana': { hi: 'हरियाणा', gu: 'હરિયાણા' }
-  },
-  districts: {
-    'Rajkot': { hi: 'राजकोट', gu: 'રાજકોટ' },
-    'Ludhiana': { hi: 'लुधियाना', gu: 'લુધિયાણા' },
-    'Indore': { hi: 'इंदौर', gu: 'ઇન્દોર' },
-    'Jaipur': { hi: 'जयपुर', gu: 'જયપુર' },
-    'Banaskantha': { hi: 'बनासकांठा', gu: 'બનાસકાંઠા' },
-    'Mehsana': { hi: 'महसाणा', gu: 'મહેસાણા' },
-    'Latur': { hi: 'लातूर', gu: 'લાતૂર' },
-    'Nashik': { hi: 'नासिक', gu: 'નાસિક' },
-    'Agra': { hi: 'आगरा', gu: 'આગ્રા' },
-    'Kolar': { hi: 'कोलार', gu: 'કોલાર' },
-    'Ahmedabad': { hi: 'अहमदाबाद', gu: 'અમદાવાદ' },
-    'Surat': { hi: 'सूरत', gu: 'સુરત' },
-    'Pune': { hi: 'पुणे', gu: 'પુણે' },
-    'Amritsar': { hi: 'अमृतसर', gu: 'અમૃતસર' },
-    'Bhopal': { hi: 'भोपाल', gu: 'ભોપાલ' },
-    'Karnal': { hi: 'करनाल', gu: 'કનાલ' },
-    'Vadodara': { hi: 'वडोदरा', gu: 'વડોદરા' },
-    'Kanpur': { hi: 'कानपुर', gu: 'કાનપુર' },
-    'Jodhpur': { hi: 'जोधपुर', gu: 'જોધપુર' },
-    'Bengaluru': { hi: 'बेंगलुरु', gu: 'બેંગલુરુ' },
-    'Madurai': { hi: 'मदुरै', gu: 'મદુરાઈ' },
-    'Anand': { hi: 'आनंद', gu: 'આણંદ' }
-  },
-  markets: {
-    'Rajkot': { hi: 'राजकोट मंडी', gu: 'રાજકોટ મંડી' },
-    'Gondal': { hi: 'गोंडल मंडी', gu: 'ગોંડલ મંડી' },
-    'Ludhiana': { hi: 'लुधियाना मंडी', gu: 'લુધિયાણા મંડી' },
-    'Indore': { hi: 'इंदौर मंडी', gu: 'ઇન્દોર मंडी' },
-    'Jaipur': { hi: 'जयपुर मंडी', gu: 'જયપુર મંડી' },
-    'Palanpur': { hi: 'पालनपुर मंडी', gu: 'પાલનપુર મંડી' },
-    'Unjha': { hi: 'ऊंझा मंडी', gu: 'ઊંઝા મંડી' },
-    'Latur': { hi: 'लातूर मंडी', gu: 'લાતૂર મંડી' },
-    'Lasalgaon': { hi: 'लासलगांव मंडी', gu: 'લાસલગામ મંડી' },
-    'Agra': { hi: 'आगरा मंडी', gu: 'આગ્રા મંડી' },
-    'Kolar': { hi: 'कोलार मंडी', gu: 'કોલાર મંડી' },
-    'Ahmedabad APMC': { hi: 'अहमदाबाद एपीएमसी', gu: 'અમદાવાદ APMC' },
-    'Surat APMC': { hi: 'सूरत एपीएमसी', gu: 'સુરત APMC' },
-    'Pune APMC': { hi: 'पुणे एपीएमसी', gu: 'પુણે APMC' },
-    'Azadpur APMC': { hi: 'आजादपुर एपीएमसी', gu: 'આઝાદપુર APMC' },
-    'Amritsar APMC': { hi: 'अमृतसर एपीएमसी', gu: 'અમૃતસર APMC' },
-    'Bhopal APMC': { hi: 'भोपाल एपीएमसी', gu: 'ભોપાલ APMC' },
-    'Karnal APMC': { hi: 'करनाल एपीएमसी', gu: 'કનાલ APMC' },
-    'Vadodara APMC': { hi: 'वडोदरा एपीएमसी', gu: 'વડોદરા APMC' },
-    'Kanpur APMC': { hi: 'कानपुर एपीएमसी', gu: 'કાનપુર APMC' },
-    'Jodhpur APMC': { hi: 'जोधपुर एपीएमसी', gu: 'જોધપુર APMC' },
-    'KR Market Bengaluru': { hi: 'केआर मार्केट बेंगलुरु', gu: 'કેઆર માર્કેટ બેંગલુરુ' },
-    'Madurai Flower Market': { hi: 'मदुरै फ्लावर मार्केट', gu: 'મદુરાઈ ફ્લાવર માર્કેટ' },
-    'Anand Flower APMC': { hi: 'आनंद फ्लावर एपीएमसी', gu: 'આણંદ ફ્લાવર APMC' },
-    'Gultekdi Pune': { hi: 'गुलटेकड़ी पुणे', gu: 'ગુલટેકડી પુણે' }
-  },
-  varieties: {
-    'Bold': { hi: 'बोल्ड (मोटा)', gu: 'બોલ્ડ (મોટું)' },
-    'Shankar-6': { hi: 'शंकर-6', gu: 'શંકર-6' },
-    'Kalyan Sona': { hi: 'कल्याण सोना', gu: 'કલ્યાણ સોના' },
-    'Yellow': { hi: 'पीला (येलो)', gu: 'પીળું' },
-    'Deshi': { hi: 'देशी', gu: 'દેશી' },
-    'Desi': { hi: 'देशी', gu: 'દેશી' },
-    'Quality-1': { hi: 'उत्कृष्ट 1', gu: 'ક્વોલિટી-1' },
-    'Medium': { hi: 'मध्यम', gu: 'મધ્યમ' },
-    'Red': { hi: 'लाल', gu: 'લાલ' },
-    'Jyoti': { hi: 'ज्योति', gu: 'જ્યોતિ' },
-    'Hybrid': { hi: 'हाइब्रिड', gu: 'હાઇબ્રિડ' },
-    'Green Medium': { hi: 'हरा मध्यम', gu: 'લીલું મધ્યમ' },
-    'G-4 Spicy': { hi: 'जी-4 तीखा', gu: 'જી-4 તીખું' },
-    'Round Green': { hi: 'गोल हरा', gu: 'ગોળ લીલું' },
-    'Snowball': { hi: 'स्नोबॉल', gu: 'સ્નોબોલ' },
-    'Fresh Leafy': { hi: 'ताजा पत्तेदार', gu: 'તાજા પાંદડાવાળા' },
-    'Green Aromatic': { hi: 'हरा सुगंधित', gu: 'લીલું સુગંધિત' },
-    'Sweet Green': { hi: 'मीठा हरा', gu: 'મીઠું લીલું' },
-    'Purple Round': { hi: 'बैंगनी गोल', gu: 'રીંગણી ગોળ' },
-    'Long Green': { hi: 'लंबा हरा', gu: 'લાંબુ લીલું' },
-    'Dark Green': { hi: 'गहरा हरा', gu: 'ઘેરૂ લીલું' },
-    'Dutch Red': { hi: 'डच रेड', gu: 'ડચ રેડ' },
-    'Gundu Malli': { hi: 'गुंडू मल्ली', gu: 'ગુન્ડુ મલ્લી' },
-    'Orange African': { hi: 'ऑरेंज अफ्रीकन', gu: 'ઓરેન્જ આફ્રિકન' },
-    'Yellow Hybrid': { hi: 'पीला हाइब्रिड', gu: 'પીળું હાઇબ્રિડ' }
-  },
-  units: {
-    '₹/quintal': { en: '₹/quintal', hi: '₹/क्विंटल', gu: '₹/ક્વિન્ટલ' }
-  }
-};
-
-// Multilingual Page Labels
-const PAGE_LABELS = {
-  en: {
-    heroTag: 'GOVERNMENT OF INDIA / AGMARKNET API',
-    heroTitle: 'Latest Available Market Prices',
-    heroSub: 'Explore real-time APMC mandi prices for crops, green vegetables, and flowers sourced directly from Government of India (Data.gov.in).',
-    dataSourceLabel: 'Data Source: Government of India / Data.gov.in',
-    allCat: 'All Commodities',
-    cropsCat: '🌾 Crops',
-    vegCat: '🥬 Green Vegetables',
-    flowersCat: '🌸 Flowers',
-    searchPlaceholder: 'Search crop, vegetable, flower or APMC market...',
-    allStates: 'All States',
-    allDistricts: 'All Districts',
-    allMarkets: 'All APMC Markets',
-    minPrice: 'Min Price',
-    maxPrice: 'Max Price',
-    modalPrice: 'Modal Price',
-    marketLabel: 'APMC Market',
-    dateLabel: 'Date',
-    unitLabel: 'Unit',
-    varietyLabel: 'Variety:',
-    lastUpdated: 'Last Updated:',
-    refreshBtn: 'Refresh Prices',
-    cardView: 'Card View',
-    tableView: 'Table View',
-    commodity: 'Commodity',
-    location: 'Location',
-    noDataTitle: 'No Mandi Prices Found',
-    noDataSub: 'No matching market price records found for your active search or filter selection.',
-    loadingText: 'Fetching latest available AGMARKNET mandi prices from Data.gov.in...',
-    errorText: 'Unable to retrieve live market prices at this time. Please try refreshing.',
-    disclaimerNotice: 'Prices shown are the latest available records from official AGMARKNET mandis. Prices are updated as official data is published by Data.gov.in.'
-  },
-  hi: {
-    heroTag: 'भारत सरकार / एगमार्कनेट एपीआई',
-    heroTitle: 'नवीनतम उपलब्ध बाजार भाव',
-    heroSub: 'भारत सरकार (Data.gov.in) से सीधे प्राप्त फसलों, हरी सब्जियों और फूलों के वास्तविक समय के एपीएमसी मंडी भाव देखें।',
-    dataSourceLabel: 'डेटा स्रोत: भारत सरकार / Data.gov.in',
-    allCat: 'सभी जिंस (वस्तुएं)',
-    cropsCat: '🌾 फसलें',
-    vegCat: '🥬 हरी सब्जियां',
-    flowersCat: '🌸 फूल',
-    searchPlaceholder: 'फसल, सब्जी, फूल या मंडी खोजें...',
-    allStates: 'सभी राज्य',
-    allDistricts: 'सभी जिले',
-    allMarkets: 'सभी एपीएमसी मंडियां',
-    minPrice: 'न्यूनतम भाव',
-    maxPrice: 'अधिकतम भाव',
-    modalPrice: 'मॉडल (औसत) भाव',
-    marketLabel: 'एपीएमसी मंडी',
-    dateLabel: 'दिनांक',
-    unitLabel: 'इकाई',
-    varietyLabel: 'किस्म:',
-    lastUpdated: 'अंतिम अद्यतन:',
-    refreshBtn: 'भाव रिफ्रेश करें',
-    cardView: 'कार्ड दृश्य',
-    tableView: 'तालिका दृश्य',
-    commodity: 'जिंस (वस्तु)',
-    location: 'स्थान',
-    noDataTitle: 'कोई मंडी भाव नहीं मिला',
-    noDataSub: 'आपकी सक्रिय खोज या फ़िल्टर चयन के लिए कोई मेल खाता रिकॉर्ड नहीं मिला।',
-    loadingText: 'Data.gov.in से नवीनतम उपलब्ध मंडी भाव प्राप्त किए जा रहे हैं...',
-    errorText: 'इस समय लाइव बाजार भाव प्राप्त करने में असमर्थ। कृपया रिफ्रेश करने का प्रयास करें।',
-    disclaimerNotice: 'दिखाए गए भाव आधिकारिक एगमार्कनेट मंडियों के नवीनतम उपलब्ध रिकॉर्ड हैं।'
-  },
-  gu: {
-    heroTag: 'ભારત સરકાર / AGMARKNET API',
-    heroTitle: 'નવીનતમ ઉપલબ્ધ બજાર ભાવ',
-    heroSub: 'ભારત સરકાર (Data.gov.in) માંથી સીધા જ મેળવેલ પાક, લીલા શાકભાજી અને ફૂલોના રીઅલ-ટાઇમ APMC મંડી ભાવ જુઓ.',
-    dataSourceLabel: 'ડેટા સ્ત્રોત: ભારત સરકાર / Data.gov.in',
-    allCat: 'તમામ કોમોડિટીઝ',
-    cropsCat: '🌾 પાક',
-    vegCat: '🥬 લીલા શાકભાજી',
-    flowersCat: '🌸 ફૂલો',
-    searchPlaceholder: 'પાક, શાકભાજી, ફૂલ અથવા મંડી શોધો...',
-    allStates: 'તમામ રાજ્યો',
-    allDistricts: 'તમામ જિલ્લાઓ',
-    allMarkets: 'તમામ APMC મંડીઓ',
-    minPrice: 'ન્યૂનતમ ભાવ',
-    maxPrice: 'મહત્તમ ભાવ',
-    modalPrice: 'મોડલ (સરેરાશ) ભાવ',
-    marketLabel: 'APMC મંડી',
-    dateLabel: 'તારીખ',
-    unitLabel: 'એકમ',
-    varietyLabel: 'જાત / પ્રકાર:',
-    lastUpdated: 'છેલ્લું અપડેટ:',
-    refreshBtn: 'ભાવ રીફ્રેશ કરો',
-    cardView: 'કાર્ડ વ્યૂ',
-    tableView: 'ટેબલ વ્યૂ',
-    commodity: 'પાક / વસ્તુ',
-    location: 'સ્થળ',
-    noDataTitle: 'કોઈ મંડી ભાવ મળ્યા નથી',
-    noDataSub: 'તમારી સક્રિય શોધ અથવા ફિલ્ટર પસંદગી માટે કોઈ મેળ ખાતા રેકોર્ડ મળ્યા નથી.',
-    loadingText: 'Data.gov.in માંથી નવીનતમ ઉપલબ્ધ મંડી ભાવ મેળવી રહ્યા છીએ...',
-    errorText: 'આ સમયે લાઈવ બજાર ભાવ મેળવવામાં અસમર્થ. કૃપા કરીને રીફ્રેશ કરવાનો પ્રયાસ કરો.',
-    disclaimerNotice: 'દર્શાવવામાં આવેલા ભાવ સત્તાવાર AGMARKNET મંડીઓના તાજેતરના ઉપલબ્ધ રેકોર્ડ છે.'
-  }
-};
-
-// Translation Helper Function
-const getLocText = (type, val, lang) => {
-  if (!val) return '';
-  if (lang === 'en') return val;
-  const map = API_TRANSLATIONS[type];
-  if (map && map[val] && map[val][lang]) {
-    return map[val][lang];
-  }
-  return val;
-};
+// Haversine distance calculator in KM
+function getDistanceKm(lat1, lon1, lat2, lon2) {
+  if (!lat1 || !lon1 || !lat2 || !lon2) return null;
+  const R = 6371;
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Math.round(R * c);
+}
 
 const MarketPricesPage = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const lang = i18n.language && ['en', 'hi', 'gu'].includes(i18n.language) ? i18n.language : 'en';
-  const L = PAGE_LABELS[lang] || PAGE_LABELS.en;
+  const L = t('marketPricesPage', { returnObjects: true }) || {};
+  const API_TRANSLATIONS = L.apiTranslations || {
+  };
 
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [dataSource, setDataSource] = useState('');
 
-  // Filter States
+  // Location detection state
+  const [userLocation, setUserLocation] = useState(null); // { lat, lng }
+  const [locationStatus, setLocationStatus] = useState('idle'); // 'idle' | 'prompt' | 'requesting' | 'granted' | 'denied'
+  const [nearbyFirst, setNearbyFirst] = useState(true);
+  const [promptDismissed, setPromptDismissed] = useState(false);
+
+  // Filters
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all'); // 'all', 'crops', 'vegetables', 'flowers'
-  const [selectedState, setSelectedState] = useState('');
-  const [selectedDistrict, setSelectedDistrict] = useState('');
-  const [selectedMarket, setSelectedMarket] = useState('');
-  const [viewMode, setViewMode] = useState('card'); // 'card' or 'table'
+  const [selectedState, setSelectedState] = useState('all');
+  const [selectedDistrict, setSelectedDistrict] = useState('all');
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(12);
+
+  // View mode
+  const [userOverriddenView, setUserOverriddenView] = useState(false);
+  const [viewMode, setViewMode] = useState(() => (
+    typeof window !== 'undefined' && window.innerWidth < 768 ? 'grid' : 'table'
+  )); // 'table' (desktop default) | 'grid' (mobile default)
+
+  const resultsTopRef = useRef(null);
 
   useEffect(() => {
-    fetchPrices();
-  }, []);
+    const handleResize = () => {
+      if (!userOverriddenView && typeof window !== 'undefined') {
+        setViewMode(window.innerWidth < 768 ? 'grid' : 'table');
+      }
+    };
 
-  const fetchPrices = async (forceRefresh = false) => {
-    setLoading(true);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [userOverriddenView]);
+
+  const fetchPricesData = async (forceRefresh = false) => {
+    if (forceRefresh) setRefreshing(true);
+    else setLoading(true);
     setError(null);
+
     try {
-      const res = await getMarketPrices(forceRefresh);
-      if (res && res.records) {
-        setRecords(res.records);
-        setLastUpdated(res.lastUpdated ? new Date(res.lastUpdated).toLocaleString() : new Date().toLocaleString());
-      } else {
-        setRecords([]);
+      const response = await getMarketPrices(forceRefresh);
+      if (response && response.records) {
+        setRecords(response.records);
+        setLastUpdated(response.lastUpdated || new Date().toISOString());
+        setDataSource(response.source || 'Data.gov.in (AGMARKNET)');
       }
     } catch (err) {
-      console.error('Failed to fetch mandi market prices:', err);
+      console.error('Failed to load market prices:', err);
       setError(L.errorText);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
-  const handleRefresh = () => {
-    fetchPrices(true);
+  useEffect(() => {
+    fetchPricesData(false);
+  }, []);
+
+  // Request user location
+  const handleDetectLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationStatus('denied');
+      return;
+    }
+
+    setLocationStatus('requesting');
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setUserLocation({ lat: latitude, lng: longitude });
+        setLocationStatus('granted');
+        setNearbyFirst(true);
+        setCurrentPage(1);
+      },
+      (err) => {
+        console.warn('Geolocation denied or error:', err.message);
+        setLocationStatus('denied');
+      },
+      { timeout: 10000, enableHighAccuracy: false }
+    );
   };
 
-  // Unique States, Districts, Markets
-  const uniqueStates = useMemo(() => {
-    const set = new Set(records.map((r) => r.state).filter(Boolean));
-    return Array.from(set).sort();
+  const handleClearLocation = () => {
+    setUserLocation(null);
+    setLocationStatus('idle');
+    setNearbyFirst(false);
+    setCurrentPage(1);
+  };
+
+  const getLocText = (type, key, currentLang) => {
+    if (!key) return '';
+    if (currentLang === 'en') return key;
+    return API_TRANSLATIONS[type]?.[key]?.[currentLang] || key;
+  };
+
+  // Compute unique states and districts
+  const availableStates = useMemo(() => {
+    const statesSet = new Set();
+    records.forEach((r) => {
+      if (r.state) statesSet.add(r.state);
+    });
+    return Array.from(statesSet).sort();
   }, [records]);
 
-  const uniqueDistricts = useMemo(() => {
-    let filtered = records;
-    if (selectedState) {
-      filtered = filtered.filter((r) => r.state === selectedState);
-    }
-    const set = new Set(filtered.map((r) => r.district).filter(Boolean));
-    return Array.from(set).sort();
+  const availableDistricts = useMemo(() => {
+    const districtsSet = new Set();
+    records.forEach((r) => {
+      if (selectedState === 'all' || r.state === selectedState) {
+        if (r.district) districtsSet.add(r.district);
+      }
+    });
+    return Array.from(districtsSet).sort();
   }, [records, selectedState]);
 
-  const uniqueMarkets = useMemo(() => {
-    let filtered = records;
-    if (selectedState) filtered = filtered.filter((r) => r.state === selectedState);
-    if (selectedDistrict) filtered = filtered.filter((r) => r.district === selectedDistrict);
-    const set = new Set(filtered.map((r) => r.market).filter(Boolean));
-    return Array.from(set).sort();
-  }, [records, selectedState, selectedDistrict]);
-
-  // Filter records
-  const filteredRecords = useMemo(() => {
-    return records.filter((rec) => {
-      if (selectedCategory !== 'all' && rec.category !== selectedCategory) {
-        return false;
-      }
-      if (selectedState && rec.state !== selectedState) {
-        return false;
-      }
-      if (selectedDistrict && rec.district !== selectedDistrict) {
-        return false;
-      }
-      if (selectedMarket && rec.market !== selectedMarket) {
-        return false;
-      }
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase().trim();
-        const locCommodity = getLocText('commodities', rec.commodity, lang).toLowerCase();
-        const locMarket = getLocText('markets', rec.market, lang).toLowerCase();
-        const locDistrict = getLocText('districts', rec.district, lang).toLowerCase();
-        const locState = getLocText('states', rec.state, lang).toLowerCase();
-        const origCommodity = rec.commodity ? rec.commodity.toLowerCase() : '';
-        const origMarket = rec.market ? rec.market.toLowerCase() : '';
-
-        const match =
-          locCommodity.includes(q) ||
-          locMarket.includes(q) ||
-          locDistrict.includes(q) ||
-          locState.includes(q) ||
-          origCommodity.includes(q) ||
-          origMarket.includes(q);
-
-        if (!match) return false;
-      }
-      return true;
+  // Filter, Distance calculation & Sorting
+  const filteredAndSortedRecords = useMemo(() => {
+    let result = records.map((rec) => {
+      const distance = userLocation && rec.lat && rec.lng
+        ? getDistanceKm(userLocation.lat, userLocation.lng, rec.lat, rec.lng)
+        : null;
+      return {
+        ...rec,
+        distance
+      };
     });
-  }, [records, selectedCategory, selectedState, selectedDistrict, selectedMarket, searchQuery, lang]);
+
+    // 1. Category Filter
+    if (selectedCategory !== 'all') {
+      result = result.filter((r) => r.category === selectedCategory);
+    }
+
+    // 2. State Filter
+    if (selectedState !== 'all') {
+      result = result.filter((r) => r.state === selectedState);
+    }
+
+    // 3. District Filter
+    if (selectedDistrict !== 'all') {
+      result = result.filter((r) => r.district === selectedDistrict);
+    }
+
+    // 4. Search Filter (Commodity, Market, District, State)
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      result = result.filter((r) => {
+        const commEn = (r.commodity || '').toLowerCase();
+        const commHi = (API_TRANSLATIONS.commodities[r.commodity]?.hi || '').toLowerCase();
+        const commGu = (API_TRANSLATIONS.commodities[r.commodity]?.gu || '').toLowerCase();
+
+        const mktEn = (r.market || '').toLowerCase();
+        const mktHi = (API_TRANSLATIONS.markets[r.market]?.hi || '').toLowerCase();
+        const mktGu = (API_TRANSLATIONS.markets[r.market]?.gu || '').toLowerCase();
+
+        const stEn = (r.state || '').toLowerCase();
+        const distEn = (r.district || '').toLowerCase();
+        const varEn = (r.variety || '').toLowerCase();
+
+        return (
+          commEn.includes(q) ||
+          commHi.includes(q) ||
+          commGu.includes(q) ||
+          mktEn.includes(q) ||
+          mktHi.includes(q) ||
+          mktGu.includes(q) ||
+          stEn.includes(q) ||
+          distEn.includes(q) ||
+          varEn.includes(q)
+        );
+      });
+    }
+
+    // 5. Proximity / Nearby sorting
+    if (userLocation && nearbyFirst) {
+      result.sort((a, b) => {
+        if (a.distance !== null && b.distance !== null) {
+          return a.distance - b.distance;
+        }
+        if (a.distance !== null) return -1;
+        if (b.distance !== null) return 1;
+        return 0;
+      });
+    }
+
+    return result;
+  }, [records, selectedCategory, selectedState, selectedDistrict, searchQuery, userLocation, nearbyFirst]);
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, selectedState, selectedDistrict, searchQuery, userLocation, nearbyFirst]);
+
+  // Pagination calculation
+  const totalRecords = filteredAndSortedRecords.length;
+  const totalPages = Math.max(1, Math.ceil(totalRecords / itemsPerPage));
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalRecords);
+  const paginatedRecords = useMemo(() => {
+    return filteredAndSortedRecords.slice(startIndex, endIndex);
+  }, [filteredAndSortedRecords, startIndex, endIndex]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      if (resultsTopRef.current) {
+        resultsTopRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  };
+
+  // Stats calculation
+  const stats = useMemo(() => {
+    if (filteredAndSortedRecords.length === 0) {
+      return { count: 0, avgModal: 0, minRate: 0, maxRate: 0 };
+    }
+    const count = filteredAndSortedRecords.length;
+    const sumModal = filteredAndSortedRecords.reduce((acc, r) => acc + (r.modal_price || 0), 0);
+    const minRate = Math.min(...filteredAndSortedRecords.map((r) => r.min_price || Infinity));
+    const maxRate = Math.max(...filteredAndSortedRecords.map((r) => r.max_price || 0));
+
+    return {
+      count,
+      avgModal: Math.round(sumModal / count),
+      minRate: minRate === Infinity ? 0 : minRate,
+      maxRate
+    };
+  }, [filteredAndSortedRecords]);
+
+  // Page numbers for pagination with ellipsis
+  const pageNumbers = useMemo(() => {
+    const pages = [];
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      if (currentPage <= 3) {
+        pages.push(1, 2, 3, 4, '...', totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+      }
+    }
+    return pages;
+  }, [totalPages, currentPage]);
 
   return (
     <div className="market-prices-page">
       <SEO
-        title="Latest Available APMC Mandi Market Prices | UrbanFarm"
-        description="Check real-time Indian mandi prices for crops, green vegetables, and flowers sourced directly from Government of India (Data.gov.in AGMARKNET)."
+        title="Live AGMARKNET Mandi Market Prices - All India APMC Rates | UrbanFarm"
+        description="Check real-time APMC mandi prices for crops, grains, vegetables, fruits, and flowers across India. Sourced directly from Data.gov.in."
       />
 
-      {/* Hero Header Banner */}
+      {/* Hero Header Section */}
       <section className="market-hero">
-        <div className="market-container text-center">
-          <div className="gov-source-tag">
-            <RiSparklingLine /> {L.heroTag}
+        <div className="market-hero-container text-center">
+          <div className="market-section-tag">
+            <FaLandmark /> {L.heroTag}
           </div>
+          
           <h1 className="market-hero-title">
-            {L.heroTitle}
+            {L.heroTitle} <span className="market-gradient-text">{L.heroTitleGrad}</span>
           </h1>
+          
           <p className="market-hero-subtitle">{L.heroSub}</p>
 
-          <div className="data-source-badge">
-            <FaCheckCircle className="badge-ic" /> {L.dataSourceLabel}
+          {/* Live Data Source Badge & Refresh Bar */}
+          <div className="market-source-bar">
+            <span className="source-name">
+              <FaCheckCircle className="source-ic" /> {L.dataSourceLabel}
+            </span>
+            {lastUpdated && (
+              <span className="source-time">
+                {L.lastUpdated} {new Date(lastUpdated).toLocaleDateString([], { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            )}
+            <button
+              className="refresh-pill-btn"
+              onClick={() => fetchPricesData(true)}
+              disabled={loading || refreshing}
+            >
+              <FaSync className={refreshing ? 'spin-ic' : ''} />
+              {refreshing ? L.refreshingBtn : L.refreshBtn}
+            </button>
           </div>
         </div>
       </section>
 
+      {/* Location Proximity Banner */}
+      {!userLocation && !promptDismissed && (
+        <section className="market-location-banner-wrap">
+          <div className="market-container">
+            <div className="market-location-banner">
+              <div className="mlb-icon-box">
+                <FaCompass className="compass-ic" />
+              </div>
+              <div className="mlb-text">
+                <h3>{L.locationPromptTitle}</h3>
+                <p>{L.locationPromptSub}</p>
+              </div>
+              <div className="mlb-actions">
+                <button
+                  className="location-btn location-btn-primary"
+                  onClick={handleDetectLocation}
+                  disabled={locationStatus === 'requesting'}
+                >
+                  <FaLocationArrow />
+                  {locationStatus === 'requesting' ? L.detectingLocation : L.detectLocationBtn}
+                </button>
+                <button
+                  className="location-btn location-btn-secondary"
+                  onClick={() => setPromptDismissed(true)}
+                >
+                  {L.showAllIndiaBtn}
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Main Content Section */}
-      <section className="market-content-section">
+      <section className="market-content-section" ref={resultsTopRef}>
         <div className="market-container">
           
           {/* Controls Card */}
           <div className="market-controls-card">
             
-            {/* Category Tabs */}
+            {/* Category Tabs Bar */}
             <div className="category-tabs-bar">
               <button
                 className={`cat-tab-btn ${selectedCategory === 'all' ? 'active' : ''}`}
                 onClick={() => setSelectedCategory('all')}
               >
-                {L.allCat}
+                <FaGlobeAsia /> {L.allCat}
               </button>
               <button
                 className={`cat-tab-btn ${selectedCategory === 'crops' ? 'active' : ''}`}
                 onClick={() => setSelectedCategory('crops')}
               >
-                {L.cropsCat}
+                <FaSeedling /> {L.cropsCat}
               </button>
               <button
                 className={`cat-tab-btn ${selectedCategory === 'vegetables' ? 'active' : ''}`}
                 onClick={() => setSelectedCategory('vegetables')}
               >
-                {L.vegCat}
+                <FaLeaf /> {L.vegCat}
+              </button>
+              <button
+                className={`cat-tab-btn ${selectedCategory === 'fruits' ? 'active' : ''}`}
+                onClick={() => setSelectedCategory('fruits')}
+              >
+                <FaAppleAlt /> {L.fruitsCat}
               </button>
               <button
                 className={`cat-tab-btn ${selectedCategory === 'flowers' ? 'active' : ''}`}
                 onClick={() => setSelectedCategory('flowers')}
               >
-                {L.flowersCat}
+                🌸 {L.flowersCat}
               </button>
             </div>
 
-            {/* Filter Inputs Row */}
-            <div className="filter-inputs-row">
-              <div className="search-input-wrapper">
+            {/* Filter Controls Row */}
+            <div className="filter-controls-row">
+              {/* Search Bar */}
+              <div className="search-input-box">
                 <FaSearch className="search-ic" />
                 <input
                   type="text"
-                  className="search-input"
                   placeholder={L.searchPlaceholder}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  aria-label="Search Mandi Prices"
                 />
+                {searchQuery && (
+                  <button
+                    className="clear-search-btn"
+                    onClick={() => setSearchQuery('')}
+                    aria-label="Clear search"
+                  >
+                    <FaTimes />
+                  </button>
+                )}
               </div>
 
               {/* State Dropdown */}
-              <div className="select-wrapper">
+              <div className="select-box-wrap">
                 <select
-                  className="filter-select"
                   value={selectedState}
                   onChange={(e) => {
                     setSelectedState(e.target.value);
-                    setSelectedDistrict('');
-                    setSelectedMarket('');
+                    setSelectedDistrict('all');
                   }}
                 >
-                  <option value="">{L.allStates}</option>
-                  {uniqueStates.map((st) => (
+                  <option value="all">{L.allStates}</option>
+                  {availableStates.map((st) => (
                     <option key={st} value={st}>
                       {getLocText('states', st, lang)}
                     </option>
@@ -450,165 +460,196 @@ const MarketPricesPage = () => {
               </div>
 
               {/* District Dropdown */}
-              <div className="select-wrapper">
+              <div className="select-box-wrap">
                 <select
-                  className="filter-select"
                   value={selectedDistrict}
-                  onChange={(e) => {
-                    setSelectedDistrict(e.target.value);
-                    setSelectedMarket('');
+                  onChange={(e) => setSelectedDistrict(e.target.value)}
+                  disabled={availableDistricts.length === 0}
+                >
+                  <option value="all">{L.allDistricts}</option>
+                  {availableDistricts.map((dist) => (
+                    <option key={dist} value={dist}>
+                      {getLocText('districts', dist, lang)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Location Quick Toggle Button */}
+              <button
+                className={`location-pill-btn ${userLocation ? 'active' : ''}`}
+                onClick={userLocation ? handleClearLocation : handleDetectLocation}
+                title={userLocation ? L.showAllIndiaBtn : L.detectLocationBtn}
+              >
+                <FaMapMarkerAlt />
+                <span>{userLocation ? L.locationDetected : L.detectLocationBtn}</span>
+                {userLocation && <FaTimes className="clear-loc-ic" />}
+              </button>
+
+              {/* View Mode Toggle */}
+              <div className="view-mode-toggle">
+                <button
+                  className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+                  onClick={() => {
+                    setViewMode('grid');
+                    setUserOverriddenView(true);
                   }}
+                  title={L.cardView}
+                  aria-label={L.cardView}
                 >
-                  <option value="">{L.allDistricts}</option>
-                  {uniqueDistricts.map((d) => (
-                    <option key={d} value={d}>
-                      {getLocText('districts', d, lang)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Market Dropdown */}
-              <div className="select-wrapper">
-                <select
-                  className="filter-select"
-                  value={selectedMarket}
-                  onChange={(e) => setSelectedMarket(e.target.value)}
+                  <FaThLarge />
+                </button>
+                <button
+                  className={`view-btn ${viewMode === 'table' ? 'active' : ''}`}
+                  onClick={() => {
+                    setViewMode('table');
+                    setUserOverriddenView(true);
+                  }}
+                  title={L.tableView}
+                  aria-label={L.tableView}
                 >
-                  <option value="">{L.allMarkets}</option>
-                  {uniqueMarkets.map((m) => (
-                    <option key={m} value={m}>
-                      {getLocText('markets', m, lang)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Action Bar */}
-            <div className="controls-action-bar">
-              <div className="bar-left-info">
-                {lastUpdated && (
-                  <span className="last-updated-text">
-                    <FaCalendarAlt /> {L.lastUpdated} <strong>{lastUpdated}</strong>
-                  </span>
-                )}
-              </div>
-
-              <div className="bar-right-controls">
-                {/* View Mode Toggle */}
-                <div className="view-mode-toggle">
-                  <button
-                    className={`toggle-btn ${viewMode === 'card' ? 'active' : ''}`}
-                    onClick={() => setViewMode('card')}
-                    title={L.cardView}
-                  >
-                    <FaThLarge /> {L.cardView}
-                  </button>
-                  <button
-                    className={`toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
-                    onClick={() => setViewMode('table')}
-                    title={L.tableView}
-                  >
-                    <FaList /> {L.tableView}
-                  </button>
-                </div>
-
-                {/* Refresh Button */}
-                <button className="refresh-btn" onClick={handleRefresh} disabled={loading}>
-                  <FaSync className={loading ? 'spin-ic' : ''} /> {L.refreshBtn}
+                  <FaList />
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Loading State */}
-          {loading && (
-            <div className="market-state-card loading">
-              <FaSync className="spin-ic state-ic" />
-              <h3>{L.loadingText}</h3>
+          {/* Location Active Status Notification */}
+          {userLocation && (
+            <div className="market-location-status-badge">
+              <span className="loc-status-text">
+                <FaCheckCircle className="check-ic" /> {L.locationDetected} — {L.heroTag}
+              </span>
+              <button className="loc-reset-link" onClick={handleClearLocation}>
+                {L.showAllIndiaBtn}
+              </button>
             </div>
           )}
 
-          {/* Error State */}
-          {!loading && error && (
-            <div className="market-state-card error">
-              <FaExclamationTriangle className="state-ic error" />
-              <h3>{error}</h3>
-              <button className="market-btn primary" onClick={handleRefresh}>
+          {/* Stats Metric Cards Bar */}
+          <div className="market-metrics-bar">
+            <div className="market-metric-card">
+              <span className="mm-label">{L.statTotal}</span>
+              <strong className="mm-val">{stats.count}</strong>
+            </div>
+            <div className="market-metric-card">
+              <span className="mm-label">{L.statAvgModal}</span>
+              <strong className="mm-val accent">₹{stats.avgModal.toLocaleString('en-IN')}</strong>
+            </div>
+            <div className="market-metric-card">
+              <span className="mm-label">{L.statLowest}</span>
+              <strong className="mm-val healthy">₹{stats.minRate.toLocaleString('en-IN')}</strong>
+            </div>
+            <div className="market-metric-card">
+              <span className="mm-label">{L.statHighest}</span>
+              <strong className="mm-val">₹{stats.maxRate.toLocaleString('en-IN')}</strong>
+            </div>
+          </div>
+
+          {/* Loading Indicator */}
+          {loading && (
+            <div className="market-status-box">
+              <div className="spinner-loader" />
+              <p>{L.loadingText}</p>
+            </div>
+          )}
+
+          {/* Error Message */}
+          {error && !loading && (
+            <div className="market-status-box error">
+              <FaExclamationTriangle className="status-err-ic" />
+              <p>{error}</p>
+              <button
+                className="guest-btn guest-btn-primary"
+                onClick={() => fetchPricesData(true)}
+              >
                 <FaSync /> {L.refreshBtn}
               </button>
             </div>
           )}
 
           {/* Empty State */}
-          {!loading && !error && filteredRecords.length === 0 && (
-            <div className="market-state-card empty">
-              <FaInfoCircle className="state-ic info" />
+          {!loading && !error && filteredAndSortedRecords.length === 0 && (
+            <div className="market-empty-card">
+              <div className="empty-ic-box">
+                <FaStore />
+              </div>
               <h3>{L.noDataTitle}</h3>
               <p>{L.noDataSub}</p>
-              <button className="market-btn outline" onClick={() => {
-                setSearchQuery('');
-                setSelectedCategory('all');
-                setSelectedState('');
-                setSelectedDistrict('');
-                setSelectedMarket('');
-              }}>
-                Reset Filters
+              <button
+                className="guest-btn guest-btn-outline"
+                onClick={() => {
+                  setSelectedCategory('all');
+                  setSelectedState('all');
+                  setSelectedDistrict('all');
+                  setSearchQuery('');
+                  handleClearLocation();
+                }}
+              >
+                {L.clearFilters}
               </button>
             </div>
           )}
 
-          {/* Records Output: Card View */}
-          {!loading && !error && filteredRecords.length > 0 && viewMode === 'card' && (
+          {/* Data Presentation: Card Grid View */}
+          {!loading && !error && filteredAndSortedRecords.length > 0 && viewMode === 'grid' && (
             <div className="market-cards-grid">
-              {filteredRecords.map((item) => {
-                const locCommodity = getLocText('commodities', item.commodity, lang);
-                const locVariety = getLocText('varieties', item.variety, lang);
-                const locMarket = getLocText('markets', item.market, lang);
-                const locDistrict = getLocText('districts', item.district, lang);
-                const locState = getLocText('states', item.state, lang);
-                const locUnit = getLocText('units', item.unit, lang);
+              {paginatedRecords.map((r) => {
+                const commName = getLocText('commodities', r.commodity, lang);
+                const stName = getLocText('states', r.state, lang);
+                const distName = getLocText('districts', r.district, lang);
+                const mktName = getLocText('markets', r.market, lang);
+                const varName = getLocText('varieties', r.variety, lang);
+                const unitName = API_TRANSLATIONS.units[r.unit]?.[lang] || r.unit;
+                const isNearby = r.distance !== null && r.distance <= 160;
 
                 return (
-                  <div key={item.id} className="mandi-price-card">
-                    <div className="card-top">
-                      <span className={`cat-pill ${item.category}`}>
-                        {item.category === 'crops' && '🌾 Crop'}
-                        {item.category === 'vegetables' && '🥬 Vegetable'}
-                        {item.category === 'flowers' && '🌸 Flower'}
+                  <div key={r.id} className={`mandi-price-card ${isNearby ? 'nearby-card' : ''}`}>
+                    <div className="mandi-card-top">
+                      <span className={`mandi-cat-tag ${r.category}`}>
+                        {r.category === 'crops' ? L.cropsCat : r.category === 'vegetables' ? L.vegCat : r.category === 'fruits' ? L.fruitsCat : L.flowersCat}
                       </span>
-                      <span className="arrival-date">
-                        <FaCalendarAlt /> {item.arrival_date}
-                      </span>
+                      {isNearby ? (
+                        <span className="nearby-tag">
+                          <FaLocationArrow /> {L.nearYouBadge} {r.distance ? `(${r.distance} ${L.distanceKm})` : ''}
+                        </span>
+                      ) : (
+                        <span className="arrival-date">
+                          <FaCalendarAlt /> {r.arrival_date}
+                        </span>
+                      )}
                     </div>
 
-                    <h3 className="commodity-title">{locCommodity}</h3>
-                    <p className="variety-sub">{L.varietyLabel} <strong>{locVariety}</strong></p>
+                    <h3 className="commodity-name">{commName}</h3>
+                    <div className="variety-info">
+                      <span>{L.varietyLabel}</span> <strong>{varName || r.variety}</strong>
+                    </div>
 
-                    <div className="location-info">
+                    <div className="location-row">
                       <FaMapMarkerAlt className="loc-ic" />
-                      <span><strong>{locMarket}</strong>, {locDistrict}, {locState}</span>
+                      <span>
+                        <strong>{mktName}</strong> • {distName}, {stName}
+                      </span>
                     </div>
 
-                    {/* Prices Display */}
-                    <div className="price-metrics-box">
-                      <div className="price-item modal-highlight">
-                        <span className="p-label">{L.modalPrice}</span>
-                        <strong className="p-val">₹{item.modal_price.toLocaleString('en-IN')}</strong>
-                        <span className="p-unit">{locUnit}</span>
+                    {/* Price Matrix */}
+                    <div className="price-matrix-grid">
+                      <div className="price-box">
+                        <span className="pbox-lbl">{L.minPrice}</span>
+                        <span className="pbox-val">₹{r.min_price?.toLocaleString('en-IN')}</span>
                       </div>
+                      <div className="price-box modal-box">
+                        <span className="pbox-lbl">{L.modalPrice}</span>
+                        <span className="pbox-val modal-val">₹{r.modal_price?.toLocaleString('en-IN')}</span>
+                      </div>
+                      <div className="price-box">
+                        <span className="pbox-lbl">{L.maxPrice}</span>
+                        <span className="pbox-val">₹{r.max_price?.toLocaleString('en-IN')}</span>
+                      </div>
+                    </div>
 
-                      <div className="price-sub-row">
-                        <div className="price-item">
-                          <span className="p-label">{L.minPrice}</span>
-                          <strong className="p-val min">₹{item.min_price.toLocaleString('en-IN')}</strong>
-                        </div>
-                        <div className="price-item">
-                          <span className="p-label">{L.maxPrice}</span>
-                          <strong className="p-val max">₹{item.max_price.toLocaleString('en-IN')}</strong>
-                        </div>
-                      </div>
+                    <div className="card-unit-footer">
+                      <span>{L.unitLabel}: <strong>{unitName}</strong></span>
                     </div>
                   </div>
                 );
@@ -616,44 +657,62 @@ const MarketPricesPage = () => {
             </div>
           )}
 
-          {/* Records Output: Table View */}
-          {!loading && !error && filteredRecords.length > 0 && viewMode === 'table' && (
-            <div className="market-table-container">
-              <table className="market-table">
+          {/* Data Presentation: Table View */}
+          {!loading && !error && filteredAndSortedRecords.length > 0 && viewMode === 'table' && (
+            <div className="mandi-table-wrapper">
+              <table className="mandi-table">
                 <thead>
                   <tr>
                     <th>{L.commodity}</th>
+                    <th>{L.category}</th>
                     <th>{L.marketLabel}</th>
                     <th>{L.location}</th>
                     <th>{L.minPrice}</th>
+                    <th className="modal-th">{L.modalPrice}</th>
                     <th>{L.maxPrice}</th>
-                    <th>{L.modalPrice}</th>
-                    <th>{L.unitLabel}</th>
                     <th>{L.dateLabel}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredRecords.map((item) => {
-                    const locCommodity = getLocText('commodities', item.commodity, lang);
-                    const locVariety = getLocText('varieties', item.variety, lang);
-                    const locMarket = getLocText('markets', item.market, lang);
-                    const locDistrict = getLocText('districts', item.district, lang);
-                    const locState = getLocText('states', item.state, lang);
-                    const locUnit = getLocText('units', item.unit, lang);
+                  {paginatedRecords.map((r) => {
+                    const commName = getLocText('commodities', r.commodity, lang);
+                    const stName = getLocText('states', r.state, lang);
+                    const distName = getLocText('districts', r.district, lang);
+                    const mktName = getLocText('markets', r.market, lang);
+                    const varName = getLocText('varieties', r.variety, lang);
+                    const isNearby = r.distance !== null && r.distance <= 160;
 
                     return (
-                      <tr key={item.id}>
-                        <td className="commodity-td">
-                          <strong>{locCommodity}</strong>
-                          <span className="variety-tag">{locVariety}</span>
+                      <tr key={r.id} className={isNearby ? 'nearby-row' : ''}>
+                        <td>
+                          <div className="tbl-comm-block">
+                            <strong>{commName}</strong>
+                            <span className="tbl-variety">{varName || r.variety}</span>
+                            {isNearby && (
+                              <span className="tbl-nearby-badge">
+                                <FaLocationArrow /> {L.nearYouBadge} {r.distance ? `(${r.distance} ${L.distanceKm})` : ''}
+                              </span>
+                            )}
+                          </div>
                         </td>
-                        <td><strong>{locMarket}</strong></td>
-                        <td>{locDistrict}, {locState}</td>
-                        <td className="price-td min">₹{item.min_price.toLocaleString('en-IN')}</td>
-                        <td className="price-td max">₹{item.max_price.toLocaleString('en-IN')}</td>
-                        <td className="price-td modal">₹{item.modal_price.toLocaleString('en-IN')}</td>
-                        <td>{locUnit}</td>
-                        <td>{item.arrival_date}</td>
+                        <td>
+                          <span className={`mandi-cat-tag ${r.category}`}>
+                            {r.category === 'crops' ? L.cropsCat : r.category === 'vegetables' ? L.vegCat : r.category === 'fruits' ? L.fruitsCat : L.flowersCat}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="tbl-market">
+                            <FaStore className="tbl-ic" />
+                            <span>{mktName}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <span className="tbl-loc">{distName}, {stName}</span>
+                        </td>
+                        <td className="rate-td">₹{r.min_price?.toLocaleString('en-IN')}</td>
+                        <td className="rate-td modal-td">₹{r.modal_price?.toLocaleString('en-IN')}</td>
+                        <td className="rate-td">₹{r.max_price?.toLocaleString('en-IN')}</td>
+                        <td className="date-td">{r.arrival_date}</td>
                       </tr>
                     );
                   })}
@@ -662,11 +721,97 @@ const MarketPricesPage = () => {
             </div>
           )}
 
-          {/* Disclaimer Footer Note */}
-          <div className="market-disclaimer-note">
-            <FaInfoCircle /> {L.disclaimerNotice} • <strong>{L.dataSourceLabel}</strong>
+          {/* Pagination Controls Bar */}
+          {!loading && !error && filteredAndSortedRecords.length > 0 && (
+            <div className="market-pagination-bar">
+              <div className="pagination-info">
+                <span>
+                  {L.showing} <strong>{startIndex + 1}</strong> {L.to} <strong>{endIndex}</strong> {L.of} <strong>{totalRecords}</strong> {L.records}
+                </span>
+                <div className="per-page-select-wrap">
+                  <label htmlFor="perPageSelect">{L.perPage}:</label>
+                  <select
+                    id="perPageSelect"
+                    value={itemsPerPage}
+                    onChange={(e) => {
+                      setItemsPerPage(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                  >
+                    <option value={12}>12</option>
+                    <option value={24}>24</option>
+                    <option value={48}>48</option>
+                  </select>
+                </div>
+              </div>
+
+              {totalPages > 1 && (
+                <div className="pagination-nav">
+                  <button
+                    className="page-btn page-nav-btn"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    aria-label="Previous page"
+                  >
+                    <FaChevronLeft /> {L.prevPage}
+                  </button>
+
+                  <div className="page-numbers">
+                    {pageNumbers.map((p, pIdx) => {
+                      if (p === '...') {
+                        return <span key={`dots-${pIdx}`} className="page-dots">...</span>;
+                      }
+                      return (
+                        <button
+                          key={p}
+                          className={`page-btn page-num-btn ${currentPage === p ? 'active' : ''}`}
+                          onClick={() => handlePageChange(p)}
+                        >
+                          {p}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    className="page-btn page-nav-btn"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    aria-label="Next page"
+                  >
+                    {L.nextPage} <FaChevronRight />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Disclaimer Card */}
+          <div className="market-disclaimer-card">
+            <div className="disclaimer-content">
+              <div className="disclaimer-badge">
+                <FaLandmark /> {L.disclaimerTitle}
+              </div>
+              <p>{L.disclaimerNotice}</p>
+            </div>
           </div>
 
+        </div>
+      </section>
+
+      {/* Above Footer Impact CTA Banner */}
+      <section className="about-impact-banner">
+        <div className="landing-container text-center">
+          <h2>{t('about.impactBannerTitle')}</h2>
+          <p>{t('about.impactBannerSubtitle')}</p>
+          <div className="about-cta-group">
+            <Link to="/register" className="landing-btn landing-btn-primary">
+              {t('about.joinToday')} <FaArrowRight />
+            </Link>
+            <Link to="/contact" className="landing-btn landing-btn-secondary">
+              {t('about.getInTouch')}
+            </Link>
+          </div>
         </div>
       </section>
     </div>

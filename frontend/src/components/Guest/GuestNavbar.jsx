@@ -39,7 +39,7 @@ const GuestNavbar = () => {
           <NavLink to="/features" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`}>
             {t('navigation.features')}
           </NavLink>
-          <NavLink to="/demo" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`}>
+          <NavLink to="/live-preview" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`}>
             {t('navigation.demo')}
           </NavLink>
           <NavLink to="/rewards" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`}>
@@ -119,7 +119,7 @@ const GuestNavbar = () => {
               <NavLink to="/features" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`} onClick={closeMenu}>
                 {t('navigation.features')}
               </NavLink>
-              <NavLink to="/demo" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`} onClick={closeMenu}>
+              <NavLink to="/live-preview" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`} onClick={closeMenu}>
                 {t('navigation.demo')}
               </NavLink>
               <NavLink to="/rewards" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`} onClick={closeMenu}>
