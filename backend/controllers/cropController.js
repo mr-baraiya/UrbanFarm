@@ -5,12 +5,23 @@ const { getRecommendations } = require('../services/aiCropRecommendationService'
 // @route   POST /api/crops/recommend
 exports.getCropRecommendations = async (req, res, next) => {
   try {
-    const { soilType, ph, temperature, humidity, rainfall, season, region } = req.body;
+    const { 
+      soilType, 
+      ph, 
+      temperature, 
+      humidity, 
+      rainfall, 
+      season, 
+      region, 
+      spaceAvailable, 
+      gardenType,
+      targetCrop 
+    } = req.body;
 
-    console.log('🌾 Getting crop recommendations for:', { soilType, ph, temperature });
+    console.log('🌾 Getting crop recommendations for:', { soilType, ph, temperature, targetCrop });
 
-    // Call Gemini service
-    const recommendations = await getRecommendations({
+    // Call Gemini AI service
+    const aiResult = await getRecommendations({
       soilType,
       ph,
       temperature,
@@ -18,25 +29,52 @@ exports.getCropRecommendations = async (req, res, next) => {
       rainfall,
       season,
       region,
+      spaceAvailable,
+      gardenType,
+      targetCrop,
     });
 
-    // Save to database (for history)
+    const recommendations = aiResult.recommendations || [];
+
+    // Save to database (for user history)
     const cropRec = await CropRecommendation.create({
       userId: req.user.id,
-      inputData: { soilType, ph, temperature, humidity, rainfall, season, region },
+      inputData: { 
+        soilType, 
+        ph, 
+        temperature, 
+        humidity, 
+        rainfall, 
+        season, 
+        region, 
+        spaceAvailable,
+        targetCrop 
+      },
       recommendations,
     });
 
-    console.log('✅ Crop recommendations saved');
+    console.log('✅ Real Gemini crop recommendations saved:', cropRec._id);
 
     res.status(200).json({
       success: true,
+      soilAnalysis: aiResult.soilAnalysis,
+      targetCropCheck: aiResult.targetCropCheck,
       recommendations,
       historyId: cropRec._id,
     });
   } catch (error) {
-    console.error('❌ Crop recommendation error:', error);
-    next(error);
+    console.error('❌ Crop recommendation error:', error.message);
+    if (error.validationErrors) {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+        errors: error.validationErrors
+      });
+    }
+    res.status(error.status || 500).json({
+      success: false,
+      message: error.message || 'Failed to generate crop recommendations. Please check inputs and retry.'
+    });
   }
 };
 

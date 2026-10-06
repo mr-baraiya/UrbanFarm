@@ -56,13 +56,15 @@
 
 .history-filters .search-bar input {
   width: 100%;
-  padding: 0.5rem 1rem 0.5rem 2.5rem;
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
-  border-radius: var(--radius-md, 12px);
-  font-size: 0.9rem;
-  background: var(--surface-primary, #ffffff);
-  color: var(--text-main, #2c2421);
-  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+  padding: 0.6rem 1rem;
+  border: 1px solid #cce3de;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  background: #ffffff;
+  color: #1f3a30;
+  transition: all 0.2s ease;
+  min-height: 44px;
+  box-sizing: border-box;
 }
 
 .history-filters .search-bar input:focus {
@@ -258,28 +260,90 @@
   margin-top: 0.2rem;
 }
 
+/* History Quick Actions */
+.history-quick-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.55rem;
+  padding-top: 0.45rem;
+  border-top: 1px dashed rgba(220, 210, 200, 0.4);
+}
+
+.history-qa-link,
+.history-qa-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.history-qa-link {
+  background: #f0fdf4;
+  color: #166534;
+  border-color: #bbf7d0;
+}
+
+.history-qa-link:hover {
+  background: #dcfce7;
+  border-color: #86efac;
+  transform: translateY(-1px);
+}
+
+.history-qa-btn {
+  background: #fff7ed;
+  color: #c2410c;
+  border-color: #fed7aa;
+}
+
+.history-qa-btn:hover {
+  background: #ffedd5;
+  border-color: #fb923c;
+  transform: translateY(-1px);
+}
+
 /* Responsive */
+@media (max-width: 640px) {
+  .history-quick-actions {
+    flex-wrap: wrap;
+  }
+  .history-qa-link,
+  .history-qa-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 0.35rem 0.5rem;
+  }
+}
+
 @media (max-width: 480px) {
   .history-item {
-    padding: 0.6rem 0.8rem;
+    padding: 0.75rem 0.85rem;
   }
 
   .history-thumbnail {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
   }
 
   .history-disease {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
   }
 
   .history-header-row {
     flex-direction: column;
     align-items: flex-start;
+    gap: 0.25rem;
   }
 
   .history-details {
-    gap: 0.3rem;
+    gap: 0.35rem;
   }
 
   .history-details span {

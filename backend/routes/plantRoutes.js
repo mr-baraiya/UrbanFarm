@@ -3,8 +3,9 @@ const router = express.Router();
 const {
   addPlant,
   getPlants,
-  getPlantById,  // ✅ Make sure this is imported
+  getPlantById,
   updatePlant,
+  waterPlant,
   deletePlant,
   addTimelineEntry,
 } = require('../controllers/plantController');
@@ -14,6 +15,8 @@ const { plantValidation } = require('../middleware/validationMiddleware');
 router.route('/')
   .post(protect, plantValidation, addPlant)
   .get(protect, getPlants);
+
+router.post('/:id/water', protect, waterPlant);
 
 router.route('/:id')
   .get(optionalProtect, getPlantById)

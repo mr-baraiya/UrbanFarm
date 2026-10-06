@@ -26,7 +26,24 @@ const DiagnosisSchema = new mongoose.Schema(
       required: true,
     },
     treatment: String,
+    treatmentSteps: [String],
+    cause: String,
+    preventionTips: [String],
     description: String,
+    shareId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    isPublic: {
+      type: Boolean,
+      default: true,
+    },
+    translations: {
+      type: Map,
+      of: Object,
+      default: {},
+    },
     isResolved: {
       type: Boolean,
       default: false,

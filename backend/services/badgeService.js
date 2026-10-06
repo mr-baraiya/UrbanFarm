@@ -5,11 +5,13 @@ const Diagnosis = require('../models/Diagnosis');
 const CommunityPost = require('../models/CommunityPost');
 const ScheduleTask = require('../models/ScheduleTask');
 const { BADGES, getBadgeById } = require('../utils/badgeDefinitions');
-const { sendBadgeUnlockedEmail } = require('../utils/emailService');
+const { sendBadgeUnlockedEmail, sendMultipleBadgesUnlockedEmail } = require('../utils/emailService');
 
 /**
  * Calculate user stats and check/award any new badges.
  * Automatically sends congratulation email with badge image when a new badge is unlocked.
+ * If 2 or more medals are unlocked together, sends ONLY 1 combined email with both medals.
+ * If unlocked at different times, separate emails are sent.
  */
 exports.checkAndAwardBadges = async (userId) => {
   try {
@@ -59,14 +61,6 @@ exports.checkAndAwardBadges = async (userId) => {
           newlyUnlocked.push(badge);
 
           console.log(`🏆 [BadgeService] User ${user.email} unlocked badge: ${badge.name} (${badge.tier})`);
-
-          // Send congratulation email with badge image
-          try {
-            await sendBadgeUnlockedEmail(user, badge);
-            console.log(`✉️ [BadgeService] Congratulation email sent for ${badge.name}`);
-          } catch (emailErr) {
-            console.error(`⚠️ [BadgeService] Email failed for ${badge.name}:`, emailErr.message);
-          }
         }
       }
     }
@@ -74,6 +68,24 @@ exports.checkAndAwardBadges = async (userId) => {
     if (newlyUnlocked.length > 0) {
       user.badges = currentBadges;
       await user.save();
+
+      // Rule: If one gets 2 or more medals together, send ONLY 1 mail containing both/all together.
+      // If earned at different times, separate single mails are sent naturally.
+      if (newlyUnlocked.length === 1) {
+        try {
+          await sendBadgeUnlockedEmail(user, newlyUnlocked[0]);
+          console.log(`✉️ [BadgeService] Single congratulation email sent for ${newlyUnlocked[0].name}`);
+        } catch (emailErr) {
+          console.error(`⚠️ [BadgeService] Email failed for ${newlyUnlocked[0].name}:`, emailErr.message);
+        }
+      } else {
+        try {
+          await sendMultipleBadgesUnlockedEmail(user, newlyUnlocked);
+          console.log(`✉️ [BadgeService] Consolidated email sent for ${newlyUnlocked.length} medals: ${newlyUnlocked.map(b => b.name).join(', ')}`);
+        } catch (emailErr) {
+          console.error(`⚠️ [BadgeService] Consolidated email failed for ${newlyUnlocked.length} medals:`, emailErr.message);
+        }
+      }
     }
 
     return {
@@ -89,6 +101,7 @@ exports.checkAndAwardBadges = async (userId) => {
 
 /**
  * Trigger a test badge email for testing SMTP & badge display.
+ * Supports a single badge or multiple badges (comma-separated or array).
  */
 exports.triggerTestBadgeEmail = async (userId, badgeId = 'gardening_guru') => {
   const user = (userId ? await User.findById(userId) : null) || {
@@ -96,11 +109,31 @@ exports.triggerTestBadgeEmail = async (userId, badgeId = 'gardening_guru') => {
     email: 'baraiyavishalbhai32@gmail.com',
   };
 
-  const badge = getBadgeById(badgeId) || BADGES[0];
-  const info = await sendBadgeUnlockedEmail(user, badge);
+  let badgesToTest = [];
+  if (Array.isArray(badgeId)) {
+    badgesToTest = badgeId.map(id => getBadgeById(id)).filter(Boolean);
+  } else if (typeof badgeId === 'string' && badgeId.includes(',')) {
+    badgesToTest = badgeId.split(',').map(s => getBadgeById(s.trim())).filter(Boolean);
+  } else {
+    const single = getBadgeById(badgeId) || BADGES[0];
+    if (single) badgesToTest = [single];
+  }
+
+  if (badgesToTest.length === 0) {
+    badgesToTest = [BADGES[0]];
+  }
+
+  let info;
+  if (badgesToTest.length > 1) {
+    info = await sendMultipleBadgesUnlockedEmail(user, badgesToTest);
+  } else {
+    info = await sendBadgeUnlockedEmail(user, badgesToTest[0]);
+  }
+
   return {
     success: true,
-    badge,
+    badges: badgesToTest,
+    badge: badgesToTest[0],
     messageId: info?.messageId,
     sentTo: 'baraiyavishalbhai32@gmail.com',
   };

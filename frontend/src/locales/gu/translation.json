@@ -2,6 +2,7 @@
   "common": {
     "save": "સાચવો",
     "saveChanges": "ફેરફારો સાચવો",
+    "translationDisclaimer": "કેટલીક સામગ્રી આપમેળે અનુવાદિત થાય છે અને તે સંપૂર્ણ ન હોઈ શકે.",
     "cancel": "રદ કરો",
     "delete": "કાઢી નાખો",
     "edit": "સંપાદિત કરો",
@@ -765,7 +766,22 @@
     "diagnosisFailed": "નિદાન નિષ્ફળ ગયું",
     "sharedSuccess": "નિદાન સફળતાપૂર્વક શેર કરવામાં આવ્યું!",
     "copiedSuccess": "નિદાન સારાંશ ક્લિપબોર્ડ પર કૉપિ થઈ ગયો!",
-    "copyFailed": "ક્લિપબોર્ડ પર કૉપિ કરવામાં અસમર્થ"
+    "copyFailed": "ક્લિપબોર્ડ પર કૉપિ કરવામાં અસમર્થ",
+    "needsAttention": "ધ્યાન આપવાની જરૂર",
+    "viewPublicReport": "જાહેર રિપોર્ટ જુઓ",
+    "viewPublicReportDesc": "સંપૂર્ણ શેર કરી શકાય તેવો જાહેર રિપોર્ટ ખોલો",
+    "quickActionsAlert": "તાત્કાલિક પગલાં લેવાની ભલામણ",
+    "quickActionsHint": "છોડના બચાવ અને રક્ષણ માટે ઝડપી પગલાં:",
+    "quickActionSchedule": "સારવાર શેડ્યૂલ કરો",
+    "quickActionAttentionTitle": "ધ્યાન આપવાની જરૂર — ઝડપી પગલાં",
+    "quickActionAttentionSub": "છોડને સ્વસ્થ બનાવવા માટે તાત્કાલિક પગલાં લો",
+    "quickActionHealthySub": "ચકાસાયેલ સ્વાસ્થ્ય રિપોર્ટ ટ્રૅક કરો અથવા શેર કરો",
+    "scheduleReminderHint": "બગીચાના કૅલેન્ડરમાં સારવાર ઉમેરો",
+    "publicReportHint": "જાહેર રિપોર્ટ લિંક ખોલો",
+    "shareSocialHint": "વોટ્સએપ, લિંક અને ક્યૂઆર કોડ",
+    "shareReportBtn": "રિપોર્ટ શેર કરો",
+    "plantNeedsAttentionAlert": "આ છોડ પર ધ્યાન આપવાની જરૂર છે! તાજું નિદાન કરો અથવા સારવાર શેડ્યૂલ કરો.",
+    "viewReportOnline": "જાહેર રિપોર્ટ"
   },
   "crops": {
     "title": "AI પાક ભલામણો",

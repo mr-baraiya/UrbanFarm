@@ -504,46 +504,145 @@ What would you like assistance with today?`,
     }
   },
 
-  unknown: {
+  equipment: {
     en: {
-      title: 'UrbanFarm Guidance',
-      route: '/app/diagnosis',
-      steps: `I specialize in agricultural guidance, urban gardening, plant health diagnosis, watering schedules, and the UrbanFarm platform features. 
-I am not able to assist with topics outside agriculture, gardening, and plant care.
-How can I help you with your garden or plants today?`,
-      quickActionLabel: 'Explore UrbanFarm',
+      title: 'Farming & Gardening Equipments',
+      route: '/app/gardens',
+      steps: `Essential Agricultural & Gardening Equipments:
+1. Soil Preparation & Tillage:
+   • Farm Scale: Tractors, power tillers, rotavators, cultivators, disc ploughs.
+   • Urban/Garden Scale: Hand trowels, spades, garden forks, khurpi, and hoes for aeration.
+2. Sowing & Planting Tools:
+   • Seed drill machines, nursery seedling trays (50/104-cavity), dibbers, and transplanting trowels.
+3. Irrigation & Watering Equipments:
+   • Drip irrigation kits with pressure-compensating emitters, drip lines, micro-sprinklers, water pumps, spray nozzles, and watering cans with rose heads.
+4. Crop Protection & Spraying:
+   • Battery-operated knapsack sprayers, manual compression sprayers, and ultra-low-volume mist blowers for organic neem oil sprays.
+5. Pruning & Harvesting Tools:
+   • Bypass pruning shears/secateurs, loppers, hedge shears, grafting knives, and fruit pickers.
+6. Soil & Environmental Testing:
+   • 3-in-1 soil pH, moisture, and sunlight meters; TDS/EC meters for hydroponics.
+7. Protected Cultivation:
+   • UV-stabilized shade nets (50% or 75% green), HDPE grow bags (350+ GSM), polyhouse hoops, and plant support trellises.`,
+      quickActionLabel: 'Garden & Equipment Tools',
       followUps: [
-        'How to diagnose a sick plant?',
-        'How to start a balcony garden?',
-        'What vegetables grow fast?'
+        'What drip irrigation equipment is best for a terrace?',
+        'How do I maintain and clean pruning shears?',
+        'Which sprayer is recommended for organic neem oil?'
       ]
     },
     gu: {
-      title: 'અર્બનફાર્મ માર્ગદર્શન',
-      route: '/app/diagnosis',
-      steps: `હું ફક્ત ખેતી, બાગકામ, છોડના રોગ નિદાન, સિંચાઈ અને અર્બનફાર્મ પ્લેટફોર્મના વિષયોમાં માર્ગદર્શન આપું છું. બાગકામ સિવાયના અન્ય વિષયો મારા કાર્યક્ષેત્ર બહાર છે.
-તમારા બગીચા કે છોડ સંબંધિત હું તમને કેવી રીતે મદદ કરી શકું?`,
-      quickActionLabel: 'પ્લેટફોર્મ સેવાઓ જુઓ',
+      title: 'ખેતી અને બાગકામના સાધનો તથા ઓજારો',
+      route: '/app/gardens',
+      steps: `ખેતી અને બાગકામ માટે જરૂરી મુખ્ય સાધનો અને ઓજારો:
+૧. જમીન તૈયાર કરવાના ઓજારો:
+   • ખેતર માટે: ટ્રેક્ટર, રોટાવેટર, કલ્ટીવેટર, હળ (પ્લાઉ).
+   • બગીચા/ધાબા માટે: પાવડો, કોદાળી, ત્રિકમ, ખુરપી, પંજેટી (Garden Rake).
+૨. વાવણી અને રોપણીના સાધનો:
+   • સીડ ડ્રીલ (ઓરણી), પ્રો-ટ્રે (નર્સરી સીડલિંગ ટ્રે - 50/104 ખાનાવાળી), ટ્રાન્સપ્લાન્ટિંગ ટ્રોવેલ.
+૩. સિંચાઈ અને પાણી આપવાના સાધનો:
+   • ટપક સિંચાઈ પદ્ધતિ (Drip Irrigation Kit), ફુવારા (Micro Sprinklers), સબમર્સિબલ પંપ, વોટરિંગ કેન (ઝારી).
+૪. દવા છંટકાવ અને સુરક્ષા:
+   • બેટરી સંચાલિત નેપસેક સ્પ્રેયર (Knapsack Sprayer), હેન્ડ પંપ સ્પ્રેયર (ઓર્ગેનિક લીમડાના અર્ક માટે).
+૫. કટીંગ અને લણણીના ઓજારો:
+   • પ્રૂનિંગ સિકેટર્સ (ડાળી કાપવાની કાતર), ગ્રાફ્ટિંગ છરી, ફ્રૂટ પીકર.
+૬. ટેસ્ટિંગ અને ગાર્ડનિંગ સાધનો:
+   • જમીનનો pH અને ભેજ માપવા માટેનું મીટર (Soil Moisture & pH Meter), HDPE ગ્રો બેગ્સ અને શેડ નેટ.`,
+      quickActionLabel: 'ઓજારો અને સાધનો જુઓ',
       followUps: [
-        'છોડનું નિદાન કેવી રીતે કરવું?',
-        'બાલ્કની ગાર્ડન કેવી રીતે શરૂ કરવું?',
-        'ઝડપથી ઉગતા શાકભાજી કયા?'
+        'ધાબા માટે ટપક સિંચાઈ સાધન કેવી રીતે ગોઠવવું?',
+        'ઓર્ગેનિક દવા છાંટવા માટે કયો સ્પ્રેયર સારો?',
+        'પ્રૂનિંગ કાતરની જાળવણી કેવી રીતે કરવી?'
       ]
     },
     hi: {
-      title: 'अर्बनफार्म मार्गदर्शन',
-      route: '/app/diagnosis',
-      steps: `मैं विशेष रूप से खेती, बागवानी, पौधों के रोग निदान, सिंचाई और अर्बनफार्म मंच की सुविधाओं के संबंध में सहायता कर सकती हूँ। बागवानी से इतर विषयों में मैं असमर्थ हूँ।
-आज आपके बगीचे या पौधों के संबंध में मैं आपकी क्या सहायता कर सकती हूँ?`,
-      quickActionLabel: 'प्लेटफॉर्म सेवाएं देखें',
+      title: 'कृषि और बागवानी के उपकरण व औजार',
+      route: '/app/gardens',
+      steps: `खेती और बागवानी के लिए प्रमुख उपकरण और औजार:
+१. जुताई और मिट्टी तैयार करने के यंत्र:
+   • खेत के लिए: ट्रैक्टर, रोटावेटर, कल्टीवेटर, डिस्क हल।
+   • बागवानी के लिए: खुरपी, फावड़ा, कुदाल, गार्डनिंग कांटे (Hand Fork)।
+२. बुवाई और पौध रोपाई के उपकरण:
+   • सीड ड्रिल (बुवाई यंत्र), सीडलिंग ट्रे (50/104 कैविटी), डिबलर और ट्रांसप्लांटिंग ट्रोवेल।
+३. सिंचाई और जल प्रबंधन उपकरण:
+   • ड्रिप इरिगेशन किट (टपक सिंचाई पाइप और ड्रिपर्स), मिनी स्प्रिंकलर (फव्वारा), वाटर पंप, वाटरिंग केन (हजारी)।
+४. छिड़काव और पौध सुरक्षा उपकरण:
+   • बैटरी नेप्सैक स्प्रेयर, हैंड कंप्रेशन स्प्रेयर (नीम तेल और जैविक घोल छिड़कने के लिए)।
+५. कटाई-छंटाई और हार्वेस्टिंग औजार:
+   • प्रूनिंग सिकेटर (छंटाई कैंची), हेज शीयर, ग्राफ्टिंग चाकू, फल तोड़ने का यंत्र।
+६. मिट्टी और वातावरण परीक्षण यंत्र:
+   • सॉइल मॉइस्चर और pH मीटर, ग्रो बैग्स (HDPE 350+ GSM) और 50% ग्रीन शेड नेट।`,
+      quickActionLabel: 'उपकरण और औजार देखें',
       followUps: [
+        'छत के लिए ड्रिप सिंचाई उपकरण कैसे लगाएं?',
+        'जैविक नीम स्प्रे के लिए कौन सा स्प्रेयर सही है?',
+        'प्रूनिंग कैंची की सफाई और धार कैसे लगाएं?'
+      ]
+    }
+  },
+
+  unknown: {
+    en: {
+      title: 'Agricultural & Equipment Domain Restriction',
+      route: '/app/gardens',
+      steps: `I am "Krishi AI", UrbanFarm's dedicated farming and agricultural machinery specialist. 🚜🌱
+
+I can ONLY assist you with:
+• Crop and plant care, disease diagnosis, and botanical remedies
+• Farming and gardening machinery & tools (tractors, tillers, sprayers, drip kits, pruning shears)
+• Soil health, organic fertilizers, and pest management
+• Smart irrigation and garden planning
+
+I am strictly prohibited from answering non-farming, non-gardening, or non-agricultural equipment questions. Please ask anything related to your plants, crops, or farming equipment!`,
+      quickActionLabel: 'Explore Farming Tools',
+      followUps: [
+        'What equipment is needed for gardening?',
+        'How to diagnose a sick plant?',
+        'How to start a terrace garden?'
+      ]
+    },
+    gu: {
+      title: 'કૃષિ અને સાધન સહાયક',
+      route: '/app/gardens',
+      steps: `હું "કૃષિ AI" છું, અર્બનફાર્મની સમર્પિત ખેતી અને કૃષિ સાધન સહાયક. 🚜🌱
+
+હું ફક્ત નીચેના વિષયોમાં જ માર્ગદર્શન આપી શકું છું:
+• પાક અને છોડની સંભાળ, રોગ નિદાન અને ઉપચાર
+• ખેતી અને બાગકામના ઓજારો તથા સાધનો (ટ્રેક્ટર, ટિલર, સ્પ્રેયર, ટપક સિંચાઈ, કટીંગ ટૂલ્સ)
+• જમીનનું સ્વાસ્થ્ય, ઓર્ગેનિક ખાતરો અને કુદરતી જીવાત નિયંત્રણ
+• સ્માર્ટ સિંચાઈ અને બગીચાનું આયોજન
+
+ખેતી, બાગકામ અને કૃષિ સાધનો સિવાયના કોઈપણ અન્ય વિષયો પર હું ઉત્તર આપી શકતી નથી. કૃપા કરીને તમારા પાક, છોડ કે ખેતીના સાધનો સંબંધિત પ્રશ્નો પૂછો!`,
+      quickActionLabel: 'સાધનો અને ઓજારો જુઓ',
+      followUps: [
+        'બાગકામ માટે કયા સાધનો જરૂરી છે?',
+        'બીમાર છોડનું નિદાન કેવી રીતે કરવું?',
+        'ધાબા પર બગીચો કેવી રીતે શરૂ કરવો?'
+      ]
+    },
+    hi: {
+      title: 'कृषि एवं उपकरण विशेषज्ञ',
+      route: '/app/gardens',
+      steps: `मैं "कृषि AI" हूँ, अर्बनफार्म की समर्पित कृषि और कृषि उपकरण विशेषज्ञ। 🚜🌱
+
+मैं केवल निम्नलिखित विषयों पर ही मार्गदर्शन प्रदान कर सकती हूँ:
+• फसलों और पौधों की देखभाल, रोग निदान व उपचार
+• कृषि एवं बागवानी के उपकरण व औजार (ट्रैक्टर, टिलर, स्प्रेयर, ड्रिप सिंचाई किट, छंटाई औजार)
+• मिट्टी का स्वास्थ्य, जैविक खाद और प्राकृतिक कीट नियंत्रण
+• स्मार्ट सिंचाई और बगीचे का प्रबंधन
+
+खेती, बागवानी और कृषि उपकरणों से अलग अन्य किसी भी विषय पर मैं उत्तर नहीं दे सकती। कृपया अपनी फसलों, पौधों या कृषि उपकरणों के संबंध में कोई भी प्रश्न पूछें!`,
+      quickActionLabel: 'उपकरण और औजार देखें',
+      followUps: [
+        'बागवानी के लिए कौन से उपकरण आवश्यक हैं?',
         'बीमार पौधे का निदान कैसे करें?',
-        'बालकनी में बगीचा कैसे शुरू करें?',
-        'तेजी से उगने वाली सब्जियां कौन सी हैं?'
+        'छत या बालकनी में बगीचा कैसे शुरू करें?'
       ]
     }
   }
 };
+
+KNOWLEDGE_BASE.out_of_scope = KNOWLEDGE_BASE.unknown;
 
 module.exports = {
   VALID_PLATFORM_ROUTES,

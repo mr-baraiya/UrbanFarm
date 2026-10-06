@@ -2,6 +2,7 @@
   "common": {
     "save": "Save",
     "saveChanges": "Save Changes",
+    "translationDisclaimer": "Some content is translated automatically and may not be perfect.",
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
@@ -764,7 +765,22 @@
     "diagnosisFailed": "Diagnosis failed",
     "sharedSuccess": "Diagnosis shared successfully!",
     "copiedSuccess": "Diagnosis summary copied to clipboard!",
-    "copyFailed": "Unable to copy to clipboard"
+    "copyFailed": "Unable to copy to clipboard",
+    "needsAttention": "Needs Attention",
+    "viewPublicReport": "View Public Report",
+    "viewPublicReportDesc": "Open full shareable public report",
+    "quickActionsAlert": "Immediate Action Recommended",
+    "quickActionsHint": "Quick actions to rescue and protect your plant:",
+    "quickActionSchedule": "Quick Schedule Treatment",
+    "quickActionAttentionTitle": "Needs Attention — Quick Actions",
+    "quickActionAttentionSub": "Take fast protective measures to nurse your plant back to health",
+    "quickActionHealthySub": "Track, export, or share this verified plant health report",
+    "scheduleReminderHint": "Set treatment task in garden schedule",
+    "publicReportHint": "Open publicly accessible report link",
+    "shareSocialHint": "WhatsApp, direct link & QR Code",
+    "shareReportBtn": "Share Report",
+    "plantNeedsAttentionAlert": "This plant has been flagged as needing attention! Run a fresh diagnosis or schedule treatment.",
+    "viewReportOnline": "Public Report"
   },
   "crops": {
     "title": "AI Crop Recommendations",

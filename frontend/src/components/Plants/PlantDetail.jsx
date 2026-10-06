@@ -1,26 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { 
-  RiArrowLeftLine, 
-  RiShoppingBasketLine, 
-  RiQrCodeLine, 
-  RiEditLine, 
-  RiCloseLine, 
-  RiMicroscopeLine, 
-  RiSunLine, 
-  RiSunCloudyLine, 
-  RiFileTextLine, 
-  RiLineChartLine, 
-  RiRulerLine,
-  RiSaveLine,
-  RiAddLine,
-  RiCameraLine,
-  RiCalendarEventLine
-} from 'react-icons/ri';
-import { TbPlant2 } from 'react-icons/tb';
 import { useAuth } from '../../hooks/useAuth';
-import { getPlantById, updatePlant, addTimelineEntry, uploadImage } from '../../services/plantService';
+import { getPlantById, updatePlant, addTimelineEntry, uploadImage, waterPlant } from '../../services/plantService';
 import { useNotification } from '../../hooks/useNotification';
 import { formatDate, getStatusColor, getPlantImage } from '../../utils/helpers';
 import { getLocalizedDynamicText } from '../../utils/localizationHelper';
@@ -41,11 +23,14 @@ const PlantDetail = () => {
   const [showTimelineModal, setShowTimelineModal] = useState(false);
   const [editData, setEditData] = useState({});
   const [uploadingImg, setUploadingImg] = useState(false);
+  const [wateringLoading, setWateringLoading] = useState(false);
   const [timelineDate, setTimelineDate] = useState(new Date().toISOString().split('T')[0]);
   const [newHeight, setNewHeight] = useState('');
   const [newNotes, setNewNotes] = useState('');
   const [submittingTimeline, setSubmittingTimeline] = useState(false);
   const { addNotification } = useNotification();
+
+  const todayStr = new Date().toISOString().split('T')[0];
 
   const isOwner = Boolean(
     user && (
@@ -66,7 +51,11 @@ const PlantDetail = () => {
     try {
       const data = await getPlantById(id);
       setPlant(data);
-      setEditData(data);
+      setEditData({
+        ...data,
+        lastWatered: data.lastWatered ? new Date(data.lastWatered).toISOString().split('T')[0] : '',
+        waterFrequency: data.waterFrequency ?? 3
+      });
     } catch (error) {
       console.error('Failed to load plant:', error);
       addNotification(t('plants.emptyTitle', 'Plant not found'), 'error');
@@ -75,6 +64,30 @@ const PlantDetail = () => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleQuickWaterNow = async () => {
+    if (wateringLoading) return;
+    setWateringLoading(true);
+    try {
+      const res = await waterPlant(id);
+      if (res && res.plant) {
+        setPlant(res.plant);
+        setEditData(prev => ({
+          ...prev,
+          lastWatered: new Date().toISOString().split('T')[0],
+          nextWateringDate: res.plant.nextWateringDate
+        }));
+      } else {
+        await loadPlant();
+      }
+      addNotification(t('plants.wateredSuccess', 'Watering recorded successfully! Next date updated.'), 'success');
+    } catch (error) {
+      console.error('Error watering plant:', error);
+      addNotification(t('messages.operationFailed', 'Failed to update watering date'), 'error');
+    } finally {
+      setWateringLoading(false);
     }
   };
 
@@ -104,10 +117,26 @@ const PlantDetail = () => {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      await updatePlant(id, editData);
-      setPlant({ ...plant, ...editData });
+      // Validate lastWatered not in the future
+      if (editData.lastWatered) {
+        const selDate = new Date(editData.lastWatered);
+        const now = new Date();
+        if (selDate > now) {
+          addNotification('Last watered date cannot be in the future', 'error');
+          return;
+        }
+      }
+
+      const payload = {
+        ...editData,
+        waterFrequency: parseInt(editData.waterFrequency, 10) || 3
+      };
+
+      const updated = await updatePlant(id, payload);
+      setPlant(updated || { ...plant, ...payload });
       addNotification(t('messages.savedSuccessfully', 'Plant updated successfully!'), 'success');
       setEditing(false);
+      window.dispatchEvent(new CustomEvent('urbanfarm:refresh-data'));
     } catch (error) {
       addNotification(t('messages.operationFailed', 'Update failed'), 'error');
     }
@@ -126,7 +155,7 @@ const PlantDetail = () => {
       addNotification(t('messages.savedSuccessfully', 'Growth entry added!'), 'success');
       setNewHeight('');
       setNewNotes('');
-      setTimelineDate(new Date().toISOString().split('T')[0]);
+      setTimelineDate(todayStr);
       setShowTimelineModal(false);
       loadPlant();
     } catch (error) {
@@ -145,10 +174,10 @@ const PlantDetail = () => {
   }
 
   const getHealthDisplay = (h) => {
-    if (h === 'healthy') return { label: t('plants.healthy', 'Healthy'), color: '#10b981' };
-    if (h === 'warning') return { label: t('plants.needsWater', 'Needs Attention'), color: '#f59e0b' };
-    if (h === 'unhealthy') return { label: t('plants.atRisk', 'At Risk'), color: '#ef4444' };
-    return { label: t('plants.healthy', 'Healthy'), color: '#10b981' };
+    if (h === 'healthy') return { label: t('plants.healthy', 'Healthy'), color: '#2d6a4f', bg: '#eaf4f4' };
+    if (h === 'warning') return { label: t('plants.needsWater', 'Needs Attention'), color: '#b45309', bg: '#fef3c7' };
+    if (h === 'unhealthy') return { label: t('plants.atRisk', 'At Risk'), color: '#b91c1c', bg: '#fee2e2' };
+    return { label: t('plants.healthy', 'Healthy'), color: '#2d6a4f', bg: '#eaf4f4' };
   };
 
   const getGrowthStageDisplay = (s) => {
@@ -160,34 +189,97 @@ const PlantDetail = () => {
     return t('plants.statusGrowing', 'Growing');
   };
 
+  // Day-boundary safe watering check
+  const isWateredToday = (date) => {
+    if (!date) return false;
+    return new Date(date).toDateString() === new Date().toDateString();
+  };
+
+  const getWateringStatus = () => {
+    const wateredToday = isWateredToday(plant.lastWatered);
+    if (wateredToday) {
+      return { 
+        status: 'ok', 
+        label: t('plants.wateredToday', 'Watered today'), 
+        isOverdue: false, 
+        badgeBg: '#eaf4f4', 
+        badgeColor: '#2d6a4f' 
+      };
+    }
+    if (!plant.nextWateringDate) {
+      return { 
+        status: 'normal', 
+        label: t('plants.everyDays', 'Every {{days}}d', { days: plant.waterFrequency ?? 3 }), 
+        isOverdue: false, 
+        badgeBg: '#eaf4f4', 
+        badgeColor: '#2d6a4f' 
+      };
+    }
+    const nextDate = new Date(plant.nextWateringDate);
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const nextDateOnly = new Date(nextDate);
+    nextDateOnly.setHours(0, 0, 0, 0);
+
+    const diffDays = Math.round((nextDateOnly.getTime() - todayStart.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) {
+      return { 
+        status: 'overdue', 
+        label: t('plants.waterOverdue', 'Overdue by {{count}}d', { count: Math.abs(diffDays) }), 
+        isOverdue: true, 
+        badgeBg: '#fee2e2', 
+        badgeColor: '#b91c1c' 
+      };
+    }
+    if (diffDays === 0) {
+      return { 
+        status: 'due-today', 
+        label: t('plants.waterDueToday', 'Due today'), 
+        isOverdue: false, 
+        badgeBg: '#fef3c7', 
+        badgeColor: '#b45309' 
+      };
+    }
+    return { 
+      status: 'scheduled', 
+      label: t('plants.waterDueIn', 'Due in {{count}}d', { count: diffDays }), 
+      isOverdue: false, 
+      badgeBg: '#eaf4f4', 
+      badgeColor: '#2d6a4f' 
+    };
+  };
+
   const statusColor = getStatusColor(plant.status);
   const plantImg = getPlantImage(plant);
   const health = getHealthDisplay(plant.health);
   const growthLabel = getGrowthStageDisplay(plant.status);
+  const wateringStatus = getWateringStatus();
 
   return (
     <div className="plant-detail">
       {/* Header */}
       <div className="detail-header">
         <button className="back-btn" onClick={() => navigate(user ? '/app/plants' : '/')}>
-          <RiArrowLeftLine /> {user ? t('plants.backToPlants', 'Back to Plants') : t('navigation.backToHome', 'Back to Home')}
+          &larr; {user ? t('plants.backToPlants', 'Back to Plants') : t('navigation.backToHome', 'Back to Home')}
         </button>
         <div className="detail-actions">
           {isOwner && (
             <button className="btn-secondary" onClick={() => setShowHarvest(true)}>
-              <RiShoppingBasketLine /> {t('plants.logHarvest', 'Log Harvest')}
+              {t('plants.logHarvest', 'Log Harvest')}
             </button>
           )}
           <button className="btn-secondary" onClick={() => setShowQR(true)}>
-            <RiQrCodeLine /> {t('plants.qrCodeShare', 'QR Code / Share')}
+            {t('plants.qrCodeShare', 'QR Code / Share')}
           </button>
           {isOwner && (
             <button className="btn-secondary" onClick={() => setEditing(!editing)}>
-              {editing ? <><RiCloseLine /> {t('common.cancel', 'Cancel')}</> : <><RiEditLine /> {t('common.edit', 'Edit')}</>}
+              {editing ? t('common.cancel', 'Cancel') : t('common.edit', 'Edit Details')}
             </button>
           )}
           <button className="btn-primary" onClick={() => navigate(user ? `/app/diagnose?plant=${plant._id}` : `/login`)}>
-            <RiMicroscopeLine /> {t('navigation.diagnose', 'Diagnose')}
+            {t('navigation.diagnose', 'Diagnose')}
           </button>
         </div>
       </div>
@@ -200,7 +292,9 @@ const PlantDetail = () => {
               {plantImg ? (
                 <img src={plantImg} alt={getLocalizedDynamicText(plant.name, i18n.language)} />
               ) : (
-                <TbPlant2 className="plant-avatar-icon" />
+                <div style={{ fontSize: '2.5rem', fontWeight: 800, color: '#6b9080' }}>
+                  {(plant.name || 'P').charAt(0).toUpperCase()}
+                </div>
               )}
             </div>
             <div className="plant-title">
@@ -215,12 +309,41 @@ const PlantDetail = () => {
                 <span className="status-badge" style={{ background: statusColor + '22', color: statusColor }}>
                   {growthLabel}
                 </span>
-                <span className={`health-badge ${plant.health || 'healthy'}`} style={{ color: health.color }}>
+                <span className="health-badge" style={{ color: health.color, background: health.bg, padding: '0.2rem 0.6rem', borderRadius: '8px', fontWeight: 600 }}>
                   <span className={`health-dot ${plant.health || 'healthy'}`} />
                   {health.label}
                 </span>
+                <span className="watering-badge" style={{ color: wateringStatus.badgeColor, background: wateringStatus.badgeBg, padding: '0.2rem 0.6rem', borderRadius: '8px', fontWeight: 600, fontSize: '0.8rem' }}>
+                  {wateringStatus.label}
+                </span>
               </div>
             </div>
+          </div>
+
+          {/* Quick Water Action Card */}
+          <div className="watering-action-card" style={{ background: 'linear-gradient(135deg, #f6fff8 0%, #eaf4f4 100%)', border: '1px solid #cce3de', borderRadius: '16px', padding: '1.25rem', margin: '1.5rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <div style={{ fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#6b9080', fontWeight: 700, marginBottom: '0.25rem' }}>
+                Watering Status & Schedule
+              </div>
+              <div style={{ fontSize: '1.05rem', fontWeight: 600, color: '#1f3a30' }}>
+                {wateringStatus.label}
+              </div>
+              <div style={{ fontSize: '0.82rem', color: '#6b9080', marginTop: '0.2rem' }}>
+                Last watered: {plant.lastWatered ? formatDate(plant.lastWatered, i18n.language) : 'Never'} &bull; Interval: every {plant.waterFrequency ?? 3} days &bull; Next: {plant.nextWateringDate ? formatDate(plant.nextWateringDate, i18n.language) : 'Pending'}
+              </div>
+            </div>
+            {isOwner && (
+              <button 
+                type="button" 
+                className="btn-primary" 
+                onClick={handleQuickWaterNow} 
+                disabled={wateringLoading}
+                style={{ padding: '0.65rem 1.3rem', fontSize: '0.9rem', fontWeight: 600 }}
+              >
+                {wateringLoading ? t('common.loading', 'Updating...') : t('plants.markWateredNow', 'Mark Watered Now')}
+              </button>
+            )}
           </div>
 
           {/* Edit Form */}
@@ -242,19 +365,46 @@ const PlantDetail = () => {
                   />
                 </div>
               </div>
+
+              {/* Watering schedule inputs */}
+              <div className="form-row">
+                <div className="form-group">
+                  <label>{t('plants.lastWatered', 'Last Watered Date')}</label>
+                  <input
+                    type="date"
+                    max={todayStr}
+                    value={editData.lastWatered || ''}
+                    onChange={(e) => setEditData({...editData, lastWatered: e.target.value})}
+                  />
+                  <small style={{ color: '#6b9080', fontSize: '0.75rem', marginTop: '0.2rem', display: 'block' }}>
+                    Cannot be set to a future date
+                  </small>
+                </div>
+                <div className="form-group">
+                  <label>{t('plants.waterFrequency', 'Watering Interval (Days)')}</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="90"
+                    value={editData.waterFrequency || 3}
+                    onChange={(e) => setEditData({...editData, waterFrequency: e.target.value})}
+                  />
+                </div>
+              </div>
+
               <div className="form-group">
                 <label>{t('diagnose.uploadImage', 'Plant Photo')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.25rem' }}>
-                  <div style={{ width: '56px', height: '56px', borderRadius: '10px', overflow: 'hidden', background: statusColor + '22', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid var(--border-light, rgba(0,0,0,0.1))' }}>
+                  <div style={{ width: '56px', height: '56px', borderRadius: '10px', overflow: 'hidden', background: statusColor + '22', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid #cce3de' }}>
                     {editData.imageUrl ? (
                       <img src={editData.imageUrl} alt="Plant" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
-                      <TbPlant2 style={{ fontSize: '1.6rem', color: '#2d6a4f' }} />
+                      <span style={{ fontSize: '1.2rem', color: '#6b9080', fontWeight: 700 }}>P</span>
                     )}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                     <label htmlFor="detailImageUpload" className="btn-secondary" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.85rem', padding: '0.4rem 0.9rem', margin: 0 }}>
-                      <RiCameraLine /> {uploadingImg ? t('common.loading', 'Uploading...') : t('diagnose.uploadImage', 'Upload Photo')}
+                      {uploadingImg ? t('common.loading', 'Uploading...') : t('diagnose.uploadImage', 'Upload Photo')}
                     </label>
                     <input
                       id="detailImageUpload"
@@ -268,7 +418,7 @@ const PlantDetail = () => {
                       <button 
                         type="button" 
                         onClick={() => setEditData({ ...editData, imageUrl: '' })}
-                        style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.82rem', padding: '0.2rem 0.4rem' }}
+                        style={{ background: 'none', border: 'none', color: '#b91c1c', cursor: 'pointer', fontSize: '0.82rem', padding: '0.2rem 0.4rem' }}
                       >
                         {t('common.delete', 'Remove')}
                       </button>
@@ -286,7 +436,7 @@ const PlantDetail = () => {
               </div>
               <div className="form-actions">
                 <button type="submit" className="btn-primary">
-                  <RiSaveLine /> {t('common.save', 'Save Changes')}
+                  {t('common.save', 'Save Changes')}
                 </button>
               </div>
             </form>
@@ -309,18 +459,26 @@ const PlantDetail = () => {
                   <span className="value">{plant.plantingDate ? formatDate(plant.plantingDate, i18n.language) : t('common.none', 'Not set')}</span>
                 </div>
                 <div className="detail-item">
-                  <span className="label">{t('plants.waterFrequency', 'WATER FREQUENCY')}</span>
+                  <span className="label">{t('plants.lastWatered', 'LAST WATERED')}</span>
+                  <span className="value">{plant.lastWatered ? formatDate(plant.lastWatered, i18n.language) : t('common.none', 'Never')}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="label">{t('plants.nextWatering', 'NEXT WATERING')}</span>
+                  <span className="value">{plant.nextWateringDate ? formatDate(plant.nextWateringDate, i18n.language) : t('common.none', 'Not set')}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="label">{t('plants.waterFrequency', 'WATER INTERVAL')}</span>
                   <span className="value">{t('plants.everyDays', 'Every {{days}} days', { days: plant.waterFrequency !== undefined && plant.waterFrequency !== null ? plant.waterFrequency : 3 })}</span>
                 </div>
                 <div className="detail-item">
                   <span className="label">{t('crops.selectSunlight', 'SUNLIGHT')}</span>
                   <span className="value">
                     {plant.sunlight === 'full' ? (
-                      <><RiSunLine className="meta-icon sun" /> {t('plants.fullSun', 'Full Sun')}</>
+                      t('plants.fullSun', 'Full Sun')
                     ) : plant.sunlight === 'partial' ? (
-                      <><RiSunCloudyLine className="meta-icon shade" /> {t('plants.partialShade', 'Partial Shade')}</>
+                      t('plants.partialShade', 'Partial Shade')
                     ) : (
-                      <><RiSunCloudyLine className="meta-icon shade" /> {t('plants.shade', 'Shade')}</>
+                      t('plants.shade', 'Shade')
                     )}
                   </span>
                 </div>
@@ -328,9 +486,7 @@ const PlantDetail = () => {
 
               {plant.notes && (
                 <div className="plant-notes">
-                  <h4>
-                    <RiFileTextLine className="section-icon" /> {t('plants.notes', 'Notes')}
-                  </h4>
+                  <h4>{t('plants.notes', 'Notes')}</h4>
                   <p>{getLocalizedDynamicText(plant.notes, i18n.language)}</p>
                 </div>
               )}
@@ -341,7 +497,7 @@ const PlantDetail = () => {
           <div className="growth-timeline">
             <div className="growth-timeline-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', flexWrap: 'wrap', gap: '0.75rem' }}>
               <h4 style={{ margin: 0 }}>
-                <RiLineChartLine className="section-icon" /> {t('plants.growthTimeline', 'Growth Timeline')}
+                {t('plants.growthTimeline', 'Growth Timeline')}
               </h4>
               {isOwner && (
                 <button
@@ -350,7 +506,7 @@ const PlantDetail = () => {
                   onClick={() => setShowTimelineModal(true)}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.35rem 0.85rem', fontSize: '0.85rem', cursor: 'pointer', borderRadius: '12px' }}
                 >
-                  <RiAddLine /> {t('plants.addTimelineEntry', 'Add Growth Entry')}
+                  + {t('plants.addTimelineEntry', 'Add Growth Entry')}
                 </button>
               )}
             </div>
@@ -364,7 +520,7 @@ const PlantDetail = () => {
                     <span className="timeline-date">{formatDate(entry.date, i18n.language)}</span>
                     {entry.height && (
                       <span className="timeline-height">
-                        <RiRulerLine className="ruler-icon" /> {entry.height} cm
+                        {entry.height} cm
                       </span>
                     )}
                     {entry.notes && <span className="timeline-notes">{getLocalizedDynamicText(entry.notes, i18n.language)}</span>}
@@ -389,7 +545,7 @@ const PlantDetail = () => {
                   onChange={(e) => setNewNotes(e.target.value)}
                 />
                 <button type="submit" className="btn-primary">
-                  <RiAddLine /> {t('plants.addTimelineEntry', 'Add Entry')}
+                  + {t('plants.addTimelineEntry', 'Add Entry')}
                 </button>
               </form>
             )}
@@ -411,13 +567,13 @@ const PlantDetail = () => {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
               <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <RiLineChartLine style={{ color: 'var(--sage, #6b9080)' }} /> {t('plants.addTimelineEntry', 'Add Growth Entry')}
+                {t('plants.addTimelineEntry', 'Add Growth Entry')}
               </h3>
               <button 
                 onClick={() => setShowTimelineModal(false)}
                 style={{ background: 'none', border: 'none', fontSize: '1.4rem', cursor: 'pointer', color: 'var(--text-muted)' }}
               >
-                <RiCloseLine />
+                &times;
               </button>
             </div>
             
@@ -475,7 +631,7 @@ const PlantDetail = () => {
                   className="btn-primary"
                   disabled={submittingTimeline || (!newHeight && !newNotes)}
                 >
-                  <RiAddLine /> {submittingTimeline ? t('common.loading', 'Adding...') : t('plants.addTimelineEntry', 'Add Entry')}
+                  {submittingTimeline ? t('common.loading', 'Adding...') : t('plants.addTimelineEntry', 'Add Entry')}
                 </button>
               </div>
             </form>

@@ -1,18 +1,5 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { 
-  RiAlertLine, 
-  RiLeafLine, 
-  RiSunLine, 
-  RiTempColdLine, 
-  RiScales3Line, 
-  RiTeamLine, 
-  RiCheckLine, 
-  RiAddLine, 
-  RiArrowUpSLine, 
-  RiArrowDownSLine 
-} from 'react-icons/ri';
-import { TbPlant2, TbBucket } from 'react-icons/tb';
 import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import './CropCard.css';
 
@@ -27,12 +14,12 @@ const CropCard = ({ crop, spaceAvailable, existingPlants = [], onAddToPlants }) 
     
     const name = (cropName || '').toLowerCase();
     if (containerFriendly.some(c => name.includes(c))) {
-      return { label: t('crops.greatForContainers', 'Great for Containers'), icon: <TbBucket />, color: '#a8d5ba' };
+      return { label: t('crops.greatForContainers', 'Container Friendly'), color: '#2d6a4f', bg: '#cce3de' };
     }
     if (deepRoot.some(c => name.includes(c))) {
-      return { label: t('crops.needsDeepRoot', 'Needs Deep Root Space'), icon: <RiAlertLine />, color: '#f0d5c0' };
+      return { label: t('crops.needsDeepRoot', 'Needs Deep Bed'), color: '#92400e', bg: '#fef3c7' };
     }
-    return { label: t('crops.adaptable', 'Adaptable'), icon: <RiLeafLine />, color: '#d6eaf8' };
+    return { label: t('crops.adaptable', 'Adaptable Space'), color: '#1f3a30', bg: '#eaf4f4' };
   };
 
   const containerSuitability = getContainerSuitability(crop.cropName);
@@ -40,153 +27,93 @@ const CropCard = ({ crop, spaceAvailable, existingPlants = [], onAddToPlants }) 
   // Get space suitability
   const getSpaceSuitability = () => {
     const spaceMap = {
-      small: { label: t('crops.spaceSmallDesc', 'Perfect for small spaces'), color: '#a8d5ba' },
-      medium: { label: t('crops.spaceMediumDesc', 'Good for medium spaces'), color: '#d6eaf8' },
-      large: { label: t('crops.spaceLargeDesc', 'Needs room to grow'), color: '#f0d5c0' },
+      small: { label: t('crops.spaceSmallDesc', 'Compact Space'), color: '#2d6a4f', bg: '#cce3de' },
+      medium: { label: t('crops.spaceMediumDesc', 'Medium Garden'), color: '#1f3a30', bg: '#eaf4f4' },
+      large: { label: t('crops.spaceLargeDesc', 'Needs Wide Space'), color: '#92400e', bg: '#fef3c7' },
     };
     return spaceMap[spaceAvailable] || spaceMap.medium;
   };
 
   const spaceSuitability = getSpaceSuitability();
 
-  // Get climate warnings
-  const getClimateWarning = () => {
-    const name = (crop.cropName || '').toLowerCase();
-    const temp = 25; // This would come from the form
-    
-    if (name.includes('lettuce') && temp > 30) {
-      return { warning: true, icon: <RiSunLine />, message: 'Too hot for optimal growth. Consider shade cloth or switch to amaranth.' };
-    }
-    if ((name.includes('tomato') || name.includes('pepper')) && temp < 10) {
-      return { warning: true, icon: <RiTempColdLine />, message: 'Too cold for optimal growth. Consider starting indoors.' };
-    }
-    if (name.includes('carrot') && spaceAvailable === 'small') {
-      return { warning: true, icon: <RiAlertLine />, message: 'Carrots need deep soil. Use deep containers at least 30cm.' };
-    }
-    return { warning: false };
-  };
-
-  const climateWarning = getClimateWarning();
-
-  // Get companion plants
-  const getCompanionPlants = (cropName) => {
-    const companions = {
-      'tomato': ['basil', 'marigold', 'mint', 'garlic'],
-      'basil': ['tomato', 'pepper', 'oregano'],
-      'pepper': ['basil', 'onion', 'marigold'],
-      'carrot': ['onion', 'garlic', 'rosemary'],
-      'lettuce': ['carrot', 'radish', 'strawberry'],
-      'strawberry': ['lettuce', 'spinach', 'garlic'],
-    };
-    
-    const name = (cropName || '').toLowerCase();
-    for (const [key, plants] of Object.entries(companions)) {
-      if (name.includes(key)) {
-        return plants;
-      }
-    }
-    return [];
-  };
-
-  const companions = getCompanionPlants(crop.cropName);
-
-  // Find matching existing plants
-  const matchingCompanions = companions.filter(c => 
-    existingPlants.some(p => p.name.toLowerCase().includes(c.toLowerCase()))
-  );
-
   const localizedCropName = getLocalizedDynamicText(crop.cropName, i18n.language);
+  const confidencePercent = Math.round((crop.confidence || 0.85) * 100);
 
   return (
-    <div className="crop-card" onClick={() => setExpanded(!expanded)}>
+    <div className="crop-card">
       <div className="crop-card-header">
-        <h4>{localizedCropName}</h4>
-        <span className="container-badge" style={{ background: containerSuitability.color + '33', color: containerSuitability.color.includes('#') ? containerSuitability.color : '#4a3f3a', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-          {containerSuitability.icon} {containerSuitability.label}
-        </span>
-      </div>
-      
-      <div className="crop-confidence">
-        {t('crops.confidenceLabel', 'Confidence: {{percent}}%', { percent: Math.round(crop.confidence * 100) })}
-        <div className="confidence-bar-mini">
-          <div 
-            className="confidence-fill-mini" 
-            style={{ 
-              width: `${Math.round(crop.confidence * 100)}%`,
-              background: crop.confidence > 0.7 ? '#a8d5ba' : crop.confidence > 0.4 ? '#f0d5c0' : '#e8b4b4'
-            }}
-          />
+        <div className="crop-title-group">
+          <span className="crop-badge-category">AI Recommendation</span>
+          <h3 className="crop-name">{localizedCropName}</h3>
+        </div>
+        <div className="crop-confidence-pill">
+          {confidencePercent}% match
         </div>
       </div>
-      
-      <p className="crop-reason">{getLocalizedDynamicText(crop.reason, i18n.language)}</p>
-      
-      <div className="crop-badges">
-        <span className="space-badge" style={{ background: spaceSuitability.color + '33' }}>
+
+      <div className="crop-tags-row">
+        <span 
+          className="crop-tag" 
+          style={{ color: containerSuitability.color, backgroundColor: containerSuitability.bg }}
+        >
+          {containerSuitability.label}
+        </span>
+        <span 
+          className="crop-tag" 
+          style={{ color: spaceSuitability.color, backgroundColor: spaceSuitability.bg }}
+        >
           {spaceSuitability.label}
         </span>
       </div>
 
-      {climateWarning.warning && (
-        <div className="climate-warning" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-          {climateWarning.icon} {getLocalizedDynamicText(climateWarning.message, i18n.language)}
+      {/* Soil Compatibility Spotlight */}
+      {crop.soilSuitability && (
+        <div className="crop-soil-badge-box">
+          <span className="crop-soil-label">Soil Fit:</span>
+          <p className="crop-soil-text">{crop.soilSuitability}</p>
         </div>
       )}
 
-      {expanded && (
-        <div className="crop-expanded">
-          <div className="crop-tips">
-            <strong style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <RiLeafLine /> {t('crops.plantingTips', 'Planting Tips:')}
-            </strong>
-            <p>{getLocalizedDynamicText(crop.plantingTips, i18n.language)}</p>
-          </div>
-          
-          <div className="crop-yield">
-            <strong style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <RiScales3Line /> {t('crops.expectedYield', 'Expected Yield:')}
-            </strong>
-            <span>{getLocalizedDynamicText(crop.expectedYield, i18n.language)}</span>
-          </div>
+      {/* Primary Reason */}
+      <p className="crop-reason-text">{crop.reason}</p>
 
-          {companions.length > 0 && (
-            <div className="crop-companions">
-              <strong style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <RiTeamLine /> {t('crops.companionPlants', 'Companion Plants:')}
-              </strong>
-              <div className="companion-tags">
-                {companions.map((c, i) => (
-                  <span key={i} className={`companion-tag ${matchingCompanions.includes(c) ? 'has' : ''}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                    {getLocalizedDynamicText(c, i18n.language)} {matchingCompanions.includes(c) && <RiCheckLine style={{ color: '#10b981' }} />}
-                  </span>
-                ))}
-              </div>
-              {matchingCompanions.length > 0 && (
-                <div className="companion-match">
-                  {t('crops.companionMatch', 'Great! You already grow {{plants}} - they grow well together!', {
-                    plants: matchingCompanions.map(c => getLocalizedDynamicText(c, i18n.language)).join(', ')
-                  })}
-                </div>
-              )}
+      {/* Expected Yield */}
+      {crop.expectedYield && (
+        <div className="crop-yield-row">
+          <span className="crop-meta-title">Expected Yield:</span>
+          <span className="crop-meta-value">{crop.expectedYield}</span>
+        </div>
+      )}
+
+      {/* Expandable Planting Tips */}
+      {crop.plantingTips && (
+        <div className="crop-tips-accordion">
+          <button 
+            type="button" 
+            className="crop-tips-toggle" 
+            onClick={() => setExpanded(!expanded)}
+          >
+            <span>{t('crops.plantingTips', 'Planting & Care Guide')}</span>
+            <span className="toggle-symbol">{expanded ? '▲' : '▼'}</span>
+          </button>
+          {expanded && (
+            <div className="crop-tips-content">
+              <p>{crop.plantingTips}</p>
             </div>
           )}
-
-          <button 
-            type="button"
-            className="btn-primary add-plant-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              onAddToPlants();
-            }}
-            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem' }}
-          >
-            <RiAddLine /> {t('crops.addToMyPlants', 'Add to My Plants')}
-          </button>
         </div>
       )}
-      
-      <div className="crop-expand-hint" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
-        {expanded ? <><RiArrowUpSLine /> {t('crops.showLess', 'Show less')}</> : <><RiArrowDownSLine /> {t('crops.clickMoreDetails', 'Click for more details')}</>}
+
+      <div className="crop-card-footer">
+        {onAddToPlants && (
+          <button 
+            type="button" 
+            className="crop-add-btn"
+            onClick={onAddToPlants}
+          >
+            {t('crops.addToGarden', 'Add to My Garden')}
+          </button>
+        )}
       </div>
     </div>
   );

@@ -47,6 +47,16 @@ export const getBadges = async () => {
   return response.data.badges;
 };
 
+export const getBadgesData = async () => {
+  const response = await api.get('/users/badges');
+  return response.data;
+};
+
+export const updateBadgeSettings = async (settings) => {
+  const response = await api.put('/users/badge-settings', settings);
+  return response.data;
+};
+
 export const checkBadges = async () => {
   const response = await api.post('/users/check-badges');
   return response.data;

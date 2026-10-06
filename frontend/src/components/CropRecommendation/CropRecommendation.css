@@ -501,3 +501,251 @@
     padding: 0.1rem 0.7rem;
   }
 }
+
+/* Enhancements for Task 6 & Task 7 */
+.crop-header-badge {
+  display: inline-block;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #1f3a30;
+  background: #cce3de;
+  border-radius: 999px;
+  margin-bottom: 0.5rem;
+}
+
+.req-star {
+  color: #c94a4a;
+  font-weight: bold;
+}
+
+.input-error {
+  border-color: #c94a4a !important;
+  background: #fff8f8 !important;
+}
+
+.inline-err {
+  font-size: 0.82rem;
+  color: #991b1b;
+  margin-top: 0.3rem;
+  display: block;
+  font-weight: 500;
+}
+
+.highlight-input-group {
+  background: #f6fff8;
+  padding: 1rem;
+  border: 1px dashed #a4c3b2;
+  border-radius: 12px;
+}
+
+.field-hint {
+  font-size: 0.82rem;
+  color: #4a6659;
+  margin-top: 0.35rem;
+  display: block;
+}
+
+.crop-loading-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: #eaf4f4;
+  border: 1px solid #a4c3b2;
+  border-radius: 14px;
+}
+
+.crop-pulse-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #6b9080;
+  flex-shrink: 0;
+  animation: cropPulse 1.4s infinite ease-in-out;
+}
+
+@keyframes cropPulse {
+  0% { transform: scale(0.8); opacity: 0.4; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.8); opacity: 0.4; }
+}
+
+.loading-text-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.92rem;
+  color: #1f3a30;
+}
+
+.crop-api-error-card {
+  background: #fdf2f2;
+  border: 1px solid #fecaca;
+  border-radius: 14px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.error-tag {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #991b1b;
+  background: #fee2e2;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+}
+
+.error-message {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #7f1d1d;
+}
+
+.btn-retry {
+  min-height: 44px;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: #6b9080;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-retry:hover {
+  background: #4f7363;
+}
+
+/* Soil Analysis Card */
+.soil-analysis-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f6fff8 100%);
+  border: 1px solid #cce3de;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 2px 10px rgba(107, 144, 128, 0.05);
+}
+
+.soil-analysis-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.soil-badge {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #2d6a4f;
+  background: #cce3de;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+}
+
+.soil-analysis-header h4 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #1f3a30;
+}
+
+.soil-drainage-text,
+.soil-tip-text {
+  font-size: 0.92rem;
+  color: #2c4a3e;
+  line-height: 1.55;
+  margin: 0 0 0.5rem 0;
+}
+
+/* Target Crop Result Card */
+.target-crop-result-card {
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid;
+}
+
+.target-crop-result-card.suitable {
+  background: #f6fff8;
+  border-color: #a4c3b2;
+}
+
+.target-crop-result-card.unsuitable {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.target-result-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.target-suitability-pill {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+}
+
+.target-suitability-pill.pass {
+  background: #cce3de;
+  color: #2d6a4f;
+}
+
+.target-suitability-pill.fail {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.target-result-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #1f3a30;
+}
+
+.target-explanation {
+  font-size: 0.95rem;
+  color: #1f3a30;
+  line-height: 1.6;
+  margin: 0 0 0.75rem 0;
+}
+
+.target-alternatives-box {
+  background: #ffffff;
+  border: 1px solid #cce3de;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+}
+
+.alt-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #4a6659;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.alt-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.alt-chip {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1f3a30;
+  background: #eaf4f4;
+  border-radius: 999px;
+  border: 1px solid #cce3de;
+}

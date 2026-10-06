@@ -448,3 +448,67 @@
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(45, 106, 79, 0.35) !important;
 }
+
+/* Plant Needs Attention Alert Banner */
+.plant-needs-attention-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md, 12px);
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.08);
+  animation: attentionFadeIn 0.3s ease;
+}
+
+.plant-needs-attention-banner .banner-alert-icon {
+  font-size: 1.35rem;
+  color: #ef4444;
+  flex-shrink: 0;
+}
+
+.plant-needs-attention-banner .banner-alert-content {
+  flex: 1;
+}
+
+@keyframes attentionFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 640px) {
+  .diagnose-tab {
+    padding: 1.25rem 1rem 2rem;
+    border-radius: 16px;
+  }
+  .diagnose-tab h2 {
+    font-size: 1.25rem;
+  }
+  .upload-actions {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .upload-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+  .plant-selector {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .plant-selector label {
+    margin-bottom: 0.25rem;
+  }
+  .camera-modal-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .camera-modal-actions button {
+    width: 100%;
+  }
+}

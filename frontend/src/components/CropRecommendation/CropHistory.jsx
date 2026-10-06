@@ -1,15 +1,5 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { 
-  RiFileList3Line, 
-  RiSearchLine, 
-  RiStarFill, 
-  RiStarLine, 
-  RiSeedlingLine,
-  RiTempColdLine,
-  RiCalendarEventLine
-} from 'react-icons/ri';
-import { TbLayersIntersect } from 'react-icons/tb';
 import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import './CropHistory.css';
 
@@ -39,9 +29,7 @@ const CropHistory = ({
   return (
     <div className="crop-history">
       <div className="history-header">
-        <h3>
-          <RiFileList3Line className="history-header-icon" /> {t('crops.historyTitle', 'Recommendation History')}
-        </h3>
+        <h3>{t('crops.historyTitle', 'Recommendation History')}</h3>
         <span className="history-count">
           {t('crops.sessionsCount', '{{count}} sessions', { count: history.length })}
         </span>
@@ -49,9 +37,6 @@ const CropHistory = ({
 
       <div className="history-filters">
         <div className="search-bar">
-          <span className="search-icon">
-            <RiSearchLine />
-          </span>
           <input
             type="text"
             placeholder={t('crops.searchPlaceholder', 'Search by crop, soil, season...')}
@@ -66,7 +51,6 @@ const CropHistory = ({
               className={`filter-pill ${filterType === option.value ? 'active' : ''}`}
               onClick={() => onFilterChange(option.value)}
             >
-              {option.value === 'saved' && <RiStarFill style={{ marginRight: '4px', verticalAlign: 'middle' }} />}
               {option.label}
             </button>
           ))}
@@ -75,60 +59,61 @@ const CropHistory = ({
 
       {history.length === 0 ? (
         <div className="no-history">
-          <span className="no-history-icon">
-            <RiSeedlingLine />
-          </span>
-          <p>{t('crops.noHistory', 'No recommendations yet.')}</p>
-          <p className="sub-text">{t('crops.startPrompt', 'Get your first crop suggestions!')}</p>
+          <span className="no-history-tag">No Sessions</span>
+          <p>{t('crops.noHistory', 'No recommendation history yet.')}</p>
         </div>
       ) : (
         <div className="history-list">
           {history.map((item) => {
             const isSelected = selectedId === item._id;
-            const cropNames = item.recommendations
-              ?.map(r => getLocalizedDynamicText(r.cropName, i18n.language))
-              .slice(0, 3)
-              .join(', ');
+            const crops = item.recommendations || [];
             
             return (
               <div 
                 key={item._id} 
-                className={`history-item ${isSelected ? 'active' : ''} ${item.saved ? 'saved' : ''}`}
+                className={`history-card ${isSelected ? 'active' : ''}`}
                 onClick={() => onItemClick(item)}
               >
-                <div className="history-header-row">
+                <div className="history-card-header">
+                  <div className="history-meta-tags">
+                    <span className="history-soil-tag">
+                      {item.inputData?.soilType || 'Soil'}
+                    </span>
+                    <span className="history-season-tag">
+                      {item.inputData?.season || 'Season'}
+                    </span>
+                  </div>
+                  {onSave && (
+                    <button 
+                      type="button" 
+                      className={`history-save-btn ${item.saved ? 'saved' : ''}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSave(item._id);
+                      }}
+                      title={item.saved ? 'Saved' : 'Save'}
+                    >
+                      {item.saved ? '★ Saved' : '☆ Save'}
+                    </button>
+                  )}
+                </div>
+
+                <div className="history-crops-chips">
+                  {crops.slice(0, 3).map((c, idx) => (
+                    <span key={idx} className="crop-mini-chip">
+                      {getLocalizedDynamicText(c.cropName, i18n.language)}
+                    </span>
+                  ))}
+                  {crops.length > 3 && (
+                    <span className="crop-more-chip">+{crops.length - 3}</span>
+                  )}
+                </div>
+
+                <div className="history-footer-row">
                   <span className="history-date">
                     {new Date(item.createdAt).toLocaleDateString(getDateLocale())}
                   </span>
-                  <button 
-                    className="save-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSave(item._id);
-                    }}
-                    title={t('crops.saveBookmark', 'Save/Bookmark')}
-                  >
-                    {item.saved ? <RiStarFill style={{ color: '#f59e0b' }} /> : <RiStarLine />}
-                  </button>
-                </div>
-                
-                <div className="history-crops">
-                  {cropNames || t('crops.noCrops', 'No crops')}
-                  {item.recommendations?.length > 3 && (
-                    ` ${t('crops.plusMore', '+{{count}} more', { count: item.recommendations.length - 3 })}`
-                  )}
-                </div>
-                
-                <div className="history-params">
-                  <span className="param-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                    <TbLayersIntersect /> {getLocalizedDynamicText(item.inputData?.soilType, i18n.language) || 'N/A'}
-                  </span>
-                  <span className="param-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                    <RiTempColdLine /> {item.inputData?.temperature}°C
-                  </span>
-                  <span className="param-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                    <RiCalendarEventLine /> {getLocalizedDynamicText(item.inputData?.season, i18n.language) || 'N/A'}
-                  </span>
+                  <span className="history-view-link">View Details →</span>
                 </div>
               </div>
             );

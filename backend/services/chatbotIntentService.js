@@ -1,6 +1,7 @@
 /**
  * Intent Detection & Context Understanding Service for Krishi AI
- * Multi-lingual N-Gram scoring, entity extraction, and follow-up context resolution.
+ * Multi-lingual N-Gram scoring, entity extraction, follow-up context resolution,
+ * and strict agricultural domain boundaries.
  */
 
 const { VALID_PLATFORM_ROUTES, PLATFORM_ROUTES, KNOWLEDGE_BASE } = require('../data/chatbotKnowledge');
@@ -67,13 +68,38 @@ function extractSymptom(text) {
 }
 
 /**
+ * Check if a query belongs to farming, agriculture, crop cultivation,
+ * gardening, agricultural tools & machinery, or UrbanFarm platform features.
+ */
+function isFarmingOrEquipmentQuery(text) {
+  const lower = (text || '').toLowerCase().trim();
+  if (!lower) return false;
+
+  // 1. Direct plant or symptom match
+  if (extractPlant(lower) || extractSymptom(lower)) return true;
+
+  // 2. Comprehensive Agricultural & Farming Equipment vocabulary (EN, GU, HI)
+  const AGRI_EQUIPMENT_REGEX = /(farm|farmer|farming|plant|crop|grow|seed|seedling|soil|fertiliz|compost|manure|pest|insect|aphid|disease|leaf|leaves|root|stem|flower|fruit|vegetable|harvest|sow|sowing|yield|garden|gardening|terrace|balcony|irrigation|water|watering|drip|sprayer|knapsack|tractor|tiller|rotavator|cultivator|plough|plow|prun|shear|secateur|khurpi|spade|shovel|rake|hoe|dibber|pot|potting|coco\s*peat|vermicompost|fungus|blight|mildew|weather|rain|sunlight|shade\s*net|grow\s*bag|hydroponic|organic|agri|agriculture|agronomist|pesticide|herbicide|fungicide|bio-fertilizer|trellis|polyhouse|greenhouse|mulch|mulching|lopper|mower|weeder|thresher|harvester|borewell|sprinkler|pipe|hose|nozzle|pump|ph\s*meter|moisture\s*meter|seed\s*drill|seedling\s*tray|ખેત|ખેતી|ખેડૂત|પાક|છોડ|બીજ|વાવણી|લણણી|જમીન|માટી|ખાતર|જીવાત|રોગ|પાન|પાંદડા|ડાળી|ફળ|શાકભાજી|બગીચો|ધાબું|બાલ્કની|કુંડુ|સિંચાઈ|ટપક|ટ્રેક્ટર|ઓજાર|સાધન|પંપ|સ્પ્રેયર|કાતર|સિકેટર્સ|પાવડો|કોદાળી|ત્રિકમ|ખુરપી|પંજેટી|ઝારી|લીમડો|અર્ક|ખેતીવાડી|ખેતઓજાર|હળ|પ્લાઉ|રોટાવેટર|ટિલર|કલ્ટીવેટર|ઓરણી|સીડ\s*ડ્રીલ|શેડ\s*નેટ|ગ્રો\s*બેગ|ખેત|खेत|खेती|किसान|फसल|पौधा|पौधे|बीज|बुवाई|कटाई|मिट्टी|खाद|उर्वरक|कीट|कीड़ा|रोग|पत्ता|पत्ते|फल|सब्जी|बगीचा|छत|गमला|सिंचाई|ड्रिप|फव्वारा|ट्रैक्टर|औजार|उपकरण|पंप|स्प्रेयर|कैंची|सिकेटर|फावड़ा|कुदाल|खुरपी|हजारी|नीम|कृषि|हल|यंत्र|मशीन|रोटावेटर|टिलर|कल्टीवेटर|सीड\s*ड्रिल|शेड\s*नेट|ग्रो\s*बैग|खरपतवार|दवा\s*छिड़काव)/i;
+
+  if (lower.match(AGRI_EQUIPMENT_REGEX)) return true;
+
+  // 3. Platform navigation / feature names
+  const PLATFORM_REGEX = /(urbanfarm|diagnosis|watering|garden|crop\s*recommend|community|support|contact|sign\s*in|login|register|admin|અર્બનફાર્મ|નિદાન|વોટરિંગ|બગીચો|અર્બન|अर्बनफार्म|निदान|सिंचाई|बगीचा)/i;
+
+  return Boolean(lower.match(PLATFORM_REGEX));
+}
+
+// Explicit strictly non-agricultural/non-equipment patterns (Zero tolerance)
+const STRICT_OUT_OF_SCOPE_REGEX = /\b(movie|movies|film|films|actor|actors|actress|actresses|bollywood|hollywood|cinema|song|songs|singer|singers|music|dance|celebrity|celebrities|cricket\s*match|cricket\s*score|cricket\s*player|cricket\s*team|cricketer|ipl|world\s*cup|football|tennis|badminton|sports?\s*score|gaming|video\s*game|playstation|xbox|pubg|freefire|politics|politician|politicians|minister|ministers|president|presidents|election|elections|vote|voting|modi|bjp|congress|crypto|bitcoin|ethereum|stock\s*market|nifty|sensex|share\s*market|investing|finance\s*loan|bank\s*loan|python|javascript|typescript|c\+\+|html|css|php|sql|database|programming|code|coding|algorithm|math|mathematics|calculus|algebra|solve\s*equation|physics|quantum|astronomy|galaxy|black\s*hole|doctor\s*human|hospital|cancer|covid|fever|headache|medicine\s*human|paracetamol|car\s*engine|bike\s*repair|mobile\s*phone|iphone|samsung|laptop|computer|windows\s*11|dating|relationship|girlfriend|boyfriend|love\s*advice|horoscope|astrology|zodiac|joke|jokes|story\s*writing)\b/i;
+
+/**
  * Detect primary intent with multi-lingual pattern scoring
  */
 function detectIntent(text, language = 'en', history = []) {
   const lower = (text || '').toLowerCase().trim();
   const lang = ['gu', 'hi'].includes(language) ? language : 'en';
 
-  // Check for greetings first
+  // 1. Check for greetings
   const greetingPatterns = [
     'hello', 'hi', 'hey', 'namaste', 'kem cho', 'good morning', 'good evening',
     'નમસ્તે', 'કેમ છો', 'નમસ્કાર', 'હેલો', 'હાય',
@@ -83,12 +109,58 @@ function detectIntent(text, language = 'en', history = []) {
     return {
       intent: 'greeting',
       confidence: 0.95,
-      route: PLATFORM_ROUTES.diagnosis,
+      route: PLATFORM_ROUTES.gardens,
       quickActions: [
+        { label: lang === 'gu' ? 'કૃષિ ઓજારો અને સાધનો' : lang === 'hi' ? 'कृषि उपकरण और औजार' : 'Farming Equipments', path: PLATFORM_ROUTES.gardens },
         { label: lang === 'gu' ? 'રોગ નિદાન' : lang === 'hi' ? 'रोग निदान' : 'AI Plant Diagnosis', path: PLATFORM_ROUTES.diagnosis },
-        { label: lang === 'gu' ? 'સ્માર્ટ વોટરિંગ' : lang === 'hi' ? 'स्मार्ट सिंचाई' : 'Smart Watering', path: PLATFORM_ROUTES.watering },
-        { label: lang === 'gu' ? 'મારા બગીચાઓ' : lang === 'hi' ? 'मेरे बगीचे' : 'My Gardens', path: PLATFORM_ROUTES.gardens }
+        { label: lang === 'gu' ? 'સ્માર્ટ વોટરિંગ' : lang === 'hi' ? 'स्मार्ट सिंचाई' : 'Smart Watering', path: PLATFORM_ROUTES.watering }
+      ],
+      followUpSuggestions: [
+        lang === 'gu' ? 'ખેતી અને બગીચા માટે કયા ઓજારો જોઈએ?' : lang === 'hi' ? 'खेती और बागवानी के लिए कौन से उपकरण चाहिए?' : 'What farming equipment do I need?',
+        lang === 'gu' ? 'છોડનું રોગ નિદાન કેવી રીતે કરવું?' : lang === 'hi' ? 'पौधे का रोग निदान कैसे करें?' : 'How do I diagnose plant diseases?'
       ]
+    };
+  }
+
+  // 2. Identity & capability inquiry (who are you, what can you do)
+  const capabilityPatterns = [
+    'who are you', 'what can you do', 'what do you do', 'help me',
+    'તમે કોણ છો', 'તમે શું કરી શકો', 'તમે શું કામ કરો છો', 'મને મદદ કરો',
+    'आप कौन हैं', 'आप क्या कर सकती हैं', 'आप क्या काम करती हैं', 'मेरी मदद करें'
+  ];
+  if (capabilityPatterns.some(cp => lower.includes(cp))) {
+    return {
+      intent: 'unknown',
+      confidence: 0.95,
+      route: PLATFORM_ROUTES.gardens,
+      quickActions: [
+        { label: lang === 'gu' ? 'કૃષિ ઓજારો અને સાધનો' : lang === 'hi' ? 'कृषि उपकरण और औजार' : 'Farming Equipments', path: PLATFORM_ROUTES.gardens },
+        { label: lang === 'gu' ? 'રોગ નિદાન' : lang === 'hi' ? 'रोग निदान' : 'AI Plant Diagnosis', path: PLATFORM_ROUTES.diagnosis }
+      ],
+      followUpSuggestions: [
+        lang === 'gu' ? 'ખેતી અને બગીચા માટે કયા ઓજારો જોઈએ?' : lang === 'hi' ? 'खेती और बागवानी के लिए कौन से उपकरण चाहिए?' : 'What farming equipment do I need?',
+        lang === 'gu' ? 'છોડનું રોગ નિદાન કેવી રીતે કરવું?' : lang === 'hi' ? 'पौधे का रोग निदान कैसे करें?' : 'How do I diagnose plant diseases?'
+      ]
+    };
+  }
+
+  // 3. Strict Out-of-Scope Pre-check: Reject non-agricultural questions immediately
+  const isExplicitOutOfScope = Boolean(lower.match(STRICT_OUT_OF_SCOPE_REGEX));
+  const isAgriRelated = isFarmingOrEquipmentQuery(lower);
+
+  if (isExplicitOutOfScope || (!isAgriRelated && !FOLLOW_UP_PATTERNS.some(fp => lower.includes(fp)))) {
+    const kbData = KNOWLEDGE_BASE.unknown[lang] || KNOWLEDGE_BASE.unknown.en;
+    return {
+      intent: 'out_of_scope',
+      confidence: 0.99,
+      route: PLATFORM_ROUTES.gardens,
+      extractedPlant: null,
+      extractedSymptom: null,
+      quickActions: [
+        { label: lang === 'gu' ? 'કૃષિ ઓજારો અને સાધનો' : lang === 'hi' ? 'कृषि उपकरण और औजार' : 'Farming Equipments', path: PLATFORM_ROUTES.gardens },
+        { label: lang === 'gu' ? 'રોગ નિદાન' : lang === 'hi' ? 'रोग निदान' : 'AI Plant Diagnosis', path: PLATFORM_ROUTES.diagnosis }
+      ],
+      followUpSuggestions: kbData.followUps || []
     };
   }
 
@@ -113,6 +185,8 @@ function detectIntent(text, language = 'en', history = []) {
           contextIntent = 'crops';
         } else if (pastText.includes('pest') || pastText.includes('neem') || pastText.includes('જીવાત') || pastText.includes('कीट')) {
           contextIntent = 'pests';
+        } else if (pastText.includes('equipment') || pastText.includes('tool') || pastText.includes('tractor') || pastText.includes('ઓજાર') || pastText.includes('उपकरण')) {
+          contextIntent = 'equipment';
         }
       }
       if (contextIntent && contextPlant) break;
@@ -129,7 +203,8 @@ function detectIntent(text, language = 'en', history = []) {
     weather: 0,
     pests: 0,
     fertilizers: 0,
-    safety: 0
+    safety: 0,
+    equipment: 0
   };
 
   // 1. Disease & Diagnosis keywords
@@ -167,7 +242,7 @@ function detectIntent(text, language = 'en', history = []) {
   }
 
   // 7. Pests & Bugs
-  if (lower.match(/(pest|bug|insect|aphid|mealybug|mite|caterpillar|worm|neem|spray|જીવાત|ઈયળ|માખી|કીડા|લીમડો|કીट|माहू|मिलीबग|कीड़ा|इल्ली|नीम)/i)) {
+  if (lower.match(/(pest|bug|insect|aphid|mealybug|mite|caterpillar|worm|neem|spray|જીવાત|ઈયળ|માખી|કીડા|લીમડો|કીટ|माहू|मिलीबग|कीड़ा|इल्ली|नीम)/i)) {
     scores.pests += 5;
   }
 
@@ -179,6 +254,11 @@ function detectIntent(text, language = 'en', history = []) {
   // 9. Safety & Chemical Warnings
   if (lower.match(/(chemical|poison|toxic|safe|harmful|danger|mix\s*pesticide|ઝેર|કેમિકલ|નુકસાન|સુરક્ષા|દવા|रसायन|जहर|विषाक्त|खतरा|सुरक्षा|कीटनाशक)/i)) {
     scores.safety += 5;
+  }
+
+  // 10. Farming & Gardening Equipments / Machinery / Tools
+  if (lower.match(/(equipment|tool|machin|tractor|tiller|rotavator|cultivator|plough|plow|sprayer|knapsack|drip|sprinkler|pump|shear|secateur|trowel|spade|shovel|rake|hoe|khurpi|dibber|seed\s*drill|grow\s*bag|shade\s*net|ph\s*meter|moisture\s*meter|harvester|thresher|harrow|chainsaw|mower|weeder|nozzle|pipe|hose|tubewell|borewell|ટ્રેક્ટર|ટિલર|રોટાવેટર|કલ્ટીવેટર|હળ|પ્લાઉ|ઓરણી|સીડ\s*ડ્રીલ|સ્પ્રેયર|પંપ|કાતર|સિકેટર્સ|પાવડો|કોદાળી|ત્રિકમ|ખુરપી|પંજેટી|ઝારી|સાધન|ઓજાર|યંત્ર|ટપક|ફુવારા|ગ્રો\s*બેગ|શેડ\s*નેટ|ટૂલ|ट्रैक्टर|टिलर|रोटावेटर|कल्टीवेटर|हल|सीड\s*ड्रिल|स्प्रेयर|पंप|सिकेटर|कैंची|फावड़ा|कुदाल|खुरपी|हजारी|उपकरण|औजार|यंत्र|मशीन|ड्रिप|फव्वारा|ग्रो\s*बैग|शेड\s*नेट|टूल)/i)) {
+    scores.equipment += 6;
   }
 
   // If follow-up question and scores are low, inherit context
@@ -196,14 +276,12 @@ function detectIntent(text, language = 'en', history = []) {
     }
   }
 
+  // If score is negligible and not a follow-up, mark as out_of_scope
   if (maxScore < 2) {
-    // Check if user query is out of agricultural & farming domain
-    const isOutOfTopic = lower.match(/(movie|cricket|song|football|game|gaming|politics|bitcoin|crypto|fashion|car|bike|finance|stock|python|java|coding|code|program|math|physics|chemistry|history|actor|actress|ipl|match|singer|song|film|joke|relationship|president|election)/i);
-
-    if (isOutOfTopic || !isFollowUp) {
-      topIntent = 'unknown';
+    if (!isAgriRelated && !isFollowUp) {
+      topIntent = 'out_of_scope';
     } else {
-      topIntent = 'general';
+      topIntent = 'unknown';
     }
   }
 
@@ -218,11 +296,14 @@ function detectIntent(text, language = 'en', history = []) {
     pests: PLATFORM_ROUTES.diagnosis,
     fertilizers: PLATFORM_ROUTES.gardens,
     safety: PLATFORM_ROUTES.contact,
+    equipment: PLATFORM_ROUTES.gardens,
+    out_of_scope: PLATFORM_ROUTES.gardens,
+    unknown: PLATFORM_ROUTES.gardens,
     general: PLATFORM_ROUTES.diagnosis
   };
 
   const primaryRoute = routeMap[topIntent] || PLATFORM_ROUTES.diagnosis;
-  const kbData = KNOWLEDGE_BASE[topIntent] ? KNOWLEDGE_BASE[topIntent][lang] : KNOWLEDGE_BASE.general[lang];
+  const kbData = KNOWLEDGE_BASE[topIntent] ? KNOWLEDGE_BASE[topIntent][lang] : (KNOWLEDGE_BASE.unknown[lang] || KNOWLEDGE_BASE.general[lang]);
 
   return {
     intent: topIntent,
@@ -259,6 +340,7 @@ module.exports = {
   extractPlant,
   extractSymptom,
   validateQuickActions,
+  isFarmingOrEquipmentQuery,
   COMMON_PLANTS,
   VALID_PLATFORM_ROUTES,
 };

@@ -1,18 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { 
-  RiMicroscopeLine, 
-  RiCameraLine, 
-  RiCameraSwitchLine,
-  RiFolderUploadLine, 
-  RiSparklingLine, 
-  RiPlantLine, 
-  RiCheckLine,
-  RiAlertLine,
-  RiCloseLine
-} from 'react-icons/ri';
-import { TbPlant2 } from 'react-icons/tb';
 import { diagnosePlant, getDiagnosisHistory, getPlants } from '../../services/plantService';
 import { useNotification } from '../../hooks/useNotification';
 import { getPlantImage } from '../../utils/helpers';
@@ -40,6 +28,12 @@ const DiagnoseTab = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const fileInputRef = useRef(null);
   const { addNotification } = useNotification();
+
+  // Camera state
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [cameraStream, setCameraStream] = useState(null);
+  const [facingMode, setFacingMode] = useState('environment');
+  const videoRef = useRef(null);
 
   useEffect(() => {
     loadData();
@@ -108,6 +102,7 @@ const DiagnoseTab = () => {
     if (filterStatus !== 'all') {
       filtered = filtered.filter(h => {
         const isHealthy = h.isHealthy || h.diseaseName?.toLowerCase().includes('healthy');
+        if (filterStatus === 'needs_attention') return !isHealthy && !h.isResolved;
         if (filterStatus === 'healthy') return isHealthy;
         if (filterStatus === 'resolved') return h.isResolved && !isHealthy;
         if (filterStatus === 'critical') return !isHealthy && !h.isResolved && h.confidence > 0.7;
@@ -151,43 +146,43 @@ const DiagnoseTab = () => {
   const handleImageFile = (file) => {
     setImage(file);
     setPreview(URL.createObjectURL(file));
-    setSelectedPlant(''); // Auto move to "-- No specific plant (General Diagnosis) --"
+    setSelectedPlant('');
     setResult(null);
     setSelectedHistory(null);
   };
 
-  const [isCameraOpen, setIsCameraOpen] = useState(false);
-  const [cameraStream, setCameraStream] = useState(null);
-  const [facingMode, setFacingMode] = useState('environment');
-  const videoRef = useRef(null);
-
-  const startCamera = async (mode = 'environment') => {
-    try {
-      if (cameraStream) {
-        cameraStream.getTracks().forEach(track => track.stop());
+  const handlePlantSelect = (e) => {
+    const pId = e.target.value;
+    setSelectedPlant(pId);
+    setImage(null);
+    setResult(null);
+    setSelectedHistory(null);
+    
+    if (pId) {
+      const match = plants.find(p => p._id === pId);
+      if (match) {
+        const plantImg = getPlantImage(match);
+        setPreview(plantImg || null);
       }
+    } else {
+      setPreview(null);
+    }
+  };
+
+  const handleCameraCapture = async () => {
+    try {
+      setIsCameraOpen(true);
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: mode, width: { ideal: 1280 }, height: { ideal: 720 } },
-        audio: false
+        video: { facingMode: facingMode }
       });
       setCameraStream(stream);
-      setIsCameraOpen(true);
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
     } catch (err) {
-      console.warn('Webcam stream error, falling back to camera input picker:', err);
-      // Fallback to direct device camera input
-      const cameraInput = document.createElement('input');
-      cameraInput.type = 'file';
-      cameraInput.accept = 'image/*';
-      cameraInput.capture = 'environment';
-      cameraInput.onchange = (e) => {
-        if (e.target.files && e.target.files[0]) {
-          handleImageFile(e.target.files[0]);
-        }
-      };
-      cameraInput.click();
+      console.error('Camera access error:', err);
+      setIsCameraOpen(false);
+      addNotification(t('diagnose.cameraAccessDenied', 'Camera access denied or unavailable. Please browse an image.'), 'error');
     }
   };
 
@@ -199,83 +194,77 @@ const DiagnoseTab = () => {
     setIsCameraOpen(false);
   };
 
-  const handleCameraCapture = () => {
-    startCamera(facingMode);
+  const handleSwitchCamera = async () => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+    }
+    const newFacingMode = facingMode === 'environment' ? 'user' : 'environment';
+    setFacingMode(newFacingMode);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: newFacingMode }
+      });
+      setCameraStream(stream);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (err) {
+      console.error('Failed to switch camera:', err);
+      stopCamera();
+    }
   };
 
   const handleSnapPhoto = () => {
     if (!videoRef.current) return;
-    const video = videoRef.current;
     const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth || 640;
-    canvas.height = video.videoHeight || 480;
+    canvas.width = videoRef.current.videoWidth || 640;
+    canvas.height = videoRef.current.videoHeight || 480;
     const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
+    ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+    
     canvas.toBlob((blob) => {
       if (blob) {
-        const file = new File([blob], `leaf_photo_${Date.now()}.jpg`, { type: 'image/jpeg' });
+        const file = new File([blob], `leaf-capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
         handleImageFile(file);
         stopCamera();
-        addNotification(t('diagnose.photoCaptured', 'Leaf photo captured successfully!'), 'success');
+        addNotification(t('diagnose.photoCaptured', 'Photo captured ready for diagnosis!'), 'success');
       }
-    }, 'image/jpeg', 0.92);
-  };
-
-  const handleSwitchCamera = () => {
-    const nextMode = facingMode === 'environment' ? 'user' : 'environment';
-    setFacingMode(nextMode);
-    startCamera(nextMode);
-  };
-
-  useEffect(() => {
-    if (isCameraOpen && videoRef.current && cameraStream) {
-      videoRef.current.srcObject = cameraStream;
-    }
-    return () => {
-      if (cameraStream) {
-        cameraStream.getTracks().forEach(track => track.stop());
-      }
-    };
-  }, [isCameraOpen, cameraStream]);
-
-  const handlePlantSelect = (e) => {
-    const plantId = e.target.value;
-    setSelectedPlant(plantId);
-    setImage(null);
-    if (plantId) {
-      const targetPlant = plants.find(p => p._id === plantId);
-      if (targetPlant) {
-        setPreview(getPlantImage(targetPlant));
-      }
-    } else {
-      setPreview(null);
-    }
+    }, 'image/jpeg', 0.9);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!image && !preview) {
-      addNotification(t('diagnose.selectPlantOrImage', 'Please select a plant or provide an image for diagnosis'), 'error');
+      addNotification(t('diagnose.selectImageFirst', 'Please upload or take a leaf photo first'), 'warning');
       return;
     }
+
     setLoading(true);
-    const formData = new FormData();
-    if (image) {
-      formData.append('image', image);
-    } else if (preview) {
-      formData.append('imageUrl', preview);
-    }
-    if (selectedPlant) {
-      formData.append('plantId', selectedPlant);
-    }
+    setResult(null);
+
     try {
-      const diagnosis = await diagnosePlant(formData);
-      setResult(diagnosis);
-      addNotification(t('diagnose.diagnosisComplete', 'Diagnosis complete!'), 'success');
-      loadData(); // Refresh history
+      const formData = new FormData();
+      if (image) {
+        formData.append('image', image);
+      } else if (preview && selectedPlant) {
+        formData.append('imageUrl', preview);
+      }
+
+      if (selectedPlant) {
+        formData.append('plantId', selectedPlant);
+      }
+
+      const response = await diagnosePlant(formData);
+      const resData = response.diagnosis || response;
+      setResult(resData);
+      
+      // Update history
+      loadData();
+      addNotification(t('diagnose.analysisComplete', 'AI leaf pathology assessment complete!'), 'success');
     } catch (error) {
-      addNotification(t('diagnose.diagnosisFailed', 'Diagnosis failed'), 'error');
+      console.error('Diagnosis failed:', error);
+      const errMsg = error.response?.data?.message || t('diagnose.errorOccurred', 'Diagnosis failed. Please ensure leaf is clearly visible and retry.');
+      addNotification(errMsg, 'error');
     } finally {
       setLoading(false);
     }
@@ -284,18 +273,17 @@ const DiagnoseTab = () => {
   const handleHistoryClick = (item) => {
     setSelectedHistory(item);
     setResult(null);
-    setPreview(null);
-    setImage(null);
   };
 
-  const handleAddToSchedule = (diagnosis) => {
+  const handleAddToSchedule = (diag) => {
+    const diseaseName = diag.disease || diag.diseaseName || 'Plant Health Task';
     const taskData = {
-      title: `Treatment: ${diagnosis.disease}`,
-      description: diagnosis.treatment || 'Follow treatment plan',
+      title: `Treatment: ${diseaseName}`,
+      description: diag.treatmentSteps?.length ? diag.treatmentSteps.join('\n') : (diag.treatment || 'Apply botanical care treatment'),
       type: 'other',
-      priority: diagnosis.confidence > 0.7 ? 'high' : 'medium',
-      dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      plantId: diagnosis.plantId || selectedPlant || '',
+      priority: (diag.confidence || 0) > 0.7 ? 'high' : 'medium',
+      dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      plantId: diag.plantId?._id || diag.plantId || selectedPlant || '',
     };
     sessionStorage.setItem('quickTask', JSON.stringify(taskData));
     window.location.href = '/app/schedule';
@@ -303,35 +291,51 @@ const DiagnoseTab = () => {
 
   const activePlantObj = plants.find(p => p._id === selectedPlant);
 
+  // If a result is active, render full page report mode!
+  if (result || selectedHistory) {
+    const activeItem = result || selectedHistory;
+    return (
+      <div className="diagnose-tab diagnose-fullpage-mode">
+        <DiseaseResult 
+          result={activeItem} 
+          isHistory={Boolean(selectedHistory)}
+          onAddToSchedule={() => handleAddToSchedule(activeItem)}
+          onBack={() => { setResult(null); setSelectedHistory(null); }}
+          onClose={() => { setResult(null); setSelectedHistory(null); }}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="diagnose-tab">
-      <h2>
-        <RiMicroscopeLine className="header-icon" /> {t('diagnose.title', 'Plant Disease Diagnosis')}
-      </h2>
+      <div className="diagnose-page-header">
+        <span className="diagnose-header-tag">AI Pathology</span>
+        <h2>{t('diagnose.title', 'Plant Disease Diagnosis')}</h2>
+        <p className="diagnose-subtitle">
+          {t('diagnose.subtitle', "Upload a clear photo of your plant's leaves or select a plant to run AI disease detection.")}
+        </p>
+      </div>
       
       <div className="diagnose-layout">
-        {/* Left Column - Upload & Results */}
+        {/* Left Column - Upload & Context */}
         <div className="diagnose-left">
           <div className="diagnose-upload-section">
-            <p>{t('diagnose.subtitle', "Upload a clear photo of your plant's leaves or select a plant to run AI disease detection.")}</p>
-            
             {/* Plant selector */}
             <div className="plant-selector">
               <label>{t('diagnose.selectPlantContext', 'Select Plant for Context:')}</label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', width: '100%' }}>
+              <div className="plant-selector-inner">
                 {activePlantObj && (
-                  <div style={{ width: '38px', height: '38px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, border: '1px solid var(--border-light, rgba(0,0,0,0.1))' }}>
+                  <div className="plant-selector-thumb">
                     <img 
                       src={getPlantImage(activePlantObj)} 
                       alt={activePlantObj.name} 
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                     />
                   </div>
                 )}
                 <select 
                   value={selectedPlant} 
                   onChange={handlePlantSelect}
-                  style={{ flex: 1 }}
                 >
                   <option value="">{t('diagnose.noSpecificPlant', '-- No specific plant (General Diagnosis) --')}</option>
                   {plants.map(p => (
@@ -343,6 +347,17 @@ const DiagnoseTab = () => {
               </div>
             </div>
 
+            {/* Plant Needs Attention Alert Banner */}
+            {activePlantObj && (activePlantObj.health === 'warning' || activePlantObj.health === 'unhealthy') && (
+              <div className="plant-needs-attention-banner">
+                <span className="banner-alert-dot" />
+                <div className="banner-alert-content">
+                  <strong>{t('diagnose.needsAttention', 'Needs Attention')}:</strong>{' '}
+                  {t('diagnose.plantNeedsAttentionAlert', 'This plant has been flagged as needing attention! Run a fresh diagnosis or schedule treatment.')}
+                </div>
+              </div>
+            )}
+
             {/* Upload area with drag & drop */}
             <div 
               className={`upload-area ${isDragging ? 'dragging' : ''}`}
@@ -352,14 +367,14 @@ const DiagnoseTab = () => {
               onClick={() => fileInputRef.current?.click()}
             >
               {preview ? (
-                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <img src={preview} alt="Preview" className="preview-image" style={{ maxHeight: '240px', borderRadius: '12px', objectFit: 'contain' }} />
+                <div className="preview-container">
+                  <img src={preview} alt="Preview" className="preview-image" />
                 </div>
               ) : (
                 <div className="upload-placeholder">
-                  <span className="upload-icon">
-                    <RiCameraLine />
-                  </span>
+                  <div className="upload-box-graphic">
+                    <span className="upload-box-dot" />
+                  </div>
                   <span className="upload-text">{t('diagnose.dropImage', 'Click or drag image to upload')}</span>
                   <span className="upload-subtext">{t('diagnose.supportsFormats', 'Supports JPG, PNG, WEBP')}</span>
                 </div>
@@ -379,14 +394,14 @@ const DiagnoseTab = () => {
                 className="btn-secondary"
                 onClick={handleCameraCapture}
               >
-                <RiCameraLine /> {t('diagnose.takePhoto', 'Take Photo')}
+                {t('diagnose.takePhoto', 'Take Photo')}
               </button>
               <button 
                 type="button" 
                 className="btn-secondary"
                 onClick={() => fileInputRef.current?.click()}
               >
-                <RiFolderUploadLine /> {t('diagnose.browseFiles', 'Browse Files')}
+                {t('diagnose.browseFiles', 'Browse Files')}
               </button>
               <button 
                 type="submit" 
@@ -394,36 +409,10 @@ const DiagnoseTab = () => {
                 onClick={handleSubmit}
                 disabled={(!image && !preview) || loading}
               >
-                {loading ? (
-                  t('diagnose.analyzing', 'Analyzing...')
-                ) : (
-                  <>
-                    <RiSparklingLine /> {t('diagnose.runDiagnosis', 'Run Diagnosis')}
-                  </>
-                )}
+                {loading ? t('diagnose.analyzing', 'Analyzing...') : t('diagnose.runDiagnosis', 'Run Diagnosis')}
               </button>
             </div>
           </div>
-
-          {result && (
-            <div className="diagnose-result-section">
-              <DiseaseResult 
-                result={result} 
-                onAddToSchedule={() => handleAddToSchedule(result)}
-              />
-            </div>
-          )}
-
-          {selectedHistory && (
-            <div className="diagnose-result-section">
-              <DiseaseResult 
-                result={selectedHistory} 
-                isHistory={true}
-                onAddToSchedule={() => handleAddToSchedule(selectedHistory)}
-                onClose={() => setSelectedHistory(null)}
-              />
-            </div>
-          )}
         </div>
 
         {/* Right Column - History */}
@@ -436,6 +425,7 @@ const DiagnoseTab = () => {
             onFilterChange={setFilterStatus}
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
+            onAddToSchedule={handleAddToSchedule}
           />
         </div>
       </div>
@@ -445,11 +435,9 @@ const DiagnoseTab = () => {
         <div className="camera-modal-overlay" onClick={stopCamera}>
           <div className="camera-modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="camera-modal-header">
-              <h3>
-                <RiCameraLine /> {t('diagnose.liveCamera', 'Live Plant Leaf Camera')}
-              </h3>
+              <h3>{t('diagnose.liveCamera', 'Live Plant Leaf Camera')}</h3>
               <button className="camera-close-btn" onClick={stopCamera} aria-label={t('common.close', 'Close Camera')}>
-                <RiCloseLine />
+                ✕
               </button>
             </div>
             <div className="camera-viewport">
@@ -458,10 +446,10 @@ const DiagnoseTab = () => {
             </div>
             <div className="camera-modal-actions">
               <button type="button" className="btn-secondary" onClick={handleSwitchCamera}>
-                <RiCameraSwitchLine /> {t('diagnose.switchCamera', 'Switch Camera')}
+                {t('diagnose.switchCamera', 'Switch Camera')}
               </button>
               <button type="button" className="btn-primary camera-snap-btn" onClick={handleSnapPhoto}>
-                <RiCameraLine /> {t('diagnose.capturePhoto', 'Capture Photo')}
+                {t('diagnose.capturePhoto', 'Capture Photo')}
               </button>
             </div>
           </div>

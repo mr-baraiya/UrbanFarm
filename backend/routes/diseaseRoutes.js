@@ -1,12 +1,27 @@
 const express = require('express');
 const router = express.Router();
-const { diagnosePlant, getDiagnosisHistory, getDiagnosisById } = require('../controllers/diseaseController');
-const { protect } = require('../middleware/authMiddleware');
+const { 
+  diagnosePlant, 
+  getDiagnosisHistory, 
+  getDiagnosisById,
+  getPublicDiagnosis,
+  getGeminiTipsForDiagnosis,
+  translateDiagnosis,
+  toggleShareStatus
+} = require('../controllers/diseaseController');
+const { protect, optionalProtect } = require('../middleware/authMiddleware');
 const { uploadSingle, handleUploadError } = require('../middleware/uploadMiddleware');
 const { aiLimiter } = require('../middleware/rateLimiter');
 
+// Public route for shared report (strictly no auth needed, no user details)
+router.get('/public/:shareId', getPublicDiagnosis);
+
+// Diagnosis actions
 router.post('/diagnose', protect, aiLimiter, uploadSingle, handleUploadError, diagnosePlant);
 router.get('/history', protect, getDiagnosisHistory);
-router.get('/:id', protect, getDiagnosisById);
+router.post('/:id/tips', protect, aiLimiter, getGeminiTipsForDiagnosis);
+router.post('/:id/translate', optionalProtect, aiLimiter, translateDiagnosis);
+router.put('/:id/share', protect, toggleShareStatus);
+router.get('/:id', optionalProtect, getDiagnosisById);
 
 module.exports = router;

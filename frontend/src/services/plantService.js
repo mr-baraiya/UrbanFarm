@@ -48,6 +48,13 @@ export const uploadImage = async (file) => {
 
 export const updatePlant = async (id, data) => {
   const res = await api.put(`/plants/${id}`, data);
+  window.dispatchEvent(new CustomEvent('urbanfarm:refresh-data'));
+  return res.data.plant;
+};
+
+export const waterPlant = async (id, data = {}) => {
+  const res = await api.post(`/plants/${id}/water`, data);
+  window.dispatchEvent(new CustomEvent('urbanfarm:refresh-data'));
   return res.data.plant;
 };
 
@@ -76,6 +83,26 @@ export const getDiagnosisHistory = async () => {
 export const getDiagnosisById = async (id) => {
   const res = await api.get(`/disease/${id}`);
   return res.data.diagnosis;
+};
+
+export const getPublicDiagnosis = async (shareId) => {
+  const res = await api.get(`/disease/public/${shareId}`);
+  return res.data.diagnosis;
+};
+
+export const retryGeminiTips = async (id) => {
+  const res = await api.post(`/disease/${id}/tips`);
+  return res.data;
+};
+
+export const translateDiagnosisApi = async (id, targetLang) => {
+  const res = await api.post(`/disease/${id}/translate`, { targetLang });
+  return res.data;
+};
+
+export const toggleDiagnosisShare = async (id, isPublic) => {
+  const res = await api.put(`/disease/${id}/share`, { isPublic });
+  return res.data;
 };
 
 // Crop Recommendations

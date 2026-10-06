@@ -38,6 +38,19 @@ const PlantSchema = new mongoose.Schema(
       min: [0, 'Water frequency cannot be negative'],
       default: 3,
     },
+    lastWatered: {
+      type: Date,
+      default: Date.now,
+    },
+    nextWateringDate: {
+      type: Date,
+    },
+    wateringHistory: [
+      {
+        date: { type: Date, default: Date.now },
+        notes: String,
+      },
+    ],
     sunlight: {
       type: String,
       enum: ['full', 'partial', 'shade'],

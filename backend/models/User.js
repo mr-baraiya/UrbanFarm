@@ -48,6 +48,20 @@ const UserSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    badgeSettings: {
+      displayedBadges: {
+        type: [String],
+        default: [],
+      },
+      pinnedBadge: {
+        type: String,
+        default: '',
+      },
+      isPublic: {
+        type: Boolean,
+        default: true,
+      },
+    },
     profilePicture: String,
     isActive: {
       type: Boolean,

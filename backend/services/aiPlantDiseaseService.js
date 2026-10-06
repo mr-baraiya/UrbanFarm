@@ -111,9 +111,180 @@ exports.identifyDisease = async (imageUrl) => {
       console.error('Response status:', error.response.status);
       console.error('Response data:', JSON.stringify(error.response.data, null, 2));
     }
+    throw new Error(error.response?.data?.message || error.message || 'Plant diagnosis service failed. Please retry with a clear image.');
+  }
+};
 
-    // Return a more informative fallback
-    return getFallbackResponse(error.message);
+// Candidate models for Google Gemini
+const getCandidateModels = () => Array.from(new Set([
+  aiConfig.gemini?.model,
+  'gemini-1.5-flash',
+  'gemini-2.0-flash',
+  'gemini-2.5-flash'
+])).filter(Boolean);
+
+/**
+ * Generate real disease treatment and prevention tips via Google Gemini API
+ */
+exports.getGeminiDiseaseTips = async (diseaseName, description = '') => {
+  const apiKey = aiConfig.gemini.apiKey;
+  if (!apiKey) {
+    throw new Error('Gemini API key is not configured in the environment.');
+  }
+
+  const prompt = `You are a professional plant pathologist and agronomist.
+Diagnosed Plant Issue: "${diseaseName}"
+Additional context: "${description}"
+
+Provide precise, actionable botanical care instructions in strict JSON format:
+{
+  "cause": "A concise explanation (2-3 sentences) detailing why this occurs, the pathogen/environmental stressor, and conditions favoring it.",
+  "treatmentSteps": [
+    "Step 1: Immediate practical intervention (e.g., pruning, organic fungicide, watering adjustment).",
+    "Step 2: Follow-up treatment with specific application rate or timing.",
+    "Step 3: Recovery monitoring step."
+  ],
+  "preventionTips": [
+    "Practical long-term preventive cultural practice 1.",
+    "Soil or humidity management preventive practice 2.",
+    "Spacing or sanitation practice 3."
+  ]
+}
+
+Return ONLY valid JSON matching this schema with no markdown wrapping or additional text.`;
+
+  const payload = {
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: {
+      temperature: 0.2,
+      maxOutputTokens: 1200,
+      response_mime_type: 'application/json'
+    }
+  };
+
+  const candidateModels = getCandidateModels();
+  let rawText = null;
+  let lastError = null;
+
+  for (const model of candidateModels) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    try {
+      const response = await axios.post(url, payload, {
+        headers: { 'Content-Type': 'application/json' },
+        timeout: 15000
+      });
+      rawText = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (rawText) break;
+    } catch (err) {
+      lastError = err;
+      console.warn(`[Gemini Tips] Model ${model} failed: ${err.message}`);
+    }
+  }
+
+  if (!rawText) {
+    throw new Error(lastError?.message || 'Failed to generate disease treatment tips from Gemini API.');
+  }
+
+  try {
+    let clean = rawText.trim();
+    if (clean.startsWith('```')) {
+      clean = clean.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim();
+    }
+    const parsed = JSON.parse(clean);
+    if (!parsed.cause || !Array.isArray(parsed.treatmentSteps) || !Array.isArray(parsed.preventionTips)) {
+      throw new Error('Incomplete tips structure returned from Gemini.');
+    }
+    return {
+      cause: String(parsed.cause).trim(),
+      treatmentSteps: parsed.treatmentSteps.map(s => String(s).trim()).filter(Boolean),
+      preventionTips: parsed.preventionTips.map(p => String(p).trim()).filter(Boolean)
+    };
+  } catch (parseErr) {
+    console.error('Failed to parse Gemini tips JSON:', parseErr.message, rawText);
+    throw new Error('Invalid JSON format received from AI diagnosis service. Please retry.');
+  }
+};
+
+/**
+ * Translate diagnosis result into target language ('en', 'gu', 'hi') via Google Gemini API
+ */
+exports.translateDiagnosisWithGemini = async (dataToTranslate, targetLang) => {
+  const apiKey = aiConfig.gemini.apiKey;
+  if (!apiKey) {
+    throw new Error('Gemini API key is not configured in the environment.');
+  }
+
+  const langNames = {
+    en: 'English',
+    gu: 'Gujarati (ગુજરાતી)',
+    hi: 'Hindi (हिन्दी)'
+  };
+  const targetLangName = langNames[targetLang] || 'English';
+
+  const prompt = `Translate the following botanical plant diagnosis report into ${targetLangName}.
+Keep scientific plant and chemical terms clear and natural in ${targetLangName}.
+Input JSON:
+${JSON.stringify(dataToTranslate, null, 2)}
+
+Return a strict JSON object with identical keys, where all text values are accurately translated into ${targetLangName}:
+{
+  "diseaseName": "Translated disease name",
+  "description": "Translated description",
+  "cause": "Translated cause",
+  "treatmentSteps": ["Translated step 1", "Translated step 2", "Translated step 3"],
+  "preventionTips": ["Translated tip 1", "Translated tip 2", "Translated tip 3"]
+}
+
+Return ONLY valid JSON with no markdown formatting.`;
+
+  const payload = {
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: {
+      temperature: 0.1,
+      maxOutputTokens: 1500,
+      response_mime_type: 'application/json'
+    }
+  };
+
+  const candidateModels = getCandidateModels();
+  let rawText = null;
+  let lastError = null;
+
+  for (const model of candidateModels) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    try {
+      const response = await axios.post(url, payload, {
+        headers: { 'Content-Type': 'application/json' },
+        timeout: 15000
+      });
+      rawText = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (rawText) break;
+    } catch (err) {
+      lastError = err;
+      console.warn(`[Gemini Translate] Model ${model} failed: ${err.message}`);
+    }
+  }
+
+  if (!rawText) {
+    throw new Error(lastError?.message || 'Failed to translate diagnosis using Gemini API.');
+  }
+
+  try {
+    let clean = rawText.trim();
+    if (clean.startsWith('```')) {
+      clean = clean.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim();
+    }
+    const parsed = JSON.parse(clean);
+    return {
+      diseaseName: String(parsed.diseaseName || dataToTranslate.diseaseName || '').trim(),
+      description: String(parsed.description || dataToTranslate.description || '').trim(),
+      cause: String(parsed.cause || dataToTranslate.cause || '').trim(),
+      treatmentSteps: Array.isArray(parsed.treatmentSteps) ? parsed.treatmentSteps.map(s => String(s).trim()) : [],
+      preventionTips: Array.isArray(parsed.preventionTips) ? parsed.preventionTips.map(p => String(p).trim()) : []
+    };
+  } catch (parseErr) {
+    console.error('Failed to parse Gemini translation JSON:', parseErr.message, rawText);
+    throw new Error('Invalid translation response format received from AI service.');
   }
 };
 
@@ -136,44 +307,5 @@ function getDiseaseDescription(diseaseName) {
       return desc;
     }
   }
-  return 'A plant disease has been detected. Please consult a local plant expert for accurate diagnosis and treatment.';
-}
-
-function getFallbackResponse(errorMessage = '') {
-  const fallbacks = [
-    {
-      disease: 'Powdery Mildew (Fungal Pathogen)',
-      confidence: 0.88,
-      treatment: '1. Prune heavily infected leaves and discard them.\n2. Apply organic neem oil spray or potassium bicarbonate solution (1 tbsp/gallon of water).\n3. Increase sunlight exposure and avoid wetting foliage when watering.',
-      description: 'Superficial fungal growth causing white talcum-like powder patches on upper leaf surfaces, hindering photosynthesis and stunting growth.',
-      isHealthy: false,
-      allDiseases: [
-        { name: 'Powdery Mildew', probability: 0.88 },
-        { name: 'Leaf Chlorosis (Nutrient Stress)', probability: 0.08 }
-      ]
-    },
-    {
-      disease: 'Cercospora Leaf Spot',
-      confidence: 0.84,
-      treatment: '1. Remove lower affected foliage to stop spore propagation.\n2. Apply a copper-based botanical fungicide or sulfur spray.\n3. Ensure adequate plant spacing for proper airflow and bottom-water only.',
-      description: 'Small circular spots with grayish centers and dark chlorotic halos on foliage caused by humidity and fungal spores.',
-      isHealthy: false,
-      allDiseases: [
-        { name: 'Cercospora Leaf Spot', probability: 0.84 },
-        { name: 'Bacterial Spot', probability: 0.12 }
-      ]
-    },
-    {
-      disease: 'Healthy Botanical Specimen',
-      confidence: 0.94,
-      treatment: 'Your plant exhibits vibrant vigor and healthy chlorophyll retention! Maintain regular deep watering at the root base, ensure 6+ hours of filtered light, and apply balanced organic compost monthly.',
-      description: 'No active pathogens, fungal mycelium, or insect necrosis detected. Foliage displays optimal cellular turgor.',
-      isHealthy: true,
-      allDiseases: []
-    }
-  ];
-
-  // Deterministic or realistic pick
-  const selected = fallbacks[Math.floor(Math.random() * fallbacks.length)];
-  return selected;
+  return 'A plant disease has been detected. Follow the treatment steps and prevention tips below.';
 }

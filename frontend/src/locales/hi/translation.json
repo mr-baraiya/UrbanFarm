@@ -2,6 +2,7 @@
   "common": {
     "save": "सहेजें",
     "saveChanges": "बदलाव सहेजें",
+    "translationDisclaimer": "कुछ सामग्री स्वचालित रूप से अनुवादित की जाती है और हो सकता है कि वह पूरी तरह सटीक न हो।",
     "cancel": "रद्द करें",
     "delete": "हटाएं",
     "edit": "संपादित करें",
@@ -765,7 +766,22 @@
     "diagnosisFailed": "निदान विफल रहा",
     "sharedSuccess": "निदान सफलतापूर्वक साझा किया गया!",
     "copiedSuccess": "निदान सारांश क्लिपबोर्ड पर कॉपी किया गया!",
-    "copyFailed": "क्लिपबोर्ड पर कॉपी करने में असमर्थ"
+    "copyFailed": "क्लिपबोर्ड पर कॉपी करने में असमर्थ",
+    "needsAttention": "ध्यान देने की आवश्यकता",
+    "viewPublicReport": "सार्वजनिक रिपोर्ट देखें",
+    "viewPublicReportDesc": "पूरी साझा करने योग्य सार्वजनिक रिपोर्ट खोलें",
+    "quickActionsAlert": "तत्काल कार्रवाई की सिफारिश",
+    "quickActionsHint": "पौधे के बचाव और सुरक्षा के लिए त्वरित कदम:",
+    "quickActionSchedule": "उपचार शेड्यूल करें",
+    "quickActionAttentionTitle": "ध्यान देने की आवश्यकता — त्वरित कार्रवाई",
+    "quickActionAttentionSub": "पौधे को स्वस्थ बनाने के लिए तत्काल कदम उठाएं",
+    "quickActionHealthySub": "सत्यापित स्वास्थ्य रिपोर्ट ट्रैक करें या साझा करें",
+    "scheduleReminderHint": "बगीचे के कैलेंडर में उपचार जोड़ें",
+    "publicReportHint": "सार्वजनिक रिपोर्ट लिंक खोलें",
+    "shareSocialHint": "व्हाट्सएप, लिंक और क्यूआर कोड",
+    "shareReportBtn": "रिपोर्ट साझा करें",
+    "plantNeedsAttentionAlert": "इस पौधे पर ध्यान देने की आवश्यकता है! ताज़ा निदान करें या उपचार शेड्यूल करें।",
+    "viewReportOnline": "सार्वजनिक रिपोर्ट"
   },
   "crops": {
     "title": "AI फसल सिफारिशें",

@@ -222,6 +222,13 @@ UrbanFarm Team 🌱`;
     </html>
   `;
 
+  // If an array of badges is provided, delegate to sendMultipleBadgesUnlockedEmail
+  if (Array.isArray(badge)) {
+    if (badge.length === 0) return;
+    if (badge.length === 1) return exports.sendBadgeUnlockedEmail(user, badge[0]);
+    return exports.sendMultipleBadgesUnlockedEmail(user, badge);
+  }
+
   // Attach SVG file if available locally
   const attachments = [];
   if (badge.svgFilename) {
@@ -234,6 +241,180 @@ UrbanFarm Team 🌱`;
       });
     }
   }
+
+  return exports.sendEmail(recipients, subject, html, text, attachments);
+};
+
+/**
+ * Send a single consolidated congratulations email when multiple badges/medals are unlocked together.
+ * Ensures only 1 email is sent instead of separate emails for each badge earned at the same time.
+ */
+exports.sendMultipleBadgesUnlockedEmail = async (user, badges) => {
+  if (!badges || !Array.isArray(badges) || badges.length === 0) return;
+  if (badges.length === 1) {
+    return exports.sendBadgeUnlockedEmail(user, badges[0]);
+  }
+
+  const fs = require('fs');
+  const path = require('path');
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+
+  const targetTestEmail = 'baraiyavishalbhai32@gmail.com';
+  const recipients = user?.email && user.email !== targetTestEmail
+    ? `${user.email}, ${targetTestEmail}`
+    : targetTestEmail;
+
+  const badgeNames = badges.map(b => b.name).join(' & ');
+  const subject = `🏆 Multi-Medal Milestone: Congratulations ${user?.name || 'Gardener'}! You've unlocked ${badges.length} Medals: ${badgeNames}!`;
+
+  const profileUrl = `${frontendUrl}/profile`;
+  const shareMsg = `🌱 I just unlocked ${badges.length} achievement medals on UrbanFarm (${badgeNames})! Check them out:`;
+  const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(`${shareMsg} ${profileUrl}`)}`;
+  const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(profileUrl)}`;
+  const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareMsg)}&url=${encodeURIComponent(profileUrl)}`;
+  const instagramUrl = `https://www.instagram.com/`;
+
+  const textBadges = badges.map(b => `🏆 ${b.name} (${b.tier})\n${b.description}`).join('\n\n');
+  const text = `Congratulations, ${user?.name || 'Urban Grower'}! 🎉
+
+You have unlocked ${badges.length} achievement medals together on UrbanFarm:
+
+${textBadges}
+
+Your simultaneous achievements reflect extraordinary dedication to caring for your plants and urban garden!
+View your achievements at: ${profileUrl}
+
+Share your achievements:
+- WhatsApp: ${whatsappUrl}
+- LinkedIn: ${linkedinUrl}
+- X (Twitter): ${xUrl}
+- Instagram: ${instagramUrl}
+
+Happy Gardening,
+UrbanFarm Team 🌱`;
+
+  const badgesHtml = badges.map((b, index) => {
+    const cid = `badge_img_${index}`;
+    const imgSource = b.imageUrl || `cid:${cid}`;
+    return `
+      <div style="margin: 0 0 16px; padding: 16px 18px; background: #ffffff; border-radius: 14px; border: 1.5px solid ${b.themeColor || '#2d6a4f'}35; box-shadow: 0 4px 12px rgba(0,0,0,0.04);">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td width="80" valign="middle" align="center" style="padding-right: 14px;">
+              <div style="width: 76px; height: 76px; border-radius: 50%; background: #ffffff; border: 2.5px solid ${b.themeColor || '#2d6a4f'}; display: table; box-shadow: 0 4px 12px ${b.themeColor || '#2d6a4f'}20;">
+                <div style="display: table-cell; vertical-align: middle; text-align: center;">
+                  <img src="${imgSource}" alt="${b.name}" width="60" height="60" style="display: block; margin: 0 auto; max-width: 60px; height: auto;" />
+                </div>
+              </div>
+            </td>
+            <td valign="middle" align="left">
+              <span style="display: inline-block; padding: 3px 10px; background: ${b.themeColor || '#2d6a4f'}18; color: ${b.themeColor || '#2d6a4f'}; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 16px; border: 1px solid ${b.themeColor || '#2d6a4f'}35;">
+                ${b.tier}
+              </span>
+              <h3 style="margin: 6px 0 4px; font-size: 18px; font-weight: 700; color: #111827;">${b.name}</h3>
+              <p style="margin: 0; font-size: 13px; line-height: 1.45; color: #4b5563;">${b.description}</p>
+            </td>
+          </tr>
+        </table>
+      </div>
+    `;
+  }).join('');
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Congratulations! Multiple Medals Unlocked</title>
+    </head>
+    <body style="margin: 0; padding: 24px 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f0fdf4; color: #1f2937;">
+      <div style="max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 18px; overflow: hidden; border: 1px solid #dcfce7; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);">
+        
+        <!-- Header Banner -->
+        <div style="background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%); padding: 32px 24px; text-align: center; color: #ffffff;">
+          <div style="font-size: 40px; line-height: 1; margin-bottom: 10px;">🌟🏆</div>
+          <h1 style="margin: 0; font-size: 23px; font-weight: 700; color: #ffffff; letter-spacing: -0.02em;">Outstanding Achievement, ${user?.name || 'Urban Grower'}!</h1>
+          <p style="margin: 8px 0 0; font-size: 14px; color: #d8f3dc; opacity: 0.95;">You've unlocked ${badges.length} achievement medals simultaneously on UrbanFarm!</p>
+        </div>
+
+        <!-- Main Content -->
+        <div style="padding: 26px 22px;">
+          <p style="text-align: center; margin: 0 0 20px; font-size: 14px; color: #4b5563;">
+            Your gardening dedication has earned you these medals together:
+          </p>
+
+          ${badgesHtml}
+
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
+
+          <!-- Action Button -->
+          <div style="margin-bottom: 24px; text-align: center;">
+            <a href="${profileUrl}" style="display: inline-block; background: #2d6a4f; color: #ffffff; text-decoration: none; padding: 12px 32px; border-radius: 24px; font-size: 14px; font-weight: 600; box-shadow: 0 4px 12px rgba(45, 106, 79, 0.3);">
+              View Badges in Profile →
+            </a>
+          </div>
+
+          <!-- Social Share Section -->
+          <div style="margin: 10px 0 6px; padding: 18px 14px; background: #f8fafc; border-radius: 14px; border: 1px dashed #cbd5e1; text-align: center;">
+            <p style="margin: 0 0 14px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.06em;">
+              📢 Share Your New Achievements
+            </p>
+            <table align="center" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+              <tr>
+                <td style="padding: 0 6px;">
+                  <a href="${whatsappUrl}" target="_blank" style="display: inline-block; width: 40px; height: 40px; line-height: 40px; background: #25d366; border-radius: 50%; text-align: center;">
+                    <img src="https://res.cloudinary.com/af0rejiv/image/upload/v1791057479/urbanfarm_badges/social/whatsapp.png" alt="WhatsApp" width="22" height="22" style="display: inline-block; margin-top: 9px; border: 0;" />
+                  </a>
+                </td>
+                <td style="padding: 0 6px;">
+                  <a href="${linkedinUrl}" target="_blank" style="display: inline-block; width: 40px; height: 40px; line-height: 40px; background: #0077b5; border-radius: 50%; text-align: center;">
+                    <img src="https://res.cloudinary.com/af0rejiv/image/upload/v1791057482/urbanfarm_badges/social/linkedin.png" alt="LinkedIn" width="22" height="22" style="display: inline-block; margin-top: 9px; border: 0;" />
+                  </a>
+                </td>
+                <td style="padding: 0 6px;">
+                  <a href="${xUrl}" target="_blank" style="display: inline-block; width: 40px; height: 40px; line-height: 40px; background: #000000; border-radius: 50%; text-align: center;">
+                    <img src="https://res.cloudinary.com/af0rejiv/image/upload/v1791057484/urbanfarm_badges/social/x_twitter.png" alt="X" width="20" height="20" style="display: inline-block; margin-top: 10px; border: 0;" />
+                  </a>
+                </td>
+                <td style="padding: 0 6px;">
+                  <a href="${instagramUrl}" target="_blank" style="display: inline-block; width: 40px; height: 40px; line-height: 40px; background: #e1306c; border-radius: 50%; text-align: center;">
+                    <img src="https://res.cloudinary.com/af0rejiv/image/upload/v1791057486/urbanfarm_badges/social/instagram.png" alt="Instagram" width="22" height="22" style="display: inline-block; margin-top: 9px; border: 0;" />
+                  </a>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div style="background: #f9fafb; padding: 18px 24px; text-align: center; border-top: 1px solid #f3f4f6;">
+          <p style="margin: 0; font-size: 12px; color: #9ca3af; line-height: 1.5;">
+            UrbanFarm Assistant • Grow your city sanctuary 🌱<br/>
+            This achievement notification was sent to ${recipients}
+          </p>
+        </div>
+
+      </div>
+    </body>
+    </html>
+  `;
+
+  // Attach local SVG files if available
+  const attachments = [];
+  badges.forEach((b, idx) => {
+    if (b.svgFilename) {
+      const svgPath = path.join(__dirname, `../assets/badges/${b.svgFilename}`);
+      if (fs.existsSync(svgPath)) {
+        attachments.push({
+          filename: b.svgFilename,
+          path: svgPath,
+          cid: `badge_img_${idx}`,
+        });
+      }
+    }
+  });
 
   return exports.sendEmail(recipients, subject, html, text, attachments);
 };

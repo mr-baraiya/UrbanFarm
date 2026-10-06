@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { 
-  RiPlantLine, 
-  RiFileList3Line, 
-  RiMapPinLine, 
-  RiLoader4Line, 
-  RiSparklingLine, 
-  RiSeedlingLine,
-  RiStarFill
-} from 'react-icons/ri';
 import { getCropRecommendations, getRecommendationHistory, saveRecommendation, addPlant, getGardens } from '../../services/plantService';
 import { getWeather } from '../../services/weatherService';
 import { useAuth } from '../../hooks/useAuth';
@@ -23,6 +14,8 @@ import './CropRecommendation.css';
 const CropRecommendation = () => {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
+  const { addNotification } = useNotification();
+
   const [inputs, setInputs] = useState({
     soilType: 'Loam',
     ph: 6.5,
@@ -30,21 +23,26 @@ const CropRecommendation = () => {
     humidity: 60,
     rainfall: 100,
     season: 'Summer',
-    region: 'Temperate',
-    gardenType: 'container', // balcony, raised_bed, rooftop
-    spaceAvailable: 'medium', // small, medium, large
+    region: 'Temperate Zone',
+    gardenType: 'container',
+    spaceAvailable: 'medium',
+    targetCrop: '',
   });
+
+  const [formErrors, setFormErrors] = useState({});
   const [recommendations, setRecommendations] = useState([]);
+  const [soilAnalysis, setSoilAnalysis] = useState(null);
+  const [targetCropCheck, setTargetCropCheck] = useState(null);
   const [gardens, setGardens] = useState([]);
   const [selectedCropForAdd, setSelectedCropForAdd] = useState(null);
   const [history, setHistory] = useState([]);
   const [filteredHistory, setFilteredHistory] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState(null);
   const [loadingLocation, setLoadingLocation] = useState(false);
   const [selectedHistory, setSelectedHistory] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
-  const { addNotification } = useNotification();
 
   useEffect(() => {
     loadHistory();
@@ -60,10 +58,6 @@ const CropRecommendation = () => {
     }
   };
 
-  useEffect(() => {
-    applyHistoryFilters();
-  }, [history, searchTerm, filterType]);
-
   const loadHistory = async () => {
     try {
       const data = await getRecommendationHistory();
@@ -74,73 +68,88 @@ const CropRecommendation = () => {
     }
   };
 
+  useEffect(() => {
+    applyHistoryFilters();
+  }, [history, searchTerm, filterType]);
+
   const applyHistoryFilters = () => {
     let filtered = [...history];
-    
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(h => {
         const soil = (h.inputData?.soilType || '').toLowerCase();
-        const localizedSoil = getLocalizedDynamicText(h.inputData?.soilType, i18n.language).toLowerCase();
         const season = (h.inputData?.season || '').toLowerCase();
-        const localizedSeason = getLocalizedDynamicText(h.inputData?.season, i18n.language).toLowerCase();
-        const hasCropMatch = h.recommendations?.some(r => {
-          const cName = (r.cropName || '').toLowerCase();
-          const localizedCName = getLocalizedDynamicText(r.cropName, i18n.language).toLowerCase();
-          return cName.includes(term) || localizedCName.includes(term);
-        });
-        return soil.includes(term) || localizedSoil.includes(term) || season.includes(term) || localizedSeason.includes(term) || hasCropMatch;
+        const hasCropMatch = h.recommendations?.some(r => 
+          (r.cropName || '').toLowerCase().includes(term)
+        );
+        return soil.includes(term) || season.includes(term) || hasCropMatch;
       });
     }
-    
     if (filterType !== 'all') {
       filtered = filtered.filter(h => {
         if (filterType === 'saved') return h.saved;
         return true;
       });
     }
-    
     setFilteredHistory(filtered);
+  };
+
+  const validateInputs = () => {
+    const errs = {};
+    if (!inputs.soilType) {
+      errs.soilType = 'Soil type is required.';
+    }
+    const phVal = parseFloat(inputs.ph);
+    if (isNaN(phVal) || phVal < 3.5 || phVal > 9.5) {
+      errs.ph = 'Soil pH must be between 3.5 (highly acidic) and 9.5 (strongly alkaline).';
+    }
+    const tempVal = parseFloat(inputs.temperature);
+    if (isNaN(tempVal) || tempVal < -20 || tempVal > 60) {
+      errs.temperature = 'Temperature must be between -20°C and 60°C.';
+    }
+    const humVal = parseFloat(inputs.humidity);
+    if (isNaN(humVal) || humVal < 0 || humVal > 100) {
+      errs.humidity = 'Humidity must be between 0% and 100%.';
+    }
+    const rainVal = parseFloat(inputs.rainfall);
+    if (isNaN(rainVal) || rainVal < 0 || rainVal > 5000) {
+      errs.rainfall = 'Rainfall must be between 0mm and 5000mm.';
+    }
+    setFormErrors(errs);
+    return Object.keys(errs).length === 0;
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setInputs((prev) => ({ ...prev, [name]: value }));
+    setInputs(prev => ({ ...prev, [name]: value }));
+    if (formErrors[name]) {
+      setFormErrors(prev => {
+        const copy = { ...prev };
+        delete copy[name];
+        return copy;
+      });
+    }
   };
 
   const handlePresetSelect = (preset) => {
-    setInputs({
-      ...inputs,
+    setInputs(prev => ({
+      ...prev,
       ...preset.inputs,
       gardenType: preset.id,
-    });
+    }));
+    setFormErrors({});
     addNotification(t('crops.loadedPreset', { name: preset.label }), 'info');
   };
 
   const handleUseLocation = async () => {
     setLoadingLocation(true);
     try {
-      // Get user's location from profile or browser
-      let city = user?.location?.city;
-      
-      if (!city) {
-        // Try to get from browser geolocation
-        const position = await new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject);
-        });
-        const { latitude, longitude } = position.coords;
-        // Reverse geocode or use coordinates
-        // For now, we'll use a default
-        city = 'London';
-      }
-      
+      let city = user?.location?.city || 'London';
       const weatherData = await getWeather(city);
-      
       if (weatherData) {
         const temp = Math.round(weatherData.main?.temp || 25);
         const humidity = Math.round(weatherData.main?.humidity || 60);
         const season = getSeason();
-        
         setInputs(prev => ({
           ...prev,
           temperature: temp,
@@ -148,11 +157,10 @@ const CropRecommendation = () => {
           season: season,
           region: city,
         }));
-        
         addNotification(t('crops.weatherLoaded', { city }), 'success');
       }
     } catch (error) {
-      console.error('Failed to get location:', error);
+      console.error('Failed to get location weather:', error);
       addNotification(t('crops.locationError', 'Could not auto-detect location. Please enter manually.'), 'warning');
     } finally {
       setLoadingLocation(false);
@@ -168,15 +176,30 @@ const CropRecommendation = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
+    if (!validateInputs()) {
+      addNotification('Please resolve input errors before submitting.', 'warning');
+      return;
+    }
+
     setLoading(true);
+    setApiError(null);
+    setRecommendations([]);
+    setSoilAnalysis(null);
+    setTargetCropCheck(null);
+
     try {
       const data = await getCropRecommendations(inputs);
       setRecommendations(data.recommendations || []);
-      addNotification(t('crops.recommendationsReady', 'Recommendations ready!'), 'success');
-      loadHistory(); // Refresh history
+      setSoilAnalysis(data.soilAnalysis || null);
+      setTargetCropCheck(data.targetCropCheck || null);
+      addNotification(t('crops.recommendationsReady', 'Recommendations generated via Gemini AI!'), 'success');
+      loadHistory();
     } catch (error) {
-      addNotification(t('crops.recommendationsFailed', 'Failed to get recommendations'), 'error');
+      console.error('Crop AI call failed:', error);
+      const msg = error.response?.data?.message || error.message || 'Failed to get crop recommendations from Gemini AI.';
+      setApiError(msg);
+      addNotification(msg, 'error');
     } finally {
       setLoading(false);
     }
@@ -185,7 +208,9 @@ const CropRecommendation = () => {
   const handleHistoryClick = (item) => {
     setSelectedHistory(item);
     setRecommendations(item.recommendations || []);
-    // Reload the parameters into the form
+    setSoilAnalysis(null);
+    setTargetCropCheck(null);
+    setApiError(null);
     if (item.inputData) {
       setInputs(prev => ({
         ...prev,
@@ -200,15 +225,15 @@ const CropRecommendation = () => {
       addNotification(t('crops.savedBookmark', 'Recommendation saved to bookmarks!'), 'success');
       loadHistory();
     } catch (error) {
-      addNotification(t('crops.saveFailed', 'Failed to save'), 'error');
+      addNotification(t('crops.saveFailed', 'Failed to save bookmark.'), 'error');
     }
   };
 
   const handleAddToPlants = (crop) => {
     setSelectedCropForAdd({
       name: crop.cropName,
-      variety: crop.variety || '',
-      notes: crop.plantingTips ? `AI Recommendation: ${crop.plantingTips}` : `Recommended by AI. ${crop.reason || ''}`,
+      variety: '',
+      notes: crop.plantingTips ? `AI Recommendation: ${crop.plantingTips}` : `Recommended by Gemini for ${inputs.soilType} soil.`,
       waterFrequency: 3,
       sunlight: 'full',
       status: 'seedling',
@@ -217,10 +242,13 @@ const CropRecommendation = () => {
 
   return (
     <div className="crop-recommendation">
-      <h2>
-        <RiPlantLine className="header-icon" /> {t('crops.title', 'AI Crop Recommendations')}
-      </h2>
-      <p className="subtitle">{t('crops.subtitle', 'Get personalized crop suggestions for your urban space')}</p>
+      <div className="crop-page-header">
+        <span className="crop-header-badge">Gemini Agronomy Intelligence</span>
+        <h2>{t('crops.title', 'AI Crop Recommendations')}</h2>
+        <p className="subtitle">
+          {t('crops.subtitle', 'Get science-backed crop choices tailored directly to your soil chemistry, climate, and space.')}
+        </p>
+      </div>
       
       <div className="crop-layout">
         {/* Left Column - Form & Results */}
@@ -229,136 +257,245 @@ const CropRecommendation = () => {
           <UrbanPresets onSelect={handlePresetSelect} currentPreset={inputs.gardenType} />
           
           {/* Form */}
-          <form onSubmit={handleSubmit} className="crop-form">
+          <form onSubmit={handleSubmit} className="crop-form" noValidate>
             <div className="form-header">
-              <h4>
-                <RiFileList3Line className="form-header-icon" /> {t('crops.enterConditions', 'Enter Your Conditions')}
-              </h4>
+              <h4>{t('crops.enterConditions', 'Soil & Growing Conditions')}</h4>
               <button 
                 type="button" 
                 className="location-btn"
                 onClick={handleUseLocation}
                 disabled={loadingLocation}
               >
-                {loadingLocation ? (
-                  <><RiLoader4Line className="spin" /> {t('crops.detectingLocation', 'Detecting Location...')}</>
-                ) : (
-                  <><RiMapPinLine /> {t('crops.useMyLocation', 'Use My Location')}</>
-                )}
+                {loadingLocation ? t('crops.detectingLocation', 'Detecting Climate...') : t('crops.useMyLocation', 'Autofill Climate')}
               </button>
             </div>
             
+            {/* Soil Type and pH */}
             <div className="form-row">
               <div className="form-group">
-                <label>{t('crops.soilType', 'Soil Type')}</label>
-                <select name="soilType" value={inputs.soilType} onChange={handleChange}>
-                  <option value="Loam">{t('crops.soilLoam', 'Loam')}</option>
-                  <option value="Sandy">{t('crops.soilSandy', 'Sandy')}</option>
-                  <option value="Clay">{t('crops.soilClay', 'Clay')}</option>
-                  <option value="Silty">{t('crops.soilSilty', 'Silty')}</option>
-                  <option value="Peaty">{t('crops.soilPeaty', 'Peaty')}</option>
-                  <option value="Chalky">{t('crops.soilChalky', 'Chalky')}</option>
+                <label htmlFor="soilType-select">
+                  {t('crops.soilType', 'Soil Type')} <span className="req-star">*</span>
+                </label>
+                <select 
+                  id="soilType-select"
+                  name="soilType" 
+                  value={inputs.soilType} 
+                  onChange={handleChange}
+                  className={formErrors.soilType ? 'input-error' : ''}
+                >
+                  <option value="Loam">Loam (Balanced, rich, versatile)</option>
+                  <option value="Sandy">Sandy (Fast draining, light, warms fast)</option>
+                  <option value="Clay">Clay (Heavy, dense, moisture & nutrient rich)</option>
+                  <option value="Silty">Silty (Smooth, highly fertile, compacts easily)</option>
+                  <option value="Peaty">Peaty (Acidic, dark, high organic matter)</option>
+                  <option value="Chalky">Chalky (Alkaline, stony, free-draining)</option>
+                  <option value="Sandy Loam">Sandy Loam (Aerated & fertile)</option>
+                  <option value="Potting Mix">Potting Mix (Container substrate)</option>
                 </select>
+                {formErrors.soilType && <span className="inline-err">{formErrors.soilType}</span>}
               </div>
+
               <div className="form-group">
-                <label>{t('crops.phLevel', 'pH Level')}</label>
+                <label htmlFor="ph-input">
+                  {t('crops.phLevel', 'Soil pH Level')} <span className="req-star">*</span>
+                </label>
                 <input 
+                  id="ph-input"
                   name="ph" 
                   type="number" 
                   step="0.1" 
-                  min="4" 
-                  max="9" 
+                  min="3.5" 
+                  max="9.5" 
                   value={inputs.ph} 
                   onChange={handleChange} 
+                  className={formErrors.ph ? 'input-error' : ''}
                 />
+                {formErrors.ph && <span className="inline-err">{formErrors.ph}</span>}
               </div>
             </div>
             
+            {/* Climate Parameters */}
             <div className="form-row">
               <div className="form-group">
-                <label>{t('crops.temperature', 'Temperature (°C)')}</label>
+                <label htmlFor="temp-input">{t('crops.temperature', 'Temperature (°C)')}</label>
                 <input 
+                  id="temp-input"
                   name="temperature" 
                   type="number" 
+                  min="-20"
+                  max="60"
                   value={inputs.temperature} 
                   onChange={handleChange} 
+                  className={formErrors.temperature ? 'input-error' : ''}
                 />
+                {formErrors.temperature && <span className="inline-err">{formErrors.temperature}</span>}
               </div>
+
               <div className="form-group">
-                <label>{t('crops.humidity', 'Humidity (%)')}</label>
+                <label htmlFor="hum-input">{t('crops.humidity', 'Humidity (%)')}</label>
                 <input 
+                  id="hum-input"
                   name="humidity" 
                   type="number" 
                   min="0" 
                   max="100" 
                   value={inputs.humidity} 
                   onChange={handleChange} 
+                  className={formErrors.humidity ? 'input-error' : ''}
                 />
+                {formErrors.humidity && <span className="inline-err">{formErrors.humidity}</span>}
               </div>
             </div>
             
             <div className="form-row">
               <div className="form-group">
-                <label>{t('crops.rainfall', 'Rainfall (mm)')}</label>
+                <label htmlFor="rain-input">{t('crops.rainfall', 'Rainfall / Water (mm)')}</label>
                 <input 
+                  id="rain-input"
                   name="rainfall" 
                   type="number" 
                   min="0" 
+                  max="5000"
                   value={inputs.rainfall} 
                   onChange={handleChange} 
+                  className={formErrors.rainfall ? 'input-error' : ''}
                 />
+                {formErrors.rainfall && <span className="inline-err">{formErrors.rainfall}</span>}
               </div>
+
               <div className="form-group">
-                <label>{t('crops.season', 'Season')}</label>
-                <select name="season" value={inputs.season} onChange={handleChange}>
+                <label htmlFor="season-select">{t('crops.season', 'Growing Season')}</label>
+                <select id="season-select" name="season" value={inputs.season} onChange={handleChange}>
                   <option value="Spring">{t('crops.seasonSpring', 'Spring')}</option>
                   <option value="Summer">{t('crops.seasonSummer', 'Summer')}</option>
-                  <option value="Fall">{t('crops.seasonFall', 'Fall')}</option>
+                  <option value="Fall">{t('crops.seasonFall', 'Fall / Autumn')}</option>
                   <option value="Winter">{t('crops.seasonWinter', 'Winter')}</option>
                 </select>
               </div>
             </div>
-            
-            <div className="form-group">
-              <label>{t('crops.region', 'Region')}</label>
+
+            {/* Inquire about a specific crop to test soil validation */}
+            <div className="form-group highlight-input-group">
+              <label htmlFor="targetCrop-input">
+                Evaluate Specific Crop Compatibility (Optional):
+              </label>
               <input 
-                name="region" 
-                value={inputs.region} 
+                id="targetCrop-input"
+                name="targetCrop" 
+                value={inputs.targetCrop} 
                 onChange={handleChange} 
-                placeholder={t('crops.regionPlaceholder', 'e.g., New York, London, Tokyo')}
+                placeholder="e.g., Carrot, Cabbage, Blueberry, Watermelon"
               />
+              <span className="field-hint">
+                Tests whether this specific crop can thrive in your chosen {inputs.soilType} soil (pH {inputs.ph}).
+              </span>
             </div>
             
-            <div className="form-group">
-              <label>{t('crops.spaceAvailable', 'Space Available')}</label>
-              <select name="spaceAvailable" value={inputs.spaceAvailable} onChange={handleChange}>
-                <option value="small">{t('crops.spaceSmall', 'Small (Window box, herb pot)')}</option>
-                <option value="medium">{t('crops.spaceMedium', 'Medium (Balcony, small raised bed)')}</option>
-                <option value="large">{t('crops.spaceLarge', 'Large (Rooftop, backyard)')}</option>
-              </select>
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="region-input">{t('crops.region', 'Region / Environment')}</label>
+                <input 
+                  id="region-input"
+                  name="region" 
+                  value={inputs.region} 
+                  onChange={handleChange} 
+                  placeholder="e.g., Urban Balcony, Suburban Backyard"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="space-select">{t('crops.spaceAvailable', 'Available Space')}</label>
+                <select id="space-select" name="spaceAvailable" value={inputs.spaceAvailable} onChange={handleChange}>
+                  <option value="small">{t('crops.spaceSmall', 'Small (Window box, container pot)')}</option>
+                  <option value="medium">{t('crops.spaceMedium', 'Medium (Balcony, small raised bed)')}</option>
+                  <option value="large">{t('crops.spaceLarge', 'Large (Rooftop, garden plot)')}</option>
+                </select>
+              </div>
             </div>
             
             <button 
               type="submit" 
               className="btn-primary submit-btn" 
               disabled={loading}
-              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}
             >
-              {loading ? (
-                <><RiLoader4Line className="spin" /> {t('crops.generating', 'Generating Recommendations...')}</>
-              ) : (
-                <><RiSparklingLine /> {t('crops.getRecommendations', 'Get Recommendations')}</>
-              )}
+              {loading ? t('crops.generating', 'Analyzing Soil & Calling Gemini AI...') : t('crops.getRecommendations', 'Get AI Crop Recommendations')}
             </button>
           </form>
 
-          {/* Results */}
+          {/* Loading Shimmer State */}
+          {loading && (
+            <div className="crop-loading-banner">
+              <span className="crop-pulse-dot" />
+              <div className="loading-text-col">
+                <strong>Consulting Gemini Agronomy Engine...</strong>
+                <span>Evaluating {inputs.soilType} soil traits, pH {inputs.ph}, and climatic suitability.</span>
+              </div>
+            </div>
+          )}
+
+          {/* Error & Retry State */}
+          {apiError && !loading && (
+            <div className="crop-api-error-card">
+              <span className="error-tag">Agronomy Service Error</span>
+              <p className="error-message">{apiError}</p>
+              <button 
+                type="button" 
+                className="btn-retry" 
+                onClick={() => handleSubmit()}
+              >
+                Retry Analysis
+              </button>
+            </div>
+          )}
+
+          {/* Soil Analysis Spotlight Card */}
+          {soilAnalysis && (
+            <div className="soil-analysis-card">
+              <div className="soil-analysis-header">
+                <span className="soil-badge">Soil Profile</span>
+                <h4>{soilAnalysis.soilType} Soil Assessment (pH {soilAnalysis.ph})</h4>
+              </div>
+              <p className="soil-drainage-text">
+                <strong>Characteristics:</strong> {soilAnalysis.drainageAndTexture || soilAnalysis.characteristics}
+              </p>
+              <p className="soil-tip-text">
+                <strong>Agronomic Advice:</strong> {soilAnalysis.soilManagementTip || soilAnalysis.soilAdvice || 'Ensure adequate compost incorporation.'}
+              </p>
+            </div>
+          )}
+
+          {/* Target Crop Validation Card */}
+          {targetCropCheck && (
+            <div className={`target-crop-result-card ${targetCropCheck.isSuitable ? 'suitable' : 'unsuitable'}`}>
+              <div className="target-result-header">
+                <span className={`target-suitability-pill ${targetCropCheck.isSuitable ? 'pass' : 'fail'}`}>
+                  {targetCropCheck.isSuitable ? 'Suitable Match' : 'Soil Mismatch Warning'}
+                </span>
+                <h4>Evaluation for "{targetCropCheck.cropName}" in {inputs.soilType} Soil</h4>
+              </div>
+
+              <p className="target-explanation">
+                {targetCropCheck.soilMismatchReason}
+              </p>
+
+              {!targetCropCheck.isSuitable && targetCropCheck.suggestedAlternatives?.length > 0 && (
+                <div className="target-alternatives-box">
+                  <span className="alt-title">Recommended Alternatives for {inputs.soilType} Soil:</span>
+                  <div className="alt-chips-row">
+                    {targetCropCheck.suggestedAlternatives.map((alt, idx) => (
+                      <span key={idx} className="alt-chip">{alt}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Results Grid */}
           {recommendations.length > 0 && (
             <div className="crop-results">
               <div className="results-header">
-                <h4>
-                  <RiSeedlingLine className="results-icon" /> {t('crops.recommendationsTitle', 'Recommendations')}
-                </h4>
+                <h4>{t('crops.recommendationsTitle', 'Recommended Crops')}</h4>
                 <span className="result-count">
                   {t('crops.cropsFound', '{{count}} crops found', { count: recommendations.length })}
                 </span>
@@ -369,18 +506,22 @@ const CropRecommendation = () => {
                     key={idx} 
                     crop={crop} 
                     spaceAvailable={inputs.spaceAvailable}
-                    existingPlants={[]} // Could pass existing plants for companion planting
-                    onAddToPlants={() => handleAddToPlants(crop, selectedHistory?._id)}
+                    existingPlants={[]}
+                    onAddToPlants={() => handleAddToPlants(crop)}
                   />
                 ))}
               </div>
               {selectedHistory && (
                 <div className="crop-history-detail">
-                  <button className="btn-secondary" onClick={() => {
-                    setSelectedHistory(null);
-                    setRecommendations([]);
-                  }}>
-                    {t('crops.closeHistory', 'Close History')}
+                  <button 
+                    type="button"
+                    className="btn-secondary" 
+                    onClick={() => {
+                      setSelectedHistory(null);
+                      setRecommendations([]);
+                    }}
+                  >
+                    {t('crops.closeHistory', 'Close History View')}
                   </button>
                 </div>
               )}

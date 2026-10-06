@@ -152,6 +152,7 @@ function App() {
         />
 
         {/* Public Dedicated Plant Diagnosis Report Routes */}
+        <Route path="/d/:id" element={<PublicDiagnosisReport />} />
         <Route path="/diagnose/report/:id" element={<PublicDiagnosisReport />} />
         <Route path="/app/diagnose/report/:id" element={<PublicDiagnosisReport />} />
         <Route path="/diagnosis/report/:id" element={<PublicDiagnosisReport />} />

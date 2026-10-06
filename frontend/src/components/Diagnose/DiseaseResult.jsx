@@ -1,426 +1,436 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { 
-  RiMicroscopeLine, 
-  RiFileList3Line, 
-  RiCheckLine, 
-  RiAlertLine, 
-  RiCalendarEventLine, 
-  RiDownload2Line, 
-  RiShareLine, 
-  RiFileTextLine, 
-  RiMedicineBottleLine, 
-  RiShieldCheckLine, 
-  RiSparklingLine,
-  RiCloseLine,
-  RiFileCopyLine,
-  RiWhatsappLine,
-  RiShareForwardLine,
-  RiQrCodeLine
-} from 'react-icons/ri';
 import { useNotification } from '../../hooks/useNotification';
-import { getConfidenceEmoji } from '../../utils/helpers';
-import { getLocalizedDynamicText } from '../../utils/localizationHelper';
-import { getPublicShareUrl } from '../../utils/shareUtils';
+import { retryGeminiTips, translateDiagnosisApi, toggleDiagnosisShare } from '../../services/plantService';
 import './DiseaseResult.css';
 
-const DiseaseResult = ({ result, isHistory, onAddToSchedule, onClose }) => {
+const DiseaseResult = ({ result, isHistory = false, onAddToSchedule, onClose, onBack }) => {
   const { t, i18n } = useTranslation();
   const { addNotification } = useNotification();
-  const [copied, setCopied] = useState(false);
-  const [showShareModal, setShowShareModal] = useState(false);
-  const [showQrCode, setShowQrCode] = useState(false);
-  const diseaseNameRaw = result.disease || result.diseaseName || '';
-  const descRaw = result.description || '';
-  const treatmentRaw = result.treatment || '';
+
+  const diagnosisId = result._id || result.id;
+  const initialShareId = result.shareId || diagnosisId;
+
+  // Initial data normalization
+  const initialData = {
+    diseaseName: result.diseaseName || result.disease || 'Unknown Condition',
+    description: result.description || '',
+    cause: result.cause || '',
+    treatmentSteps: Array.isArray(result.treatmentSteps) && result.treatmentSteps.length > 0
+      ? result.treatmentSteps
+      : (result.treatment ? [result.treatment] : []),
+    preventionTips: Array.isArray(result.preventionTips) ? result.preventionTips : [],
+  };
+
+  const [currentLang, setCurrentLang] = useState(i18n.language || 'en');
+  const [translationCache, setTranslationCache] = useState({
+    en: initialData,
+    ...(result.translations ? result.translations : {})
+  });
+  const [currentData, setCurrentData] = useState(initialData);
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [translationError, setTranslationError] = useState(null);
+
+  const [isRetryingTips, setIsRetryingTips] = useState(false);
+  const [tipsError, setTipsError] = useState(result.tipsError || null);
+
+  const [isPublic, setIsPublic] = useState(result.isPublic !== false);
+  const [shareId, setShareId] = useState(initialShareId);
+  const [isTogglingShare, setIsTogglingShare] = useState(false);
+
+  const confidencePercent = Math.round((result.confidence || 0) * 100);
   const isHealthy = Boolean(
-    result.isHealthy || 
-    /healthy|optimal|no disease/i.test(diseaseNameRaw) || 
-    /no diseases detected|looks healthy|plant appears healthy|appears healthy/i.test(descRaw) ||
-    /plant appears healthy|plant looks healthy/i.test(treatmentRaw)
+    result.isHealthy ||
+    /healthy|optimal|no disease/i.test(currentData.diseaseName)
   );
-  
-  const parseTreatmentSteps = (treatment) => {
-    if (!treatment) return [t('diagnose.noTreatmentAvailable', 'No specific treatment available.')];
-    const steps = treatment.split(/\d\.|\n/).filter(s => s.trim().length > 0);
-    if (steps.length > 1) {
-      return steps.map(s => s.trim());
+
+  // Sync when language or cache changes
+  useEffect(() => {
+    if (translationCache[currentLang]) {
+      setCurrentData(translationCache[currentLang]);
+      setTranslationError(null);
     }
-    return [treatment];
-  };
+  }, [currentLang, translationCache]);
 
-  const treatmentSteps = parseTreatmentSteps(result.treatment);
+  const handleLanguageSwitch = async (langCode) => {
+    if (langCode === currentLang) return;
+    setCurrentLang(langCode);
+    setTranslationError(null);
 
-  const getSeverityLevel = (confidence, isHealthyStatus) => {
-    if (isHealthyStatus) return { label: t('diagnose.severityOptimal', 'Optimal / Healthy'), color: '#2d6a4f' };
-    if (!confidence) return { label: t('diagnose.severityUnknown', 'Unknown'), color: '#9a8a7a' };
-    if (confidence > 0.8) return { label: t('diagnose.severityCritical', 'Critical'), color: '#ef4444' };
-    if (confidence > 0.5) return { label: t('diagnose.severityModerate', 'Moderate'), color: '#f59e0b' };
-    return { label: t('diagnose.severityLow', 'Low'), color: '#10b981' };
-  };
-
-  const severity = getSeverityLevel(result.confidence, isHealthy);
-
-  const getLocalizedConfidenceLevel = (conf) => {
-    if (conf >= 0.8) return t('common.high', 'High');
-    if (conf >= 0.5) return t('common.medium', 'Moderate');
-    return t('common.low', 'Low');
-  };
-
-  const getDiseaseCategoryKey = (disease) => {
-    const lower = disease?.toLowerCase() || '';
-    if (lower.includes('water') || lower.includes('overwater')) return 'categoryWater';
-    if (lower.includes('fungal') || lower.includes('mildew') || lower.includes('rust')) return 'categoryFungal';
-    if (lower.includes('bacterial')) return 'categoryBacterial';
-    if (lower.includes('pest') || lower.includes('insect') || lower.includes('aphid')) return 'categoryPest';
-    if (lower.includes('nutrient') || lower.includes('deficiency')) return 'categoryNutrient';
-    if (lower.includes('healthy')) return 'categoryHealthy';
-    return 'categoryGeneral';
-  };
-
-  const categoryKey = getDiseaseCategoryKey(diseaseNameRaw);
-  const categoryDefault = {
-    categoryWater: 'Water Issue',
-    categoryFungal: 'Fungal Infection',
-    categoryBacterial: 'Bacterial Infection',
-    categoryPest: 'Pest Infestation',
-    categoryNutrient: 'Nutrient Deficiency',
-    categoryHealthy: 'Healthy',
-    categoryGeneral: 'General Condition'
-  }[categoryKey] || 'General Condition';
-
-  const category = t(`diagnose.${categoryKey}`, categoryDefault);
-
-  const getPreventionTips = (disease) => {
-    const lower = disease?.toLowerCase() || '';
-    if (lower.includes('water') || lower.includes('overwater')) {
-      return [
-        'Allow soil to dry between waterings',
-        'Use well-draining potting mix',
-        'Water in the morning to reduce evaporation',
-        'Check drainage holes are not blocked'
-      ];
+    // If cached, use cached immediately
+    if (translationCache[langCode]) {
+      setCurrentData(translationCache[langCode]);
+      return;
     }
-    if (lower.includes('fungal') || lower.includes('mildew')) {
-      return [
-        'Improve air circulation around plants',
-        'Water at the base, not on leaves',
-        'Remove affected leaves immediately',
-        'Apply preventative fungicide in humid conditions'
-      ];
+
+    if (!diagnosisId) {
+      return;
     }
-    if (lower.includes('pest') || lower.includes('aphid')) {
-      return [
-        'Regularly inspect plants for pests',
-        'Use neem oil as a natural deterrent',
-        'Introduce beneficial insects like ladybugs',
-        'Quarantine new plants before introducing'
-      ];
+
+    setIsTranslating(true);
+    try {
+      const res = await translateDiagnosisApi(diagnosisId, langCode);
+      if (res && res.translation) {
+        setTranslationCache(prev => ({
+          ...prev,
+          [langCode]: res.translation
+        }));
+        setCurrentData(res.translation);
+      }
+    } catch (err) {
+      console.error('Failed to translate diagnosis:', err);
+      setTranslationError(err.response?.data?.message || t('diagnose.translationFailed', 'Translation failed. You can retry.'));
+    } finally {
+      setIsTranslating(false);
     }
-    return [
-      'Regularly monitor plant health',
-      'Maintain consistent care routine',
-      'Keep growing area clean',
-      'Use quality soil and fertilizer'
-    ];
   };
 
-  const preventionTips = getPreventionTips(diseaseNameRaw);
-
-  const getDateLocale = () => {
-    if (i18n.language === 'gu') return 'gu-IN';
-    if (i18n.language === 'hi') return 'hi-IN';
-    return 'en-US';
+  const handleRetryTips = async () => {
+    if (!diagnosisId) return;
+    setIsRetryingTips(true);
+    setTipsError(null);
+    try {
+      const res = await retryGeminiTips(diagnosisId);
+      if (res && res.success) {
+        const updated = {
+          ...currentData,
+          cause: res.cause || currentData.cause,
+          treatmentSteps: res.treatmentSteps || currentData.treatmentSteps,
+          preventionTips: res.preventionTips || currentData.preventionTips,
+        };
+        setCurrentData(updated);
+        setTranslationCache(prev => ({
+          ...prev,
+          en: updated
+        }));
+        addNotification(t('diagnose.tipsUpdated', 'Real Gemini tips loaded successfully!'), 'success');
+      }
+    } catch (err) {
+      console.error('Tips retry error:', err);
+      setTipsError(err.response?.data?.message || err.message || t('diagnose.tipsRetryFailed', 'Could not generate AI tips at this moment. Please retry.'));
+    } finally {
+      setIsRetryingTips(false);
+    }
   };
 
-  const localizedDiseaseName = isHealthy && (!diseaseNameRaw || diseaseNameRaw.toLowerCase() === 'general condition')
-    ? t('diagnose.categoryHealthy', 'Healthy')
-    : getLocalizedDynamicText(diseaseNameRaw || 'General Condition', i18n.language);
+  const handleToggleShare = async () => {
+    if (!diagnosisId) return;
+    setIsTogglingShare(true);
+    try {
+      const res = await toggleDiagnosisShare(diagnosisId, !isPublic);
+      if (res && res.success) {
+        setIsPublic(res.isPublic);
+        if (res.shareId) setShareId(res.shareId);
+        addNotification(
+          res.isPublic
+            ? t('diagnose.shareEnabled', 'Public share link enabled!')
+            : t('diagnose.shareRevoked', 'Public share link revoked. The report is now private.'),
+          'info'
+        );
+      }
+    } catch (err) {
+      console.error('Toggle share error:', err);
+      addNotification(t('diagnose.shareToggleFailed', 'Failed to update share status.'), 'error');
+    } finally {
+      setIsTogglingShare(false);
+    }
+  };
 
-  const reportId = result._id || result.id;
-  const path = reportId ? `/diagnose/report/${reportId}` : '/diagnose';
-  const publicUrl = getPublicShareUrl(path);
+  const handleShare = async () => {
+    const publicUrl = `${window.location.origin}/d/${shareId}`;
+    const shareTitle = `UrbanFarm Plant Diagnosis: ${currentData.diseaseName}`;
+    const shareText = `Botanical Health Report: ${currentData.diseaseName} (${confidencePercent}% confidence). View treatment & prevention:`;
 
-  const handleCopyLink = async () => {
+    if (!isPublic) {
+      // Re-enable first
+      await handleToggleShare();
+    }
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: publicUrl,
+        });
+        addNotification(t('diagnose.shareSuccess', 'Diagnosis shared successfully!'), 'success');
+        return;
+      } catch (err) {
+        if (err.name === 'AbortError') return;
+      }
+    }
+
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(publicUrl);
       } else {
-        const textArea = document.createElement('textarea');
-        textArea.value = publicUrl;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-999999px';
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
+        const input = document.createElement('input');
+        input.value = publicUrl;
+        document.body.appendChild(input);
+        input.select();
         document.execCommand('copy');
-        document.body.removeChild(textArea);
+        document.body.removeChild(input);
       }
-      setCopied(true);
-      addNotification(t('diagnose.copiedSuccess', 'Diagnosis link copied to clipboard!'), 'success');
-      setShowShareModal(false);
-      setTimeout(() => setCopied(false), 2500);
-    } catch (err) {
-      addNotification(t('diagnose.copyFailed', 'Unable to copy to clipboard'), 'error');
+      addNotification(t('diagnose.linkCopied', 'Public diagnosis link copied to clipboard!'), 'success');
+    } catch (clipErr) {
+      console.error('Copy failed:', clipErr);
+      addNotification(publicUrl, 'info');
     }
   };
 
-  const handleShareWhatsApp = () => {
-    const summaryText = `🌱 UrbanFarm Botanical Diagnosis Report\nCondition: ${localizedDiseaseName || 'Plant Check'}\nCategory: ${category}\nConfidence: ${Math.round((result.confidence || 0) * 100)}%\n\nDiagnosed via Krishi AI:\n${publicUrl}`;
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(summaryText)}`, '_blank');
-    addNotification(t('community.notifications.openingWhatsApp', 'Opening WhatsApp to share...'), 'info');
-    setShowShareModal(false);
-  };
-
-  const handleShareNative = async () => {
-    const summaryText = `🌱 UrbanFarm Botanical Diagnosis Report\nCondition: ${localizedDiseaseName || 'Plant Check'}\nCategory: ${category}\nConfidence: ${Math.round((result.confidence || 0) * 100)}%\n\nDiagnosed via Krishi AI:`;
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `UrbanFarm Diagnosis Report - ${localizedDiseaseName}`,
-          text: summaryText,
-          url: publicUrl,
-        });
-        addNotification(t('diagnose.sharedSuccess', 'Diagnosis shared successfully!'), 'success');
-        setShowShareModal(false);
-      } catch (err) {
-        // cancelled by user
-      }
-    } else {
-      handleCopyLink();
-    }
-  };
+  const languageOptions = [
+    { code: 'en', label: 'English' },
+    { code: 'gu', label: 'ગુજરાતી' },
+    { code: 'hi', label: 'हिन्दी' },
+  ];
 
   return (
-    <div className={`disease-result ${isHealthy ? 'healthy' : ''}`}>
-      <div className="result-header">
-        <h3>
-          {isHistory ? (
-            <><RiFileList3Line /> {t('diagnose.recordTitle', 'Diagnosis Record')}</>
-          ) : (
-            <><RiMicroscopeLine /> {t('diagnose.resultTitle', 'Diagnosis Result')}</>
-          )}
-        </h3>
-        {onClose && (
-          <button className="close-btn" onClick={onClose} aria-label={t('common.close', 'Close')}>
-            <RiCloseLine />
-          </button>
-        )}
-      </div>
-
-      {/* Status */}
-      <div className="result-status">
-        <span className="status-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-          {isHealthy ? <><RiCheckLine /> {t('diagnose.statusHealthy', 'Healthy')}</> : <><RiAlertLine /> {t('diagnose.statusIssue', 'Issue Detected')}</>}
-        </span>
-        <span className="severity-badge" style={{ background: severity.color + '22', color: severity.color, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-          {t('diagnose.severityLabel', 'Severity: {{severity}}', { severity: severity.label })}
-        </span>
-      </div>
-
-      {/* Disease Name */}
-      <div className="result-disease">
-        <span className="label">{t('diagnose.diagnosisLabel', 'Diagnosis:')}</span>
-        <span className="value disease-name">{localizedDiseaseName}</span>
-        <span className="category-tag">{category}</span>
-      </div>
-
-      {/* Confidence Meter */}
-      {result.confidence > 0 && (
-        <div className="result-confidence">
-          <div className="confidence-header">
-            <span className="label">{t('diagnose.aiConfidence', 'AI Confidence:')}</span>
-            <span className="value">{Math.round(result.confidence * 100)}% ({getLocalizedConfidenceLevel(result.confidence)})</span>
-          </div>
-          <div className="confidence-bar">
-            <div 
-              className="confidence-fill" 
-              style={{ 
-                width: `${Math.round(result.confidence * 100)}%`,
-                background: isHealthy ? '#2d6a4f' : result.confidence > 0.7 ? '#ef4444' : result.confidence > 0.4 ? '#f59e0b' : '#10b981'
-              }}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Description / Cause */}
-      {result.description && (
-        <div className="result-description">
-          <span className="label" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-            <RiFileTextLine /> {t('diagnose.descriptionLabel', 'Description:')}
-          </span>
-          <p className="value">{getLocalizedDynamicText(result.description, i18n.language)}</p>
-        </div>
-      )}
-
-      {/* Treatment Plan */}
-      {result.treatment && (
-        <div className="result-treatment">
-          <span className="label" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-            <RiMedicineBottleLine /> {t('diagnose.treatmentPlan', 'Treatment Plan:')}
-          </span>
-          <ol className="treatment-list">
-            {treatmentSteps.map((step, idx) => (
-              <li key={idx}>{getLocalizedDynamicText(step, i18n.language)}</li>
-            ))}
-          </ol>
-        </div>
-      )}
-
-      {/* Prevention Tips */}
-      <div className="result-prevention">
-        <span className="label" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-          <RiShieldCheckLine /> {t('diagnose.preventionTips', 'Prevention Tips:')}
-        </span>
-        <ul className="prevention-list">
-          {preventionTips.map((tip, idx) => (
-            <li key={idx}>{getLocalizedDynamicText(tip, i18n.language)}</li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="result-action-bar">
-        {result.treatment && (
+    <div className="disease-result-fullpage">
+      {/* Top Navigation & Actions Bar */}
+      <div className="dr-topbar">
+        <div className="dr-topbar-left">
           <button 
-            className="btn-primary add-schedule-btn"
-            onClick={onAddToSchedule}
+            type="button" 
+            className="dr-back-btn" 
+            onClick={onBack || onClose}
           >
-            <RiCalendarEventLine /> {t('diagnose.addToSchedule', 'Add to Schedule')}
+            ← {t('diagnose.backToScanner', 'Back to Scanner')}
           </button>
-        )}
-        <button 
-          className="btn-secondary report-btn"
-          onClick={() => {
-            const reportText = `URBAN FARM - PLANT HEALTH & AI DIAGNOSIS REPORT\n=================================================\nDisease Detected: ${localizedDiseaseName || 'Healthy'}\nCategory: ${category}\nAI Confidence: ${Math.round((result.confidence || 0) * 100)}%\nSeverity: ${severity.label}\nDate: ${new Date().toLocaleString(getDateLocale())}\n\nDESCRIPTION:\n${result.description || 'None provided'}\n\nTREATMENT PLAN:\n${treatmentSteps.join('\n')}\n\nPREVENTION TIPS:\n${preventionTips.join('\n')}\n\nGenerated by Krishi AI\n`;
-            const blob = new Blob([reportText], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `UrbanFarm_Diagnosis_${(localizedDiseaseName || 'report').replace(/\s+/g, '_')}.txt`;
-            a.click();
-            URL.revokeObjectURL(url);
-          }}
-        >
-          <RiDownload2Line /> {t('diagnose.reportTxt', 'Report (.txt)')}
-        </button>
-        <button 
-          className="btn-secondary report-btn"
-          onClick={() => {
-            const jsonStr = JSON.stringify(result, null, 2);
-            const blob = new Blob([jsonStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `UrbanFarm_Diagnosis_${(localizedDiseaseName || 'report').replace(/\s+/g, '_')}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-          }}
-        >
-          <RiDownload2Line /> {t('diagnose.jsonExport', 'JSON')}
-        </button>
+          <span className="dr-report-badge">
+            {isHistory ? t('diagnose.historyReport', 'Archived Report') : t('diagnose.newReport', 'Active Diagnosis')}
+          </span>
+        </div>
+
+        <div className="dr-topbar-right">
+          {/* Language Switcher */}
+          <div className="dr-lang-switch" role="group" aria-label="Translate Report">
+            <span className="dr-lang-label">{t('common.language', 'Language')}:</span>
+            {languageOptions.map((opt) => (
+              <button
+                key={opt.code}
+                type="button"
+                className={`dr-lang-btn ${currentLang === opt.code ? 'active' : ''}`}
+                onClick={() => handleLanguageSwitch(opt.code)}
+                disabled={isTranslating}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Share Action */}
+          <button 
+            type="button" 
+            className="dr-share-btn" 
+            onClick={handleShare}
+          >
+            {t('diagnose.shareReport', 'Share Report')}
+          </button>
+        </div>
+      </div>
+
+      {/* Translation Banner / Error */}
+      {isTranslating && (
+        <div className="dr-notice-banner dr-notice-loading">
+          <span className="dr-pulse-dot" />
+          <span>{t('diagnose.translatingWithGemini', 'Translating diagnosis with Gemini AI...')}</span>
+        </div>
+      )}
+      {translationError && (
+        <div className="dr-notice-banner dr-notice-error">
+          <span>{translationError}</span>
+          <button 
+            type="button" 
+            className="dr-text-action-btn" 
+            onClick={() => handleLanguageSwitch(currentLang)}
+          >
+            {t('common.retry', 'Retry')}
+          </button>
+        </div>
+      )}
+
+      {/* Public Share Status Banner */}
+      <div className="dr-share-status-strip">
+        <div className="dr-share-status-info">
+          <span className={`dr-status-indicator ${isPublic ? 'active' : 'inactive'}`} />
+          <span>
+            {isPublic 
+              ? `${t('diagnose.publicShareActive', 'Public link is live:')} ${window.location.origin}/d/${shareId}`
+              : t('diagnose.publicShareRevoked', 'Public link is revoked. Anyone with the URL will see a private link message.')}
+          </span>
+        </div>
         <button 
           type="button" 
-          className={`btn-secondary report-btn ${copied ? 'copied-btn' : ''}`}
-          onClick={() => { setShowShareModal(true); setShowQrCode(false); }}
-          style={copied ? { background: '#2d6a4f', color: '#ffffff', borderColor: '#2d6a4f' } : {}}
+          className="dr-toggle-share-btn"
+          onClick={handleToggleShare}
+          disabled={isTogglingShare}
         >
-          {copied ? (
-            <><RiCheckLine /> {t('diagnose.copied', 'Copied!')}</>
-          ) : (
-            <><RiShareLine /> {t('diagnose.share', 'Share')}</>
-          )}
+          {isPublic ? t('diagnose.revokeLink', 'Revoke Public Link') : t('diagnose.enableLink', 'Enable Public Link')}
         </button>
       </div>
 
-      {showShareModal && (
-        <div className="share-modal-overlay" onClick={() => setShowShareModal(false)}>
-          <div className="share-modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="share-modal-header">
-              <h3>{t('community.card.shareModalTitle', 'Share Diagnosis Report')}</h3>
-              <button className="close-btn" onClick={() => setShowShareModal(false)} aria-label="Close">
-                <RiCloseLine />
-              </button>
-            </div>
+      {/* Main Full Page Grid */}
+      <div className="dr-main-grid">
+        {/* Left Column: Image & Health Overview */}
+        <div className="dr-media-column">
+          <div className="dr-card dr-image-card">
+            {result.imageUrl ? (
+              <img 
+                src={result.imageUrl} 
+                alt={currentData.diseaseName} 
+                className="dr-full-image" 
+              />
+            ) : (
+              <div className="dr-no-image-placeholder">
+                <span>{t('diagnose.noImageAvailable', 'Specimen Leaf Image')}</span>
+              </div>
+            )}
 
-            <div className="share-modal-body">
-              <p className="share-post-preview-title">
-                {localizedDiseaseName} ({category})
-              </p>
+            <div className="dr-media-details">
+              <div className="dr-severity-row">
+                <span className="dr-meta-label">{t('diagnose.healthStatus', 'Health Status')}</span>
+                <span className={`dr-pill-tag ${isHealthy ? 'healthy' : confidencePercent > 70 ? 'critical' : 'warning'}`}>
+                  {isHealthy ? t('diagnose.healthy', 'Healthy') : t('diagnose.issueDetected', 'Issue Detected')}
+                </span>
+              </div>
 
-              {!showQrCode ? (
-                <div className="share-options-grid">
-                  <button className="share-option-btn" onClick={handleCopyLink}>
-                    <div className="share-option-icon icon-copy">
-                      <RiFileCopyLine />
-                    </div>
-                    <span>{t('community.card.copyLink', 'Copy Link')}</span>
-                  </button>
+              <div className="dr-severity-row">
+                <span className="dr-meta-label">{t('diagnose.confidenceLevel', 'Confidence')}</span>
+                <span className="dr-confidence-text">{confidencePercent}%</span>
+              </div>
 
-                  <button className="share-option-btn" onClick={handleShareWhatsApp}>
-                    <div className="share-option-icon icon-whatsapp">
-                      <RiWhatsappLine />
-                    </div>
-                    <span>{t('community.card.whatsApp', 'WhatsApp')}</span>
-                  </button>
+              <div className="dr-confidence-meter">
+                <div 
+                  className="dr-confidence-fill" 
+                  style={{ 
+                    width: `${confidencePercent}%`,
+                    backgroundColor: isHealthy ? '#6b9080' : confidencePercent > 70 ? '#c94a4a' : '#c9924a'
+                  }} 
+                />
+              </div>
 
-                  <button className="share-option-btn" onClick={handleShareNative}>
-                    <div className="share-option-icon icon-apps">
-                      <RiShareForwardLine />
-                    </div>
-                    <span>{t('community.card.otherApps', 'Other Apps')}</span>
-                  </button>
-
-                  <button className="share-option-btn" onClick={() => setShowQrCode(true)}>
-                    <div className="share-option-icon icon-qr">
-                      <RiQrCodeLine />
-                    </div>
-                    <span>{t('community.card.qrCode', 'QR Code')}</span>
-                  </button>
-                </div>
-              ) : (
-                <div className="qr-code-container" style={{ textAlign: 'center', padding: '1rem 0' }}>
-                  <p className="qr-sub" style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1rem' }}>
-                    {t('community.card.scanQrCode', 'Scan QR Code to view this diagnosis report')}
-                  </p>
-                  <img 
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(publicUrl)}&color=2c5e3b&bgcolor=ffffff`} 
-                    alt="Report QR Code"
-                    style={{ width: '180px', height: '180px', borderRadius: '12px', border: '1px solid #e2e8f0' }}
-                  />
-                  <div style={{ marginTop: '1rem' }}>
-                    <button className="btn-secondary" onClick={() => setShowQrCode(false)} style={{ padding: '0.35rem 1rem', fontSize: '0.85rem' }}>
-                      Back to Share Options
-                    </button>
-                  </div>
+              {result.plantId?.name && (
+                <div className="dr-plant-link-row">
+                  <span className="dr-meta-label">{t('plants.plant', 'Plant')}</span>
+                  <span className="dr-plant-name">{result.plantId.name}</span>
                 </div>
               )}
             </div>
           </div>
         </div>
-      )}
 
-      {/* Additional info */}
-      {result.scientificName && (
-        <div className="result-meta">
-          <span className="meta-label">
-            <RiMicroscopeLine /> {t('diagnose.scientificInfo', 'Scientific Info:')}
-          </span>
-          <span className="meta-value">{result.scientificName}</span>
-        </div>
-      )}
+        {/* Right Column: Pathological Details, Treatment & Prevention */}
+        <div className="dr-content-column">
+          {/* Header Card */}
+          <div className="dr-card dr-headline-card">
+            <span className="dr-eyebrow">
+              {isHealthy ? t('diagnose.optimalHealth', 'Botanical Assessment') : t('diagnose.pathologyReport', 'Diagnosed Issue')}
+            </span>
+            <h1 className="dr-disease-title">{currentData.diseaseName}</h1>
+            {currentData.description && (
+              <p className="dr-description-text">{currentData.description}</p>
+            )}
+          </div>
 
-      {isHistory && result.createdAt && (
-        <div className="result-meta">
-          <span className="meta-label">
-            <RiCalendarEventLine /> {t('diagnose.diagnosedAt', 'Diagnosed:')}
-          </span>
-          <span className="meta-value">{new Date(result.createdAt).toLocaleString(getDateLocale())}</span>
+          {/* Root Cause Card */}
+          <div className="dr-card dr-section-card">
+            <div className="dr-section-header">
+              <h2 className="dr-section-title">{t('diagnose.causeHeading', 'Pathological Cause & Stress Factors')}</h2>
+            </div>
+            {currentData.cause ? (
+              <p className="dr-section-body">{currentData.cause}</p>
+            ) : tipsError ? (
+              <div className="dr-tips-error-box">
+                <p>{tipsError}</p>
+                <button 
+                  type="button" 
+                  className="dr-retry-btn" 
+                  onClick={handleRetryTips}
+                  disabled={isRetryingTips}
+                >
+                  {isRetryingTips ? t('common.loading', 'Loading...') : t('diagnose.retryAiTips', 'Retry Gemini Tips')}
+                </button>
+              </div>
+            ) : (
+              <div className="dr-tips-empty-box">
+                <p>{t('diagnose.generatingTipsNotice', 'No cause summary generated yet.')}</p>
+                <button 
+                  type="button" 
+                  className="dr-retry-btn" 
+                  onClick={handleRetryTips}
+                  disabled={isRetryingTips}
+                >
+                  {isRetryingTips ? t('common.loading', 'Loading...') : t('diagnose.generateGeminiTips', 'Generate Tips with Gemini')}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Treatment Steps Card */}
+          <div className="dr-card dr-section-card">
+            <div className="dr-section-header">
+              <h2 className="dr-section-title">{t('diagnose.treatmentStepsHeading', 'Actionable Treatment Steps')}</h2>
+              <span className="dr-steps-count">{currentData.treatmentSteps.length} {t('diagnose.steps', 'steps')}</span>
+            </div>
+
+            {currentData.treatmentSteps.length > 0 ? (
+              <div className="dr-steps-list">
+                {currentData.treatmentSteps.map((step, idx) => (
+                  <div key={idx} className="dr-step-item">
+                    <span className="dr-step-number">{idx + 1}</span>
+                    <div className="dr-step-text">{step}</div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="dr-empty-hint">{t('diagnose.noTreatmentSteps', 'No treatment steps recorded.')}</p>
+            )}
+          </div>
+
+          {/* Prevention Tips Card */}
+          <div className="dr-card dr-section-card">
+            <div className="dr-section-header">
+              <h2 className="dr-section-title">{t('diagnose.preventionTipsHeading', 'Long-Term Prevention Tips')}</h2>
+            </div>
+
+            {currentData.preventionTips.length > 0 ? (
+              <div className="dr-tips-list">
+                {currentData.preventionTips.map((tip, idx) => (
+                  <div key={idx} className="dr-tip-item">
+                    <span className="dr-tip-bullet" />
+                    <div className="dr-tip-text">{tip}</div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="dr-empty-hint">{t('diagnose.noPreventionTips', 'No prevention tips available.')}</p>
+            )}
+          </div>
+
+          {/* Bottom Action Footer */}
+          <div className="dr-footer-actions">
+            {onAddToSchedule && !isHealthy && (
+              <button 
+                type="button" 
+                className="dr-schedule-btn"
+                onClick={onAddToSchedule}
+              >
+                {t('diagnose.addToCareSchedule', 'Add Treatment to Care Schedule')}
+              </button>
+            )}
+
+            <button 
+              type="button" 
+              className="dr-secondary-share-btn"
+              onClick={handleShare}
+            >
+              {t('diagnose.sharePublicLink', 'Share Public Report URL')}
+            </button>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
 
-export default DiseaseResult;
+export default DiseaseResult;

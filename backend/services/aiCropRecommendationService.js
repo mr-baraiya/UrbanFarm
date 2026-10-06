@@ -1,10 +1,96 @@
 const axios = require('axios');
 const aiConfig = require('../config/aiConfig');
 
+// Whitelist of valid soil types
+const VALID_SOIL_TYPES = [
+  'Loam',
+  'Sandy',
+  'Clay',
+  'Silty',
+  'Peaty',
+  'Chalky',
+  'Sandy Loam',
+  'Potting Mix'
+];
+
 /**
- * Get crop recommendations using Google Gemini API
+ * Validate agronomic input parameters
+ */
+function validateCropInputs(inputData) {
+  const errors = [];
+  const { soilType, ph, temperature, humidity, rainfall, season } = inputData;
+
+  if (!soilType || typeof soilType !== 'string') {
+    errors.push('Soil type is required.');
+  } else if (!VALID_SOIL_TYPES.some(s => s.toLowerCase() === soilType.trim().toLowerCase())) {
+    errors.push(`Invalid soil type "${soilType}". Supported types: ${VALID_SOIL_TYPES.join(', ')}.`);
+  }
+
+  const numPh = Number(ph);
+  if (ph === undefined || ph === null || isNaN(numPh)) {
+    errors.push('Soil pH is required.');
+  } else if (numPh < 3.5 || numPh > 9.5) {
+    errors.push('Soil pH must be between 3.5 and 9.5.');
+  }
+
+  const numTemp = Number(temperature);
+  if (temperature !== undefined && temperature !== null && !isNaN(numTemp)) {
+    if (numTemp < -20 || numTemp > 60) {
+      errors.push('Temperature must be between -20°C and 60°C.');
+    }
+  }
+
+  const numHum = Number(humidity);
+  if (humidity !== undefined && humidity !== null && !isNaN(numHum)) {
+    if (numHum < 0 || numHum > 100) {
+      errors.push('Humidity must be between 0% and 100%.');
+    }
+  }
+
+  const numRain = Number(rainfall);
+  if (rainfall !== undefined && rainfall !== null && !isNaN(numRain)) {
+    if (numRain < 0 || numRain > 5000) {
+      errors.push('Rainfall must be between 0mm and 5000mm.');
+    }
+  }
+
+  const validSeasons = ['Spring', 'Summer', 'Fall', 'Winter'];
+  if (season && !validSeasons.some(s => s.toLowerCase() === season.trim().toLowerCase())) {
+    errors.push('Season must be Spring, Summer, Fall, or Winter.');
+  }
+
+  return errors;
+}
+
+// Candidate models for Google Gemini
+const getCandidateModels = () => Array.from(new Set([
+  aiConfig.gemini?.model,
+  'gemini-1.5-flash',
+  'gemini-2.0-flash',
+  'gemini-2.5-flash'
+])).filter(Boolean);
+
+/**
+ * Get dynamic crop recommendations strictly generated from real Gemini API
  */
 async function getRecommendations(inputData) {
+  // 1. Input Validation
+  const validationErrors = validateCropInputs(inputData);
+  if (validationErrors.length > 0) {
+    const err = new Error(validationErrors.join(' '));
+    err.status = 400;
+    err.validationErrors = validationErrors;
+    throw err;
+  }
+
+  // 2. Check API Key
+  const apiKey = aiConfig.gemini.apiKey;
+  if (!apiKey) {
+    const err = new Error('Google Gemini API key is not configured in the environment.');
+    err.status = 500;
+    throw err;
+  }
+
   const {
     soilType,
     ph,
@@ -13,185 +99,149 @@ async function getRecommendations(inputData) {
     rainfall,
     season,
     region,
+    spaceAvailable,
+    targetCrop
   } = inputData;
 
-  // Check if Gemini API key exists
-  if (!aiConfig.gemini.apiKey) {
-    console.warn('⚠️ Gemini API key missing, using fallback recommendations');
-    return getFallbackRecommendations();
+  const prompt = `You are a senior agronomist, soil scientist, and urban farming expert.
+Evaluate the following exact planting conditions:
+- Soil Type: "${soilType}"
+- Soil pH: ${ph}
+- Ambient Temperature: ${temperature || 25}°C
+- Relative Humidity: ${humidity || 60}%
+- Rainfall / Water Level: ${rainfall || 100} mm
+- Growing Season: "${season || 'Summer'}"
+- Region / Climate: "${region || 'Temperate'}"
+- Space Available: "${spaceAvailable || 'medium'}"
+${targetCrop ? `- Specific Inquired Crop to evaluate: "${targetCrop}"` : ''}
+
+AGRONOMIC AND SOIL VALIDATION RULES:
+1. The soil type ("${soilType}") and pH (${ph}) MUST strictly govern crop viability:
+   - Sandy soil: low nutrient and water holding capacity, warms quickly. Excellent for carrots, radishes, sweet potatoes, thymes, and drought-tolerant crops. Unfavorable for high-demand moisture lovers unless heavily amended.
+   - Clay soil: heavy, dense, slow drainage, rich in nutrients. Great for brassicas (cabbage, broccoli), beans, and leafy greens. Poor for long root crops (deformity, rot).
+   - Chalky / Alkaline soil (pH > 7.5): Acid lovers like blueberries will fail. Brassicas, beets, spinach, and oregano thrive.
+   - Peaty / Acidic soil (pH < 5.5): Blueberries and potatoes thrive; brassicas suffer clubroot and nutrient block.
+   - Loam / Potting Mix: Balanced, versatile for garden vegetables.
+2. If an Inquired Crop ("${targetCrop || ''}") is provided:
+   - Rigorously check if it suits "${soilType}" soil and pH ${ph}.
+   - If it is incompatible or poor, set "isSuitable": false, explain why in "soilMismatchReason", and recommend 3 suitable alternative crops for this soil.
+   - Never recommend a crop that clashes with this soil.
+3. Recommend 4 to 5 crops that specifically match "${soilType}" soil and current conditions.
+
+Return STRICT JSON matching this exact schema:
+{
+  "soilAnalysis": {
+    "soilType": "${soilType}",
+    "ph": ${ph},
+    "drainageAndTexture": "Concise summary of physical traits of ${soilType} soil",
+    "soilManagementTip": "Practical advice to optimize this ${soilType} soil"
+  },
+  ${targetCrop ? `"targetCropCheck": {
+    "cropName": "${targetCrop}",
+    "isSuitable": true or false,
+    "soilMismatchReason": "Explanation of soil compatibility or incompatibility",
+    "suggestedAlternatives": ["Crop 1", "Crop 2", "Crop 3"]
+  },` : ''}
+  "recommendations": [
+    {
+      "cropName": "Crop Name",
+      "confidence": 0.90,
+      "soilSuitability": "Specific reason why this crop thrives in ${soilType} soil",
+      "reason": "Why it suits the climate/season/space",
+      "plantingTips": "Planting depth, spacing, or care tip",
+      "expectedYield": "Estimated yield per plant or square meter"
+    }
+  ]
+}
+
+Return ONLY valid JSON with no markdown wrapping.`;
+
+  const payload = {
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: {
+      temperature: 0.2,
+      maxOutputTokens: 2000,
+      response_mime_type: 'application/json'
+    }
+  };
+
+  const candidateModels = getCandidateModels();
+  let rawText = null;
+  let lastError = null;
+
+  for (const model of candidateModels) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    try {
+      console.log(`🌾 Querying Gemini model (${model}) for soil: ${soilType}`);
+      const response = await axios.post(url, payload, {
+        headers: { 'Content-Type': 'application/json' },
+        timeout: 20000
+      });
+      rawText = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (rawText) break;
+    } catch (err) {
+      lastError = err;
+      console.warn(`[Crop AI] Model ${model} failed: ${err.message}`);
+    }
   }
 
-  const model = aiConfig.gemini.model;
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${aiConfig.gemini.apiKey}`;
-
-  const prompt = `
-You are an expert agricultural advisor. Based on the following conditions, recommend 5 most suitable crops to grow.
-
-Conditions:
-- Soil type: ${soilType || 'Loam'}
-- Soil pH: ${ph || 6.5}
-- Temperature: ${temperature || 25}°C
-- Humidity: ${humidity || 60}%
-- Rainfall: ${rainfall || 100} mm
-- Season: ${season || 'Summer'}
-- Region: ${region || 'Temperate'}
-
-Return a JSON array with exactly 5 objects containing:
-- cropName: string
-- confidence: number (0-1)
-- reason: string
-- plantingTips: string
-- expectedYield: string
-
-Example: [{"cropName":"Tomato","confidence":0.9,"reason":"Grows well in warm temperatures","plantingTips":"Plant in well-drained soil","expectedYield":"10-15 kg per plant"}]
-
-IMPORTANT: Return ONLY the JSON array, no other text.
-`;
+  if (!rawText) {
+    throw new Error(lastError?.response?.data?.error?.message || lastError?.message || 'Failed to generate recommendations from Gemini AI.');
+  }
 
   try {
-    console.log(`📡 Calling Gemini API (${model}) for crop recommendations`);
+    let clean = rawText.trim();
+    if (clean.startsWith('```')) {
+      clean = clean.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim();
+    }
+    const parsed = JSON.parse(clean);
 
-    const response = await axios.post(
-      url,
-      {
-        contents: [
-          {
-            parts: [
-              {
-                text: prompt,
-              },
-            ],
-          },
-        ],
-        generationConfig: {
-          temperature: 0.3,
-          // ✅ INCREASED TOKEN LIMIT
-          maxOutputTokens: 1024, // Increased from 800
-          topK: 40,
-          topP: 0.95,
-        },
+    let recList = [];
+    if (Array.isArray(parsed)) {
+      recList = parsed;
+    } else if (Array.isArray(parsed.recommendations)) {
+      recList = parsed.recommendations;
+    } else {
+      for (const k of Object.keys(parsed)) {
+        if (Array.isArray(parsed[k])) {
+          recList = parsed[k];
+          break;
+        }
+      }
+    }
+
+    if (!recList || recList.length === 0) {
+      throw new Error('No crop recommendations returned in AI response.');
+    }
+
+    // Validate crop items
+    const validatedRecs = recList.map(item => ({
+      cropName: String(item.cropName || 'Crop').trim(),
+      confidence: typeof item.confidence === 'number' ? Math.min(Math.max(item.confidence, 0), 1) : 0.85,
+      soilSuitability: String(item.soilSuitability || `Suitable for ${soilType} soil condition.`).trim(),
+      reason: String(item.reason || `Well suited for ${season || 'current season'}.`).trim(),
+      plantingTips: String(item.plantingTips || 'Ensure adequate water and sunlight.').trim(),
+      expectedYield: String(item.expectedYield || 'Optimal yield').trim()
+    }));
+
+    return {
+      soilAnalysis: parsed.soilAnalysis || {
+        soilType: soilType,
+        ph: ph,
+        drainageAndTexture: `${soilType} soil with pH ${ph}`,
+        soilManagementTip: 'Maintain organic mulch and monitor soil moisture.'
       },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        timeout: 30000,
-      }
-    );
-
-    const textResponse = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    console.log('✅ Gemini crop response received');
-    console.log('📝 Raw response length:', textResponse.length);
-
-    if (textResponse.length < 50) {
-      console.warn('⚠️ Response too short, using fallback');
-      return getFallbackRecommendations();
-    }
-
-    // Extract JSON from the response
-    let jsonStr = textResponse;
-    jsonStr = jsonStr.replace(/```json\s*/g, '').replace(/```\s*/g, '');
-    const jsonMatch = jsonStr.match(/\[[\s\S]*\]/);
-    if (jsonMatch) {
-      jsonStr = jsonMatch[0];
-    }
-    
-    jsonStr = jsonStr.trim();
-    
-    if (!jsonStr || jsonStr.length < 10) {
-      console.warn('⚠️ Empty JSON response from Gemini, using fallback');
-      return getFallbackRecommendations();
-    }
-
-    try {
-      const parsed = JSON.parse(jsonStr);
-      
-      if (Array.isArray(parsed)) {
-        return parsed;
-      } else if (parsed.recommendations && Array.isArray(parsed.recommendations)) {
-        return parsed.recommendations;
-      } else {
-        const keys = Object.keys(parsed);
-        for (const key of keys) {
-          if (Array.isArray(parsed[key])) {
-            return parsed[key];
-          }
-        }
-        throw new Error('Unexpected response format');
-      }
-    } catch (parseError) {
-      console.warn('⚠️ Failed to parse Gemini JSON:', parseError.message);
-      
-      // Try to fix common JSON issues
-      try {
-        jsonStr = jsonStr.replace(/,\s*}/g, '}').replace(/,\s*\]/g, ']');
-        // Close any open quotes
-        const openQuotes = (jsonStr.match(/"/g) || []).length;
-        if (openQuotes % 2 !== 0) {
-          jsonStr += '"';
-        }
-        const parsed = JSON.parse(jsonStr);
-        if (Array.isArray(parsed)) {
-          console.log('✅ Fixed and parsed JSON successfully');
-          return parsed;
-        }
-      } catch (fixError) {
-        console.warn('⚠️ Still cannot parse JSON, using fallback');
-      }
-      
-      return getFallbackRecommendations();
-    }
-  } catch (error) {
-    console.error('❌ Gemini Crop Recommendation error:', error.message);
-    if (error.response) {
-      console.error('Response status:', error.response.status);
-      console.error('Response data:', JSON.stringify(error.response.data, null, 2));
-    }
-    return getFallbackRecommendations();
+      targetCropCheck: parsed.targetCropCheck || null,
+      recommendations: validatedRecs
+    };
+  } catch (parseErr) {
+    console.error('Failed to parse Gemini crop JSON:', parseErr.message, rawText);
+    throw new Error('Failed to parse crop recommendation response from AI service. Please retry.');
   }
 }
 
-/**
- * Fallback recommendations when API fails
- */
-function getFallbackRecommendations() {
-  return [
-    {
-      cropName: 'Tomato',
-      confidence: 0.9,
-      reason: 'Grows well in warm temperatures with moderate water. High yield in most soil types.',
-      plantingTips: 'Plant in well-drained soil, full sun, 60-90 cm apart. Water consistently.',
-      expectedYield: '10-15 kg per plant',
-    },
-    {
-      cropName: 'Lettuce',
-      confidence: 0.85,
-      reason: 'Cool-season crop, fast growing. Great for continuous harvest.',
-      plantingTips: 'Plant in partial shade, keep soil moist. Sow every 2 weeks for continuous supply.',
-      expectedYield: '2-3 heads per plant',
-    },
-    {
-      cropName: 'Pepper',
-      confidence: 0.8,
-      reason: 'Heat-loving, productive in warm climates. Both sweet and hot varieties.',
-      plantingTips: 'Space plants 45cm apart, consistent watering. Stake for support.',
-      expectedYield: '5-8 kg per plant',
-    },
-    {
-      cropName: 'Carrot',
-      confidence: 0.75,
-      reason: 'Cool-season root vegetable. Grows well in loose, sandy soil.',
-      plantingTips: 'Sow directly in loose soil, thin to 5cm apart. Keep soil consistently moist.',
-      expectedYield: '3-5 kg per m²',
-    },
-    {
-      cropName: 'Basil',
-      confidence: 0.7,
-      reason: 'Warm-season herb. Excellent companion plant, continuous harvest.',
-      plantingTips: 'Plant in full sun, well-drained soil. Pinch flowers for bushier growth.',
-      expectedYield: '1-2 kg per plant per season',
-    },
-  ];
-}
-
-module.exports = { getRecommendations };
+module.exports = { 
+  getRecommendations, 
+  validateCropInputs, 
+  VALID_SOIL_TYPES 
+};

@@ -1,13 +1,5 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { 
-  RiFlashlightLine, 
-  RiBuildingLine, 
-  RiSunLine, 
-  RiHomeSmileLine,
-  RiInboxArchiveLine
-} from 'react-icons/ri';
-import { TbPlant2 } from 'react-icons/tb';
 import './UrbanPresets.css';
 
 const UrbanPresets = ({ onSelect, currentPreset }) => {
@@ -16,8 +8,8 @@ const UrbanPresets = ({ onSelect, currentPreset }) => {
   const presets = [
     {
       id: 'container',
-      label: t('crops.presetContainer', 'Balcony / Container Garden'),
-      icon: <TbPlant2 />,
+      label: t('crops.presetContainer', 'Balcony Containers'),
+      tag: 'Pots',
       description: t('crops.presetContainerDesc', 'Pots, planters, and containers'),
       inputs: {
         soilType: 'Potting Mix',
@@ -26,15 +18,15 @@ const UrbanPresets = ({ onSelect, currentPreset }) => {
         humidity: 60,
         rainfall: 100,
         season: 'Summer',
-        region: 'Temperate',
+        region: 'Urban Balcony',
         spaceAvailable: 'small',
       }
     },
     {
       id: 'raised_bed',
       label: t('crops.presetRaisedBed', 'Raised Bed'),
-      icon: <RiInboxArchiveLine />,
-      description: t('crops.presetRaisedBedDesc', 'Elevated garden beds'),
+      tag: 'Bed',
+      description: t('crops.presetRaisedBedDesc', 'Elevated garden beds with deep soil'),
       inputs: {
         soilType: 'Loam',
         ph: 6.8,
@@ -42,14 +34,14 @@ const UrbanPresets = ({ onSelect, currentPreset }) => {
         humidity: 60,
         rainfall: 100,
         season: 'Summer',
-        region: 'Temperate',
+        region: 'Courtyard',
         spaceAvailable: 'medium',
       }
     },
     {
       id: 'rooftop',
-      label: t('crops.presetRooftop', 'Rooftop Sunny Spot'),
-      icon: <RiSunLine />,
+      label: t('crops.presetRooftop', 'Sunny Rooftop'),
+      tag: 'Roof',
       description: t('crops.presetRooftopDesc', 'Full sun, wind exposure'),
       inputs: {
         soilType: 'Sandy Loam',
@@ -58,44 +50,47 @@ const UrbanPresets = ({ onSelect, currentPreset }) => {
         humidity: 55,
         rainfall: 80,
         season: 'Summer',
-        region: 'Temperate',
+        region: 'Rooftop Terrace',
         spaceAvailable: 'large',
       }
     },
     {
       id: 'indoor',
-      label: t('crops.presetIndoor', 'Indoor / Windowsill'),
-      icon: <RiHomeSmileLine />,
-      description: t('crops.presetIndoorDesc', 'Indoor growing, limited light'),
+      label: t('crops.presetIndoor', 'Indoor Window'),
+      tag: 'Windowsill',
+      description: t('crops.presetIndoorDesc', 'Indirect light, controlled room temp'),
       inputs: {
         soilType: 'Potting Mix',
-        ph: 6.3,
+        ph: 6.2,
         temperature: 22,
-        humidity: 65,
+        humidity: 50,
         rainfall: 50,
         season: 'Spring',
-        region: 'Temperate',
+        region: 'Indoor Living Space',
         spaceAvailable: 'small',
       }
-    },
+    }
   ];
 
   return (
     <div className="urban-presets">
-      <h4>
-        <RiFlashlightLine className="header-icon" /> {t('crops.quickPresets', 'Quick Presets')}
-      </h4>
+      <div className="presets-header">
+        <span className="presets-title">{t('crops.quickPresets', 'Quick Urban Presets')}</span>
+        <span className="presets-sub">{t('crops.presetsSubtitle', 'One-click configurations')}</span>
+      </div>
       <div className="presets-grid">
-        {presets.map((preset) => (
+        {presets.map(p => (
           <button
-            key={preset.id}
+            key={p.id}
             type="button"
-            className={`preset-btn ${currentPreset === preset.id ? 'active' : ''}`}
-            onClick={() => onSelect(preset)}
+            className={`preset-card ${currentPreset === p.id ? 'active' : ''}`}
+            onClick={() => onSelect(p)}
           >
-            <span className="preset-icon">{preset.icon}</span>
-            <span className="preset-label">{preset.label}</span>
-            <span className="preset-desc">{preset.description}</span>
+            <div className="preset-top">
+              <span className="preset-badge">{p.tag}</span>
+              <span className="preset-name">{p.label}</span>
+            </div>
+            <p className="preset-desc">{p.description}</p>
           </button>
         ))}
       </div>
