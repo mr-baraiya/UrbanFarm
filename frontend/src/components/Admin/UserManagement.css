@@ -7,130 +7,265 @@
 .user-cell {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.75rem;
 }
 
 .user-avatar-sm {
-  width: 34px;
-  height: 34px;
-  border-radius: 6px;
-  background: linear-gradient(135deg, var(--sage), var(--accent));
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2d6a4f, #52b788);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   flex-shrink: 0;
-  box-shadow: 0 3px 10px rgba(107, 144, 128, 0.25);
+  box-shadow: 0 4px 12px rgba(45, 106, 79, 0.25);
 }
 
-.role-select-inline {
-  padding: 0.35rem 0.8rem;
-  border-radius: 4px;
-  border: 1.5px solid rgba(107, 144, 128, 0.25);
-  background-color: var(--surface);
-  color: var(--text);
+/* ==================== ROLE DROPDOWN UI ==================== */
+.role-dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.role-select-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 12px;
   font-size: 0.82rem;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   font-family: inherit;
-  outline: none;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-  transition: all var(--transition);
-  appearance: none;
-  -webkit-appearance: none;
-  background-repeat: no-repeat;
-  background-position: right 0.6rem center;
-  background-size: 0.6em;
-  padding-right: 1.6rem;
+  border: 1px solid transparent;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+  min-width: 140px;
+  background: #ffffff;
 }
 
-.role-select-inline.admin {
-  background-color: rgba(107, 144, 128, 0.15);
-  border-color: rgba(107, 144, 128, 0.35);
-  color: var(--sage);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234d7c66' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+.role-select-btn.user {
+  background: rgba(45, 106, 79, 0.08);
+  border-color: rgba(45, 106, 79, 0.25);
+  color: #2d6a4f;
 }
 
-.role-select-inline.user {
-  background-color: rgba(59, 130, 246, 0.12);
-  border-color: rgba(59, 130, 246, 0.3);
-  color: #2563eb;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+.role-select-btn.admin {
+  background: rgba(99, 102, 241, 0.09);
+  border-color: rgba(99, 102, 241, 0.28);
+  color: #4f46e5;
 }
 
-.role-select-inline:hover {
+.role-select-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
 }
 
-.level-badge {
-  display: inline-block;
-  padding: 0.3rem 0.75rem;
-  border-radius: 4px;
-  font-size: 0.78rem;
+.role-btn-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.role-icon {
+  font-size: 0.85rem;
+}
+
+.role-chevron {
+  font-size: 0.65rem;
+  opacity: 0.7;
+  transition: transform 0.2s ease;
+}
+
+.role-chevron.open {
+  transform: rotate(180deg);
+}
+
+.role-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 1000;
+  min-width: 155px;
+  background: #ffffff;
+  border: 1px solid rgba(45, 106, 79, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  padding: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  animation: dropdownFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.role-dropdown-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #334155;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.role-dropdown-item:hover {
+  background: rgba(45, 106, 79, 0.08);
+  color: #2d6a4f;
+}
+
+.role-dropdown-item.user.active {
   font-weight: 700;
-  border: 1px solid rgba(107, 144, 128, 0.2);
+  color: #2d6a4f;
+  background: rgba(45, 106, 79, 0.12);
+}
+
+.role-dropdown-item.admin.active {
+  font-weight: 700;
+  color: #4f46e5;
+  background: rgba(99, 102, 241, 0.12);
+}
+
+.item-icon {
+  font-size: 0.85rem;
+}
+
+/* ==================== GARDENING LEVEL BADGE ==================== */
+.level-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-width: 110px;
+  padding: 0.4rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid transparent;
   text-transform: capitalize;
+  letter-spacing: 0.2px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+  box-sizing: border-box;
 }
 
 .level-badge.beginner {
-  background: rgba(107, 144, 128, 0.14);
-  border-color: rgba(107, 144, 128, 0.3);
-  color: var(--sage);
+  background: rgba(45, 106, 79, 0.09);
+  border-color: rgba(45, 106, 79, 0.22);
+  color: #2d6a4f;
 }
 
 .level-badge.intermediate {
-  background: rgba(217, 155, 11, 0.14);
-  border-color: rgba(217, 155, 11, 0.3);
-  color: #b47a08;
+  background: rgba(217, 119, 6, 0.09);
+  border-color: rgba(217, 119, 6, 0.25);
+  color: #d97706;
 }
 
 .level-badge.advanced {
-  background: rgba(100, 80, 160, 0.14);
-  border-color: rgba(100, 80, 160, 0.3);
-  color: #6450a0;
+  background: rgba(124, 58, 237, 0.09);
+  border-color: rgba(124, 58, 237, 0.25);
+  color: #7c3aed;
 }
 
+/* ==================== STATUS TOGGLE BADGE ==================== */
 .status-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.35rem 0.8rem;
-  border-radius: 4px;
-  border: 1px solid rgba(107, 144, 128, 0.2);
+  justify-content: center;
+  min-width: 100px;
+  gap: 0.45rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 20px;
+  border: 1px solid transparent;
   cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 700;
-  transition: all var(--transition);
+  font-size: 0.78rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
   font-family: inherit;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+  box-sizing: border-box;
 }
 
 .status-toggle.active {
-  background: rgba(39, 174, 96, 0.14);
-  border-color: rgba(39, 174, 96, 0.35);
-  color: #27ae60;
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #059669;
 }
 
 .status-toggle.suspended {
-  background: rgba(235, 87, 87, 0.14);
-  border-color: rgba(235, 87, 87, 0.35);
-  color: #eb5757;
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #dc2626;
 }
 
 .status-toggle:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .row-suspended {
-  opacity: 0.55;
+  opacity: 0.6;
 }
 
 .action-btns {
   display: flex;
   gap: 0.45rem;
+}
+
+/* ==================== CUSTOM NATIVE SELECT STYLING FOR FILTERS & FORMS ==================== */
+.admin-filters select,
+.filter-group select,
+.admin-modal-form select {
+  padding: 0.45rem 2.2rem 0.45rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid var(--border, #cbd5e1);
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%232d6a4f'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #1e293b;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.admin-filters select:hover,
+.filter-group select:hover,
+.admin-modal-form select:hover {
+  border-color: #2d6a4f;
+}
+
+.admin-filters select:focus,
+.filter-group select:focus,
+.admin-modal-form select:focus {
+  outline: none;
+  border-color: #2d6a4f;
+  box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.15);
 }

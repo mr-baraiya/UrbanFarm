@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../../services/api';
 import { useNotification } from '../../hooks/useNotification';
@@ -17,15 +17,72 @@ import {
   FaEye,
   FaEdit,
   FaPlus,
-  FaImage,
   FaTimes,
   FaThumbsUp,
   FaComments,
   FaCalendarAlt,
   FaUser,
   FaExclamationCircle,
+  FaChevronDown,
 } from 'react-icons/fa';
 import './ContentModeration.css';
+
+const CategoryFilterDropdown = ({ value, onChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const options = [
+    { value: 'all', label: 'All Categories' },
+    { value: 'question', label: 'Question' },
+    { value: 'tip', label: 'Tip' },
+    { value: 'showcase', label: 'Showcase' },
+    { value: 'event', label: 'Event' },
+    { value: 'general', label: 'General' },
+  ];
+
+  const currentLabel = options.find((o) => o.value === value)?.label || 'All Categories';
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div className="custom-admin-dropdown" ref={dropdownRef}>
+      <button
+        type="button"
+        className="custom-dropdown-btn"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span>{currentLabel}</span>
+        <FaChevronDown style={{ fontSize: '0.65rem', marginLeft: '0.4rem', opacity: 0.7 }} />
+      </button>
+
+      {isOpen && (
+        <div className="custom-dropdown-menu">
+          {options.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              className={`custom-dropdown-item ${value === opt.value ? 'active' : ''}`}
+              onClick={() => {
+                onChange(opt.value);
+                setIsOpen(false);
+              }}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const ContentModeration = () => {
   const { t } = useTranslation();
@@ -69,16 +126,18 @@ const ContentModeration = () => {
     return posts.slice(startIdx, startIdx + pageSize);
   }, [posts, currentPage, pageSize]);
 
-  const loadPosts = async () => {
+  const loadPosts = async (overrideSearch, overrideCategory) => {
     setLoading(true);
+    const activeSearch = overrideSearch !== undefined ? overrideSearch : search;
+    const activeCategory = overrideCategory !== undefined ? overrideCategory : categoryFilter;
     try {
       let endpoint;
       if (viewMode === 'flagged') {
         endpoint = '/admin/flagged-posts';
       } else {
         const params = new URLSearchParams();
-        if (search) params.append('search', search);
-        if (categoryFilter !== 'all') params.append('category', categoryFilter);
+        if (activeSearch && activeSearch.trim()) params.append('search', activeSearch.trim());
+        if (activeCategory && activeCategory !== 'all') params.append('category', activeCategory);
         if (viewMode === 'flagged') params.append('flagged', 'true');
         endpoint = `/admin/posts?${params.toString()}`;
       }
@@ -99,9 +158,17 @@ const ContentModeration = () => {
     }
   };
 
+  const handleSearchChange = (e) => {
+    const val = e.target.value;
+    setSearch(val);
+    if (!val.trim()) {
+      loadPosts('');
+    }
+  };
+
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    loadPosts();
+    loadPosts(search);
   };
 
   const validatePost = () => {
@@ -125,37 +192,33 @@ const ContentModeration = () => {
     }
   };
 
-  const handleModerate = async (postId, action) => {
+  const handleApprove = async (id) => {
     try {
-      await api.put(`/admin/posts/${postId}/moderate`, {
-        isApproved: action === 'approve',
-        isFlagged: action === 'flag',
-      });
-      addNotification(
-        action === 'approve'
-          ? t('admin.moderation.approvedSuccess', 'Post approved successfully!')
-          : t('admin.moderation.flaggedSuccess', 'Post flagged successfully!'),
-        'success'
-      );
-      loadPosts();
+      await api.put(`/admin/posts/${id}/approve`);
+      setPosts(posts.map((p) => (p._id === id ? { ...p, isApproved: true, isFlagged: false } : p)));
+      addNotification(t('admin.moderation.approvedSuccess', 'Post approved successfully'), 'success');
     } catch (error) {
-      addNotification(t('admin.moderation.actionFailed', 'Moderation action failed'), 'error');
+      addNotification(t('admin.moderation.approveFailed', 'Failed to approve post'), 'error');
     }
   };
 
-  const handleSaveEditPost = async (e) => {
-    e.preventDefault();
-    if (!editingPost) return;
+  const handleFlag = async (id) => {
     try {
-      await api.put(`/admin/posts/${editingPost._id}/moderate`, {
-        isApproved: editingPost.isApproved,
-        isFlagged: editingPost.isFlagged,
-      });
-      addNotification(t('admin.moderation.updateSuccess', 'Post moderation status updated successfully!'), 'success');
-      setEditingPost(null);
-      loadPosts();
+      await api.put(`/admin/posts/${id}/flag`);
+      setPosts(posts.map((p) => (p._id === id ? { ...p, isFlagged: true } : p)));
+      addNotification(t('admin.moderation.flaggedSuccess', 'Post flagged for review'), 'warning');
     } catch (error) {
-      addNotification(t('admin.moderation.updateFailed', 'Failed to update post'), 'error');
+      addNotification(t('admin.moderation.flagFailed', 'Failed to flag post'), 'error');
+    }
+  };
+
+  const handleUnflag = async (id) => {
+    try {
+      await api.put(`/admin/posts/${id}/unflag`);
+      setPosts(posts.map((p) => (p._id === id ? { ...p, isFlagged: false } : p)));
+      addNotification(t('admin.moderation.unflaggedSuccess', 'Flag removed from post'), 'success');
+    } catch (error) {
+      addNotification(t('admin.moderation.unflagFailed', 'Failed to remove flag'), 'error');
     }
   };
 
@@ -167,21 +230,37 @@ const ContentModeration = () => {
     onConfirm: () => {},
   });
 
-  const promptDeletePost = (postId, postTitle) => {
+  const promptDeletePost = (id, title) => {
     setConfirmConfig({
       isOpen: true,
-      title: t('admin.moderation.deleteTitle', 'Delete Community Post'),
-      message: t('admin.moderation.deleteMsg', 'Are you sure you want to permanently delete post "{{title}}"?', { title: postTitle }),
+      title: t('admin.moderation.deleteConfirm.title', 'Delete Post'),
+      message: t('admin.moderation.deleteConfirm.message', 'Are you sure you want to permanently delete post "{{title}}"?', { title }),
       onConfirm: async () => {
         try {
-          await api.delete(`/admin/posts/${postId}`);
-          addNotification(t('admin.moderation.deleteSuccess', 'Post deleted successfully'), 'success');
-          loadPosts();
+          await api.delete(`/admin/posts/${id}`);
+          setPosts(posts.filter((p) => p._id !== id));
+          addNotification(t('admin.moderation.deleteSuccess', 'Post deleted permanently'), 'success');
         } catch (error) {
           addNotification(t('admin.moderation.deleteFailed', 'Failed to delete post'), 'error');
         }
       },
     });
+  };
+
+  const handleSaveEditPost = async (e) => {
+    e.preventDefault();
+    if (!editingPost) return;
+    try {
+      await api.put(`/admin/posts/${editingPost._id}`, {
+        isApproved: editingPost.isApproved,
+        isFlagged: editingPost.isFlagged,
+      });
+      setPosts(posts.map((p) => (p._id === editingPost._id ? editingPost : p)));
+      addNotification(t('admin.moderation.updateSuccess', 'Post moderation status updated successfully'), 'success');
+      setEditingPost(null);
+    } catch (error) {
+      addNotification(t('admin.moderation.updateFailed', 'Failed to update post status'), 'error');
+    }
   };
 
   const handleExportCSV = async () => {
@@ -190,18 +269,18 @@ const ContentModeration = () => {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', 'urbanfarm_posts_export.csv');
+      link.setAttribute('download', 'urbanfarm_posts.csv');
       document.body.appendChild(link);
       link.click();
       link.remove();
-      addNotification(t('admin.moderation.exportSuccess', 'Posts CSV exported!'), 'success');
+      addNotification(t('admin.moderation.exportSuccess', 'Posts CSV exported successfully!'), 'success');
     } catch (error) {
-      addNotification(t('admin.moderation.exportFailed', 'Failed to export CSV'), 'error');
+      addNotification(t('admin.moderation.exportFailed', 'Failed to export posts CSV'), 'error');
     }
   };
 
   return (
-    <div className="moderation-container">
+    <div className="content-moderation-container">
       <ConfirmModal
         isOpen={confirmConfig.isOpen}
         title={confirmConfig.title}
@@ -211,42 +290,42 @@ const ContentModeration = () => {
       />
       <div className="admin-page-header">
         <div>
-          <h2>{t('admin.moderation.title', 'Content Moderation & Announcement Hub')}</h2>
-          <p>{t('admin.moderation.subtitle', 'Review, create announcements, view, edit, approve, flag, or remove community posts.')}</p>
+          <h2>{t('admin.moderation.title', 'Community Content Moderation')}</h2>
+          <p>{t('admin.moderation.subtitle', 'Review user community posts, manage flags, approve submissions, and create official posts.')}</p>
         </div>
         <div className="admin-header-actions">
-          <button className="admin-btn admin-btn-primary" onClick={() => setShowCreatePostModal(true)}>
-            <FaPlus /> {t('admin.moderation.createAnnouncement', 'Create Announcement / Post')}
-          </button>
           <button className="admin-btn admin-btn-outline" onClick={handleExportCSV}>
             <FaFileCsv /> {t('admin.moderation.exportCSV', 'Export Posts CSV')}
+          </button>
+          <button className="admin-btn admin-btn-primary" onClick={() => setShowCreatePostModal(true)}>
+            <FaPlus /> {t('admin.moderation.createPost', 'Create Post')}
           </button>
         </div>
       </div>
 
-      {/* View Mode Tabs */}
-      <div className="admin-tab-row">
+      {/* View mode tabs */}
+      <div className="admin-tab-row" style={{ margin: '1.25rem 0' }}>
         <button
           className={`admin-tab-btn ${viewMode === 'all' ? 'active' : ''}`}
           onClick={() => setViewMode('all')}
         >
-          <FaEye /> {t('admin.moderation.allPosts', 'All Posts')} ({posts.length})
+          {t('admin.moderation.allPosts', 'All Posts')} ({posts.length})
         </button>
         <button
           className={`admin-tab-btn ${viewMode === 'flagged' ? 'active' : ''}`}
           onClick={() => setViewMode('flagged')}
         >
-          <FaFlag /> {t('admin.moderation.flagged', 'Flagged')}
+          <FaFlag /> {t('admin.moderation.flaggedPosts', 'Flagged')}
         </button>
         <button
           className={`admin-tab-btn ${viewMode === 'pending' ? 'active' : ''}`}
           onClick={() => setViewMode('pending')}
         >
-          <FaShieldAlt /> {t('admin.moderation.pendingReview', 'Pending Review')}
+          <FaShieldAlt /> {t('admin.moderation.pendingApproval', 'Pending Approval')}
         </button>
       </div>
 
-      {/* Filters */}
+      {/* Filter Bar */}
       <div className="admin-filter-bar">
         <form onSubmit={handleSearchSubmit} className="admin-search-box">
           <FaSearch className="search-icon" />
@@ -254,28 +333,27 @@ const ContentModeration = () => {
             type="text"
             placeholder={t('admin.moderation.searchPlaceholder', 'Search posts by title or content...')}
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={handleSearchChange}
+            autoComplete="off"
           />
-          <button type="submit" className="admin-btn admin-btn-sm">{t('common.search', 'Search')}</button>
+          <button type="submit" className="admin-btn admin-btn-sm search-submit-btn">{t('common.search', 'Search')}</button>
         </form>
         <div className="admin-filters">
           <div className="filter-group">
             <FaFilter />
             <label>{t('common.category', 'Category')}:</label>
-            <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
-              <option value="all">{t('admin.moderation.categories.all', 'All Categories')}</option>
-              <option value="question">{t('admin.moderation.categories.question', 'Question')}</option>
-              <option value="tip">{t('admin.moderation.categories.tip', 'Tip')}</option>
-              <option value="showcase">{t('admin.moderation.categories.showcase', 'Showcase')}</option>
-              <option value="event">{t('admin.moderation.categories.event', 'Event')}</option>
-              <option value="general">{t('admin.moderation.categories.general', 'General')}</option>
-            </select>
+            <CategoryFilterDropdown
+              value={categoryFilter}
+              onChange={(val) => {
+                setCategoryFilter(val);
+                loadPosts(undefined, val);
+              }}
+            />
           </div>
-          <button className="admin-btn admin-btn-sm" onClick={loadPosts}>{t('common.filter', 'Apply')}</button>
         </div>
       </div>
 
-      {/* Posts Table */}
+      {/* Table */}
       {loading ? (
         <div className="admin-loading-spinner">{t('admin.moderation.loading', 'Loading posts...')}</div>
       ) : (
@@ -283,95 +361,94 @@ const ContentModeration = () => {
           <table className="admin-data-table">
             <thead>
               <tr>
-                <th>{t('common.title', 'Title')}</th>
+                <th>{t('admin.moderation.thPost', 'Post')}</th>
                 <th>{t('admin.moderation.thAuthor', 'Author')}</th>
                 <th>{t('common.category', 'Category')}</th>
-                <th>{t('common.status', 'Status')}</th>
-                <th>{t('admin.moderation.thLikes', 'Likes')}</th>
-                <th>{t('admin.moderation.thComments', 'Comments')}</th>
-                <th>{t('common.date', 'Date')}</th>
-                <th>{t('common.actions', 'Actions')}</th>
+                <th>{t('admin.moderation.thStatus', 'Status')}</th>
+                <th>{t('admin.moderation.thDate', 'Date')}</th>
+                <th>{t('admin.moderation.thActions', 'Actions')}</th>
               </tr>
             </thead>
             <tbody>
               {posts.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="text-center py-4">
-                    {viewMode === 'flagged'
-                      ? t('admin.moderation.noFlagged', 'No flagged posts. All content is clean!')
-                      : viewMode === 'pending'
-                      ? t('admin.moderation.noPending', 'No posts pending review.')
-                      : t('admin.moderation.noPosts', 'No posts found.')}
-                  </td>
+                  <td colSpan="6" className="text-center py-4">{t('admin.moderation.noPosts', 'No posts found.')}</td>
                 </tr>
               ) : (
                 paginatedPosts.map((post) => (
                   <tr key={post._id} className={post.isFlagged ? 'row-flagged' : ''}>
-                    <td>
-                      <div className="post-title-cell">
-                        {post.imageUrl && <FaImage className="post-has-image" />}
-                        <strong>{post.title}</strong>
+                    <td data-label={t('admin.moderation.thPost', 'Post')}>
+                      <div className="td-cell-content">
+                        <div className="post-title-cell">
+                          <strong>{post.title}</strong>
+                          <small>{post.content.length > 60 ? post.content.substring(0, 60) + '...' : post.content}</small>
+                        </div>
                       </div>
                     </td>
-                    <td>
-                      <small>{post.userId?.name || t('admin.moderation.adminSystem', 'Admin / System')}</small>
-                      <br />
-                      <small className="text-muted">{post.userId?.email || ''}</small>
+                    <td data-label={t('admin.moderation.thAuthor', 'Author')}>
+                      <div className="td-cell-content">
+                        {post.userId?.name || t('admin.moderation.anonymous', 'Anonymous')}
+                      </div>
                     </td>
-                    <td>
-                      <span className={`category-tag ${post.category}`}>{t(`admin.moderation.categories.${post.category}`, post.category)}</span>
+                    <td data-label={t('common.category', 'Category')}>
+                      <div className="td-cell-content">
+                        <span className={`category-tag ${post.category}`}>{post.category}</span>
+                      </div>
                     </td>
-                    <td>
-                      {post.isFlagged ? (
-                        <span className="mod-status-badge flagged"><FaFlag /> {t('admin.moderation.flagged', 'Flagged')}</span>
-                      ) : post.isApproved ? (
-                        <span className="mod-status-badge approved"><FaCheck /> {t('admin.moderation.approved', 'Approved')}</span>
-                      ) : (
-                        <span className="mod-status-badge pending">{t('admin.moderation.pending', 'Pending')}</span>
-                      )}
+                    <td data-label={t('admin.moderation.thStatus', 'Status')}>
+                      <div className="td-cell-content">
+                        {post.isFlagged ? (
+                          <span className="mod-status-badge flagged"><FaFlag /> {t('admin.moderation.flagged', 'Flagged')}</span>
+                        ) : post.isApproved ? (
+                          <span className="mod-status-badge approved"><FaCheck /> {t('admin.moderation.approved', 'Approved')}</span>
+                        ) : (
+                          <span className="mod-status-badge pending">{t('admin.moderation.pending', 'Pending')}</span>
+                        )}
+                      </div>
                     </td>
-                    <td>{post.likes?.length || 0}</td>
-                    <td>{post.comments?.length || 0}</td>
-                    <td><small>{new Date(post.createdAt).toLocaleDateString()}</small></td>
-                    <td>
+                    <td data-label={t('admin.moderation.thDate', 'Date')}>
+                      <div className="td-cell-content">
+                        <small>{new Date(post.createdAt).toLocaleDateString()}</small>
+                      </div>
+                    </td>
+                    <td data-label={t('admin.moderation.thActions', 'Actions')}>
                       <div className="action-btns">
                         <button
                           className="admin-action-icon approve"
-                          title={t('admin.moderation.viewDetails', 'View Full Post Details')}
+                          title={t('admin.moderation.viewPost', 'View Full Post')}
                           onClick={() => setViewingPost(post)}
                         >
                           <FaEye />
                         </button>
                         <button
                           className="admin-action-icon edit"
-                          title={t('admin.moderation.editPost', 'Edit / Moderate Post')}
-                          onClick={() => setEditingPost({ ...post })}
+                          title={t('admin.moderation.editStatus', 'Edit Moderation Status')}
+                          onClick={() => setEditingPost(post)}
                         >
                           <FaEdit />
                         </button>
-                        {!post.isApproved && !post.isFlagged && (
+                        {!post.isApproved && (
                           <button
                             className="admin-action-icon approve"
                             title={t('admin.moderation.approvePost', 'Approve Post')}
-                            onClick={() => handleModerate(post._id, 'approve')}
+                            onClick={() => handleApprove(post._id)}
                           >
                             <FaCheck />
                           </button>
                         )}
-                        {post.isFlagged && (
+                        {post.isFlagged ? (
                           <button
-                            className="admin-action-icon approve"
-                            title={t('admin.moderation.unflagApprove', 'Unflag & Approve')}
-                            onClick={() => handleModerate(post._id, 'approve')}
+                            className="admin-action-icon unflag"
+                            title={t('admin.moderation.removeFlag', 'Remove Flag')}
+                            onClick={() => handleUnflag(post._id)}
                           >
                             <FaUndoAlt />
                           </button>
-                        )}
-                        {!post.isFlagged && (
+                        ) : (
                           <button
-                            className="admin-action-icon warn"
+                            className="admin-action-icon flag"
                             title={t('admin.moderation.flagPost', 'Flag Post')}
-                            onClick={() => handleModerate(post._id, 'flag')}
+                            onClick={() => handleFlag(post._id)}
                           >
                             <FaFlag />
                           </button>
@@ -401,22 +478,22 @@ const ContentModeration = () => {
         </div>
       )}
 
-      {/* Create New Post Modal */}
+      {/* Create Post Modal */}
       {showCreatePostModal && (
         <div className="admin-modal-overlay" onClick={() => setShowCreatePostModal(false)}>
           <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
             <div className="admin-modal-header">
-              <h3><FaPlus /> {t('admin.moderation.createModalTitle', 'Create Community Announcement')}</h3>
+              <h3><FaPlus /> {t('admin.moderation.createModalTitle', 'Create Official Community Post')}</h3>
               <button className="modal-close" onClick={() => setShowCreatePostModal(false)}>
                 <FaTimes />
               </button>
             </div>
             <form onSubmit={handleCreatePost} className="admin-modal-form" noValidate>
               <div className="form-group">
-                <label>{t('admin.moderation.announcementTitle', 'Announcement Title')} <span className="required">*</span></label>
+                <label>{t('admin.moderation.titleLabel', 'Post Title')} <span className="required">*</span></label>
                 <input
                   type="text"
-                  placeholder={t('admin.moderation.titlePlaceholder', 'e.g. Spring Seed Swap Announcement')}
+                  placeholder={t('admin.moderation.titlePlaceholder', 'e.g. Spring Planting Guide & Community Contest')}
                   value={newPost.title}
                   onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
                   className={postErrors.title ? 'input-error' : ''}
@@ -439,28 +516,10 @@ const ContentModeration = () => {
               </div>
 
               <div className="form-group">
-                <label>{t('admin.moderation.imageUrl', 'Image URL (Optional)')}</label>
-                <input
-                  type="url"
-                  placeholder="https://example.com/image.jpg"
-                  value={newPost.imageUrl}
-                  onChange={(e) => setNewPost({ ...newPost, imageUrl: e.target.value })}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>{t('admin.moderation.contentText', 'Content Text')} <span className="required">*</span></label>
+                <label>{t('admin.moderation.contentLabel', 'Post Content')} <span className="required">*</span></label>
                 <textarea
-                  style={{
-                    padding: '0.65rem',
-                    borderRadius: 'var(--radius-sm)',
-                    border: '1px solid var(--border)',
-                    background: 'var(--surface)',
-                    color: 'var(--text)',
-                    minHeight: '100px',
-                    fontFamily: 'inherit'
-                  }}
-                  placeholder={t('admin.moderation.contentPlaceholder', 'Write post content here...')}
+                  rows="4"
+                  placeholder={t('admin.moderation.contentPlaceholder', 'Write announcement or community update text...')}
                   value={newPost.content}
                   onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
                   className={postErrors.content ? 'input-error' : ''}
@@ -468,12 +527,24 @@ const ContentModeration = () => {
                 {postErrors.content && <span className="error-text"><FaExclamationCircle /> {postErrors.content}</span>}
               </div>
 
+              <div className="form-group">
+                <label>{t('admin.moderation.imageLabel', 'Cover Image URL (Optional)')}</label>
+                <input
+                  type="url"
+                  placeholder="https://images.unsplash.com/..."
+                  value={newPost.imageUrl}
+                  onChange={(e) => setNewPost({ ...newPost, imageUrl: e.target.value })}
+                  className={postErrors.imageUrl ? 'input-error' : ''}
+                />
+                {postErrors.imageUrl && <span className="error-text"><FaExclamationCircle /> {postErrors.imageUrl}</span>}
+              </div>
+
               <div className="admin-modal-footer">
                 <button type="button" className="admin-btn admin-btn-outline" onClick={() => setShowCreatePostModal(false)}>
                   {t('common.cancel', 'Cancel')}
                 </button>
                 <button type="submit" className="admin-btn admin-btn-primary">
-                  <FaCheck /> {t('admin.moderation.publishAnnouncement', 'Publish Announcement')}
+                  <FaCheck /> {t('admin.moderation.publishPost', 'Publish Post')}
                 </button>
               </div>
             </form>
@@ -484,64 +555,59 @@ const ContentModeration = () => {
       {/* View Post Modal */}
       {viewingPost && (
         <div className="admin-modal-overlay" onClick={() => setViewingPost(null)}>
-          <div className="admin-modal" style={{ maxWidth: '560px', maxHeight: '84vh', display: 'flex', flexDirection: 'column' }} onClick={(e) => e.stopPropagation()}>
-            <div className="admin-modal-header" style={{ padding: '0.85rem 1.25rem' }}>
-              <h3 style={{ fontSize: '1.05rem' }}><FaEye /> {t('admin.moderation.previewTitle', 'Community Post Preview')}</h3>
+          <div className="admin-modal admin-post-preview-modal" style={{ maxWidth: '680px' }} onClick={(e) => e.stopPropagation()}>
+            <div className="admin-modal-header" style={{ padding: '1rem 1.4rem' }}>
+              <h3><FaEye /> {t('admin.moderation.previewTitle', 'Community Post Preview')}</h3>
               <button className="modal-close" onClick={() => setViewingPost(null)}>
                 <FaTimes />
               </button>
             </div>
-            <div className="admin-modal-form" style={{ padding: '0.9rem 1.25rem', gap: '0.65rem', overflowY: 'auto', flex: 1 }}>
+            <div className="admin-modal-form" style={{ padding: '1.2rem', gap: '0.85rem' }}>
               <div>
-                <span className={`category-tag ${viewingPost.category}`} style={{ marginBottom: '0.25rem', display: 'inline-block', fontSize: '0.72rem', padding: '0.15rem 0.5rem' }}>
-                  {t(`admin.moderation.categories.${viewingPost.category}`, viewingPost.category).toUpperCase()}
+                <span className={`category-tag ${viewingPost.category}`} style={{ marginBottom: '0.35rem' }}>
+                  {viewingPost.category.toUpperCase()}
                 </span>
-                <h4 style={{ margin: '0.1rem 0', fontSize: '1.1rem', color: 'var(--text)' }}>{viewingPost.title}</h4>
-                <div style={{ display: 'flex', gap: '1rem', fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
+                <h4 style={{ margin: '0.15rem 0', fontSize: '1.2rem', color: 'var(--text)', wordBreak: 'break-word' }}>{viewingPost.title}</h4>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem 1rem', fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
                   <span><FaUser /> {viewingPost.userId?.name || t('admin.moderation.anonymous', 'Anonymous')} ({viewingPost.userId?.email || 'N/A'})</span>
                   <span><FaCalendarAlt /> {new Date(viewingPost.createdAt).toLocaleString()}</span>
                 </div>
               </div>
 
               {viewingPost.imageUrl && (
-                <div style={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', height: '140px', maxHeight: '140px', border: '1px solid var(--border)' }}>
-                  <img src={viewingPost.imageUrl} alt={viewingPost.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <div className="admin-post-preview-img-wrapper">
+                  <img
+                    src={viewingPost.imageUrl}
+                    alt={viewingPost.title}
+                    className="admin-post-preview-img"
+                  />
                 </div>
               )}
 
               <div style={{
-                padding: '0.65rem 0.85rem',
+                padding: '0.75rem 1rem',
                 background: 'var(--surface)',
                 borderRadius: 'var(--radius-md)',
                 border: '1px solid var(--border)',
-                lineHeight: '1.45',
-                fontSize: '0.84rem',
-                maxHeight: '90px',
+                lineHeight: '1.5',
+                fontSize: '0.88rem',
+                maxHeight: '140px',
                 overflowY: 'auto'
               }}>
                 {viewingPost.content}
               </div>
 
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr 1fr',
-                gap: '0.5rem',
-                padding: '0.45rem 0.65rem',
-                background: 'var(--surface)',
-                borderRadius: 'var(--radius-sm)',
-                border: '1px solid var(--border)',
-                textAlign: 'center'
-              }}>
+              <div className="admin-post-preview-stats">
                 <div>
-                  <label style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '2px' }}>{t('admin.moderation.labelLikes', 'LIKES')}</label>
-                  <strong style={{ fontSize: '0.88rem' }}><FaThumbsUp style={{ color: 'var(--sage)' }} /> {viewingPost.likes?.length || 0}</strong>
+                  <label>{t('admin.moderation.labelLikes', 'LIKES')}</label>
+                  <strong><FaThumbsUp style={{ color: 'var(--sage)' }} /> {viewingPost.likes?.length || 0}</strong>
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '2px' }}>{t('admin.moderation.labelComments', 'COMMENTS')}</label>
-                  <strong style={{ fontSize: '0.88rem' }}><FaComments style={{ color: 'var(--accent)' }} /> {viewingPost.comments?.length || 0}</strong>
+                  <label>{t('admin.moderation.labelComments', 'COMMENTS')}</label>
+                  <strong><FaComments style={{ color: 'var(--accent)' }} /> {viewingPost.comments?.length || 0}</strong>
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '2px' }}>{t('admin.moderation.labelModStatus', 'MODERATION STATUS')}</label>
+                  <label>{t('admin.moderation.labelModStatus', 'MODERATION STATUS')}</label>
                   {viewingPost.isFlagged ? (
                     <span className="mod-status-badge flagged" style={{ padding: '0.15rem 0.5rem', fontSize: '0.72rem' }}><FaFlag /> {t('admin.moderation.flagged', 'Flagged')}</span>
                   ) : viewingPost.isApproved ? (

@@ -5,20 +5,36 @@
 }
 
 .lead-subject-tag {
-  display: inline-block;
-  padding: 0.25rem 0.65rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 195px;
+  min-width: 195px;
+  max-width: 195px;
+  padding: 0.35rem 0.5rem;
   background: rgba(107, 144, 128, 0.14);
   border: 1px solid rgba(107, 144, 128, 0.25);
   color: var(--sage);
-  border-radius: 4px;
-  font-size: 0.8rem;
+  border-radius: 6px;
+  font-size: 0.76rem;
   font-weight: 700;
+  box-sizing: border-box;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .lead-status-select {
-  padding: 0.35rem 0.85rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 135px;
+  min-width: 135px;
+  max-width: 135px;
+  padding: 0.35rem 1.6rem 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
   font-weight: 700;
   border: 1.5px solid rgba(107, 144, 128, 0.25);
   outline: none;
@@ -33,7 +49,8 @@
   background-repeat: no-repeat;
   background-position: right 0.6rem center;
   background-size: 0.6em;
-  padding-right: 1.6rem;
+  text-align: center;
+  box-sizing: border-box;
 }
 
 .lead-status-select.new {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../../services/api';
 import { useNotification } from '../../hooks/useNotification';
@@ -8,7 +8,6 @@ import {
   FaAddressBook,
   FaSearch,
   FaTrash,
-  FaCheck,
   FaFilter,
   FaEnvelope,
   FaPhone,
@@ -18,9 +17,122 @@ import {
   FaExclamationCircle,
   FaFileCsv,
   FaSync,
+  FaChevronDown,
+  FaCheck,
 } from 'react-icons/fa';
 import AdminPagination from './AdminPagination';
 import './AdminGuestLeads.css';
+
+const LeadStatusFilterDropdown = ({ value, onChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const options = [
+    { value: 'all', label: 'All Statuses' },
+    { value: 'new', label: 'New Inquiry' },
+    { value: 'contacted', label: 'Contacted' },
+    { value: 'resolved', label: 'Resolved' },
+    { value: 'archived', label: 'Archived' },
+  ];
+
+  const currentLabel = options.find((o) => o.value === value)?.label || 'All Statuses';
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div className="custom-admin-dropdown" ref={dropdownRef}>
+      <button
+        type="button"
+        className="custom-dropdown-btn"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span>{currentLabel}</span>
+        <FaChevronDown style={{ fontSize: '0.65rem', marginLeft: '0.4rem', opacity: 0.7 }} />
+      </button>
+
+      {isOpen && (
+        <div className="custom-dropdown-menu">
+          {options.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              className={`custom-dropdown-item ${value === opt.value ? 'active' : ''}`}
+              onClick={() => {
+                onChange(opt.value);
+                setIsOpen(false);
+              }}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const LeadStatusTableDropdown = ({ leadId, currentStatus, onStatusChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const options = [
+    { value: 'new', label: 'New Inquiry' },
+    { value: 'contacted', label: 'Contacted' },
+    { value: 'resolved', label: 'Resolved' },
+    { value: 'archived', label: 'Archived' },
+  ];
+
+  const currentLabel = options.find((o) => o.value === currentStatus)?.label || currentStatus;
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div className="custom-admin-dropdown" ref={dropdownRef}>
+      <button
+        type="button"
+        className={`lead-status-select ${currentStatus}`}
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span>{currentLabel}</span>
+        <FaChevronDown style={{ fontSize: '0.65rem', marginLeft: '0.35rem', opacity: 0.8 }} />
+      </button>
+
+      {isOpen && (
+        <div className="custom-dropdown-menu">
+          {options.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              className={`custom-dropdown-item ${opt.value} ${currentStatus === opt.value ? 'active' : ''}`}
+              onClick={() => {
+                if (currentStatus !== opt.value) onStatusChange(leadId, opt.value);
+                setIsOpen(false);
+              }}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const AdminGuestLeads = () => {
   const { t, i18n } = useTranslation();
@@ -111,11 +223,12 @@ const AdminGuestLeads = () => {
     return leads.slice(startIdx, startIdx + pageSize);
   }, [leads, currentPage, pageSize]);
 
-  const loadLeads = async () => {
+  const loadLeads = async (overrideSearch) => {
     setLoading(true);
     try {
+      const activeSearch = overrideSearch !== undefined ? overrideSearch : search;
       const params = new URLSearchParams();
-      if (search) params.append('search', search);
+      if (activeSearch && activeSearch.trim()) params.append('search', activeSearch.trim());
       if (statusFilter !== 'all') params.append('status', statusFilter);
       params.append('_t', Date.now()); // Prevent stale browser caching
 
@@ -129,9 +242,17 @@ const AdminGuestLeads = () => {
     }
   };
 
+  const handleSearchChange = (e) => {
+    const val = e.target.value;
+    setSearch(val);
+    if (!val.trim()) {
+      loadLeads('');
+    }
+  };
+
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    loadLeads();
+    loadLeads(search);
   };
 
   const validateLead = () => {
@@ -163,11 +284,9 @@ const AdminGuestLeads = () => {
   };
 
   const handleStatusChange = async (id, newStatus) => {
-    // 1. Snapshot previous state for rollback on error
     const previousLeads = [...leads];
     const previousSelected = selectedLead;
 
-    // 2. Optimistically update local state immediately so user sees the change without any delay
     setLeads((prevLeads) =>
       prevLeads.map((lead) =>
         lead._id === id ? { ...lead, status: newStatus } : lead
@@ -179,8 +298,6 @@ const AdminGuestLeads = () => {
 
     try {
       const res = await api.put(`/admin/leads/${id}`, { status: newStatus });
-
-      // If server returned the updated lead, merge it to ensure consistency
       if (res.data?.lead) {
         const serverLead = res.data.lead;
         setLeads((prevLeads) =>
@@ -200,7 +317,6 @@ const AdminGuestLeads = () => {
         'success'
       );
     } catch (error) {
-      // Revert to snapshot on failure
       setLeads(previousLeads);
       if (previousSelected && previousSelected._id === id) {
         setSelectedLead(previousSelected);
@@ -223,7 +339,6 @@ const AdminGuestLeads = () => {
       title: t('admin.leads.deleteConfirm.title', 'Delete Guest Inquiry'),
       message: t('admin.leads.deleteConfirm.message', 'Are you sure you want to permanently delete lead from "{{name}}"?', { name }),
       onConfirm: async () => {
-        // Optimistically remove from state
         const previousLeads = [...leads];
         setLeads((prev) => prev.filter((lead) => lead._id !== id));
         if (selectedLead && selectedLead._id === id) setSelectedLead(null);
@@ -313,23 +428,17 @@ const AdminGuestLeads = () => {
             type="text"
             placeholder={t('admin.leads.searchPlaceholder', 'Search leads by name, email, subject or content...')}
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={handleSearchChange}
+            autoComplete="off"
           />
-          <button type="submit" className="admin-btn admin-btn-sm">{t('common.search', 'Search')}</button>
+          <button type="submit" className="admin-btn admin-btn-sm search-submit-btn">{t('common.search', 'Search')}</button>
         </form>
         <div className="admin-filters">
           <div className="filter-group">
             <FaFilter />
             <label>{t('admin.leads.statusFilter', 'Status:')}</label>
-            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-              <option value="all">{t('admin.leads.statuses.all', 'All Statuses')}</option>
-              <option value="new">{t('admin.leads.statuses.new', 'New')}</option>
-              <option value="contacted">{t('admin.leads.statuses.contacted', 'Contacted')}</option>
-              <option value="resolved">{t('admin.leads.statuses.resolved', 'Resolved')}</option>
-              <option value="archived">{t('admin.leads.statuses.archived', 'Archived')}</option>
-            </select>
+            <LeadStatusFilterDropdown value={statusFilter} onChange={(val) => setStatusFilter(val)} />
           </div>
-          <button className="admin-btn admin-btn-sm" onClick={loadLeads}>{t('admin.leads.applyFilter', 'Apply')}</button>
         </div>
       </div>
 
@@ -357,30 +466,37 @@ const AdminGuestLeads = () => {
               ) : (
                 paginatedLeads.map((lead) => (
                   <tr key={lead._id} className={`lead-row-${lead.status}`}>
-                    <td>
-                      <strong>{lead.name}</strong>
+                    <td data-label={t('admin.leads.thSender', 'Sender')}>
+                      <div className="td-cell-content">
+                        <strong>{lead.name}</strong>
+                      </div>
                     </td>
-                    <td>
-                      <small><FaEnvelope /> {lead.email}</small>
-                      {lead.phone && <><br /><small><FaPhone /> {lead.phone}</small></>}
+                    <td data-label={t('admin.leads.thContact', 'Contact')}>
+                      <div className="td-cell-content">
+                        <small><FaEnvelope /> {lead.email}</small>
+                        {lead.phone && <small style={{ marginTop: '0.15rem' }}><FaPhone /> {lead.phone}</small>}
+                      </div>
                     </td>
-                    <td>
-                      <span className="lead-subject-tag">{getSubjectLabel(lead.subject)}</span>
+                    <td data-label={t('admin.leads.thSubject', 'Subject')}>
+                      <div className="td-cell-content">
+                        <span className="lead-subject-tag">{getSubjectLabel(lead.subject)}</span>
+                      </div>
                     </td>
-                    <td>
-                      <select
-                        value={lead.status}
-                        onChange={(e) => handleStatusChange(lead._id, e.target.value)}
-                        className={`lead-status-select ${lead.status}`}
-                      >
-                        <option value="new">{t('admin.leads.statuses.newInquiry', 'New Inquiry')}</option>
-                        <option value="contacted">{t('admin.leads.statuses.contacted', 'Contacted')}</option>
-                        <option value="resolved">{t('admin.leads.statuses.resolved', 'Resolved')}</option>
-                        <option value="archived">{t('admin.leads.statuses.archived', 'Archived')}</option>
-                      </select>
+                    <td data-label={t('admin.leads.thStatus', 'Status')}>
+                      <div className="td-cell-content">
+                        <LeadStatusTableDropdown
+                          leadId={lead._id}
+                          currentStatus={lead.status}
+                          onStatusChange={handleStatusChange}
+                        />
+                      </div>
                     </td>
-                    <td><small>{formatDate(lead.createdAt)}</small></td>
-                    <td>
+                    <td data-label={t('admin.leads.thDateReceived', 'Date Received')}>
+                      <div className="td-cell-content">
+                        <small>{formatDate(lead.createdAt)}</small>
+                      </div>
+                    </td>
+                    <td data-label={t('admin.leads.thActions', 'Actions')}>
                       <div className="action-btns">
                         <button
                           className="admin-action-icon approve"
@@ -454,10 +570,12 @@ const AdminGuestLeads = () => {
                   <label>{t('admin.leads.createModal.phone', 'Phone Number (Optional)')}</label>
                   <input
                     type="tel"
-                    placeholder={t('admin.leads.createModal.phonePlaceholder', 'e.g. +1 (555) 000-1234')}
+                    placeholder={t('admin.leads.createModal.phonePlaceholder', 'e.g. +91 9876543210')}
                     value={newLead.phone}
                     onChange={(e) => setNewLead({ ...newLead, phone: e.target.value })}
+                    className={leadErrors.phone ? 'input-error' : ''}
                   />
+                  {leadErrors.phone && <span className="error-text"><FaExclamationCircle /> {leadErrors.phone}</span>}
                 </div>
               </div>
 

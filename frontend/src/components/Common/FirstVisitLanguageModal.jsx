@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaLeaf, FaGlobe } from 'react-icons/fa';
+import { FaLeaf, FaGlobe, FaInfoCircle } from 'react-icons/fa';
 import './FirstVisitLanguageModal.css';
 
 const LANGUAGES = [
@@ -58,6 +58,24 @@ const FirstVisitLanguageModal = () => {
               <FaGlobe className="lang-option-arrow" />
             </button>
           ))}
+        </div>
+
+        <div className="lang-modal-footer-note">
+          <div className="lang-note-header">
+            <FaInfoCircle className="lang-note-icon" />
+            <span>Note / નોંધ / नोट</span>
+          </div>
+          <div className="lang-note-messages">
+            <p className="lang-note-text">
+              <span className="lang-note-bullet">•</span> You can change the language anytime at the very bottom of the website.
+            </p>
+            <p className="lang-note-text">
+              <span className="lang-note-bullet">•</span> તમે કોઈપણ સમયે વેબસાઇટની સૌથી નીચેથી (છેલ્લેથી) ભાષા બદલી શકો છો.
+            </p>
+            <p className="lang-note-text">
+              <span className="lang-note-bullet">•</span> आप किसी भी समय वेबसाइट के सबसे नीचे जाकर भाषा बदल सकते हैं।
+            </p>
+          </div>
         </div>
       </div>
     </div>

@@ -9,8 +9,7 @@ module.exports = {
   },
   gemini: {
     apiKey: process.env.GEMINI_API_KEY,
-    // ✅ Update to gemini-3.6-flash
-    model: 'gemini-3.6-flash',  // <-- CHANGED HERE
+    model: 'gemini-2.0-flash',
     baseUrl: 'https://generativelanguage.googleapis.com/v1beta/models',
   },
   openweather: {

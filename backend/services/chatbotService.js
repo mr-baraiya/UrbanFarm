@@ -262,12 +262,12 @@ ${langRequirement}`;
     parts: [{ text: userMessageWithLang }]
   });
 
-  // Candidate models in priority order: configured model, gemini-3.6-flash, gemini-3.8-flash, gemini-flash-latest
+  // Candidate models in priority order: configured model, gemini-2.0-flash, gemini-1.5-flash, gemini-1.5-pro
   const candidateModels = Array.from(new Set([
     aiConfig.gemini?.model,
-    'gemini-3.6-flash',
-    'gemini-3.8-flash',
-    'gemini-flash-latest'
+    'gemini-2.0-flash',
+    'gemini-1.5-flash',
+    'gemini-1.5-pro'
   ])).filter(Boolean);
 
   const payload = {
@@ -293,19 +293,20 @@ ${langRequirement}`;
       try {
         const response = await axios.post(url, payload, {
           headers: { 'Content-Type': 'application/json' },
-          timeout: 10000 // 10 second timeout
+          timeout: 6000 // 6 second max per attempt
         });
 
         rawResponseText = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
         if (rawResponseText) break;
       } catch (err) {
-        console.warn(`[KrishiAI] Gemini (${modelCandidate}) attempt ${attempt} failed: ${err.response?.status || err.message}`);
-        // If 429 quota or 404, don't waste 2nd retry on same model; break to try next candidate model immediately
-        if (err.response?.status === 429 || err.response?.status === 404) {
+        const status = err.response?.status;
+        console.warn(`[KrishiAI] Gemini (${modelCandidate}) attempt ${attempt} failed: ${status || err.message}`);
+        // If 503 unavailable, 429 quota, 404 not found, or 400 bad payload, skip to next model immediately
+        if (status === 503 || status === 429 || status === 404 || status === 400) {
           break;
         }
         if (attempt < 2) {
-          await new Promise(r => setTimeout(r, 800));
+          await new Promise(r => setTimeout(r, 400));
         }
       }
     }

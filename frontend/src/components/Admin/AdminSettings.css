@@ -2,12 +2,16 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .admin-settings-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   gap: 1.5rem;
+  width: 100%;
 }
 
 .service-health-list {
@@ -25,23 +29,29 @@
   background: var(--surface-strong);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
+  gap: 0.75rem;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 .service-info {
   display: flex;
   align-items: center;
   gap: 0.85rem;
+  min-width: 0;
 }
 
 .service-info strong {
   display: block;
   color: var(--text);
   font-size: 0.88rem;
+  word-break: break-word;
 }
 
 .service-icon {
   font-size: 1.2rem;
   color: var(--sage);
+  flex-shrink: 0;
 }
 
 .service-latency {
@@ -60,6 +70,7 @@
   background: rgba(107, 144, 128, 0.1);
   padding: 0.3rem 0.7rem;
   border-radius: 20px;
+  flex-shrink: 0;
 }
 
 .backup-actions {
@@ -230,4 +241,20 @@
   cursor: not-allowed;
 }
 
+@media (max-width: 640px) {
+  .admin-settings-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 
+  .service-health-item {
+    flex-direction: flex-start;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .service-status.active {
+    align-self: flex-start;
+  }
+}

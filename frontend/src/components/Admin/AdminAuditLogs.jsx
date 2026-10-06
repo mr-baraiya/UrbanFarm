@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../../services/api';
 import { useNotification } from '../../hooks/useNotification';
@@ -7,26 +7,104 @@ import {
   FaSearch,
   FaFileCsv,
   FaClock,
+  FaFilter,
+  FaChevronDown,
 } from 'react-icons/fa';
 import './AdminAuditLogs.css';
 
-const ACTION_COLORS = {
-  create_user: 'green',
-  update_user: 'blue',
-  update_user_role: 'purple',
-  delete_user: 'red',
-  delete_garden: 'red',
-  delete_plant: 'red',
-  delete_post: 'red',
-  moderate_post: 'orange',
-  export_users_csv: 'teal',
-  export_gardens_csv: 'teal',
-  export_plants_csv: 'teal',
-  export_posts_csv: 'teal',
-  export_logs_csv: 'teal',
-  update_contact_lead: 'blue',
-  delete_contact_lead: 'red',
-  create_contact_lead: 'green',
+const ACTION_LABELS = {
+  create_user: { label: 'Created User', color: 'green' },
+  update_user: { label: 'Updated User', color: 'blue' },
+  update_user_role: { label: 'Changed Role', color: 'purple' },
+  delete_user: { label: 'Deleted User', color: 'red' },
+  create_garden: { label: 'Created Garden', color: 'green' },
+  update_garden: { label: 'Updated Garden', color: 'blue' },
+  delete_garden: { label: 'Deleted Garden', color: 'red' },
+  create_plant: { label: 'Added Plant', color: 'green' },
+  update_plant: { label: 'Updated Plant', color: 'blue' },
+  delete_plant: { label: 'Deleted Plant', color: 'red' },
+  create_post: { label: 'Published Post', color: 'green' },
+  moderate_post: { label: 'Moderated Post', color: 'orange' },
+  delete_post: { label: 'Deleted Post', color: 'red' },
+  create_contact_lead: { label: 'New Guest Lead', color: 'green' },
+  update_contact_lead: { label: 'Updated Inquiry', color: 'blue' },
+  delete_contact_lead: { label: 'Deleted Inquiry', color: 'red' },
+  export_users_csv: { label: 'Exported Users CSV', color: 'teal' },
+  export_gardens_csv: { label: 'Exported Gardens CSV', color: 'teal' },
+  export_plants_csv: { label: 'Exported Plants CSV', color: 'teal' },
+  export_posts_csv: { label: 'Exported Posts CSV', color: 'teal' },
+  export_logs_csv: { label: 'Exported Logs CSV', color: 'teal' },
+};
+
+const TARGET_MAP = {
+  contact_lead: 'Guest Inquiry',
+  lead: 'Guest Inquiry',
+  user: 'User Account',
+  post: 'Community Post',
+  garden: 'Garden Space',
+  plant: 'Plant Record',
+  system: 'System Service',
+  diagnosis: 'AI Diagnosis',
+};
+
+const ActionCategoryDropdown = ({ value, onChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const options = [
+    { value: 'all', label: 'All Actions' },
+    { value: 'user', label: 'User Actions' },
+    { value: 'role', label: 'Role Updates' },
+    { value: 'contact', label: 'Guest Lead Inquiries' },
+    { value: 'garden', label: 'Garden Operations' },
+    { value: 'plant', label: 'Plant Inventory' },
+    { value: 'post', label: 'Community Moderation' },
+    { value: 'export', label: 'CSV Data Exports' },
+    { value: 'delete', label: 'System Deletions' },
+  ];
+
+  const currentLabel = options.find((o) => o.value === value)?.label || 'All Actions';
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div className="custom-admin-dropdown" ref={dropdownRef}>
+      <button
+        type="button"
+        className="custom-dropdown-btn"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span>{currentLabel}</span>
+        <FaChevronDown style={{ fontSize: '0.65rem', marginLeft: '0.4rem', opacity: 0.7 }} />
+      </button>
+
+      {isOpen && (
+        <div className="custom-dropdown-menu">
+          {options.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              className={`custom-dropdown-item ${value === opt.value ? 'active' : ''}`}
+              onClick={() => {
+                onChange(opt.value);
+                setIsOpen(false);
+              }}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 };
 
 const AdminAuditLogs = () => {
@@ -81,51 +159,38 @@ const AdminAuditLogs = () => {
 
   const filteredLogs = useMemo(() => {
     return logs.filter((log) => {
-      const matchesAction = filterAction === 'all' || (log.action && log.action.includes(filterAction));
-      const adminEmail = log.adminId?.email || 'System';
-      const adminName = log.adminId?.name || '';
       const matchesSearch =
         search === '' ||
-        adminEmail.toLowerCase().includes(search.toLowerCase()) ||
-        adminName.toLowerCase().includes(search.toLowerCase()) ||
-        (log.action && log.action.toLowerCase().includes(search.toLowerCase())) ||
-        (log.targetType && log.targetType.toLowerCase().includes(search.toLowerCase()));
-      return matchesAction && matchesSearch;
+        (log.adminId?.email && log.adminId.email.toLowerCase().includes(search.toLowerCase())) ||
+        (log.adminId?.name && log.adminId.name.toLowerCase().includes(search.toLowerCase())) ||
+        log.action.toLowerCase().includes(search.toLowerCase()) ||
+        log.targetType.toLowerCase().includes(search.toLowerCase()) ||
+        (log.targetId && String(log.targetId).toLowerCase().includes(search.toLowerCase()));
+
+      if (!matchesSearch) return false;
+
+      if (filterAction === 'all') return true;
+      if (filterAction === 'user') return log.action.includes('user') && !log.action.includes('role');
+      if (filterAction === 'role') return log.action.includes('role');
+      if (filterAction === 'contact') return log.action.includes('contact_lead');
+      if (filterAction === 'garden') return log.action.includes('garden');
+      if (filterAction === 'plant') return log.action.includes('plant');
+      if (filterAction === 'post') return log.action.includes('post');
+      if (filterAction === 'export') return log.action.includes('export');
+      if (filterAction === 'delete') return log.action.includes('delete');
+
+      return true;
     });
-  }, [logs, filterAction, search]);
+  }, [logs, search, filterAction]);
 
-  // Pagination Calculations
   const totalLogs = filteredLogs.length;
-  const totalPages = Math.max(1, Math.ceil(totalLogs / pageSize));
-
-  // Auto-adjust currentPage if filtered results shrink
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
-    }
-  }, [totalPages, currentPage]);
-
-  const paginatedLogs = useMemo(() => {
-    const startIdx = (currentPage - 1) * pageSize;
-    return filteredLogs.slice(startIdx, startIdx + pageSize);
-  }, [filteredLogs, currentPage, pageSize]);
-
-  const startIndex = totalLogs === 0 ? 0 : (currentPage - 1) * pageSize + 1;
-  const endIndex = Math.min(currentPage * pageSize, totalLogs);
+  const startIndex = (currentPage - 1) * pageSize;
+  const paginatedLogs = filteredLogs.slice(startIndex, startIndex + pageSize);
 
   const getActionMeta = (action) => {
-    const color = ACTION_COLORS[action] || 'default';
-    const fallback = action
-      ? action.replace(/_/g, ' ').replace(/^./, (s) => s.toUpperCase())
-      : '';
-    const label = t(`admin.audit.actions.${action}`, fallback);
-    return { label, color };
-  };
-
-  const getTargetLabel = (targetType) => {
-    if (!targetType) return '';
-    const fallback = targetType.replace(/_/g, ' ').replace(/^./, (s) => s.toUpperCase());
-    return t(`admin.audit.targets.${targetType}`, fallback);
+    if (ACTION_LABELS[action]) return ACTION_LABELS[action];
+    const formatted = action.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+    return { label: formatted, color: 'default' };
   };
 
   const renderDetails = (details) => {
@@ -135,12 +200,21 @@ const AdminAuditLogs = () => {
     return (
       <div className="log-detail-pills">
         {Object.entries(details).map(([key, value]) => {
-          const displayValue =
-            typeof value === 'boolean'
-              ? value
-                ? t('common.yes', 'Yes')
-                : t('common.no', 'No')
-              : String(value);
+          let displayValue;
+          if (typeof value === 'boolean') {
+            displayValue = value ? t('common.yes', 'Yes') : t('common.no', 'No');
+          } else if (typeof value === 'object' && value !== null) {
+            if (Array.isArray(value)) {
+              displayValue = value.join(', ');
+            } else {
+              displayValue = Object.entries(value)
+                .map(([k, v]) => `${k}: ${v}`)
+                .join(', ');
+            }
+          } else {
+            displayValue = String(value);
+          }
+
           const pillColor =
             key === 'newRole' || key === 'role'
               ? 'purple'
@@ -209,19 +283,14 @@ const AdminAuditLogs = () => {
             placeholder={t('admin.audit.searchPlaceholder', 'Search logs by admin email, action, or target...')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            autoComplete="off"
           />
         </div>
         <div className="admin-filters">
           <div className="filter-group">
-            <label>{t('admin.audit.actionCategory', 'Action Category:')}</label>
-            <select value={filterAction} onChange={(e) => setFilterAction(e.target.value)}>
-              <option value="all">{t('admin.audit.categories.all', 'All Actions')}</option>
-              <option value="user">{t('admin.audit.categories.user', 'User Actions')}</option>
-              <option value="role">{t('admin.audit.categories.role', 'Role Updates')}</option>
-              <option value="moderate">{t('admin.audit.categories.moderate', 'Post Moderation')}</option>
-              <option value="export">{t('admin.audit.categories.export', 'CSV Exports')}</option>
-              <option value="delete">{t('admin.audit.categories.delete', 'Deletions')}</option>
-            </select>
+            <FaFilter />
+            <label>{t('admin.audit.actionCategory', 'Category:')}</label>
+            <ActionCategoryDropdown value={filterAction} onChange={(val) => setFilterAction(val)} />
           </div>
         </div>
       </div>
@@ -248,48 +317,61 @@ const AdminAuditLogs = () => {
               ) : (
                 paginatedLogs.map((log) => {
                   const actionMeta = getActionMeta(log.action);
+                  const targetLabel = TARGET_MAP[log.targetType] || log.targetType;
                   const ts = formatTimestamp(log.createdAt);
                   const adminName = log.adminId?.name || t('admin.audit.system', 'System');
                   const avatarInitial = (adminName || 'S').charAt(0).toUpperCase();
 
                   return (
                     <tr key={log._id}>
-                      <td>
-                        <div className="log-timestamp">
-                          <FaClock className="log-ts-icon" />
-                          <div className="log-ts-text">
-                            <span className="log-date">{ts.date}</span>
-                            <span className="log-time">{ts.time}</span>
+                      <td data-label={t('admin.audit.thTimestamp', 'Timestamp')}>
+                        <div className="td-cell-content">
+                          <div className="log-timestamp">
+                            <FaClock className="log-ts-icon" />
+                            <div className="log-ts-text">
+                              <span className="log-date">{ts.date}</span>
+                              <span className="log-time">{ts.time}</span>
+                            </div>
                           </div>
                         </div>
                       </td>
-                      <td>
-                        <div className="log-admin-cell">
-                          <span className="log-admin-avatar">
-                            {avatarInitial}
+                      <td data-label={t('admin.audit.thAdmin', 'Admin')}>
+                        <div className="td-cell-content">
+                          <div className="log-admin-cell">
+                            <span className="log-admin-avatar">
+                              {avatarInitial}
+                            </span>
+                            <div className="log-admin-info">
+                              <strong>{adminName}</strong>
+                              <small>{log.adminId?.email || ''}</small>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td data-label={t('admin.audit.thAction', 'Action')}>
+                        <div className="td-cell-content">
+                          <span className={`log-action-chip chip-${actionMeta.color}`}>
+                            {actionMeta.label}
                           </span>
-                          <div className="log-admin-info">
-                            <strong>{adminName}</strong>
-                            <small>{log.adminId?.email || ''}</small>
+                        </div>
+                      </td>
+                      <td data-label={t('admin.audit.thTarget', 'Target')}>
+                        <div className="td-cell-content">
+                          <div className="log-target-cell">
+                            <span className="log-target-badge">{targetLabel}</span>
+                            {log.targetId && (
+                              <small className="log-target-id" title={log.targetId}>
+                                {truncateId(log.targetId)}
+                              </small>
+                            )}
                           </div>
                         </div>
                       </td>
-                      <td>
-                        <span className={`log-action-chip chip-${actionMeta.color}`}>
-                          {actionMeta.label}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="log-target-cell">
-                          <span className="log-target-badge">{getTargetLabel(log.targetType)}</span>
-                          {log.targetId && (
-                            <small className="log-target-id" title={log.targetId}>
-                              {truncateId(log.targetId)}
-                            </small>
-                          )}
+                      <td data-label={t('admin.audit.thDetails', 'Changes / Details')}>
+                        <div className="td-cell-content">
+                          {renderDetails(log.details)}
                         </div>
                       </td>
-                      <td>{renderDetails(log.details)}</td>
                     </tr>
                   );
                 })

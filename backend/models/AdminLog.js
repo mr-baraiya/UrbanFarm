@@ -13,7 +13,7 @@ const AdminLogSchema = new mongoose.Schema(
     },
     targetType: {
       type: String,
-      enum: ['user', 'garden', 'plant', 'post', 'diagnosis', 'contact_lead', 'system'],
+      enum: ['user', 'garden', 'plant', 'post', 'diagnosis', 'contact_lead', 'lead', 'system'],
       required: true,
     },
     targetId: mongoose.Schema.Types.ObjectId,

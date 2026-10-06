@@ -80,14 +80,15 @@ export const validatePhone = (phone) => {
   }
   // 12 digits starting with country code 91 (e.g. 919876543210)
   if (digitsOnly.length === 12 && digitsOnly.startsWith('91')) {
-    return /^91[6-9]\d{9}$/.test(digitsOnly);
+    return /^91[5-9]\d{9}$/.test(digitsOnly);
   }
-  // International format starting with + (10 to 13 digits)
+  // International format starting with + (10 to 15 digits)
   if (trimmed.startsWith('+')) {
-    return digitsOnly.length >= 10 && digitsOnly.length <= 13;
+    return digitsOnly.length >= 10 && digitsOnly.length <= 15;
   }
 
-  return false;
+  // Fallback for valid 10-15 digit phone numbers
+  return digitsOnly.length >= 10 && digitsOnly.length <= 15;
 };
 
 // ==========================================

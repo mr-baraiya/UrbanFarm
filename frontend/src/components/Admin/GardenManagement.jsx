@@ -58,7 +58,7 @@ const GardenManagement = () => {
   const [viewingGarden, setViewingGarden] = useState(null);
   const [editingGarden, setEditingGarden] = useState(null);
   const [showCreateGardenModal, setShowCreateGardenModal] = useState(false);
-  const [newGarden, setNewGarden] = useState({ name: '', location: '', size: 0, description: '' });
+  const [newGarden, setNewGarden] = useState({ name: '', location: '', size: '', description: '', ownerEmail: '' });
   const [gardenErrors, setGardenErrors] = useState({});
 
   const [viewingPlant, setViewingPlant] = useState(null);
@@ -111,15 +111,20 @@ const GardenManagement = () => {
     return plants.slice(startIdx, startIdx + plantPageSize);
   }, [plants, plantPage, plantPageSize]);
 
-  const fetchData = async () => {
+  const fetchData = async (overrideSearch) => {
     setLoading(true);
+    const activeSearch = overrideSearch !== undefined ? overrideSearch : search;
     try {
       if (activeTab === 'gardens') {
-        const res = await api.get(`/admin/gardens?search=${search}`);
-        setGardens(res.data.gardens || []);
+        const [gardensRes, plantsRes] = await Promise.all([
+          api.get(`/admin/gardens?search=${encodeURIComponent(activeSearch)}`),
+          api.get('/admin/plants'),
+        ]);
+        setGardens(gardensRes.data.gardens || []);
+        setPlants(plantsRes.data.plants || []);
       } else {
         const [plantsRes, gardensRes] = await Promise.all([
-          api.get(`/admin/plants?search=${search}&health=${healthFilter}&status=${statusFilter}`),
+          api.get(`/admin/plants?search=${encodeURIComponent(activeSearch)}&health=${healthFilter}&status=${statusFilter}`),
           api.get('/admin/gardens'),
         ]);
         setPlants(plantsRes.data.plants || []);
@@ -133,9 +138,17 @@ const GardenManagement = () => {
     }
   };
 
+  const handleSearchChange = (e) => {
+    const val = e.target.value;
+    setSearch(val);
+    if (!val.trim()) {
+      fetchData('');
+    }
+  };
+
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    fetchData();
+    fetchData(search);
   };
 
   const promptDeleteGarden = (id, name) => {
@@ -193,9 +206,10 @@ const GardenManagement = () => {
       await api.post('/admin/gardens', newGarden);
       addNotification(t('admin.gardens.gardenCreatedSuccess', 'New garden space created successfully!'), 'success');
       setShowCreateGardenModal(false);
-      setNewGarden({ name: '', location: '', size: 0, description: '' });
+      setNewGarden({ name: '', location: '', size: '', description: '', ownerEmail: '' });
       setGardenErrors({});
-      fetchData();
+      setSearch('');
+      await fetchData('');
     } catch (error) {
       addNotification(error.response?.data?.message || t('admin.gardens.gardenCreatedFailed', 'Failed to create garden'), 'error');
     }
@@ -226,7 +240,8 @@ const GardenManagement = () => {
         notes: '',
       });
       setPlantErrors({});
-      fetchData();
+      setSearch('');
+      await fetchData('');
     } catch (error) {
       addNotification(error.response?.data?.message || t('admin.gardens.plantCreatedFailed', 'Failed to add plant'), 'error');
     }
@@ -245,7 +260,7 @@ const GardenManagement = () => {
       });
       addNotification(t('admin.gardens.gardenUpdatedSuccess', 'Garden updated successfully!'), 'success');
       setEditingGarden(null);
-      fetchData();
+      await fetchData('');
     } catch (error) {
       addNotification(error.response?.data?.message || t('admin.gardens.gardenUpdatedFailed', 'Failed to update garden'), 'error');
     }
@@ -267,7 +282,7 @@ const GardenManagement = () => {
       });
       addNotification(t('admin.gardens.plantUpdatedSuccess', 'Plant details updated successfully!'), 'success');
       setEditingPlant(null);
-      fetchData();
+      await fetchData('');
     } catch (error) {
       addNotification(error.response?.data?.message || t('admin.gardens.plantUpdatedFailed', 'Failed to update plant'), 'error');
     }
@@ -350,7 +365,8 @@ const GardenManagement = () => {
                 : t('admin.gardens.searchPlantsPlaceholder', 'Search plants by name or variety...')
             }
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={handleSearchChange}
+            autoComplete="off"
           />
           <button type="submit" className="admin-btn admin-btn-sm">{t('admin.gardens.search', 'Search')}</button>
         </form>
@@ -405,13 +421,13 @@ const GardenManagement = () => {
               ) : (
                 paginatedGardens.map((g) => (
                   <tr key={g._id}>
-                    <td><strong>{g.name}</strong></td>
-                    <td>{g.userId?.email || t('admin.gardens.systemUser', 'System User')}</td>
-                    <td>{g.location || 'N/A'}</td>
-                    <td>{g.size || 0}</td>
-                    <td><span className="badge badge-info">{t('admin.gardens.plantsCountBadge', '{{count}} Plants', { count: g.plants?.length || 0 })}</span></td>
-                    <td>{new Date(g.createdAt).toLocaleDateString()}</td>
-                    <td>
+                    <td data-label="Garden Name"><strong>{g.name}</strong></td>
+                    <td data-label="Owner Email">{g.userId?.email || t('admin.gardens.systemUser', 'System User')}</td>
+                    <td data-label="Location">{g.location || 'N/A'}</td>
+                    <td data-label="Size (m²)">{g.size || 0}</td>
+                    <td data-label="Plants Count"><span className="badge badge-info">{t('admin.gardens.plantsCountBadge', '{{count}} Plants', { count: g.plants?.length || 0 })}</span></td>
+                    <td data-label="Created Date">{new Date(g.createdAt).toLocaleDateString()}</td>
+                    <td data-label="Actions">
                       <div className="action-btns">
                         <button className="admin-action-icon approve" title={t('admin.gardens.viewGardenDetails', 'View Garden Details')} onClick={() => setViewingGarden(g)}><FaEye /></button>
                         <button className="admin-action-icon edit" title={t('admin.gardens.editGarden', 'Edit Garden')} onClick={() => setEditingGarden({ ...g })}><FaEdit /></button>
@@ -454,19 +470,19 @@ const GardenManagement = () => {
               ) : (
                 paginatedPlants.map((p) => (
                   <tr key={p._id}>
-                    <td><strong>{p.name}</strong></td>
-                    <td><em>{p.scientificName || 'N/A'}</em></td>
-                    <td>{p.gardenId?.name || 'N/A'}</td>
-                    <td>{p.userId?.email || 'N/A'}</td>
-                    <td>
+                    <td data-label="Plant Name"><strong>{p.name}</strong></td>
+                    <td data-label="Scientific Name"><em>{p.scientificName || 'N/A'}</em></td>
+                    <td data-label="Garden">{p.gardenId?.name || 'N/A'}</td>
+                    <td data-label="Owner">{p.userId?.email || 'N/A'}</td>
+                    <td data-label="Health">
                       <span className={`health-badge ${p.health}`}>
                         {p.health === 'healthy' && <FaCheckCircle />}
                         {p.health === 'warning' && <FaExclamationTriangle />}
                         {t(`admin.gardens.healthStatus.${p.health}`, p.health)}
                       </span>
                     </td>
-                    <td><span className="badge badge-secondary">{t(`admin.gardens.stages.${p.status}`, p.status)}</span></td>
-                    <td>
+                    <td data-label="Growth Stage"><span className="badge badge-secondary">{t(`admin.gardens.stages.${p.status}`, p.status)}</span></td>
+                    <td data-label="Actions">
                       <div className="action-btns">
                         <button className="admin-action-icon approve" title={t('admin.gardens.viewPlantDetails', 'View Plant Details')} onClick={() => setViewingPlant(p)}><FaEye /></button>
                         <button className="admin-action-icon edit" title={t('admin.gardens.editPlant', 'Edit Plant')} onClick={() => setEditingPlant({ ...p })}><FaEdit /></button>
@@ -497,47 +513,66 @@ const GardenManagement = () => {
               <h3><FaPlus /> {t('admin.gardens.addGardenModalTitle', 'Add New Garden Space')}</h3>
               <button className="modal-close" onClick={() => setShowCreateGardenModal(false)}><FaTimes /></button>
             </div>
-            <form onSubmit={handleCreateGarden} className="admin-modal-form" noValidate>
-              <div className="form-group">
-                <label>{t('admin.gardens.gardenName', 'Garden Name')} <span className="required">*</span></label>
-                <input
-                  type="text"
-                  placeholder={t('admin.gardens.gardenNamePlaceholder', 'e.g. Rooftop Vegetable Bed')}
-                  value={newGarden.name}
-                  onChange={(e) => setNewGarden({ ...newGarden, name: e.target.value })}
-                  className={gardenErrors.name ? 'input-error' : ''}
-                />
-                {gardenErrors.name && <span className="error-text"><FaExclamationCircle /> {gardenErrors.name}</span>}
+            <form onSubmit={handleCreateGarden} className="admin-modal-form-wrapper" noValidate>
+              <div className="admin-modal-form">
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>{t('admin.gardens.gardenName', 'Garden Name')} <span className="required">*</span></label>
+                    <input
+                      type="text"
+                      placeholder={t('admin.gardens.gardenNamePlaceholder', 'e.g. Rooftop Vegetable Bed')}
+                      value={newGarden.name}
+                      onChange={(e) => setNewGarden({ ...newGarden, name: e.target.value })}
+                      className={gardenErrors.name ? 'input-error' : ''}
+                    />
+                    {gardenErrors.name && <span className="error-text"><FaExclamationCircle /> {gardenErrors.name}</span>}
+                  </div>
+                  <div className="form-group">
+                    <label>{t('admin.gardens.ownerEmail', 'Owner / User Email')} <span className="text-muted">(Optional)</span></label>
+                    <input
+                      type="email"
+                      placeholder={t('admin.gardens.ownerEmailPlaceholder', 'User Gmail (e.g. user@gmail.com)')}
+                      value={newGarden.ownerEmail || ''}
+                      onChange={(e) => setNewGarden({ ...newGarden, ownerEmail: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>{t('admin.gardens.location', 'Location')}</label>
+                    <input
+                      type="text"
+                      placeholder={t('admin.gardens.locationPlaceholder', 'e.g. South Balcony')}
+                      value={newGarden.location}
+                      onChange={(e) => setNewGarden({ ...newGarden, location: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>{t('admin.gardens.sizeSqMeters', 'Size (Square Meters)')}</label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      placeholder="e.g. 10"
+                      value={newGarden.size}
+                      onChange={(e) => setNewGarden({ ...newGarden, size: e.target.value })}
+                    />
+                    {gardenErrors.size && <span className="error-text"><FaExclamationCircle /> {gardenErrors.size}</span>}
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>{t('admin.gardens.description', 'Description')}</label>
+                  <textarea
+                    style={{ padding: '0.65rem 0.85rem', borderRadius: '8px', border: '1.5px solid var(--border-light, rgba(107, 144, 128, 0.25))', background: 'var(--surface-strong, #ffffff)', color: 'var(--text)', minHeight: '60px', maxHeight: '100px', fontSize: '0.88rem', fontFamily: 'inherit', resize: 'vertical' }}
+                    placeholder={t('admin.gardens.descPlaceholder', 'Describe soil type, light exposure, or bed notes...')}
+                    value={newGarden.description}
+                    onChange={(e) => setNewGarden({ ...newGarden, description: e.target.value })}
+                  />
+                </div>
               </div>
-              <div className="form-group">
-                <label>{t('admin.gardens.location', 'Location')}</label>
-                <input
-                  type="text"
-                  placeholder={t('admin.gardens.locationPlaceholder', 'e.g. South Balcony, Raised Bed #2')}
-                  value={newGarden.location}
-                  onChange={(e) => setNewGarden({ ...newGarden, location: e.target.value })}
-                />
-              </div>
-              <div className="form-group">
-                <label>{t('admin.gardens.sizeSqMeters', 'Size (Square Meters)')}</label>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  value={newGarden.size}
-                  onChange={(e) => setNewGarden({ ...newGarden, size: parseFloat(e.target.value) || 0 })}
-                />
-                {gardenErrors.size && <span className="error-text"><FaExclamationCircle /> {gardenErrors.size}</span>}
-              </div>
-              <div className="form-group">
-                <label>{t('admin.gardens.description', 'Description')}</label>
-                <textarea
-                  style={{ padding: '0.65rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', minHeight: '70px' }}
-                  placeholder={t('admin.gardens.descPlaceholder', 'Describe soil type, light exposure, or bed notes...')}
-                  value={newGarden.description}
-                  onChange={(e) => setNewGarden({ ...newGarden, description: e.target.value })}
-                />
-              </div>
+
               <div className="admin-modal-footer">
                 <button type="button" className="admin-btn admin-btn-outline" onClick={() => setShowCreateGardenModal(false)}>{t('common.cancel', 'Cancel')}</button>
                 <button type="submit" className="admin-btn admin-btn-primary"><FaCheck /> {t('admin.gardens.createGardenBtn', 'Create Garden')}</button>
@@ -699,7 +734,7 @@ const GardenManagement = () => {
               </div>
               <div className="form-group">
                 <label>{t('admin.gardens.sizeSqMeters', 'Size (Square Meters)')}</label>
-                <input type="number" min="0" step="0.1" value={editingGarden.size || 0} onChange={(e) => setEditingGarden({ ...editingGarden, size: parseFloat(e.target.value) || 0 })} />
+                <input type="number" min="0" step="0.1" value={editingGarden.size ?? 0} onChange={(e) => setEditingGarden({ ...editingGarden, size: parseFloat(e.target.value) || 0 })} />
               </div>
               <div className="admin-modal-footer">
                 <button type="button" className="admin-btn admin-btn-outline" onClick={() => setEditingGarden(null)}>{t('common.cancel', 'Cancel')}</button>

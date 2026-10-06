@@ -88,12 +88,21 @@ exports.getAllUsers = async (req, res, next) => {
 // @route   POST /api/admin/users
 exports.createUser = async (req, res, next) => {
   try {
-    const { name, email, password, role, gardeningLevel, location } = req.body;
+    const { name, email, password, role, gardeningLevel, location, city } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ success: false, message: 'Email already registered' });
     }
+
+    const userCity = (city || (location && location.city) || '').trim();
+    if (!userCity) {
+      return res.status(400).json({ success: false, message: 'Please add a city' });
+    }
+
+    const userLocation = typeof location === 'object' && location !== null
+      ? { ...location, city: userCity }
+      : { city: userCity };
 
     const user = await User.create({
       name,
@@ -101,7 +110,7 @@ exports.createUser = async (req, res, next) => {
       password: password || 'DefaultPass123!',
       role: role || 'user',
       gardeningLevel: gardeningLevel || 'beginner',
-      location: location || {},
+      location: userLocation,
     });
 
     await AdminLog.create({
@@ -299,16 +308,28 @@ exports.updateGarden = async (req, res, next) => {
 // @route   POST /api/admin/gardens
 exports.createGarden = async (req, res, next) => {
   try {
-    const { name, description, location, size, userId } = req.body;
+    const { name, description, location, size, userId, ownerEmail, userEmail, email } = req.body;
     if (!name) {
       return res.status(400).json({ success: false, message: 'Garden name is required' });
     }
+
+    let targetUserId = userId;
+    const targetEmail = (ownerEmail || userEmail || email || '').trim();
+
+    if (targetEmail) {
+      const targetUser = await User.findOne({ email: targetEmail.toLowerCase() });
+      if (!targetUser) {
+        return res.status(404).json({ success: false, message: `No user account found matching email: ${targetEmail}` });
+      }
+      targetUserId = targetUser._id;
+    }
+
     const garden = await Garden.create({
       name,
       description: description || '',
       location: location || '',
       size: parseFloat(size) || 0,
-      userId: userId || req.user.id,
+      userId: targetUserId || req.user.id,
     });
 
     await AdminLog.create({
@@ -316,7 +337,7 @@ exports.createGarden = async (req, res, next) => {
       action: 'create_garden',
       targetType: 'garden',
       targetId: garden._id,
-      details: { gardenName: garden.name },
+      details: { gardenName: garden.name, ownerUserId: garden.userId },
     });
 
     res.status(201).json({ success: true, garden });

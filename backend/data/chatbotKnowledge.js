@@ -45,12 +45,14 @@ const KNOWLEDGE_BASE = {
     en: {
       title: 'AI Plant Disease Diagnosis',
       route: '/app/diagnosis',
-      steps: `To diagnose your plant in UrbanFarm:
-1. Navigate to "AI Disease Diagnosis" in the main menu (or /app/diagnosis).
-2. Take a clear, well-lit photo of the affected leaf, stem, or plant part.
-3. Upload the photo or drag & drop it into the diagnostic analyzer.
-4. Click "Analyze Plant Health".
-5. The AI identifies the disease, confidence percentage, causes, and provides step-by-step organic treatments and preventive care.`,
+      steps: `Hello! I am Krishi AI 🌿. If your plant is showing spots, yellowing, or wilted leaves, I can help you diagnose its health right away!
+
+Here is how we can check your plant together:
+• Take a clear photo of the affected leaf or stem.
+• Upload the photo to our **AI Disease Diagnosis** analyzer.
+• Receive an instant diagnosis, confidence score, and step-by-step organic remedies.
+
+Click the button below to start diagnosing your plant!`,
       quickActionLabel: 'Open AI Diagnosis',
       followUps: [
         'How to take a clear photo of the leaf?',
@@ -61,11 +63,14 @@ const KNOWLEDGE_BASE = {
     gu: {
       title: 'AI રોગ નિદાન',
       route: '/app/diagnosis',
-      steps: `અર્બનફાર્મમાં તમારા છોડનું રોગ નિદાન કરવાના પગલાં:
-૧. મુખ્ય મેનૂમાંથી "AI રોગ નિદાન" (/app/diagnosis) પર જાઓ.
-૨. અસરગ્રસ્ત પાંદડા, ડાળી કે છોડનો સ્પષ્ટ અને સારો ફોટો લો.
-૩. ફોટો અપલોડ કરો અને "Analyze Plant Health" પર ક્લિક કરો.
-૪. AI સિસ્ટમ રોગનું નામ, ટકાવારી ચોકસાઈ, રોગનું કારણ અને કુદરતી/ઓર્ગેનિક ઉપચારના પગલાં આપશે.`,
+      steps: `નમસ્તે! હું કૃષિ AI છું 🌿. જો તમારા છોડના પાંદડા પીળા પડી રહ્યા હોય કે તેમાં ડાઘ દેખાતા હોય, તો હું તમને તુરંત માર્ગદર્શન આપી શકું છું!
+
+આપણે છોડનું રોગ નિદાન કેવી રીતે કરી શકીએ:
+• અસરગ્રસ્ત પાંદડાનો સ્પષ્ટ ફોટો લો.
+• અમારા **AI રોગ નિદાન** ફિચરમાં ફોટો અપલોડ કરો.
+• હું તમને રોગનું નામ, ચોકસાઈ અને દેશી/ઓર્ગેનિક ઉપાયો આપવામા મદદ કરીશ.
+
+નીચે આપેલ બટન પર ક્લિક કરીને તુરંત રોગ નિદાન શરૂ કરો!`,
       quickActionLabel: 'AI રોગ નિદાન ખોલો',
       followUps: [
         'પાંદડાનો સ્પષ્ટ ફોટો કેવી રીતે લેવો?',
@@ -76,11 +81,14 @@ const KNOWLEDGE_BASE = {
     hi: {
       title: 'AI रोग निदान',
       route: '/app/diagnosis',
-      steps: `अर्बनफार्म में अपने पौधे का रोग निदान करने के चरण:
-१. मुख्य मेनू से "AI रोग निदान" (/app/diagnosis) विकल्प पर जाएं।
-२. प्रभावित पत्ते या पौधे का साफ और स्पष्ट फोटो लें।
-३. फोटो अपलोड करें और "Analyze Plant Health" पर क्लिक करें।
-४. AI तुरंत बीमारी का नाम, सटीकता प्रतिशत, कारण और जैविक उपचार के उपाय प्रदर्शित करेगा।`,
+      steps: `नमस्ते! मैं कृषि AI हूँ 🌿। यदि आपके पौधे के पत्ते पीले पड़ रहे हैं या उनमें धब्बे दिख रहे हैं, तो मैं तुरंत सहायता कर सकती हूँ!
+
+हम पौधे का रोग निदान कैसे कर सकते हैं:
+• प्रभावित पत्ते या तने की एक स्पष्ट फोटो लें।
+• हमारे **AI रोग निदान** सेक्शन में फोटो अपलोड करें।
+• मैं आपको बीमारी का नाम, सटीकता और प्रभावी जैविक उपचार बताएँगी।
+
+नीचे दिए गए बटन पर क्लिक करके अभी रोग निदान शुरू करें!`,
       quickActionLabel: 'AI रोग निदान खोलें',
       followUps: [
         'पत्ते की साफ फोटो कैसे लें?',
@@ -94,12 +102,12 @@ const KNOWLEDGE_BASE = {
     en: {
       title: 'Smart Watering Schedule',
       route: '/app/watering',
-      steps: `To set up a Smart Watering Schedule:
-1. Go to "Smart Watering" in the sidebar (/app/watering).
-2. Choose your garden space and select the plants you want to schedule.
-3. The system links live local weather forecasts (temperature, humidity, precipitation) with plant moisture requirements.
-4. View the upcoming 7-day irrigation plan, water quantities, and receive automated reminders.
-💡 Tip: Water early in the morning (6-8 AM) to minimize evaporation and fungal growth.`,
+      steps: `Hello! I am Krishi AI 🌿. I can help you create an intelligent watering plan tailored to your local weather!
+
+Here is how Smart Irrigation keeps your garden healthy:
+• We connect your live weather forecast (temperature, humidity, rain) with your plants' water needs.
+• You get a personalized 7-day schedule with automated reminders.
+💡 **Pro Tip**: Water early in the morning (6–8 AM) to minimize evaporation and keep roots strong!`,
       quickActionLabel: 'Open Smart Watering',
       followUps: [
         'How does temperature affect watering?',
@@ -110,12 +118,12 @@ const KNOWLEDGE_BASE = {
     gu: {
       title: 'સ્માર્ટ સિંચાઈ આયોજન',
       route: '/app/watering',
-      steps: `સ્માર્ટ પાણી આપવાનું આયોજન (Watering Schedule) કરવા માટે:
-૧. સાઇડબારમાંથી "Smart Watering" (/app/watering) પર જાઓ.
-૨. તમારો બગીચો અને જે છોડને પાણી આપવું હોય તે પસંદ કરો.
-૩. સિસ્ટમ સ્થાનિક હવામાન (તાપમાન, વરસાદની આગાહી) સાથે છોડની ભેજ જરૂરિયાત ગણશે.
-૪. તમને આગામી ૭ દિવસનું પાણી આપવાનું સમયપત્રક અને રીમાઇન્ડર મળશે.
-💡 સવારના સમયે (૬ થી ૮ વાગ્યા વચ્ચે) પાણી આપવું છોડ માટે શ્રેષ્ઠ છે.`,
+      steps: `નમસ્તે! હું કૃષિ AI છું 🌿. હું તમને હવામાન અનુસાર પાણી આપવાનું સ્માર્ટ આયોજન કરવામાં મદદ કરી શકું છું!
+
+અમારું સ્માર્ટ વોટરિંગ સિસ્ટમ કેવી રીતે કામ કરે છે:
+• તમારા વિસ્તારના હવામાન (તાપમાન, વરસાદ) સાથે છોડની જરૂરિયાત મેળવાય છે.
+• તમને આગામી ૭ દિવસનું ચોક્કસ ટાઇમટેબલ અને રિમાઇન્ડર મળશે.
+💡 **ખાસ ટિપ**: સવારે ૬ થી ૮ ની વચ્ચે પાણી આપવું છોડ માટે સૌથી ઉત્તમ છે!`,
       quickActionLabel: 'સ્માર્ટ વોટરિંગ ખોલો',
       followUps: [
         'ગરમીમાં કેટલું પાણી આપવું?',
@@ -126,12 +134,12 @@ const KNOWLEDGE_BASE = {
     hi: {
       title: 'स्मार्ट सिंचाई शेड्यूल',
       route: '/app/watering',
-      steps: `स्मार्ट सिंचाई शेड्यूल (Watering Schedule) सेट करने के लिए:
-१. साइडबार से "Smart Watering" (/app/watering) पर जाएं।
-२. अपना बगीचा और पौधे चुनें।
-३. सिस्टम स्थानीय मौसम (तापमान, वर्षा का पूर्वानुमान) के अनुसार पानी की आवश्यकता की गणना करेगा।
-४. आपको अगले ७ दिनों का सटीक सिंचाई शेड्यूल और रिमाइंडर प्राप्त होगा।
-💡 सुबह जल्दी (६ से ८ बजे) पानी देना पौधों की जड़ों के लिए सबसे लाभकारी होता है।`,
+      steps: `नमस्ते! मैं कृषि AI हूँ 🌿। मैं आपके स्थानीय मौसम के अनुसार सही सिंचाई शेड्यूल बनाने में आपकी मदद कर सकती हूँ!
+
+स्मार्ट सिंचाई आपके पौधों का ख्याल कैसे रखती है:
+• आपके क्षेत्र के लाइव मौसम (तापमान, बारिश) के आधार पर पानी की सही मात्रा तय होती है।
+• आपको अगले ७ दिनों का सटीक शेड्यूल और रिमाइंडर मिलेगा।
+💡 **महत्वपूर्ण सुझाव**: सुबह जल्दी (६ से ८ बजे) पानी देना पौधों की जड़ों के लिए सबसे लाभकारी होता है!`,
       quickActionLabel: 'स्मार्ट सिंचाई खोलें',
       followUps: [
         'गर्मी में पौधों को कितना पानी चाहिए?',
@@ -145,11 +153,12 @@ const KNOWLEDGE_BASE = {
     en: {
       title: 'My Gardens & Plant Management',
       route: '/app/gardens',
-      steps: `To create and manage your urban gardens:
-1. Click on "My Gardens" in the menu (/app/gardens).
-2. Tap "+ Add New Garden", enter name, sunlight availability (Full Sun, Partial Shade), area size, and location (Balcony, Terrace, Windowsill, Backyard).
-3. Open your new garden and tap "+ Add Plant" to add herbs, vegetables, or flowers.
-4. Track growth milestones, watering history, and health logs.`,
+      steps: `Hello! I am Krishi AI 🌿. I can help you organize and track your balcony or terrace garden spaces!
+
+Here is how you can manage your garden with me:
+• Add your garden space (Balcony, Terrace, Windowsill, or Backyard).
+• Add your plants, herbs, or vegetables to track growth milestones and health logs.
+• Keep all your watering and fertilizer records in one place!`,
       quickActionLabel: 'View My Gardens',
       followUps: [
         'What soil mix is best for pots?',
@@ -160,11 +169,11 @@ const KNOWLEDGE_BASE = {
     gu: {
       title: 'મારા બગીચાઓ અને છોડ વ્યવસ્થાપન',
       route: '/app/gardens',
-      steps: `નવો બગીચો ઉમેરવા અને સંચાલન કરવા માટે:
-૧. "My Gardens" (/app/gardens) પર ક્લિક કરો.
-૨. "+ Add New Garden" પર ટેપ કરો, બગીચાનું નામ, સૂર્યપ્રકાશની સ્થિતિ અને વિસ્તાર દાખલ કરો (બાલ્કની, ટેરેસ, બારી, આંગણું).
-૩. બગીચામાં જઈને "+ Add Plant" દ્વારા શાકભાજી, ફળો કે ફૂલોના છોડ ઉમેરો.
-૪. છોડનો વિકાસ અને આરોગ્ય સ્થિતિ સરળતાથી ટ્રૅક કરો.`,
+      steps: `નમસ્તે! હું કૃષિ AI છું 🌿. હું તમારા બાલ્કની કે ટેરેસ બગીચાનું વ્યવસ્થાપન કરવામાં તમારી મદદ કરીશ!
+
+આપણે બગીચાનું આયોજન કેવી રીતે કરી શકીએ:
+• તમારો બગીચો ઉમેરો (બાલ્કની, ધાબું કે આંગણું).
+• તમારા શાકભાજી કે ફૂલોના છોડ ઉમેરીને તેમનો વિકાસ અને પાણી આપવાનો હિસાબ રાખો.`,
       quickActionLabel: 'મારા બગીચાઓ જુઓ',
       followUps: [
         'કુંડા માટે શ્રેષ્ઠ માટી મિશ્રણ કયું?',
@@ -175,11 +184,11 @@ const KNOWLEDGE_BASE = {
     hi: {
       title: 'मेरे बगीचे और पौधे प्रबंधन',
       route: '/app/gardens',
-      steps: `नया बगीचा जोड़ने और प्रबंधित करने के लिए:
-१. "My Gardens" (/app/gardens) पर क्लिक करें।
-२. "+ Add New Garden" पर टैप करें, बगीचे का नाम, धूप की स्थिति और आकार दर्ज करें (बालकनी, छत, खिड़की या आँगन)।
-३. बगीचे में "+ Add Plant" पर क्लिक करके मनपसंद सब्जियां, फल या पौधे जोड़ें।
-४. पौधे की वृद्धि और स्वास्थ्य रिपोर्ट ट्रैक करें।`,
+      steps: `नमस्ते! मैं कृषि AI हूँ 🌿। मैं आपकी बालकनी या छत के बगीचे को व्यवस्थित करने में आपकी मदद कर सकती हूँ!
+
+हम बगीचे का प्रबंधन कैसे कर सकते हैं:
+• अपना नया बगीचा जोड़ें (बालकनी, छत, खिड़की या आँगन)।
+• अपने पसंदीदा पौधे जोड़ें और उनकी वृद्धि और स्वास्थ्य का रिकॉर्ड रखें।`,
       quickActionLabel: 'मेरे बगीचे देखें',
       followUps: [
         'गमलों के लिए उत्तम मिट्टी का मिश्रण क्या है?',
@@ -193,10 +202,11 @@ const KNOWLEDGE_BASE = {
     en: {
       title: 'AI Crop Recommendation',
       route: '/app/crops',
-      steps: `To get AI Crop Recommendations for your space:
-1. Navigate to "Crop Recommendation" (/app/crops).
-2. Select your soil type (Loamy, Sandy, Clay, Cocopeat), available space (Balcony containers, Terrace raised beds, Backyard), and current season (Summer, Monsoon, Winter).
-3. Get high-yield urban farming crops tailored to your exact climate, sunlight, and space.`,
+      steps: `Hello! I am Krishi AI 🌿. I can suggest the best high-yield crops for your balcony or terrace garden!
+
+Based on your soil type, sunlight, space, and current season, I will recommend the top vegetables, herbs, or fruits that thrive best in your location.
+
+Tap below to view tailored crop suggestions!`,
       quickActionLabel: 'Open Crop Guide',
       followUps: [
         'What crops grow best in shade?',
@@ -207,10 +217,9 @@ const KNOWLEDGE_BASE = {
     gu: {
       title: 'AI પાક ભલામણ',
       route: '/app/crops',
-      steps: `AI પાક ભલામણ (Crop Recommendation) મેળવવા માટે:
-૧. "Crop Recommendation" (/app/crops) પર જાઓ.
-૨. તમારી માટીનો પ્રકાર, જગ્યા (બાલ્કની, ધાબું/ટેરેસ કે બેકયાર્ડ) અને ઋતુ પસંદ કરો.
-૩. AI તમને યોગ્ય પાક, વાવણીની રીત અને અંદાજિત લણણી સમય જણાવશે.`,
+      steps: `નમસ્તે! હું કૃષિ AI છું 🌿. હું તમારી જગ્યા અને ઋતુ અનુસાર શ્રેષ્ઠ પાકની ભલામણ કરી શકું છું!
+
+તમારી માટી, સૂર્યપ્રકાશ અને જગ્યાના આધારે હું તમને વધુ ઉપજ આપતા શાકભાજી અને છોડ પસંદ કરવામાં મદદ કરીશ.`,
       quickActionLabel: 'પાક માર્ગદર્શિકા ખોલો',
       followUps: [
         'છાંયડામાં કયા શાકભાજી થાય?',
@@ -221,10 +230,9 @@ const KNOWLEDGE_BASE = {
     hi: {
       title: 'AI फसल सुझाव',
       route: '/app/crops',
-      steps: `AI फसल सुझाव (Crop Recommendation) पाने के लिए:
-१. "Crop Recommendation" (/app/crops) विकल्प पर जाएं।
-२. अपनी मिट्टी का प्रकार, उपलब्ध स्थान (बालकनी, छत, आँगन) और मौसम चुनें।
-३. AI आपके क्षेत्र और जगह के अनुसार सर्वोत्तम फसलों की सिफारिश करेगा।`,
+      steps: `नमस्ते! मैं कृषि AI हूँ 🌿। मैं आपकी जगह और मौसम के अनुसार सर्वोत्तम फसलों के सुझाव दे सकती हूँ!
+
+आपकी मिट्टी, धूप और मौसम के आधार पर मैं आपको सबसे ज्यादा फल देने वाली सब्जियों और पौधों की सिफारिश करूँगी।`,
       quickActionLabel: 'फसल गाइड खोलें',
       followUps: [
         'कम धूप में कौन सी सब्जियां उग सकती हैं?',

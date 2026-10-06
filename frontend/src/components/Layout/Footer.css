@@ -17,11 +17,12 @@
 
 .footer-content-bar {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   max-width: 1200px;
   margin: 0 auto;
-  text-align: center;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .footer p {
