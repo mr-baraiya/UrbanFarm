@@ -153,6 +153,21 @@ const MarketPricesPage = () => {
     return API_TRANSLATIONS[type]?.[key]?.[currentLang] || key;
   };
 
+  const getUnitDisplay = (rawUnit, currentLang) => {
+    if (!rawUnit) return currentLang === 'hi' ? 'क्विंटल' : currentLang === 'gu' ? 'ક્વિન્ટલ' : 'Quintal';
+    const clean = rawUnit.toString().trim();
+    if (API_TRANSLATIONS.units?.[clean]?.[currentLang]) {
+      return API_TRANSLATIONS.units[clean][currentLang];
+    }
+    if (clean.toLowerCase().includes('quintal')) {
+      return currentLang === 'hi' ? 'क्विंटल' : currentLang === 'gu' ? 'ક્વિન્ટલ' : 'Quintal';
+    }
+    if (clean.toLowerCase().includes('kg')) {
+      return currentLang === 'hi' ? 'किग्रा' : currentLang === 'gu' ? 'કિલો' : 'kg';
+    }
+    return clean;
+  };
+
   // Compute unique states and districts
   const availableStates = useMemo(() => {
     const statesSet = new Set();
@@ -535,14 +550,17 @@ const MarketPricesPage = () => {
             <div className="market-metric-card">
               <span className="mm-label">{L.statAvgModal}</span>
               <strong className="mm-val accent">₹{stats.avgModal.toLocaleString('en-IN')}</strong>
+              <span className="mm-unit-sub">/ {getUnitDisplay('Quintal', lang)}</span>
             </div>
             <div className="market-metric-card">
               <span className="mm-label">{L.statLowest}</span>
               <strong className="mm-val healthy">₹{stats.minRate.toLocaleString('en-IN')}</strong>
+              <span className="mm-unit-sub">/ {getUnitDisplay('Quintal', lang)}</span>
             </div>
             <div className="market-metric-card">
               <span className="mm-label">{L.statHighest}</span>
               <strong className="mm-val">₹{stats.maxRate.toLocaleString('en-IN')}</strong>
+              <span className="mm-unit-sub">/ {getUnitDisplay('Quintal', lang)}</span>
             </div>
           </div>
 
@@ -600,7 +618,7 @@ const MarketPricesPage = () => {
                 const distName = getLocText('districts', r.district, lang);
                 const mktName = getLocText('markets', r.market, lang);
                 const varName = getLocText('varieties', r.variety, lang);
-                const unitName = API_TRANSLATIONS.units[r.unit]?.[lang] || r.unit;
+                const unitName = getUnitDisplay(r.unit, lang);
                 const isNearby = r.distance !== null && r.distance <= 160;
 
                 return (
@@ -667,6 +685,7 @@ const MarketPricesPage = () => {
                     <th>{L.category}</th>
                     <th>{L.marketLabel}</th>
                     <th>{L.location}</th>
+                    <th>{L.unitLabel || 'Unit'}</th>
                     <th>{L.minPrice}</th>
                     <th className="modal-th">{L.modalPrice}</th>
                     <th>{L.maxPrice}</th>
@@ -680,6 +699,7 @@ const MarketPricesPage = () => {
                     const distName = getLocText('districts', r.district, lang);
                     const mktName = getLocText('markets', r.market, lang);
                     const varName = getLocText('varieties', r.variety, lang);
+                    const unitName = getUnitDisplay(r.unit, lang);
                     const isNearby = r.distance !== null && r.distance <= 160;
 
                     return (
@@ -708,6 +728,9 @@ const MarketPricesPage = () => {
                         </td>
                         <td>
                           <span className="tbl-loc">{distName}, {stName}</span>
+                        </td>
+                        <td>
+                          <span className="tbl-unit-pill">{unitName}</span>
                         </td>
                         <td className="rate-td">₹{r.min_price?.toLocaleString('en-IN')}</td>
                         <td className="rate-td modal-td">₹{r.modal_price?.toLocaleString('en-IN')}</td>

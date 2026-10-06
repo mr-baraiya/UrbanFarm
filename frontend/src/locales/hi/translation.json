@@ -2089,6 +2089,12 @@
     "nextPage": "अगला",
     "page": "पृष्ठ",
     "apiTranslations": {
+      "units": {
+        "₹/quintal": { "en": "Quintal", "hi": "क्विंटल", "gu": "ક્વિન્ટલ" },
+        "Quintal": { "en": "Quintal", "hi": "क्विंटल", "gu": "ક્વિન્ટल" },
+        "quintal": { "en": "Quintal", "hi": "क्विंटल", "gu": "ક્વિન્ટલ" },
+        "kg": { "en": "kg", "hi": "किग्रा", "gu": "કિલો" }
+      },
       "commodities": {
         "Groundnut": {
           "hi": "मूंगफली",

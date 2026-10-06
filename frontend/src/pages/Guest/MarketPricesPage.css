@@ -935,13 +935,75 @@
   color: var(--text-secondary, #385b4d);
 }
 
+.mm-unit-sub {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary, #385b4d);
+  margin-top: 0.2rem;
+  display: block;
+}
+
+.pbox-unit-sub {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-secondary, #385b4d);
+  margin-top: 0.15rem;
+}
+
+.pbox-unit-sub.modal-unit {
+  color: var(--accent, #3fa88a);
+}
+
+.tbl-unit-pill {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  background: var(--surface-strong, #f6fff8);
+  border: 1px solid var(--border, rgba(107, 144, 128, 0.28));
+  border-radius: 8px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--sage, #6b9080);
+  white-space: nowrap;
+}
+
+.tbl-rate-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+}
+
 .rate-td {
   font-weight: 700;
+  vertical-align: middle;
+}
+
+.rate-amount {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text, #1f3a30);
+}
+
+.rate-amount.modal-val {
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--accent, #3fa88a);
 }
 
 .modal-td {
   color: var(--accent, #3fa88a);
   font-size: 0.98rem;
+}
+
+.rate-unit-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary, #385b4d);
+  letter-spacing: 0.01em;
+}
+
+.rate-unit-label.modal-unit {
+  color: rgba(63, 168, 138, 0.85);
 }
 
 .date-td {
