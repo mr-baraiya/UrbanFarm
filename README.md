@@ -33,24 +33,40 @@
 - **Dynamic Weather Sync:** Integrates with OpenWeather API to track hyper-local temperature, humidity, UV index, and precipitation forecasts.
 - **Automated Rain Delays:** Automatically postpones irrigation schedules when rain is forecasted, saving up to **40% household water**.
 - **Growth-Stage Adaptive Watering:** Customizes watering volume and frequency according to plant development phases (seedling vs vegetative vs flowering vs harvest).
+- **Automated Drip Timers:** Complete guidance and automated calculations for balcony & terrace drip irrigation timing and solenoid valve scheduling.
 
-### 4. Garden Space & Crop Lifecycle Tracking
+### 4. 24/7 Krishi AI Assistant & Natural Language Intent Engine
+- **Powered by Google Gemini AI:** Conversational agronomy assistant capable of answering complex urban farming questions, soil NPK balancing, organic pest control, and drip irrigation setups.
+- **Multi-Language Intent Engine:** Intelligent regex and confidence-driven classifier that analyzes Hindi, Gujarati, and English queries to return instant quick-action navigation shortcuts (`/app/diagnosis`, `/app/watering`, etc.).
+- **Context-Aware Recommendations:** Dynamic follow-up suggestion chips tailored to query context (e.g. organic neem spray recipes, drip timer programming, companion planting).
+- **Robust Local Knowledge Base Fallback:** Offline-capable fallback knowledge base providing immediate assistance even during external API downtime.
+
+### 5. Garden Space & Crop Lifecycle Tracking
 - **Multi-Zone Space Mapping:** Map raised beds, balcony containers, vertical hydroponic towers, and rooftop plots.
 - **Individual Plant Health Timelines:** Track planting dates, varieties, companion planting compatibility, and projected harvest windows.
 - **Photo Logs & Health Scores:** Visual growth tracking with photo timeline journals and composite plant health ratings.
 - **Automated Care Reminders:** Proactive push and in-app alerts for watering, fertilizing, pruning, and succession replanting.
 
-### 5. Rewards, Medallion Badges & Community Gamification
+### 6. Rewards, Medallion Badges & Community Gamification
 - **Achievement Medallions:** High-resolution SVG badge emblems across 4 mastery tiers (*Beginner Milestones*, *Intermediate*, *Master*, *Community Champion*).
 - **1,470+ XP Point Pool:** Earn experience points for daily watering streaks, AI diagnosis scans, fertilizer logging, and community contributions.
 - **Transparent Milestone Rules:** Clear eligibility criteria and step tracking displayed on interactive badge preview modals.
 - **Public Profile Showcase:** Highlight earned badges and grower milestones on your public UrbanFarm profile.
 
-### 6. Krishi AI Assistant & Community Knowledge Hub
-- **24/7 Krishi AI Farming Chatbot:** Intelligent conversational assistant powered by Google Gemini AI for instant agronomy advice, soil NPK balancing, and crop troubleshooting.
-- **Community Q&A & Seed Swaps:** Social discussion forum categorized by crop types, organic pest solutions, and local heirloom seed exchanges.
-- **Trilingual Compatibility (EN, HI, GU):** Full, seamless language switching across **English**, **Hindi (हिंदी)**, and **Gujarati (ગુજરાતી)** for all page labels, mandi prices, and diagnosis reports.
-- **Smart Crop Recommendation Engine:** Personalized crop and planting suggestions based on active season, balcony sunlight, and space constraints.
+### 7. Krishi Community Forum & Heirloom Seed Exchange Hub
+- **Social Discussion Board:** Community forum categorized by crop types, organic pest solutions, and urban agriculture tips.
+- **Photo Sharing & Q&A:** Share garden harvest achievements, seek advice from experienced urban growers, and upvote helpful answers.
+- **Heirloom Seed Swaps:** Connect with local growers to exchange regional seeds, cuttings, and saplings.
+
+### 8. Admin Control Center & Automated Database Backup Center
+- **System Metrics Dashboard:** Monitor active users, registered gardens, plant diagnosis count, and community engagement metrics.
+- **User Role Management:** Admin panel for managing user roles, permissions, and moderation.
+- **Database Backup & Export Center:** One-click automated database backup generating complete platform ZIP archives and structured CSV exports for all tables (Users, Gardens, Plants, Logs).
+
+### 9. Trilingual Localization Engine (EN, HI, GU)
+- **Native Trilingual Support:** Full, seamless language switching across **English**, **Hindi (हिंदी)**, and **Gujarati (ગુજરાતી)**.
+- **Dynamic Translation Dictionaries:** Language preference persists across sessions with active HTML `lang` tag updates for SEO and screen-reader accessibility.
+
 
 ---
 

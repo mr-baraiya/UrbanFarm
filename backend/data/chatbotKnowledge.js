@@ -135,7 +135,14 @@ Click below to start diagnosing your plant!`,
       steps: `Smart Weather-Based Watering (/app/watering) keeps your garden healthy by optimizing irrigation:
 • Analyzes real-time local weather (temperature, humidity, rain forecast) and plant moisture requirements.
 • Generates a customized 7-day watering calendar with timely reminders.
-💡 **Pro Tip**: Water early in the morning (6–8 AM) to minimize evaporation and keep roots strong!`,
+💡 **Pro Tip**: Water early in the morning (6–8 AM) to minimize evaporation and keep roots strong!
+
+**Adding a Timer to Drip Irrigation:**
+Yes! You can fully automate drip irrigation with an **automatic water timer** (mechanical or digital solenoid):
+1. Attach the timer directly to your tap or water source.
+2. Set the ON/OFF time (e.g., 6:30 AM for 20 minutes daily).
+3. Connect the timer's outlet to your main drip line — it opens and closes automatically.
+4. Battery-operated timers work without electricity and cost ₹600–₹2,500.`,
       quickActionLabel: 'Open Smart Watering',
       followUps: [
         'How does temperature affect watering?',
@@ -163,7 +170,14 @@ Click below to start diagnosing your plant!`,
       steps: `स्मार्ट मौसम आधारित सिंचाई (/app/watering) पौधों को सही समय और सही मात्रा में पानी देने की सुविधा प्रदान करती है:
 • स्थानीय मौसम (तापमान, आर्द्रता, वर्षा पूर्वानुमान) और पौधों की जरूरतों का विश्लेषण करता है।
 • अगले ७ दिनों का अनुकूलित सिंचाई शेड्यूल और रिमाइंडर प्रदान करता है।
-💡 **महत्वपूर्ण सुझाव**: सुबह जल्दी (६ से ८ बजे) पानी देना पौधों की जड़ों के लिए सबसे लाभकारी होता है!`,
+💡 **महत्वपूर्ण सुझाव**: सुबह जल्दी (६ से ८ बजे) पानी देना पौधों की जड़ों के लिए सबसे लाभकारी होता है!
+
+**ड्रिप सिंचाई में टाइमर कैसे लगाएं:**
+हाँ, ड्रिप सिंचाई को **ऑटोमैटिक वॉटर टाइमर** (मैकेनिकल या डिजिटल) से पूरी तरह स्वचालित किया जा सकता है:
+१. टाइमर को सीधे नल से कनेक्ट करें।
+२. ऑन/ऑफ समय सेट करें (जैसे: सुबह ६:३० बजे, २० मिनट के लिए)।
+३. टाइमर के दूसरे सिरे से मुख्य ड्रिप लाइन जोड़ें — यह निर्धारित समय पर अपने आप खुलेगा और बंद होगा।
+४. बैटरी से चलने वाले टाइमर बिना बिजली के भी काम करते हैं और ₹६०० से ₹२,५०० में उपलब्ध हैं।`,
       quickActionLabel: 'स्मार्ट सिंचाई खोलें',
       followUps: [
         'गर्मी में पौधों को कितना पानी चाहिए?',

@@ -20,8 +20,29 @@ const COMMON_PLANTS = [
   { name: 'Aloe Vera', aliases: ['aloe', 'aloe vera', 'કુવારપાઠું', 'एलोवेरा', 'घृतकुमारी'] },
   { name: 'Methi', aliases: ['methi', 'fenugreek', 'મેથી', 'मेथी'] },
   { name: 'Cucumber', aliases: ['cucumber', 'કાકડી', 'खीरा'] },
-  { name: 'Curry Leaves / Neem', aliases: ['curry leaves', 'kadi patta', 'neem', 'લીમડ', 'મીઠો લીમડો', 'કઢી પત્તા', 'નીમ', 'नीम', 'कढ़ी पत्ता'] },
+  // NOTE: Neem/curry-leaves excluded here intentionally — "neem" in messages almost always
+  // refers to neem OIL as a pesticide spray, not the plant itself being cared for.
+  // We resolve it as a pests/safety topic in intent scoring instead.
+  { name: 'Curry Leaves', aliases: ['curry leaves', 'kadi patta', 'કઢી પત્તા', 'कढ़ी पत्ता'] },
+  { name: 'Neem Tree', aliases: ['neem tree', 'neem plant', 'neem sapling', 'nimtree', 'લીમડ', 'મીઠો લીમડો', 'नीम का पेड़'] },
 ];
+
+/**
+ * Check whether a neem mention is about the neem plant itself (gardening)
+ * vs neem oil/spray used as a pesticide treatment.
+ * Returns 'plant' | 'pesticide' | null
+ */
+function classifyNeemContext(text) {
+  const lower = (text || '').toLowerCase();
+  if (!lower.includes('neem') && !lower.includes('नीम') && !lower.includes('નીમ') && !lower.includes('લીમડ')) return null;
+  // If question is about neem oil, spray, छिड़काव, treatment → pesticide context
+  const pesticidePatterns = /(neem\s*oil|neem\s*spray|neem\s*solution|neem\s*extract|neem\s*water|spray.*neem|नीम.*तेल|नीम.*स्प्रे|नीम.*छिड़काव|तेल.*नीम|नीम.*घोल|छिड़काव.*नीम|nalim|નીમ.*તેલ|નીમ.*સ્પ્રે|નીમ.*છંટ|તેલ.*નીમ|ним.*масл)/i;
+  if (lower.match(pesticidePatterns)) return 'pesticide';
+  // If asking about growing/planting/caring for neem tree
+  const plantCarePatterns = /(neem\s*tree|neem\s*plant|neem\s*sapling|grow.*neem|plant.*neem|नीम.*पेड़|नीम.*पौध|नीम.*उगाना|नीम.*लगाना|નીમ.*છોડ|નીમ.*ઝાડ)/i;
+  if (lower.match(plantCarePatterns)) return 'plant';
+  return 'pesticide'; // Default: neem alone in agri context → pesticide/spray
+}
 
 // Common plant symptoms and conditions
 const SYMPTOMS = [
@@ -43,14 +64,24 @@ const FOLLOW_UP_PATTERNS = [
 ];
 
 /**
- * Extract plant entities from message
+ * Extract plant entities from message.
+ * Handles neem context disambiguation to avoid misclassifying pesticide spray
+ * questions as "Curry Leaves / Neem" plant care questions.
  */
 function extractPlant(text) {
   const lower = (text || '').toLowerCase();
-  for (const plant of COMMON_PLANTS) {
-    if (plant.aliases.some(alias => lower.includes(alias))) {
-      return plant.name;
+  // First check neem context explicitly
+  const neemCtx = classifyNeemContext(lower);
+  if (neemCtx === 'pesticide') {
+    // Don't count this as a plant — it's a spray/pesticide context
+    for (const plant of COMMON_PLANTS) {
+      if (plant.name === 'Neem Tree' || plant.name === 'Curry Leaves') continue;
+      if (plant.aliases.some(alias => lower.includes(alias))) return plant.name;
     }
+    return null;
+  }
+  for (const plant of COMMON_PLANTS) {
+    if (plant.aliases.some(alias => lower.includes(alias))) return plant.name;
   }
   return null;
 }
@@ -216,9 +247,14 @@ function detectIntent(text, language = 'en', history = []) {
     scores.diagnosis += 3;
   }
 
-  // 2. Watering & Irrigation
+  // 2. Watering & Irrigation (broad match)
   if (lower.match(/(water|watering|irrigation|schedule|moisture|dry\s*soil|પાણી|સિંચાઈ|વોટરિંગ|ભેજ|સુકાઈ|पानी|सिंचाई|नमी|सूखी\s*मिट्टी)/i)) {
     scores.watering += 5;
+  }
+  // 2b. Specific drip/timer irrigation questions → strongly boost watering
+  if (lower.match(/(drip|ड्रिप|टपक|timer|टाइमर|schedule\s*water|automatic.*water|water.*automat|ड्रिप.*टाइमर|टाइमर.*लगाना|siphon|solenoid|drip.*install|install.*drip|drip.*setup|drip.*terrace|terrace.*drip|छत.*ड्रिप|ड्रिप.*छत|ড্রিপ|ટપક|ટ્રિ|टपक.*सिंचाई)/i)) {
+    scores.watering += 6;
+    scores.equipment -= 2; // Penalize equipment for drip-irrigation specific questions
   }
 
   // 3. Gardens & Containers
@@ -246,6 +282,14 @@ function detectIntent(text, language = 'en', history = []) {
   if (lower.match(/(pest|bug|insect|aphid|whitefl|mealybug|mite|caterpillar|worm|neem|spray|oil|જીવાત|ઈયળ|માખી|સફેદ\s*માખી|કીડા|લીમડ|નીમ|તેલ|ઓઈલ|સ્પ્રે|છાંટ|છંટકાવ|કીટ|माहू|सफेद\s*मक्खी|मिलीबग|कीड़ा|इल्ली|नीम|तेल|छिड़काव)/i)) {
     scores.pests += 5;
   }
+  // 7b. Neem-spray/oil + pest-control context → strong pests boost, penalize equipment
+  //     This prevents "नीम स्प्रे के लिए कौन सा स्प्रेयर" routing to equipment list
+  const isNeemPesticide = classifyNeemContext(lower) === 'pesticide';
+  if (isNeemPesticide && lower.match(/(कीट|कीड़|नियंत्रित|control|pest|bug|spray|छिड़काव|नीम.*तेल|तेल.*नीम|स्प्रेयर.*नीम|नीम.*स्प्रेयर|किसे\s*उपयोग|कौन\s*सा\s*स्प्रेयर|जैविक.*नीम|neem.*spray|neem.*oil|neem.*control|spray.*neem|oil.*neem|छंटकाव|ઓઈલ.*છંટ|નીમ.*જીવાત|лімда.*теल)/i)) {
+    scores.pests += 6;
+    scores.equipment -= 4; // Strongly penalize equipment when neem spray is the TOOL, not the topic
+  }
+
 
   // 8. Fertilizers & Soil Nutrition
   if (lower.match(/(fertiliz|compost|nutrient|vermicompost|manure|npk|epsom|banana\s*peel|soil\s*food|ખાતર|અળસિયા|પોષક|છાણીયું|खाद|उर्वरक|केंचुआ|गोबर|पोषण)/i)) {
@@ -258,8 +302,15 @@ function detectIntent(text, language = 'en', history = []) {
   }
 
   // 10. Farming & Gardening Equipments / Machinery / Tools
-  if (lower.match(/(equipment|tool|machin|tractor|tiller|rotavator|cultivator|plough|plow|sprayer|knapsack|drip|sprinkler|pump|shear|secateur|trowel|spade|shovel|rake|hoe|khurpi|dibber|seed\s*drill|grow\s*bag|shade\s*net|ph\s*meter|moisture\s*meter|harvester|thresher|harrow|chainsaw|mower|weeder|nozzle|pipe|hose|tubewell|borewell|ટ્રેક્ટર|ટિલર|રોટાવેટર|કલ્ટીવેટર|હળ|પ્લાઉ|ઓરણી|સીડ\s*ડ્રીલ|સ્પ્રેયર|પંપ|કાતર|સિકેટર્સ|પાવડો|કોદાળી|ત્રિકમ|ખુરપી|પંજેટી|ઝારી|સાધન|ઓજાર|યંત્ર|ટપક|ફુવારા|ગ્રો\s*બેગ|શેડ\s*નેટ|ટૂલ|ट्रैक्टर|टिलर|रोटावेटर|कल्टीवेटर|हल|सीड\s*ड्रिल|स्प्रेयर|पंप|सिकेटर|कैंची|फावड़ा|कुदाल|खुरपी|हजारी|उपकरण|औजार|यंत्र|मशीन|ड्रिप|फव्वारा|ग्रो\s*बैग|शेड\s*नेट|टूल)/i)) {
+  // Exclude drip/sprinkler if watering already scored high (context is watering, not equipment listing)
+  const isWateringFocused = scores.watering >= 8;
+  const equipmentRegex = /(equipment|tool|machin|tractor|tiller|rotavator|cultivator|plough|plow|sprayer|knapsack|shear|secateur|trowel|spade|shovel|rake|hoe|khurpi|dibber|seed\s*drill|grow\s*bag|shade\s*net|ph\s*meter|moisture\s*meter|harvester|thresher|harrow|chainsaw|mower|weeder|ટ્રેક્ટર|ટિલર|રોટાવેટર|કલ્ટીવેટર|હળ|પ્લાઉ|ઓરણી|સીડ\s*ડ્રીલ|સ્પ્રેયર|પંપ|કાતર|સિકેટર્સ|પાવડો|કોદાળી|ત્રિકમ|ખુરપી|પંજેટી|ઝારી|સાધન|ઓજાર|યંત્ર|ટૂલ|ट्रैक्टर|टिलर|रोटावेटर|कल्टीवेटर|हल|सीड\s*ड्रिल|स्प्रेयर|पंप|सिकेटर|कैंची|फावड़ा|कुदाल|खुरपी|हजारी|उपकरण|औजार|यंत्र|मशीन|ग्रो\s*बैग|शेड\s*नेट|टूल)/i;
+  // Only count drip/pump/sprinkler toward equipment when NOT a watering how-to question
+  const equipmentOnlyRegex = /(drip|sprinkler|pump|nozzle|pipe|hose|tubewell|borewell|ட்ரிப்|ड्रिप|फव्वारा|ટપક|ફુવારા)/i;
+  if (lower.match(equipmentRegex)) {
     scores.equipment += 6;
+  } else if (!isWateringFocused && lower.match(equipmentOnlyRegex)) {
+    scores.equipment += 4;
   }
 
   // If follow-up question and scores are low, inherit context
@@ -308,11 +359,16 @@ function detectIntent(text, language = 'en', history = []) {
   const kbGroup = KNOWLEDGE_BASE[topIntent] || KNOWLEDGE_BASE.general;
   const kbData = kbGroup[lang] || kbGroup.en;
 
+  // Only inherit context plant from history when the current message has
+  // no own plant entity AND the current message is a follow-up (not a new topic).
+  const ownPlant = extractPlant(lower);
+  const inheritedPlant = (!ownPlant && isFollowUp) ? contextPlant : null;
+
   return {
     intent: topIntent,
     confidence: Math.min(1.0, 0.6 + maxScore * 0.1),
     route: primaryRoute,
-    extractedPlant: extractPlant(lower) || contextPlant,
+    extractedPlant: ownPlant || inheritedPlant,
     extractedSymptom: extractSymptom(lower),
     quickActions: [
       {
