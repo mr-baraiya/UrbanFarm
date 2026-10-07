@@ -44,9 +44,30 @@ exports.sendMessage = async (req, res, next) => {
         }))
       : [];
 
+    let gardensSummary = null;
+    if (req.user?._id) {
+      try {
+        const Garden = require('../models/Garden');
+        const Plant = require('../models/Plant');
+        const userGardens = await Garden.find({ userId: req.user._id }).select('name type sunlight size').lean().limit(3);
+        const userPlants = await Plant.find({ userId: req.user._id }).select('name species location containerSize healthStatus').lean().limit(8);
+
+        if (userGardens.length > 0 || userPlants.length > 0) {
+          gardensSummary = {
+            gardens: userGardens.map((g) => `${g.name} (${g.type || 'balcony'}, ${g.sunlight || 'full'} sun)`),
+            plants: userPlants.map((p) => `${p.name || p.species} in ${p.location || 'Garden'}${p.containerSize ? ' (' + p.containerSize + ' pot)' : ''}`),
+          };
+        }
+      } catch (err) {
+        // Non-critical background fetch failure
+      }
+    }
+
     const userContext = {
       role: req.user?.role || 'guest',
       name: req.user?.name || null,
+      city: req.body?.city || req.headers['x-user-city'] || null,
+      gardensSummary,
     };
 
     const startTime = Date.now();
