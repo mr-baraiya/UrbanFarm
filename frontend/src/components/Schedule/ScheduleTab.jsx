@@ -42,6 +42,19 @@ const ScheduleTab = () => {
 
   useEffect(() => {
     loadData();
+
+    // Check if there is a pending quickTask from Diagnose or other tabs
+    const savedQuickTask = sessionStorage.getItem('quickTask');
+    if (savedQuickTask) {
+      try {
+        const parsed = JSON.parse(savedQuickTask);
+        sessionStorage.removeItem('quickTask');
+        setEditingTask(parsed);
+        setShowForm(true);
+      } catch (e) {
+        console.error('Failed to parse quickTask:', e);
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -499,7 +512,7 @@ const ScheduleTab = () => {
           }}
           onSubmit={async (data) => {
             try {
-              if (editingTask) {
+              if (editingTask && editingTask._id) {
                 await updateTask(editingTask._id, data);
                 addNotification(t('schedule.taskUpdated', 'Task updated!'), 'success');
               } else {

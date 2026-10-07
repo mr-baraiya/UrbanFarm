@@ -108,7 +108,11 @@ const DiagnosisHistory = ({
                 <div className="history-content">
                   <div className="history-header-row">
                     <span className="history-disease">
-                      {getLocalizedDynamicText(item.diseaseName, i18n.language)}
+                      {(() => {
+                        const activeLang = i18n.language || 'en';
+                        const trans = item.translations?.[activeLang] || item.translations?.get?.(activeLang);
+                        return trans?.diseaseName || getLocalizedDynamicText(item.diseaseName, activeLang);
+                      })()}
                     </span>
                     <span className="history-status-tag" style={{ color: status.color, borderColor: status.color }}>
                       {status.label}
@@ -116,9 +120,14 @@ const DiagnosisHistory = ({
                   </div>
                   
                   <div className="history-details">
-                    {item.plantId?.name && (
+                    {(item.plantId?.name || item.plantName) && (
                       <span className="history-plant">
-                        {getLocalizedDynamicText(item.plantId.name, i18n.language)}
+                        {(() => {
+                          const activeLang = i18n.language || 'en';
+                          const trans = item.translations?.[activeLang] || item.translations?.get?.(activeLang);
+                          if (item.plantId?.name) return getLocalizedDynamicText(item.plantId.name, activeLang);
+                          return trans?.plantName || getLocalizedDynamicText(item.plantName, activeLang);
+                        })()}
                       </span>
                     )}
                     <span className="history-confidence">

@@ -1,11 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { History, Search, Sprout, Sun, Calendar, ArrowRight, Bookmark, BookmarkCheck, Inbox } from 'lucide-react';
+import { 
+  History, 
+  Search, 
+  Sprout, 
+  Sun, 
+  Calendar, 
+  ArrowRight, 
+  Bookmark, 
+  BookmarkCheck, 
+  Inbox, 
+  ChevronLeft, 
+  ChevronRight 
+} from 'lucide-react';
 import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import './CropHistory.css';
 
+const ITEMS_PER_PAGE = 5;
+
 const CropHistory = ({ 
-  history, 
+  history = [], 
   onItemClick, 
   selectedId, 
   onSave,
@@ -15,6 +29,12 @@ const CropHistory = ({
   onFilterChange
 }) => {
   const { t, i18n } = useTranslation();
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset to page 1 whenever filter, search term, or history length changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterType, searchTerm, history.length]);
 
   const filterOptions = [
     { value: 'all', label: t('crops.filterAll', 'All') },
@@ -49,6 +69,27 @@ const CropHistory = ({
     if (s === 'fall' || s === 'autumn') return t('crops.seasonFall', 'Fall');
     if (s === 'winter') return t('crops.seasonWinter', 'Winter');
     return season;
+  };
+
+  // Pagination calculations
+  const totalPages = Math.ceil(history.length / ITEMS_PER_PAGE) || 1;
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+  const startIndex = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, history.length);
+  const paginatedHistory = history.slice(startIndex, endIndex);
+
+  // Generate clean sliding page window
+  const getVisiblePages = () => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    if (safeCurrentPage <= 3) {
+      return [1, 2, 3, 4, '...', totalPages];
+    }
+    if (safeCurrentPage >= totalPages - 2) {
+      return [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    }
+    return [1, '...', safeCurrentPage - 1, safeCurrentPage, safeCurrentPage + 1, '...', totalPages];
   };
 
   return (
@@ -96,7 +137,7 @@ const CropHistory = ({
         </div>
       ) : (
         <div className="history-list">
-          {history.map((item) => {
+          {paginatedHistory.map((item) => {
             const isSelected = selectedId === item._id;
             const crops = item.recommendations || [];
             
@@ -170,6 +211,53 @@ const CropHistory = ({
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      {history.length > ITEMS_PER_PAGE && (
+        <div className="history-pagination">
+          <span className="pagination-info">
+            {startIndex + 1}–{endIndex} {t('common.of', 'of')} {history.length}
+          </span>
+          <div className="pagination-controls">
+            <button 
+              type="button"
+              className="btn-page-nav" 
+              onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+              disabled={safeCurrentPage === 1}
+              title={t('common.previous', 'Previous')}
+              aria-label="Previous Page"
+            >
+              <ChevronLeft size={16} />
+            </button>
+
+            {getVisiblePages().map((pageNum, idx) => (
+              pageNum === '...' ? (
+                <span key={`ellipsis-${idx}`} className="pagination-ellipsis">…</span>
+              ) : (
+                <button
+                  key={pageNum}
+                  type="button"
+                  className={`btn-page-num ${safeCurrentPage === pageNum ? 'active' : ''}`}
+                  onClick={() => setCurrentPage(pageNum)}
+                >
+                  {pageNum}
+                </button>
+              )
+            ))}
+
+            <button 
+              type="button"
+              className="btn-page-nav" 
+              onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+              disabled={safeCurrentPage === totalPages}
+              title={t('common.next', 'Next')}
+              aria-label="Next Page"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
         </div>
       )}
     </div>

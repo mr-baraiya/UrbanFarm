@@ -110,7 +110,7 @@ const TaskForm = ({ task, onClose, onSubmit, plants, gardens }) => {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content task-form-modal" onClick={(e) => e.stopPropagation()}>
         <div className="task-form-header">
-          <h3>{task ? t('schedule.editTaskModal', 'Edit Task') : t('schedule.createNewTask', 'Create New Task')}</h3>
+          <h3>{task?._id ? t('schedule.editTaskModal', 'Edit Task') : t('schedule.createNewTask', 'Create New Task')}</h3>
           <button className="task-modal-close" onClick={onClose} type="button" aria-label="Close">
             ×
           </button>

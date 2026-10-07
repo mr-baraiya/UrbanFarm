@@ -52,7 +52,7 @@
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
   gap: 1.75rem;
-  align-items: flex-start;
+  align-items: stretch;
 }
 
 @media (max-width: 1024px) {
@@ -66,6 +66,7 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  height: 100%;
 }
 
 /* Form */
@@ -75,6 +76,10 @@
   border-radius: 18px;
   border: 1.5px solid rgba(107, 144, 128, 0.22);
   box-shadow: 0 4px 20px rgba(31, 58, 48, 0.04);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
 }
 
 .form-header {
@@ -568,7 +573,10 @@
   border-radius: 18px;
   border: 1.5px solid rgba(107, 144, 128, 0.22);
   box-shadow: 0 4px 20px rgba(31, 58, 48, 0.04);
-  max-height: 850px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
   overflow-y: auto;
 }
 

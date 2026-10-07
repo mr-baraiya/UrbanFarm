@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   FaLeaf,
-  FaRobot,
   FaCloudSunRain,
   FaUsers,
   FaSeedling,
@@ -12,6 +11,7 @@ import {
   FaQuoteLeft,
   FaStar,
 } from 'react-icons/fa';
+import { Sparkles, Microscope } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import SEO from '../../components/SEO/SEO';
 import './LandingPage.css';
@@ -23,7 +23,7 @@ const LandingPage = () => {
 
   const features = [
     {
-      icon: <FaRobot />,
+      icon: <Sparkles size={24} />,
       title: t('landing.plantDiseaseTitle'),
       desc: t('landing.plantDiseaseDesc'),
       link: '/features',
@@ -150,7 +150,7 @@ const LandingPage = () => {
                 </div>
               </div>
               <div className="smart-status-item">
-                <FaRobot className="item-icon green" />
+                <Sparkles size={20} className="item-icon green" />
                 <div>
                   <strong>{t('landing.widgetAiTitle')}</strong>
                   <p>{t('landing.widgetAiDesc')}</p>
@@ -207,7 +207,7 @@ const LandingPage = () => {
               className={`preview-tab-btn ${activeTab === 'diagnosis' ? 'active' : ''}`}
               onClick={() => setActiveTab('diagnosis')}
             >
-              <FaRobot /> {t('landing.plantDiseaseTitle')}
+              <Sparkles size={16} style={{ marginRight: 6 }} /> {t('landing.plantDiseaseTitle')}
             </button>
             <button
               className={`preview-tab-btn ${activeTab === 'weather' ? 'active' : ''}`}

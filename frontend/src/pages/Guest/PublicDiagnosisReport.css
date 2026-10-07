@@ -109,6 +109,68 @@
   border-radius: 999px;
 }
 
+.pub-header-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.pub-pdf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.45rem 1rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #1f3a30;
+  background: #ffffff;
+  border: 1px solid #a4c3b2;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(107, 144, 128, 0.12);
+  transition: all 0.2s ease;
+}
+
+.pub-pdf-btn:hover:not(:disabled) {
+  background: #eaf4f4;
+  border-color: #6b9080;
+  transform: translateY(-1px);
+}
+
+.pub-pdf-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.pub-pdf-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0.75rem 1.4rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, #2d6a4f 0%, #1f3a30 100%);
+  border: 1px solid #2d6a4f;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(31, 58, 48, 0.2);
+  transition: all 0.2s ease;
+}
+
+.pub-pdf-action-btn:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.pub-pdf-action-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 .pub-lang-group {
   display: flex;
   gap: 0.3rem;
@@ -395,13 +457,102 @@
   flex-shrink: 0;
 }
 
+.pub-section-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px;
+  padding: 1rem 1.15rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+}
+
+.pub-desi-section,
+.pub-chemical-section,
+.pub-expert-section {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.pub-desi-section .pub-section-title,
+.pub-chemical-section .pub-section-title,
+.pub-expert-section .pub-section-title {
+  color: #0f172a;
+}
+
+.pub-remedy-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+.pub-remedy-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.65rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.pub-remedy-card.chemical-item {
+  border-color: #e2e8f0;
+}
+
+.pub-remedy-card p {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: #1e293b;
+}
+
+.pub-remedy-tag {
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #16a34a;
+}
+
+.pub-remedy-tag.chem-tag {
+  color: #2563eb;
+}
+
+.pub-bullet-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.pub-bullet-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: #1e293b;
+  padding: 0.45rem 0.65rem;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+}
+
+.pub-symptom-bullet {
+  color: #d97706;
+  font-weight: 800;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
 /* Action Strip */
 .pub-action-strip {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.75rem;
   padding-top: 0.5rem;
 }
 
@@ -409,39 +560,60 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
-  padding: 0.75rem 1.4rem;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #1f3a30;
-  background: #cce3de;
-  border: 1px solid #a4c3b2;
-  border-radius: 12px;
+  min-height: 42px;
+  padding: 0.55rem 1.15rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1e293b;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .pub-share-btn:hover {
-  background: #a4c3b2;
+  background: #f1f5f9;
 }
 
 .pub-cta-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
-  padding: 0.75rem 1.5rem;
-  font-size: 0.95rem;
+  min-height: 42px;
+  padding: 0.55rem 1.25rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: #ffffff;
-  background: linear-gradient(135deg, #6b9080 0%, #4f7363 100%);
-  border-radius: 12px;
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  border-radius: 8px;
   text-decoration: none;
   transition: all 0.2s ease;
 }
 
 .pub-cta-link:hover {
   filter: brightness(1.08);
+}
+
+.pub-section-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #166534;
+  margin-bottom: 0.25rem;
+}
+
+.pub-severity-card {
+  background: #ffffff !important;
+}
+
+.pub-severity-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
 @media (max-width: 480px) {
@@ -461,3 +633,90 @@
     width: 100%;
   }
 }
+
+/* ========================================================================= */
+/* PDF-ONLY LAB BRANDING & 1-PAGE EXPORT OPTIMIZER */
+/* ========================================================================= */
+
+.dr-pdf-header,
+.dr-pdf-footer {
+  display: none;
+}
+
+.pub-card-wrapper.dr-pdf-export-mode {
+  width: 980px !important;
+  max-width: 980px !important;
+  padding: 16px 20px !important;
+  margin: 0 auto !important;
+  background: #f6fff8 !important;
+  box-sizing: border-box !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+}
+
+.pub-card-wrapper.dr-pdf-export-mode .pub-header-row,
+.pub-card-wrapper.dr-pdf-export-mode .pub-action-strip,
+.pub-card-wrapper.dr-pdf-export-mode .pub-translating-bar {
+  display: none !important;
+}
+
+.pub-card-wrapper.dr-pdf-export-mode .dr-pdf-header {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #6b9080;
+  margin-bottom: 2px;
+}
+
+.pub-card-wrapper.dr-pdf-export-mode .dr-pdf-footer {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid #cce3de;
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: #52796f;
+  font-weight: 500;
+}
+
+.pub-card-wrapper.dr-pdf-export-mode .pub-grid {
+  grid-template-columns: 240px 1fr !important;
+  gap: 12px !important;
+}
+
+.pub-card-wrapper.dr-pdf-export-mode .pub-leaf-img {
+  height: 140px !important;
+}
+
+.pub-card-wrapper.dr-pdf-export-mode .pub-metrics-card {
+  padding: 8px !important;
+  gap: 6px !important;
+}
+
+.pub-card-wrapper.dr-pdf-export-mode .pub-section-card {
+  padding: 8px 12px !important;
+  margin-bottom: 6px !important;
+}
+
+.pub-card-wrapper.dr-pdf-export-mode .pub-issue-title {
+  font-size: 1.35rem !important;
+  margin-bottom: 4px !important;
+}
+
+.pub-card-wrapper.dr-pdf-export-mode .pub-section-title {
+  font-size: 0.95rem !important;
+}
+
+.pub-card-wrapper.dr-pdf-export-mode .pub-bullet-list li,
+.pub-card-wrapper.dr-pdf-export-mode .pub-cause-row,
+.pub-card-wrapper.dr-pdf-export-mode .pub-action-step,
+.pub-card-wrapper.dr-pdf-export-mode .pub-remedy-box,
+.pub-card-wrapper.dr-pdf-export-mode .pub-tip-row {
+  font-size: 0.82rem !important;
+  line-height: 1.3 !important;
+  margin-bottom: 3px !important;
+}
+
+

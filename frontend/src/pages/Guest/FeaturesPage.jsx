@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
-  FaRobot,
   FaCloudSunRain,
   FaSeedling,
   FaUsers,
@@ -26,6 +25,7 @@ import {
   FaMobileAlt,
   FaMapMarkerAlt,
 } from 'react-icons/fa';
+import { Sparkles } from 'lucide-react';
 import SEO from '../../components/SEO/SEO';
 import './FeaturesPage.css';
 
@@ -38,7 +38,7 @@ const FeaturesPage = () => {
       id: 'disease-diagnosis',
       title: t('featuresPage.f1Title'),
       badge: t('featuresPage.f1Badge'),
-      icon: <FaRobot />,
+      icon: <Sparkles size={24} />,
       miniIcon: <FaMicroscope />,
       accent: '#27ae60',
       accentDark: '#1e8449',

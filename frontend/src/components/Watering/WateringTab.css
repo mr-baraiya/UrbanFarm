@@ -30,35 +30,24 @@
 
 .watering-tab .subtitle {
   color: var(--text-muted, #7c6f66);
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   font-size: 1rem;
   line-height: 1.5;
 }
 
-.watering-layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-}
-
-@media (max-width: 1024px) {
-  .watering-layout {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-}
-
-.watering-left {
+/* Top Section Controls Stack */
+.watering-top-stack {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 /* Plant Selector & Generate Section */
 .watering-generate-section {
   background: var(--bg-primary, #fbf9f7);
-  padding: 1.25rem 1.5rem;
-  border-radius: var(--radius-md, 12px);
+  padding: 1.15rem 1.4rem;
+  border-radius: var(--radius-md, 14px);
   border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
 }
 
@@ -70,21 +59,21 @@
 }
 
 .plant-selector label {
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-main, #2c2421);
   font-size: 0.95rem;
 }
 
 .plant-selector select {
   flex: 1;
-  padding: 0.5rem 1.2rem;
+  padding: 0.55rem 1.2rem;
   border-radius: var(--radius-md, 12px);
   border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
   background: var(--surface-primary, #ffffff);
   color: var(--text-main, #2c2421);
   font-size: 0.92rem;
   font-weight: 500;
-  min-width: 160px;
+  min-width: 180px;
   cursor: pointer;
   transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
   appearance: none;
@@ -139,7 +128,7 @@
 .bulk-controls {
   background: var(--bg-primary, #fbf9f7);
   padding: 0.85rem 1.25rem;
-  border-radius: var(--radius-md, 12px);
+  border-radius: var(--radius-md, 14px);
   border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
   display: flex;
   align-items: center;
@@ -148,7 +137,7 @@
 }
 
 .controls-label {
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-main, #2c2421);
   font-size: 0.88rem;
   display: inline-flex;
@@ -182,13 +171,48 @@
   transform: translateY(-1px);
 }
 
+/* Equal Height 2-Column Layout */
+.watering-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: stretch;
+}
+
+@media (max-width: 1024px) {
+  .watering-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.watering-left,
+.watering-right {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 540px;
+}
+
 /* Schedule and History Detail Containers */
 .watering-schedule-section,
-.watering-history-detail {
+.watering-history-detail,
+.no-schedule-box {
   background: var(--bg-primary, #fbf9f7);
   padding: 1.5rem;
-  border-radius: var(--radius-md, 12px);
+  border-radius: var(--radius-md, 16px);
   border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+}
+
+.no-schedule-box {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .history-detail-header-bar {
@@ -235,27 +259,28 @@
   transform: translateY(-1px);
 }
 
-/* Right Column - History Panel */
 .watering-right {
   background: var(--bg-primary, #fbf9f7);
   padding: 1.5rem;
-  border-radius: var(--radius-md, 12px);
+  border-radius: var(--radius-md, 16px);
   border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
-  max-height: 800px;
-  overflow-y: auto;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
 }
 
 .watering-right::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 
 .watering-right::-webkit-scrollbar-track {
-  background: var(--bg-primary, #fbf9f7);
-  border-radius: 10px;
+  background: transparent;
 }
 
 .watering-right::-webkit-scrollbar-thumb {
-  background: rgba(220, 210, 200, 0.6);
+  background: rgba(107, 144, 128, 0.3);
   border-radius: 10px;
 }
 
@@ -269,8 +294,10 @@
   .watering-generate-section,
   .watering-schedule-section,
   .watering-history-detail,
-  .watering-right {
+  .watering-right,
+  .no-schedule-box {
     padding: 1rem;
+    min-height: auto;
   }
 }
 

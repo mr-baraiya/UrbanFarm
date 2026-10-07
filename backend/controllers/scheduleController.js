@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const ScheduleTask = require('../models/ScheduleTask');
 const WateringSchedule = require('../models/WateringSchedule');
 const badgeService = require('../services/badgeService');
@@ -119,6 +120,10 @@ exports.getTasks = async (req, res, next) => {
 // @route   PUT /api/schedule/:id
 exports.updateTask = async (req, res, next) => {
   try {
+    if (!req.params.id || !mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'Invalid task ID' });
+    }
+
     const { plantId, gardenId } = req.body;
     
     // ✅ Clean IDs - convert empty strings to null
@@ -151,6 +156,10 @@ exports.updateTask = async (req, res, next) => {
 // @route   PUT /api/schedule/:id/complete
 exports.completeTask = async (req, res, next) => {
   try {
+    if (!req.params.id || !mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'Invalid task ID' });
+    }
+
     const existingTask = await ScheduleTask.findOne({ _id: req.params.id, userId: req.user.id });
     if (!existingTask) {
       return res.status(404).json({ success: false, message: 'Task not found' });
@@ -223,6 +232,10 @@ exports.completeTask = async (req, res, next) => {
 // @route   DELETE /api/schedule/:id
 exports.deleteTask = async (req, res, next) => {
   try {
+    if (!req.params.id || !mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'Invalid task ID' });
+    }
+
     const task = await ScheduleTask.findOneAndDelete({ _id: req.params.id, userId: req.user.id });
     if (!task) {
       return res.status(404).json({ success: false, message: 'Task not found' });

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { diagnosePlant, getDiagnosisHistory, getPlants } from '../../services/plantService';
 import { useNotification } from '../../hooks/useNotification';
@@ -11,6 +11,7 @@ import './DiagnoseTab.css';
 
 const DiagnoseTab = () => {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const plantIdParam = searchParams.get('plant');
   
@@ -254,6 +255,9 @@ const DiagnoseTab = () => {
         formData.append('plantId', selectedPlant);
       }
 
+      const activeLangName = i18n.language === 'gu' ? 'Gujarati' : i18n.language === 'hi' ? 'Hindi' : 'English';
+      formData.append('language', activeLangName);
+
       const response = await diagnosePlant(formData);
       const resData = response.diagnosis || response;
       setResult(resData);
@@ -276,17 +280,37 @@ const DiagnoseTab = () => {
   };
 
   const handleAddToSchedule = (diag) => {
-    const diseaseName = diag.disease || diag.diseaseName || 'Plant Health Task';
+    if (!diag) return;
+    const diseaseName = diag.diseaseName || diag.disease || 'Plant Health Treatment';
+    
+    // Combine treatment actions into clear description
+    const actions = [];
+    if (diag.immediateActions && diag.immediateActions.length > 0) {
+      actions.push(`[${t('diagnose.section5Title', 'Immediate Action')}]:\n` + diag.immediateActions.map((a, i) => `${i + 1}. ${a}`).join('\n'));
+    }
+    if (diag.naturalSolutions && diag.naturalSolutions.length > 0) {
+      actions.push(`[${t('diagnose.section7Title', 'Natural Solution')}]:\n` + diag.naturalSolutions.map((s, i) => `• ${s}`).join('\n'));
+    } else if (diag.modernSolutions && diag.modernSolutions.length > 0) {
+      actions.push(`[${t('diagnose.section6Title', 'Modern Solution')}]:\n` + diag.modernSolutions.map((s, i) => `• ${s}`).join('\n'));
+    } else if (diag.treatmentSteps && diag.treatmentSteps.length > 0) {
+      actions.push(diag.treatmentSteps.join('\n'));
+    } else if (diag.treatment) {
+      actions.push(diag.treatment);
+    }
+
+    const targetPlantId = diag.plantId?._id || (typeof diag.plantId === 'string' ? diag.plantId : '') || selectedPlant || '';
+
     const taskData = {
-      title: `Treatment: ${diseaseName}`,
-      description: diag.treatmentSteps?.length ? diag.treatmentSteps.join('\n') : (diag.treatment || 'Apply botanical care treatment'),
-      type: 'other',
-      priority: (diag.confidence || 0) > 0.7 ? 'high' : 'medium',
-      dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      plantId: diag.plantId?._id || diag.plantId || selectedPlant || '',
+      title: `${t('diagnose.treatment', 'Treatment')}: ${diseaseName}`,
+      description: actions.join('\n\n') || `Care routine for ${diseaseName}`,
+      type: 'pest_check',
+      priority: (diag.severity || '').toLowerCase().includes('severe') || (diag.confidence || 0) > 0.7 ? 'high' : 'medium',
+      dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      plantId: targetPlantId,
     };
+    
     sessionStorage.setItem('quickTask', JSON.stringify(taskData));
-    window.location.href = '/app/schedule';
+    navigate('/app/schedule');
   };
 
   const activePlantObj = plants.find(p => p._id === selectedPlant);
@@ -299,7 +323,7 @@ const DiagnoseTab = () => {
         <DiseaseResult 
           result={activeItem} 
           isHistory={Boolean(selectedHistory)}
-          onAddToSchedule={() => handleAddToSchedule(activeItem)}
+          onAddToSchedule={(diagData) => handleAddToSchedule(diagData || activeItem)}
           onBack={() => { setResult(null); setSelectedHistory(null); }}
           onClose={() => { setResult(null); setSelectedHistory(null); }}
         />
@@ -310,7 +334,6 @@ const DiagnoseTab = () => {
   return (
     <div className="diagnose-tab">
       <div className="diagnose-page-header">
-        <span className="diagnose-header-tag">AI Pathology</span>
         <h2>{t('diagnose.title', 'Plant Disease Diagnosis')}</h2>
         <p className="diagnose-subtitle">
           {t('diagnose.subtitle', "Upload a clear photo of your plant's leaves or select a plant to run AI disease detection.")}

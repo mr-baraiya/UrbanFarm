@@ -65,8 +65,10 @@
 /* Plant Selector */
 .plant-selector {
   display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
   margin-bottom: 1rem;
   width: 100%;
 }
@@ -75,13 +77,15 @@
   font-size: 0.9rem;
   color: var(--text-muted, #7c6f66);
   font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .plant-selector-inner {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  width: 100%;
+  flex: 1;
   min-width: 0;
 }
 

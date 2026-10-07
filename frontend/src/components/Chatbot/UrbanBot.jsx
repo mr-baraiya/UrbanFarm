@@ -21,6 +21,46 @@ import {
 import { MdSupportAgent } from 'react-icons/md';
 import './UrbanBot.css';
 
+// Dedicated Krishi AI Support Assistant Avatar with Leaf Badge
+const KrishiAIAvatar = ({ size = 32, className = '' }) => (
+  <div 
+    className={`krishi-ai-avatar-wrapper ${className}`}
+    style={{
+      width: size,
+      height: size,
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      position: 'relative',
+      color: '#ffffff',
+      lineHeight: 1,
+    }}
+  >
+    <MdSupportAgent style={{ width: '100%', height: '100%', color: '#ffffff' }} />
+    <span
+      className="krishi-avatar-leaf-badge"
+      style={{
+        position: 'absolute',
+        bottom: '-2px',
+        right: '-2px',
+        width: `${Math.max(14, Math.round(size * 0.44))}px`,
+        height: `${Math.max(14, Math.round(size * 0.44))}px`,
+        backgroundColor: '#52b788',
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        border: '1.5px solid #1b4332',
+        color: '#ffffff',
+        fontSize: `${Math.max(7, Math.round(size * 0.24))}px`,
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.25)',
+      }}
+    >
+      <FaSeedling />
+    </span>
+  </div>
+);
+
 // Female voice indicators across Windows, macOS, iOS, Android, and Chromium
 const FEMALE_VOICE_KEYWORDS = [
   'female', 'woman', 'girl',
@@ -908,10 +948,7 @@ const UrbanBot = () => {
             title={t('chatbot.openTitle', 'Chat with Krishi AI')}
           >
             <div className="bot-launcher-inner">
-              <MdSupportAgent className="bot-launcher-icon" />
-              <span className="bot-launcher-leaf-badge" title="Krishi AI">
-                <FaSeedling />
-              </span>
+              <KrishiAIAvatar size={36} className="bot-launcher-avatar-svg" />
             </div>
             <span className="bot-online-badge"></span>
           </button>
@@ -925,10 +962,7 @@ const UrbanBot = () => {
           <div className="urban-bot-header">
             <div className="bot-header-info">
               <div className="bot-avatar-circle">
-                <MdSupportAgent className="bot-header-avatar-icon" />
-                <span className="bot-header-leaf-badge">
-                  <FaSeedling />
-                </span>
+                <KrishiAIAvatar size={32} className="bot-header-avatar-svg" />
               </div>
               <div className="bot-header-text-group">
                 <h4 className="bot-header-title">
@@ -995,7 +1029,7 @@ const UrbanBot = () => {
               >
                 {msg.sender === 'bot' && (
                   <div className="msg-bot-avatar">
-                    <MdSupportAgent className="msg-agent-icon" />
+                    <KrishiAIAvatar size={24} className="msg-agent-svg" />
                   </div>
                 )}
 
@@ -1117,7 +1151,7 @@ const UrbanBot = () => {
             {loading && (
               <div className="urban-bot-message-row bot-row">
                 <div className="msg-bot-avatar">
-                  <MdSupportAgent className="msg-agent-icon" />
+                  <KrishiAIAvatar size={24} className="msg-agent-svg" />
                 </div>
                 <div className="urban-bot-bubble bot typing-bubble">
                   <span className="dot"></span>

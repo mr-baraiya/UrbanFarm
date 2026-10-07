@@ -20,7 +20,7 @@ import {
   RiGlobalLine
 } from 'react-icons/ri';
 import { useAuth } from '../../hooks/useAuth';
-import { updateProfile, getBadges, uploadImage } from '../../services/authService';
+import { updateProfile, getBadges, getBadgesData, uploadImage } from '../../services/authService';
 import { getGardens, getPlants, getDiagnosisHistory, getCommunityPosts } from '../../services/plantService';
 import { useNotification } from '../../hooks/useNotification';
 import Badges from './Badges';
@@ -150,6 +150,15 @@ const Profile = () => {
 
   useEffect(() => {
     loadData();
+
+    const handleDataRefresh = () => {
+      loadData();
+    };
+
+    window.addEventListener('urbanfarm:refresh-data', handleDataRefresh);
+    return () => {
+      window.removeEventListener('urbanfarm:refresh-data', handleDataRefresh);
+    };
   }, [user]);
 
   useEffect(() => {
@@ -181,15 +190,18 @@ const Profile = () => {
 
   const loadData = async () => {
     try {
-      const [badgesData, gardensData, plantsData, diagnosesData, postsData] = await Promise.all([
-        getBadges(),
-        getGardens(),
-        getPlants(),
-        getDiagnosisHistory(),
-        getCommunityPosts(),
+      const [badgesDataRes, gardensData, plantsData, diagnosesData, postsData] = await Promise.all([
+        getBadgesData().catch(() => null),
+        getGardens().catch(() => []),
+        getPlants().catch(() => []),
+        getDiagnosisHistory().catch(() => []),
+        getCommunityPosts().catch(() => []),
       ]);
 
-      setBadges(badgesData || []);
+      const earnedBadges = Array.isArray(badgesDataRes?.badges) 
+        ? badgesDataRes.badges 
+        : (Array.isArray(badgesDataRes) ? badgesDataRes : []);
+      setBadges(earnedBadges);
       
       const currentUserId = user?._id || user?.id;
       const userPosts = Array.isArray(postsData) 
@@ -199,23 +211,31 @@ const Profile = () => {
           })
         : [];
 
-      const totalGardens = Array.isArray(gardensData) ? gardensData.length : 0;
-      const totalPlants = Array.isArray(plantsData) ? plantsData.length : 0;
-      const totalDiagnoses = Array.isArray(diagnosesData) ? diagnosesData.length : 0;
-      const totalPosts = userPosts.length;
-      const totalWatering = Array.isArray(plantsData) 
+      const directGardens = Array.isArray(gardensData) ? gardensData.length : 0;
+      const directPlants = Array.isArray(plantsData) ? plantsData.length : 0;
+      const directDiagnoses = Array.isArray(diagnosesData) ? diagnosesData.length : 0;
+      const directPosts = userPosts.length;
+      const directWatering = Array.isArray(plantsData) 
         ? plantsData.reduce((acc, p) => acc + (Array.isArray(p.wateringHistory) ? p.wateringHistory.length : 0), 0)
         : 0;
-      const totalHarvests = Array.isArray(plantsData) 
+      const directHarvests = Array.isArray(plantsData) 
         ? plantsData.filter(p => p.status === 'harvested' || (Array.isArray(p.harvestHistory) && p.harvestHistory.length > 0)).length 
         : 0;
       
+      const backendStats = badgesDataRes?.stats || {};
+      const totalGardens = backendStats.totalGardens !== undefined ? backendStats.totalGardens : directGardens;
+      const totalPlants = backendStats.totalPlants !== undefined ? backendStats.totalPlants : directPlants;
+      const totalDiagnoses = backendStats.totalDiagnoses !== undefined ? backendStats.totalDiagnoses : directDiagnoses;
+      const totalCommunityPosts = backendStats.totalCommunityPosts !== undefined ? backendStats.totalCommunityPosts : directPosts;
+      const totalWateringEvents = Math.max(backendStats.totalWateringEvents || 0, directWatering);
+      const totalHarvests = backendStats.totalHarvests !== undefined ? backendStats.totalHarvests : directHarvests;
+
       setStats({
         totalGardens,
         totalPlants,
         totalDiagnoses,
-        totalCommunityPosts: totalPosts,
-        totalWateringEvents: totalWatering,
+        totalCommunityPosts,
+        totalWateringEvents,
         totalHarvests,
       });
     } catch (error) {

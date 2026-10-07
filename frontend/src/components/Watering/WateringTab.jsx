@@ -366,82 +366,83 @@ const WateringTab = () => {
       </h2>
       <p className="subtitle">{t('watering.subtitle', 'Intelligent watering schedules powered by weather data')}</p>
       
-      <div className="watering-layout">
-        {/* Left Column - Generate & Current Schedule */}
-        <div className="watering-left">
-          {/* Weather Widget */}
-          <WeatherWidget 
-            weather={weatherData} 
-            forecast={forecastData}
-            loading={loadingWeather}
-          />
+      {/* Top Section: Weather Widget & Plant Selector Controls */}
+      <div className="watering-top-stack">
+        <WeatherWidget 
+          weather={weatherData} 
+          forecast={forecastData}
+          loading={loadingWeather}
+        />
 
-          {/* Plant Selector & Generate */}
-          <div className="watering-generate-section">
-            <div className="plant-selector">
-              <label>{t('watering.selectPlant', 'Select Plant:')}</label>
-              {loadingData ? (
-                <div className="plant-selector-skeleton">
-                  <RiLoader4Line className="spin" /> {t('watering.loadingPlants', 'Loading plants...')}
-                </div>
+        <div className="watering-generate-section">
+          <div className="plant-selector">
+            <label>{t('watering.selectPlant', 'Select Plant:')}</label>
+            {loadingData ? (
+              <div className="plant-selector-skeleton">
+                <RiLoader4Line className="spin" /> {t('watering.loadingPlants', 'Loading plants...')}
+              </div>
+            ) : (
+              <select 
+                value={selectedPlant?._id || ''} 
+                onChange={(e) => {
+                  const plant = plants.find(p => p._id.toString() === e.target.value);
+                  if (plant) {
+                    setSelectedPlant(plant);
+                    const match = history.find(s => (s.plantId?._id || s.plantId)?.toString() === plant._id.toString());
+                    setSchedule(match || null);
+                  }
+                }}
+              >
+                {plants.map(p => (
+                  <option key={p._id} value={p._id}>{getLocalizedDynamicText(p.name, i18n.language)}</option>
+                ))}
+              </select>
+            )}
+            <button 
+              className="btn-primary" 
+              onClick={handleGenerate} 
+              disabled={!selectedPlant || loading || loadingData}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+            >
+              {loading ? (
+                <><RiLoader4Line className="spin" /> {t('watering.generatingSchedule', 'Generating...')}</>
               ) : (
-                <select 
-                  value={selectedPlant?._id || ''} 
-                  onChange={(e) => {
-                    const plant = plants.find(p => p._id.toString() === e.target.value);
-                    if (plant) {
-                      setSelectedPlant(plant);
-                      const match = history.find(s => (s.plantId?._id || s.plantId)?.toString() === plant._id.toString());
-                      setSchedule(match || null);
-                    }
-                  }}
-                >
-                  {plants.map(p => (
-                    <option key={p._id} value={p._id}>{getLocalizedDynamicText(p.name, i18n.language)}</option>
-                  ))}
-                </select>
+                <><RiRefreshLine /> {t('watering.generateSchedule', 'Generate Schedule')}</>
               )}
-              <button 
-                className="btn-primary" 
-                onClick={handleGenerate} 
-                disabled={!selectedPlant || loading || loadingData}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
-              >
-                {loading ? (
-                  <><RiLoader4Line className="spin" /> {t('watering.generatingSchedule', 'Generating...')}</>
-                ) : (
-                  <><RiRefreshLine /> {t('watering.generateSchedule', 'Generate Schedule')}</>
-                )}
-              </button>
-            </div>
+            </button>
           </div>
+        </div>
 
-          {/* Bulk Adjustment Controls */}
-          {schedule && schedule.schedule && schedule.schedule.length > 0 && (
-            <div className="bulk-controls">
-              <span className="controls-label" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                <RiFlashlightLine /> {t('watering.quickAdjust', 'Quick Adjust:')}
-              </span>
-              <button 
-                className="control-btn hot"
-                onClick={() => handleBulkAdjust('hot_weather')}
-                title={t('watering.heatwaveBoostTitle', 'Increase all volumes by 20% for hot weather')}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
-              >
-                <RiSunLine /> {t('watering.heatwaveBoost', 'Heatwave Boost')}
-              </button>
-              <button 
-                className="control-btn rain"
-                onClick={() => handleBulkAdjust('rain_delay')}
-                title={t('watering.rainDelayTitle', 'Skip watering for next 3 days due to rain')}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
-              >
-                <RiRainyLine /> {t('watering.rainDelay', 'Rain Delay')}
-              </button>
-            </div>
-          )}
+        {/* Bulk Adjustment Controls */}
+        {schedule && schedule.schedule && schedule.schedule.length > 0 && (
+          <div className="bulk-controls">
+            <span className="controls-label" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+              <RiFlashlightLine /> {t('watering.quickAdjust', 'Quick Adjust:')}
+            </span>
+            <button 
+              className="control-btn hot"
+              onClick={() => handleBulkAdjust('hot_weather')}
+              title={t('watering.heatwaveBoostTitle', 'Increase all volumes by 20% for hot weather')}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+            >
+              <RiSunLine /> {t('watering.heatwaveBoost', 'Heatwave Boost')}
+            </button>
+            <button 
+              className="control-btn rain"
+              onClick={() => handleBulkAdjust('rain_delay')}
+              title={t('watering.rainDelayTitle', 'Skip watering for next 3 days due to rain')}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+            >
+              <RiRainyLine /> {t('watering.rainDelay', 'Rain Delay')}
+            </button>
+          </div>
+        )}
+      </div>
 
-          {/* Schedule Display */}
+      {/* 2-Column Equal Height Layout */}
+      <div className="watering-layout">
+        {/* Left Column - Active Schedule Card */}
+        <div className="watering-left">
           {schedule ? (
             <div className="watering-schedule-section">
               <WateringSchedule 
@@ -455,7 +456,7 @@ const WateringTab = () => {
               />
             </div>
           ) : (
-            <div className="no-schedule-box" style={{ background: '#ffffff', padding: '2rem', borderRadius: '16px', textAlign: 'center', border: '1px solid rgba(0,0,0,0.1)' }}>
+            <div className="no-schedule-box">
               <p style={{ color: '#4a3f3a', marginBottom: '1rem', fontWeight: 500 }}>
                 {t('watering.noScheduleForPlant', { plant: (selectedPlant?.name ? getLocalizedDynamicText(selectedPlant.name, i18n.language) : t('watering.thisPlant', 'this plant')) })}
               </p>
@@ -466,7 +467,7 @@ const WateringTab = () => {
           )}
         </div>
 
-        {/* Right Column - History */}
+        {/* Right Column - History Card */}
         <div className="watering-right">
           <WateringHistory 
             allHistory={history}

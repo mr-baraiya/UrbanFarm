@@ -10,12 +10,8 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
-  position: sticky;
-  top: 0;
-  background: var(--bg-primary, #fbf9f7);
   padding-bottom: 0.75rem;
   border-bottom: 2px solid var(--border-light, rgba(220, 210, 200, 0.4));
-  z-index: 2;
 }
 
 .history-header h3 {
@@ -35,18 +31,18 @@
   font-weight: 500;
 }
 
-.history-filters {
+.diagnosis-history .history-filters {
   margin-bottom: 1rem;
   width: 100%;
 }
 
-.history-filters .search-bar {
+.diagnosis-history .history-filters .search-bar {
   position: relative;
   margin-bottom: 0.6rem;
   width: 100%;
 }
 
-.history-filters .search-icon {
+.diagnosis-history .history-filters .search-icon {
   position: absolute;
   left: 14px;
   top: 50%;
@@ -55,7 +51,7 @@
   pointer-events: none;
 }
 
-.history-filters .search-bar input {
+.diagnosis-history .history-filters .search-bar input {
   width: 100%;
   padding: 0.65rem 1rem 0.65rem 2.4rem;
   border: 1px solid #cce3de;
@@ -68,48 +64,58 @@
   box-sizing: border-box;
 }
 
-.history-filters .search-bar input:focus {
+.diagnosis-history .history-filters .search-bar input:focus {
   outline: none;
   border-color: #6b9080;
   box-shadow: 0 0 0 3px rgba(107, 144, 128, 0.15);
 }
 
-.history-filters .search-bar input::placeholder {
+.diagnosis-history .history-filters .search-bar input::placeholder {
   color: var(--text-muted, #7c6f66);
   font-size: 0.88rem;
 }
 
-.filter-pills {
+.diagnosis-history .filter-pills {
   display: flex;
-  gap: 0.4rem;
-  flex-wrap: wrap;
+  gap: 0.35rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 0 4px 0;
   width: 100%;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-.filter-pill {
-  padding: 0.35rem 0.8rem;
+.diagnosis-history .filter-pills::-webkit-scrollbar {
+  display: none;
+}
+
+.diagnosis-history .filter-pill {
+  padding: 0.28rem 0.65rem;
   border: 1px solid var(--border-light, rgba(220, 210, 200, 0.6));
   border-radius: 20px;
   background: #ffffff;
   color: var(--text-muted, #7c6f66);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
-  min-height: 32px;
+  min-height: 28px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.filter-pill:hover {
+.diagnosis-history .filter-pill:hover {
   border-color: #6b9080;
   background: #f6fff8;
   color: #1f3a30;
 }
 
-.filter-pill.active {
+.diagnosis-history .filter-pill.active {
   border-color: #6b9080;
   background: #6b9080;
   color: #ffffff;

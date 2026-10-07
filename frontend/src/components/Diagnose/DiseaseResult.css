@@ -1,27 +1,29 @@
-/* Full-Page Botanical Diagnosis Report Styling */
+/* Full-Page Botanical Clinical Diagnosis Report - Styling */
 
 .disease-result-fullpage {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   box-sizing: border-box;
 }
 
-/* Top bar navigation */
+/* ========================================================================= */
+/* IMPROVISED HEADER TOPBAR                                                  */
+/* ========================================================================= */
 .dr-topbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
-  background: linear-gradient(135deg, #f6fff8 0%, #eaf4f4 100%);
-  border: 1px solid #cce3de;
-  border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(107, 144, 128, 0.08);
+  gap: 0.75rem;
+  padding: 0.75rem 1.15rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
 }
 
 .dr-topbar-left,
@@ -29,63 +31,109 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.65rem;
 }
 
 .dr-back-btn {
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
-  padding: 0.5rem 1.15rem;
-  font-size: 0.95rem;
+  gap: 0.45rem;
+  min-height: 38px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
-  color: #1f3a30;
+  color: #334155;
   background: #ffffff;
-  border: 1px solid #a4c3b2;
-  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .dr-back-btn:hover {
-  background: #eaf4f4;
-  border-color: #6b9080;
-  color: #1f3a30;
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
 }
 
 .dr-report-badge {
-  padding: 0.4rem 0.85rem;
-  font-size: 0.82rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #1f3a30;
-  background: #cce3de;
+  color: #15803d;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
   border-radius: 999px;
 }
 
+.dr-pdf-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0.4rem 1rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #1e293b;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
 
+.dr-pdf-btn:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.dr-pdf-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.dr-spin-icon {
+  animation: drSpin 1s linear infinite;
+}
+
+@keyframes drSpin {
+  to { transform: rotate(360deg); }
+}
 
 .dr-share-btn {
   display: inline-flex;
   align-items: center;
+  gap: 0.45rem;
   justify-content: center;
-  min-height: 44px;
-  padding: 0.6rem 1.25rem;
-  font-size: 0.95rem;
+  min-height: 38px;
+  padding: 0.4rem 1.15rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: #ffffff;
-  background: linear-gradient(135deg, #6b9080 0%, #4f7363 100%);
-  border: none;
-  border-radius: 10px;
+  background: #16a34a;
+  border: 1px solid #15803d;
+  border-radius: 8px;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(107, 144, 128, 0.25);
+  box-shadow: 0 1px 4px rgba(22, 163, 74, 0.2);
   transition: all 0.2s ease;
 }
 
 .dr-share-btn:hover {
-  filter: brightness(1.08);
-  transform: translateY(-1px);
+  background: #15803d;
+}
+
+/* Printable Report Wrapper */
+.dr-report-printable-area {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  width: 100%;
 }
 
 /* Notice / Translation Banners */
@@ -93,24 +141,24 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 0.85rem 1.25rem;
-  border-radius: 12px;
-  font-size: 0.92rem;
+  gap: 0.75rem;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  font-size: 0.86rem;
   font-weight: 500;
 }
 
 .dr-notice-loading {
-  background: #eaf4f4;
-  border: 1px solid #a4c3b2;
-  color: #1f3a30;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
 }
 
 .dr-pulse-dot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: #6b9080;
+  background: #16a34a;
   display: inline-block;
   animation: drPulse 1.4s infinite ease-in-out;
 }
@@ -122,444 +170,1263 @@
 }
 
 .dr-notice-error {
-  background: #fdf2f2;
+  background: #fef2f2;
   border: 1px solid #fecaca;
   color: #991b1b;
+}
+
+.dr-notice-unsure {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #92400e;
 }
 
 .dr-text-action-btn {
   background: none;
   border: none;
-  color: #1f3a30;
+  color: #166534;
   font-weight: 700;
   text-decoration: underline;
   cursor: pointer;
-  min-height: 44px;
+  min-height: 36px;
   padding: 0 0.5rem;
 }
 
-
-
-/* Main Grid Layout */
-.dr-main-grid {
-  display: grid;
-  grid-template-columns: 380px 1fr;
+/* Non-Plant Warning Layout */
+.non-plant-fullpage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 1.5rem;
-  align-items: start;
 }
 
-@media (max-width: 900px) {
-  .dr-main-grid {
+.non-plant-card {
+  width: 100%;
+  max-width: 600px;
+  margin: 1.5rem auto;
+  padding: 2.25rem 1.5rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.non-plant-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #92400e;
+  margin: 0;
+}
+
+.non-plant-desc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: #4b5563;
+  max-width: 480px;
+  margin: 0;
+}
+
+.non-plant-actions {
+  margin-top: 0.5rem;
+}
+
+.non-plant-retry-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.65rem 1.35rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-radius: 8px;
+  background: #16a34a;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+}
+
+/* ========================================================================= */
+/* UNIFIED CLEAN WHITE CARDS SYSTEM (All icons removed inside body)          */
+/* ========================================================================= */
+.dr-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+  box-sizing: border-box;
+}
+
+.dr-hero-dossier-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px;
+  padding: 1.15rem 1.35rem;
+}
+
+.dr-hero-grid {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+@media (max-width: 850px) {
+  .dr-hero-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
   }
 }
 
-/* Cards */
-.dr-card {
-  background: #ffffff;
-  border: 1px solid #cce3de;
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 10px rgba(107, 144, 128, 0.05);
-}
-
-.dr-image-card {
-  padding: 1rem;
+.dr-hero-media {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 0.5rem;
 }
 
-.dr-full-image {
+.dr-hero-image {
   width: 100%;
-  max-height: 360px;
+  height: 160px;
   object-fit: cover;
-  border-radius: 12px;
-  border: 1px solid #cce3de;
-  background: #f6fff8;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
 }
 
 .dr-no-image-placeholder {
   width: 100%;
-  height: 240px;
-  background: #eaf4f4;
-  border: 1px dashed #a4c3b2;
-  border-radius: 12px;
+  height: 160px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #6b9080;
+  color: #64748b;
   font-weight: 600;
+  font-size: 0.85rem;
 }
 
-.dr-media-details {
+.dr-hero-media-tags {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.dr-severity-row {
-  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-}
-
-.dr-meta-label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #4a6659;
-}
-
-.dr-confidence-text {
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: #1f3a30;
-}
-
-.dr-confidence-meter {
-  width: 100%;
-  height: 8px;
-  background: #eaf4f4;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.dr-confidence-fill {
-  height: 100%;
-  border-radius: 999px;
-  transition: width 0.4s ease;
+  gap: 0.4rem;
 }
 
 .dr-pill-tag {
-  display: inline-block;
-  padding: 0.35rem 0.8rem;
-  border-radius: 999px;
-  font-size: 0.82rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.74rem;
   font-weight: 700;
+  border-radius: 999px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
 }
 
 .dr-pill-tag.healthy {
-  background: #cce3de;
-  color: #1f3a30;
-}
-
-.dr-pill-tag.warning {
-  background: #fef3c7;
-  color: #92400e;
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
 }
 
 .dr-pill-tag.critical {
   background: #fee2e2;
   color: #991b1b;
+  border: 1px solid #fecaca;
 }
 
-.dr-plant-link-row {
+.dr-pill-tag.warning {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.dr-confidence-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  border-radius: 999px;
+}
+
+.confidence-high {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.confidence-med {
+  background: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.confidence-low {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.dr-hero-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dr-hero-top-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 0.5rem;
-  border-top: 1px solid #eaf4f4;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
-.dr-plant-name {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #1f3a30;
-}
-
-/* Right Content Column */
-.dr-content-column {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.dr-headline-card {
-  background: linear-gradient(135deg, #f6fff8 0%, #eaf4f4 100%);
-  border: 1px solid #cce3de;
-}
-
-.dr-eyebrow {
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: #6b9080;
-  display: block;
-  margin-bottom: 0.35rem;
-}
-
-.dr-disease-title {
-  font-size: 1.85rem;
+.dr-section-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
   font-weight: 800;
-  color: #1f3a30;
-  line-height: 1.25;
-  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #334155;
 }
 
-.dr-description-text {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: #2c4a3e;
+.dr-plant-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #166534;
+  background: #dcfce7;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid #bbf7d0;
+}
+
+.dr-pill-sci-name {
+  font-weight: 500;
+  font-style: italic;
+  opacity: 0.85;
+}
+
+.dr-hero-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: #0f172a;
   margin: 0;
+  line-height: 1.25;
+}
+
+.dr-hero-explanation {
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: #475569;
+  margin: 0;
+}
+
+.dr-hero-vitals-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.85rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  margin-top: 0.35rem;
+}
+
+.dr-vital-item {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.dr-vital-label {
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: normal;
+  color: #64748b;
+}
+
+.dr-vital-val {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.dr-vital-divider {
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  user-select: none;
+}
+
+.text-healthy {
+  color: #16a34a !important;
+}
+
+.text-severe {
+  color: #dc2626 !important;
+}
+
+.text-moderate {
+  color: #d97706 !important;
+}
+
+/* ========================================================================= */
+/* DASHBOARD 2-COLUMN GRID ROWS                                             */
+/* ========================================================================= */
+.dr-dashboard-row {
+  width: 100%;
+}
+
+.dr-two-col-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+}
+
+@media (max-width: 850px) {
+  .dr-two-col-grid {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
 }
 
 .dr-section-card {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 
 .dr-section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #eaf4f4;
-  padding-bottom: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 0.2rem;
 }
 
 .dr-section-title {
-  font-size: 1.15rem;
+  font-size: 1.02rem;
   font-weight: 700;
-  color: #1f3a30;
+  color: #0f172a;
   margin: 0;
+}
+
+/* Bullets & Lists */
+.dr-bullet-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.dr-bullet-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: #1e293b;
+  padding: 0.4rem 0.6rem;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 6px;
+}
+
+.dr-symptom-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #d97706;
+  margin-top: 0.45rem;
+  flex-shrink: 0;
+}
+
+.dr-causes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.dr-cause-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: #1e293b;
+  padding: 0.4rem 0.6rem;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 6px;
+}
+
+.dr-cause-bullet {
+  color: #7c3aed;
+  font-weight: 800;
+  font-size: 1rem;
+  line-height: 1;
 }
 
 .dr-steps-count {
-  font-size: 0.82rem;
+  font-size: 0.74rem;
   font-weight: 600;
-  color: #6b9080;
-  background: #eaf4f4;
-  padding: 0.25rem 0.6rem;
+  color: #475569;
+  background: #f1f5f9;
+  padding: 0.15rem 0.5rem;
   border-radius: 999px;
 }
 
-.dr-section-body {
-  font-size: 0.98rem;
-  line-height: 1.65;
-  color: #2c4a3e;
+.dr-healthy-state-box {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
+  color: #166534;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+/* Severity Card */
+.dr-severity-status-pill {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+}
+
+.severity-badge-healthy {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.severity-badge-mild {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.severity-badge-moderate {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.severity-badge-severe {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.dr-severity-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.dr-severity-meter-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.dr-severity-meter-val {
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.dr-severity-progress-bar {
+  width: 100%;
+  height: 7px;
+  background: #f1f5f9;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.dr-severity-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.dr-severity-progress-fill.severity-badge-healthy {
+  background: #16a34a;
+}
+
+.dr-severity-progress-fill.severity-badge-mild {
+  background: #0284c7;
+}
+
+.dr-severity-progress-fill.severity-badge-moderate {
+  background: #d97706;
+}
+
+.dr-severity-progress-fill.severity-badge-severe {
+  background: #dc2626;
+}
+
+.dr-severity-desc-text {
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: #475569;
   margin: 0;
 }
 
-/* Treatment Steps */
+/* Immediate Action Card */
+.dr-urgent-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 0.2rem 0.55rem;
+  background: #ffedd5;
+  color: #ea580c;
+  border: 1px solid #fed7aa;
+  border-radius: 999px;
+}
+
 .dr-steps-list {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 0.4rem;
 }
 
 .dr-step-item {
   display: flex;
-  gap: 1rem;
+  gap: 0.55rem;
   align-items: flex-start;
-  background: #f6fff8;
-  border: 1px solid #eaf4f4;
-  border-radius: 12px;
-  padding: 0.9rem 1.1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.45rem 0.65rem;
 }
 
 .dr-step-number {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 28px;
-  height: 28px;
-  background: #6b9080;
+  min-width: 20px;
+  height: 20px;
+  background: #ea580c;
   color: #ffffff;
   border-radius: 50%;
-  font-size: 0.85rem;
-  font-weight: 700;
+  font-size: 0.72rem;
+  font-weight: 800;
   flex-shrink: 0;
 }
 
 .dr-step-text {
-  font-size: 0.95rem;
-  line-height: 1.55;
-  color: #1f3a30;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  color: #1e293b;
+}
+
+/* Remedy Grid & Boxes */
+.dr-badge-natural {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 0.2rem 0.55rem;
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+  border-radius: 999px;
+}
+
+.dr-badge-chemical {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 0.2rem 0.55rem;
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+}
+
+.dr-remedy-subtext {
+  font-size: 0.82rem;
+  color: #64748b;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.dr-remedy-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.45rem;
+}
+
+.dr-remedy-box {
+  padding: 0.55rem 0.75rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.dr-remedy-badge {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.dr-remedy-body {
+  font-size: 0.86rem;
+  line-height: 1.4;
+  color: #1e293b;
 }
 
 /* Prevention Tips */
 .dr-tips-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.4rem;
 }
 
 .dr-tip-item {
   display: flex;
-  gap: 0.85rem;
+  gap: 0.55rem;
   align-items: flex-start;
-  background: #eaf4f4;
-  border-radius: 10px;
-  padding: 0.85rem 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.45rem 0.65rem;
 }
 
 .dr-tip-bullet {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: #6b9080;
+  background: #0d9488;
   margin-top: 0.45rem;
   flex-shrink: 0;
 }
 
 .dr-tip-text {
-  font-size: 0.93rem;
-  line-height: 1.55;
-  color: #1f3a30;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  color: #1e293b;
 }
 
-.dr-empty-hint {
-  font-size: 0.9rem;
-  color: #6b9080;
-  font-style: italic;
+/* Expert Card */
+.dr-section-body {
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: #334155;
   margin: 0;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
 }
 
-/* AI Tips Loading State */
+/* ========================================================================= */
+/* IMPROVISED FOOTER DOCK                                                    */
+/* ========================================================================= */
+.dr-bottom-dock {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.75rem 1.15rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.dr-dock-left-group,
+.dr-dock-right-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.dr-schedule-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0.45rem 1.15rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: #16a34a;
+  border: 1px solid #15803d;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(22, 163, 74, 0.2);
+  transition: all 0.2s ease;
+}
+
+.dr-schedule-btn:hover {
+  background: #15803d;
+}
+
+.dr-dock-share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0.45rem 1rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #1e293b;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dr-dock-share-btn:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.dr-rescan-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0.45rem 1rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #475569;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dr-rescan-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Loading & Retry states */
 .dr-tips-loading-box {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
-  padding: 1.15rem 1.35rem;
-  background: linear-gradient(135deg, rgba(234, 244, 244, 0.7) 0%, rgba(204, 227, 222, 0.45) 100%);
-  border: 1px solid #cce3de;
-  border-radius: 12px;
-  color: #1f3a30;
-  font-size: 0.92rem;
-  font-weight: 500;
-  animation: drFadeIn 0.3s ease-in-out;
+  gap: 0.55rem;
+  padding: 0.65rem 0.85rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  color: #64748b;
 }
 
 .dr-tips-loading-spinner {
-  width: 18px;
-  height: 18px;
-  border: 2.5px solid #6b9080;
-  border-top-color: transparent;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #cbd5e1;
+  border-top-color: #16a34a;
   border-radius: 50%;
   animation: drSpin 0.8s linear infinite;
-  flex-shrink: 0;
 }
 
-@keyframes drSpin {
-  to { transform: rotate(360deg); }
-}
-
-@keyframes drFadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Tips Error & Retry Box */
 .dr-tips-error-box {
-  background: #fff8f6;
-  border: 1px dashed #e6a594;
-  border-radius: 12px;
-  padding: 1.25rem;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  padding: 0.55rem 0.75rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
 }
 
 .dr-tips-error-box p {
   margin: 0;
-  font-size: 0.92rem;
-  color: #c94a4a;
+  font-size: 0.84rem;
+  color: #dc2626;
 }
 
 .dr-retry-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
-  padding: 0.5rem 1.15rem;
-  font-size: 0.9rem;
+  min-height: 32px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: #ffffff;
-  background: #6b9080;
+  background: #16a34a;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.dr-retry-btn:hover {
-  background: #4f7363;
+.dr-empty-hint {
+  font-size: 0.84rem;
+  color: #94a3b8;
+  font-style: italic;
+  margin: 0;
 }
 
-/* Footer Actions */
-.dr-footer-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  padding-top: 0.5rem;
-}
-
-.dr-schedule-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 700;
-  color: #ffffff;
-  background: linear-gradient(135deg, #6b9080 0%, #4f7363 100%);
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  box-shadow: 0 2px 10px rgba(107, 144, 128, 0.25);
-  transition: all 0.2s ease;
-}
-
-.dr-schedule-btn:hover {
-  filter: brightness(1.08);
-  transform: translateY(-1px);
-}
-
-.dr-secondary-share-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 0.75rem 1.35rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #1f3a30;
-  background: #eaf4f4;
-  border: 1px solid #cce3de;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.dr-secondary-share-btn:hover {
-  background: #cce3de;
-}
-
-/* Responsive constraints for 360px & 390px */
-@media (max-width: 480px) {
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
   .dr-topbar {
-    padding: 0.85rem;
+    padding: 0.65rem;
   }
   .dr-topbar-left,
-  .dr-topbar-right {
+  .dr-topbar-right,
+  .dr-dock-left-group,
+  .dr-dock-right-group {
     width: 100%;
     justify-content: space-between;
   }
-  .dr-share-btn {
+  .dr-hero-dossier-card {
+    padding: 0.85rem;
+  }
+  .dr-hero-title {
+    font-size: 1.35rem;
+  }
+  .dr-hero-image {
+    height: 150px;
+  }
+  .dr-bottom-dock {
+    padding: 0.75rem;
+  }
+  .dr-bottom-dock button {
     width: 100%;
   }
-  .dr-disease-title {
-    font-size: 1.45rem;
-  }
-  .dr-card {
-    padding: 1rem;
-  }
-  .dr-footer-actions button {
-    width: 100%;
-  }
+}
+
+/* ========================================================================= */
+/* DEDICATED 1-PAGE A4 PDF DOSSIER PRINT STYLES                             */
+/* (Strictly sized for 850px x 1200px exact A4 ratio with all white cards)   */
+/* ========================================================================= */
+.dr-dedicated-pdf-sheet {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 850px;
+  height: 1195px;
+  box-sizing: border-box;
+  background: #ffffff;
+  padding: 22px 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #0f172a;
+  z-index: -999;
+  pointer-events: none;
+}
+
+.pdf-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #16a34a;
+  margin-bottom: 6px;
+}
+
+.pdf-sheet-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pdf-sheet-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pdf-brand-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.pdf-brand-subtitle {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #166534;
+}
+
+.pdf-sheet-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.pdf-meta-date {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.pdf-meta-id {
+  font-size: 0.72rem;
+  font-family: monospace;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.pdf-meta-pill {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+
+.pdf-meta-pill.healthy {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.pdf-meta-pill.issue {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* PDF Card Styling */
+.pdf-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  box-sizing: border-box;
+}
+
+/* PDF Hero Layout */
+.pdf-hero-card {
+  padding: 8px 12px;
+  margin-bottom: 6px;
+}
+
+.pdf-hero-layout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pdf-specimen-img {
+  width: 100px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.pdf-no-img {
+  width: 100px;
+  height: 80px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.pdf-hero-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.pdf-hero-headline-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pdf-section-tag {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #f1f5f9;
+  color: #334155;
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+
+.pdf-plant-tag {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #166534;
+}
+
+.pdf-disease-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.pdf-disease-desc {
+  font-size: 0.76rem;
+  line-height: 1.3;
+  color: #475569;
+}
+
+.pdf-vitals-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 2px;
+}
+
+.pdf-vital-box {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pdf-vital-lbl {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.pdf-vital-val {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* PDF 2-Column Rows */
+.pdf-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.pdf-card-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 4px;
+}
+
+.pdf-card-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.pdf-counter-badge,
+.pdf-severity-pill,
+.pdf-urgent-pill,
+.pdf-control-pill,
+.pdf-organic-pill {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.pdf-counter-badge { background: #f1f5f9; color: #475569; }
+.pdf-severity-pill { background: #fee2e2; color: #991b1b; }
+.pdf-urgent-pill { background: #ffedd5; color: #ea580c; }
+.pdf-control-pill { background: #dbeafe; color: #1e40af; }
+.pdf-organic-pill { background: #dcfce7; color: #166534; }
+
+.pdf-bullet-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pdf-bullet-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  font-size: 0.74rem;
+  line-height: 1.25;
+  color: #1e293b;
+}
+
+.pdf-bullet-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #16a34a;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.pdf-meter-bar-wrap {
+  width: 100%;
+  height: 6px;
+  background: #f1f5f9;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.pdf-meter-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.pdf-severity-text,
+.pdf-expert-text {
+  font-size: 0.74rem;
+  line-height: 1.25;
+  color: #334155;
+}
+
+.pdf-sub-guide {
+  font-size: 0.68rem;
+  color: #64748b;
+  margin-bottom: 3px;
+  line-height: 1.2;
+}
+
+.pdf-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.pdf-step-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.pdf-step-idx {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  background: #ea580c;
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 0.62rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.pdf-step-txt {
+  font-size: 0.74rem;
+  line-height: 1.25;
+  color: #1e293b;
+}
+
+.pdf-remedies-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.pdf-remedy-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 3px 6px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 4px;
+}
+
+.pdf-remedy-num {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.pdf-remedy-txt {
+  font-size: 0.72rem;
+  line-height: 1.2;
+  color: #334155;
+}
+
+.pdf-healthy-notice {
+  font-size: 0.74rem;
+  color: #166534;
+  line-height: 1.25;
+}
+
+.pdf-empty-text {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.pdf-sheet-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 6px;
+  border-top: 1px solid #e2e8f0;
+  margin-top: 4px;
+  font-size: 0.68rem;
+  color: #64748b;
+  font-weight: 500;
 }
