@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import SEO from '../../components/SEO/SEO';
 import api from '../../services/api';
 import { useNotification } from '../../hooks/useNotification';
 import { validateContactForm } from '../../utils/validators';
@@ -17,7 +18,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import './ContactPage.css';
 
 const ContactPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { addNotification } = useNotification();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -106,6 +107,13 @@ const ContactPage = () => {
 
   return (
     <div className="contact-page">
+      <SEO
+        title={t('contact.heroTitle', 'Contact UrbanFarm – Customer Support & Partnerships')}
+        description={t('contact.heroSubtitle', 'Have questions about smart farming, plant disease AI, or need assistance? Reach out to the UrbanFarm team.')}
+        canonical="https://urbanfarm.baraiyavishalbhai32.workers.dev/contact"
+        keywords="contact urbanfarm, urban agriculture support, smart farming help, farming inquiries, agriculture feedback"
+        lang={i18n.language}
+      />
       {/* Hero Header */}
       <section className="contact-hero">
         <div className="contact-container text-center">

@@ -76,8 +76,9 @@ const LandingPage = () => {
   return (
     <div className="landing-page">
       <SEO
-        title={t('landing.heroTitle', 'UrbanFarm – Next-Gen Smart Urban Agriculture & AI Plant Guide')}
+        title="UrbanFarm - AI Powered Smart Urban Agriculture Platform"
         description={t('landing.heroSubtitle', 'Manage your urban garden with AI-powered plant disease detection, weather-based smart watering, and urban crop recommendations.')}
+        canonical="https://urbanfarm.baraiyavishalbhai32.workers.dev/"
         keywords="urban farming, AI plant diagnosis, smart watering, garden tracker, plant disease detection, urban crops, balcony farming, organic agriculture"
         lang={i18n.language}
       />

@@ -154,6 +154,24 @@ app.get('/sitemap.xml', (req, res) => {
     <priority>0.70</priority>
   </url>
   <url>
+    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/demo</loc>
+    <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/rewards</loc>
+    <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/market-prices</loc>
+    <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.90</priority>
+  </url>
+  <url>
     <loc>https://urbanfarm.baraiyavishalbhai32.workers.dev/app/diagnose</loc>
     <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
     <changefreq>daily</changefreq>

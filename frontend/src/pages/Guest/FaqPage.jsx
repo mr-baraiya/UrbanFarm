@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import SEO from '../../components/SEO/SEO';
 import {
   FaQuestionCircle,
   FaSearch,
@@ -12,7 +13,7 @@ import {
 import './FaqPage.css';
 
 const FaqPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [openIndex, setOpenIndex] = useState(0);
@@ -90,6 +91,13 @@ const FaqPage = () => {
 
   return (
     <div className="faq-page">
+      <SEO
+        title={t('faq.title', 'Frequently Asked Questions (FAQ) | UrbanFarm')}
+        description={t('faq.subtitle', 'Find answers to common questions about UrbanFarm AI disease detection, watering schedules, user privacy, and urban gardening.')}
+        canonical="https://urbanfarm.baraiyavishalbhai32.workers.dev/faq"
+        keywords="urban farming FAQ, plant disease questions, smart watering guide, urban agriculture help, FAQ"
+        lang={i18n.language}
+      />
       {/* Hero */}
       <section className="faq-hero">
         <div className="faq-container text-center">

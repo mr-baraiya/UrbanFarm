@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import SEO from '../../components/SEO/SEO';
 import {
   FaBullseye,
   FaGlobe,
@@ -12,7 +13,7 @@ import {
 import './AboutPage.css';
 
 const AboutPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const teamMembers = [
     {
@@ -65,6 +66,13 @@ const AboutPage = () => {
 
   return (
     <div className="about-page">
+      <SEO
+        title={t('about.heroH1', 'About UrbanFarm – Smart Urban Agriculture & Mission')}
+        description={t('about.heroSubtitle', 'Learn about UrbanFarm mission, sustainable urban agriculture pillars, and our team dedicated to empowering city growers with AI.')}
+        canonical="https://urbanfarm.baraiyavishalbhai32.workers.dev/about"
+        keywords="about urbanfarm, smart farming mission, urban agriculture team, sustainable gardening, rooftop farming vision"
+        lang={i18n.language}
+      />
       {/* Header Banner */}
       <section className="about-hero">
         <div className="about-container text-center">
