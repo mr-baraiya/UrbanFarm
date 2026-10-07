@@ -1,0 +1,182 @@
+/* Health Score Breakdown Card - Compact & Informative */
+.health-breakdown-card {
+  background: var(--surface-primary, #ffffff);
+  padding: 0.95rem 1.15rem;
+  border-radius: 16px;
+  border: 1px solid var(--border-light, rgba(107, 144, 128, 0.2));
+  box-shadow: 0 4px 16px rgba(31, 58, 48, 0.03);
+  margin-top: 0;
+  margin-bottom: 0.95rem;
+  transition: var(--transition-smooth, all 0.25s ease);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.health-breakdown-card:hover {
+  box-shadow: 0 6px 20px rgba(31, 58, 48, 0.06);
+}
+
+.breakdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-light, rgba(107, 144, 128, 0.15));
+  padding-bottom: 0.55rem;
+}
+
+.breakdown-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.breakdown-header-icon {
+  font-size: 1.3rem;
+  color: #ef4444;
+  flex-shrink: 0;
+}
+
+.breakdown-title-wrap h4 {
+  font-family: "Fraunces", serif;
+  color: var(--text-main, #1f3a30);
+  font-size: 0.96rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.breakdown-subtitle {
+  font-size: 0.72rem;
+  color: var(--text-muted, #385b4d);
+  margin: 0.1rem 0 0 0;
+  font-weight: 500;
+}
+
+.factors-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-bottom: 0.75rem;
+}
+
+.factor-item {
+  background: var(--bg-primary, rgba(142, 168, 157, 0.06));
+  border: 1px solid var(--border-light, rgba(107, 144, 128, 0.15));
+  border-radius: 12px;
+  padding: 0.55rem 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.factor-item:hover {
+  background: var(--surface-primary, #ffffff);
+  border-color: rgba(107, 144, 128, 0.3);
+  transform: translateY(-1px);
+}
+
+.factor-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.2rem;
+  flex-wrap: wrap;
+}
+
+.factor-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.factor-icon {
+  font-size: 1.05rem;
+  flex-shrink: 0;
+}
+
+.factor-icon.plant {
+  color: #2d6a4f;
+}
+
+.factor-icon.task {
+  color: #d97706;
+}
+
+.factor-icon.disease {
+  color: #0284c7;
+}
+
+.factor-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-main, #1f3a30);
+}
+
+.factor-badges-group {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.factor-weight-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.1rem 0.45rem;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.factor-live-stat {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted, #385b4d);
+  background: rgba(0, 0, 0, 0.04);
+  padding: 0.1rem 0.45rem;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.factor-desc {
+  font-size: 0.74rem;
+  color: var(--text-muted, #385b4d);
+  margin: 0;
+  line-height: 1.35;
+}
+
+.breakdown-tip-box {
+  background: linear-gradient(135deg, rgba(254, 243, 199, 0.45), rgba(255, 255, 255, 0.9));
+  border: 1px dashed #f59e0b;
+  border-radius: 10px;
+  padding: 0.45rem 0.65rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.tip-icon {
+  font-size: 0.95rem;
+  color: #d97706;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.breakdown-tip-box p {
+  font-size: 0.73rem;
+  color: #78350f;
+  margin: 0;
+  line-height: 1.35;
+  font-weight: 500;
+}
+
+@media (max-width: 480px) {
+  .health-breakdown-card {
+    padding: 0.75rem 0.85rem;
+  }
+  
+  .factor-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+}

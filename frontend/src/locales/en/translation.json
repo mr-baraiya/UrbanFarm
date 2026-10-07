@@ -469,6 +469,18 @@
     "healthGood": "Good",
     "healthFair": "Fair",
     "healthNeedsAttention": "Needs Attention",
+    "healthBreakdownTitle": "How Garden Health is Calculated",
+    "healthBreakdownSub": "Dynamically evaluated from 3 key factors",
+    "factor1Title": "Plant Health Vitality",
+    "factor1Weight": "50% Weight",
+    "factor1Desc": "Ratio of thriving healthy plants vs plants needing attention or warning.",
+    "factor2Title": "Task Care & Timeliness",
+    "factor2Weight": "30% Weight",
+    "factor2Desc": "Timely completion of watering and garden maintenance schedules.",
+    "factor3Title": "Disease & Pathology Status",
+    "factor3Weight": "20% Weight",
+    "factor3Desc": "Penalized by active, unresolved disease diagnoses in the past 14 days.",
+    "healthBreakdownTip": "Tip: Complete pending tasks and resolve active leaf issues to achieve an 80%+ Excellent score!",
     "noRecentActivity": "No recent activity",
     "actAdded": "Added",
     "actDiagnosed": "Diagnosed",
@@ -779,6 +791,11 @@
     "publicReportHint": "Open publicly accessible report link",
     "shareSocialHint": "WhatsApp, direct link & QR Code",
     "shareReportBtn": "Share Report",
+    "shareReport": "Share Report",
+    "sharePublicLink": "Share Report",
+    "generatingTipsWithGemini": "Analyzing pathological cause & AI tips with Gemini...",
+    "generatingTreatmentSteps": "Formulating actionable treatment steps with Gemini...",
+    "generatingPreventionTips": "Compiling long-term prevention guidelines...",
     "plantNeedsAttentionAlert": "This plant has been flagged as needing attention! Run a fresh diagnosis or schedule treatment.",
     "viewReportOnline": "Public Report"
   },
@@ -786,6 +803,7 @@
     "title": "AI Crop Recommendations",
     "subtitle": "Get personalized crop suggestions for your urban space",
     "quickPresets": "Quick Presets",
+    "presetsSubtitle": "One-click configurations",
     "presetContainer": "Balcony / Container Garden",
     "presetContainerDesc": "Pots, planters, and containers",
     "presetRaisedBed": "Raised Bed",
@@ -819,6 +837,9 @@
     "searchPlaceholder": "Search by crop, soil, season...",
     "filterAll": "All",
     "filterSaved": "Saved",
+    "saved": "Saved",
+    "save": "Save",
+    "viewDetails": "View Details →",
     "noHistory": "No recommendations yet.",
     "startPrompt": "Get your first crop suggestions!",
     "noCrops": "No crops",
@@ -858,7 +879,35 @@
     "seasonSpring": "Spring",
     "seasonSummer": "Summer",
     "seasonFall": "Fall",
-    "seasonWinter": "Winter"
+    "seasonWinter": "Winter",
+    "targetCropLabel": "Evaluate Specific Crop Compatibility (Optional):",
+    "targetCropPlaceholder": "e.g., Carrot, Cabbage, Blueberry, Watermelon",
+    "targetCropHint": "Tests whether this specific crop can thrive in your chosen {{soil}} soil (pH {{ph}}).",
+    "presetTagPots": "Pots",
+    "presetTagBed": "Raised Bed",
+    "presetTagRoof": "Rooftop",
+    "presetTagIndoor": "Indoor",
+    "soilLoamDesc": "Loam (Balanced, rich, versatile)",
+    "soilSandyDesc": "Sandy (Fast draining, light, warms fast)",
+    "soilClayDesc": "Clay (Heavy, dense, moisture & nutrient rich)",
+    "soilSiltyDesc": "Silty (Smooth, highly fertile, compacts easily)",
+    "soilPeatyDesc": "Peaty (Acidic, dark, high organic matter)",
+    "soilChalkyDesc": "Chalky (Alkaline, stony, free-draining)",
+    "soilSandyLoamDesc": "Sandy Loam (Aerated & fertile)",
+    "soilPottingMixDesc": "Potting Mix (Container substrate)",
+    "soilAssessment": "Soil Assessment",
+    "soilProfile": "Soil Profile",
+    "characteristics": "Characteristics",
+    "agronomicAdvice": "Agronomic Advice",
+    "suitableMatch": "Suitable Match",
+    "soilMismatchWarning": "Soil Mismatch Warning",
+    "recommendedAlternatives": "Recommended Alternatives for {{soil}} Soil:",
+    "consultingGemini": "Consulting Gemini Agronomy Engine...",
+    "consultingGeminiSub": "Evaluating {{soil}} soil traits, pH {{ph}}, and climatic suitability.",
+    "retryAnalysis": "Retry Analysis",
+    "match": "match",
+    "soilFit": "Soil Fit:",
+    "addToGarden": "Add to My Garden"
   },
   "watering": {
     "title": "Smart Watering",
@@ -1319,6 +1368,9 @@
     "badgesSection": {
       "title": "Badges & Achievements",
       "subtitle": "Earn distinctive achievement medallions as you grow and maintain your urban sanctuary!",
+      "allBadges": "All Badges",
+      "settingsTab": "Badge Settings",
+      "earnedCountTag": "{{earned}} of {{total}} Earned",
       "unlocked": "{{count}} / {{total}} Unlocked",
       "goal": "Goal:",
       "progress": "Progress:",
@@ -1327,6 +1379,27 @@
       "emptySubtitle": "Water plants, run health diagnoses, and share with the community to unlock achievements."
     },
     "badges": {
+      "pinned": "Pinned",
+      "earned": "Earned",
+      "locked": "Locked",
+      "unlockedVia": "Unlocked via:",
+      "howToEarn": "How to Earn:",
+      "settingsTitle": "Badge Display & Privacy Settings",
+      "settingsDesc": "Choose which earned badges are highlighted on your profile, pin your favorite milestone, and control public visibility.",
+      "saving": "Saving...",
+      "saveSettings": "Save Settings",
+      "privacyTitle": "Public & Community Profile Visibility",
+      "privacySub": "When enabled, your chosen badges will appear on your public gardener profile and community posts.",
+      "pinTitle": "Pin Favorite Badge",
+      "pinSub": "Select one earned badge to feature prominently in your profile header as your primary accolade.",
+      "noPinned": "-- No Pinned Badge --",
+      "chooseDisplayed": "Choose Displayed Badges ({{count}} selected)",
+      "chooseDisplayedSub": "Toggle which of your unlocked badges appear on your showcase:",
+      "noEarnedYet": "You haven't unlocked any badges yet. Complete garden activities to unlock achievements!",
+      "unpin": "Unpin",
+      "pinAsFavorite": "Pin as Favorite",
+      "settingsSaved": "Badge showcase settings saved successfully!",
+      "settingsSaveFailed": "Failed to save badge settings.",
       "first_sprout": {
         "name": "First Sprout",
         "tier": "Bronze Milestone",
@@ -2105,10 +2178,11 @@
     "page": "Page",
     "apiTranslations": {
       "units": {
-        "₹/quintal": { "en": "Quintal", "hi": "क्विंटल", "gu": "ક્વિન્ટલ" },
-        "Quintal": { "en": "Quintal", "hi": "क्विंटल", "gu": "ક્વિન્ટલ" },
-        "quintal": { "en": "Quintal", "hi": "क्विंटल", "gu": "ક્વિન્ટલ" },
-        "kg": { "en": "kg", "hi": "किग्रा", "gu": "કિલો" }
+        "₹/quintal": {
+          "en": "₹/quintal",
+          "hi": "₹/क्विंटल",
+          "gu": "₹/ક્વિન્ટલ"
+        }
       },
       "commodities": {
         "Groundnut": {
@@ -3114,13 +3188,6 @@
         "Yellow Hybrid": {
           "hi": "पीला हाइब्रिड",
           "gu": "પીળું હાઇબ્રિડ"
-        }
-      },
-      "units": {
-        "₹/quintal": {
-          "en": "₹/quintal",
-          "hi": "₹/क्विंटल",
-          "gu": "₹/ક્વિન્ટલ"
         }
       }
     }

@@ -6,8 +6,10 @@ import React from 'react';
  */
 
 export const BadgeEmblem = ({ id, isUnlocked = false, size = 76 }) => {
+  const normId = (id || '').toLowerCase().replace(/[- ]/g, '_').trim();
+
   const renderBadgeSVG = () => {
-    switch (id) {
+    switch (normId) {
       case 'first_sprout':
         return (
           <g>
@@ -462,7 +464,37 @@ export const BadgeEmblem = ({ id, isUnlocked = false, size = 76 }) => {
         );
 
       default:
-        return null;
+        return (
+          <g>
+            <defs>
+              <linearGradient id="defaultShield" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#10b981" />
+                <stop offset="50%" stopColor="#059669" />
+                <stop offset="100%" stopColor="#047857" />
+              </linearGradient>
+              <linearGradient id="defaultGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#fef08a" />
+                <stop offset="50%" stopColor="#eab308" />
+                <stop offset="100%" stopColor="#a16207" />
+              </linearGradient>
+            </defs>
+            <polygon
+              points="50,6 88,26 88,74 50,94 12,74 12,26"
+              fill="url(#defaultShield)"
+              stroke="url(#defaultGold)"
+              strokeWidth="4"
+              strokeLinejoin="round"
+            />
+            <circle cx="50" cy="50" r="28" fill="rgba(0,0,0,0.15)" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
+            <path
+              d="M50,30 C42,42 42,58 50,68 C58,58 58,42 50,30 Z"
+              fill="#86efac"
+              stroke="#ffffff"
+              strokeWidth="1.5"
+            />
+            <polygon points="50,22 52,27 57,28 52,29 50,34 48,29 43,28 48,27" fill="#fde047" />
+          </g>
+        );
     }
   };
 

@@ -51,6 +51,15 @@ const NAME_DICTIONARY = [
 
 /** Plant names. Used for token translation (longest keyword wins). */
 const PLANT_DICTIONARY = [
+  { keywords: ['cherry tomato (determinate / patio)', 'cherry tomato (patio/determinate)', 'cherry tomato (determinate)', 'cherry tomato', 'patio tomato'], gu: 'ચેરી ટામેટા', hi: 'चेरी टमाटर' },
+  { keywords: ['bush tomato (determinate varieties)', 'bush tomato (determinate)', 'bush tomato'], gu: 'ઝાડવા ટામેટા', hi: 'झाड़ी टमाटर' },
+  { keywords: ['sweet bell pepper', 'bush bell pepper', 'bush pepper', 'bell pepper', 'capsicum'], gu: 'શિમલા મરચું', hi: 'शिमला मिर्च' },
+  { keywords: ['bush beans', 'french beans', 'green beans', 'beans'], gu: 'ચોળી / ફણસી (બીન્સ)', hi: 'हरी फलियां (बीन्स)' },
+  { keywords: ['genovese basil', 'sweet basil'], gu: 'તુલસી / ડમરો', hi: 'तुलસી' },
+  { keywords: ['compact patio cucumber', 'patio cucumber'], gu: 'કાકડી', hi: 'खीरा' },
+  { keywords: ['swiss chard', 'chard'], gu: 'સ્વિસ ચાર્ડ', hi: 'स्विस चार्ड' },
+  { keywords: ['eggplant', 'brinjal', 'aubergine'], gu: 'રીંગણ', hi: 'बैंगन' },
+  { keywords: ['fenugreek', 'methi'], gu: 'મેથી', hi: 'मेथी' },
   { keywords: ['spearmint'], gu: 'સ્પિયરમિન્ટ (ફુદીનો)', hi: 'स्पीयरमिंट (पुदीना)' },
   { keywords: ['mentha spicata'], gu: 'મેન્થા સ્પીકાટા', hi: 'मेंथा स्पिकाटा' },
   { keywords: ['peppermint'], gu: 'પીપરમિન્ટ', hi: 'पिपरमिंट' },
@@ -547,7 +556,7 @@ function translateByTokens(str, lang) {
 
   let vol = '';
   let head = str;
-  const volMatch = str.match(/\s*(\([^)]*\))\s*$/); // e.g. "(700ml)", "(1L)"
+  const volMatch = str.match(/\s*(\(\s*\d+(?:\.\d+)?\s*(?:ml|l|ltr|g|kg|oz|cups?)\s*\))\s*$/i); // e.g. "(700ml)", "(1L)"
   if (volMatch) {
     vol = ` ${volMatch[1]}`;
     head = str.slice(0, volMatch.index).trim();

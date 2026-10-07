@@ -227,34 +227,50 @@ exports.translateDiagnosis = async (req, res, next) => {
 
     // Request fresh translation from Gemini
     console.log(`🌐 Calling Gemini translation into ${targetLang}...`);
-    const translated = await translateDiagnosisWithGemini({
-      diseaseName: diagnosis.diseaseName,
-      description: diagnosis.description,
-      cause: diagnosis.cause,
-      treatmentSteps: diagnosis.treatmentSteps,
-      preventionTips: diagnosis.preventionTips,
-    }, targetLang);
+    try {
+      const translated = await translateDiagnosisWithGemini({
+        diseaseName: diagnosis.diseaseName,
+        description: diagnosis.description,
+        cause: diagnosis.cause,
+        treatmentSteps: diagnosis.treatmentSteps,
+        preventionTips: diagnosis.preventionTips,
+      }, targetLang);
 
-    // Save to cache
-    if (!diagnosis.translations) {
-      diagnosis.translations = new Map();
-    }
-    if (typeof diagnosis.translations.set === 'function') {
-      diagnosis.translations.set(targetLang, translated);
-    } else {
-      diagnosis.translations[targetLang] = translated;
-    }
-    diagnosis.markModified('translations');
-    await diagnosis.save();
+      // Save to cache
+      if (!diagnosis.translations) {
+        diagnosis.translations = new Map();
+      }
+      if (typeof diagnosis.translations.set === 'function') {
+        diagnosis.translations.set(targetLang, translated);
+      } else {
+        diagnosis.translations[targetLang] = translated;
+      }
+      diagnosis.markModified('translations');
+      await diagnosis.save();
 
-    res.status(200).json({
-      success: true,
-      translation: translated,
-      cached: false,
-    });
+      return res.status(200).json({
+        success: true,
+        translation: translated,
+        cached: false,
+      });
+    } catch (aiErr) {
+      console.warn(`⚠️ Gemini translation into ${targetLang} failed:`, aiErr.message);
+      return res.status(200).json({
+        success: true,
+        translation: {
+          diseaseName: diagnosis.diseaseName,
+          description: diagnosis.description,
+          cause: diagnosis.cause || '',
+          treatmentSteps: diagnosis.treatmentSteps || [],
+          preventionTips: diagnosis.preventionTips || [],
+        },
+        warning: aiErr.message,
+        cached: false,
+      });
+    }
   } catch (error) {
-    console.error('❌ Translation error:', error);
-    res.status(500).json({ success: false, message: error.message || 'Failed to translate diagnosis' });
+    console.error('❌ Translation controller error:', error);
+    res.status(500).json({ success: false, message: error.message || 'Failed to process translation' });
   }
 };
 

@@ -1,5 +1,5 @@
 /* =========================================
-   Stats Card
+   Stats Card - Compact & Space-Efficient
    ========================================= */
 
 .stats-card {
@@ -7,31 +7,31 @@
   min-width: 0;
   box-sizing: border-box;
   background: var(--surface-primary, #ffffff);
-  padding: 1.15rem 1.35rem;
-  border-radius: 16px;
+  padding: 0.75rem 0.95rem;
+  border-radius: 14px;
   border: 1px solid var(--border-light, rgba(107, 144, 128, 0.18));
-  box-shadow: 0 4px 16px rgba(31, 58, 48, 0.03);
+  box-shadow: 0 3px 12px rgba(31, 58, 48, 0.03);
   display: flex;
   align-items: center;
   justify-content: flex-start;
   text-align: left;
-  gap: 1.1rem;
+  gap: 0.75rem;
   transition: var(--transition-smooth, all 0.25s ease);
   height: 100%;
 }
 
 .stats-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(31, 58, 48, 0.07);
+  box-shadow: 0 6px 18px rgba(31, 58, 48, 0.06);
   border-color: rgba(107, 144, 128, 0.32);
 }
 
 /* =========================================
-   Stats Icon - Pure Minimalist Icon (No inner box)
+   Stats Icon - Pure Minimalist Icon
    ========================================= */
 
 .stats-icon {
-  font-size: 2rem;
+  font-size: 1.45rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -71,7 +71,7 @@
   width: 100%;
   text-align: left;
   font-family: "DM Sans", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 1.85rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: var(--text-main, #1f3a30);
   letter-spacing: -0.02em;
@@ -87,11 +87,14 @@
   width: 100%;
   text-align: left;
   font-family: "DM Sans", sans-serif;
-  font-size: 0.85rem;
+  font-size: 0.76rem;
   color: var(--text-muted, #385b4d);
   font-weight: 500;
-  margin-top: 0.15rem;
+  margin-top: 0.1rem;
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* =========================================
@@ -100,34 +103,34 @@
 
 @media (max-width: 768px) {
   .stats-card {
-    padding: 0.95rem 1.1rem;
-    gap: 0.85rem;
+    padding: 0.65rem 0.85rem;
+    gap: 0.65rem;
   }
 
   .stats-icon {
-    font-size: 1.75rem;
+    font-size: 1.3rem;
   }
 
   .stats-value {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
   }
 }
 
 @media (max-width: 480px) {
   .stats-card {
-    padding: 0.85rem 1rem;
-    gap: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    gap: 0.55rem;
   }
 
   .stats-icon {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
   }
 
   .stats-value {
-    font-size: 1.35rem;
+    font-size: 1.15rem;
   }
 
   .stats-label {
-    font-size: 0.78rem;
+    font-size: 0.72rem;
   }
 }

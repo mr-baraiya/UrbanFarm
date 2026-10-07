@@ -83,9 +83,12 @@ exports.generateChatbotResponse = async (userMessage, language = 'en', history =
   const startTime = Date.now();
   const lang = ['gu', 'hi'].includes(language) ? language : 'en';
   const cleanMessage = String(userMessage || '').trim();
+  const userRole = (userContext?.role || 'guest').toLowerCase();
+  const userName = userContext?.name || null;
 
   // 1. Intent & Entity Detection from input + previous history
   const detected = detectIntent(cleanMessage, lang, history);
+  const isSecurityQuery = detected.intent === 'security' || /(admin|add user|delete user|audit log|export csv|guest lead|system setting|user management)/i.test(cleanMessage);
 
   // 1b. Strict Domain Interception: Intercept off-topic questions immediately (Zero Tolerance)
   if (detected.intent === 'out_of_scope' && !isSecurityQuery) {
@@ -276,12 +279,15 @@ ${langRequirement}`;
     parts: [{ text: userMessageWithLang }]
   });
 
-  // Candidate models in priority order: configured model, gemini-2.0-flash, gemini-1.5-flash, gemini-1.5-pro
+  // Candidate models in priority order
   const candidateModels = Array.from(new Set([
     aiConfig.gemini?.model,
-    'gemini-2.0-flash',
-    'gemini-1.5-flash',
-    'gemini-1.5-pro'
+    'gemini-flash-latest',
+    'gemini-3.5-flash',
+    'gemini-flash-lite-latest',
+    'gemini-3.5-flash-lite',
+    'gemini-2.5-flash',
+    'gemini-pro-latest'
   ])).filter(Boolean);
 
   const payload = {
@@ -291,8 +297,8 @@ ${langRequirement}`;
     contents: geminiContents,
     generationConfig: {
       temperature: 0.6,
-      maxOutputTokens: 2500,
-      response_mime_type: 'application/json'
+      maxOutputTokens: 8192,
+      responseMimeType: 'application/json'
     }
   };
 
@@ -381,7 +387,7 @@ ${langRequirement}`;
 
   // 7. Fallback to rich local knowledge base if Gemini failed
   console.warn('[KrishiAI] Gemini unavailable or invalid response, serving verified knowledge base fallback');
-  const fallbackResult = buildRichFallbackResponse(cleanMessage, lang, detected);
+  const fallbackResult = buildRichFallbackResponse(cleanMessage, lang, detected, userContext);
 
   logQuery({
     message: cleanMessage,

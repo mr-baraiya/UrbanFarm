@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { SlidersHorizontal, Flower2, Layers, Sun, Home } from 'lucide-react';
 import './UrbanPresets.css';
 
 const UrbanPresets = ({ onSelect, currentPreset }) => {
@@ -9,7 +10,9 @@ const UrbanPresets = ({ onSelect, currentPreset }) => {
     {
       id: 'container',
       label: t('crops.presetContainer', 'Balcony Containers'),
-      tag: 'Pots',
+      tag: t('crops.presetTagPots', 'Pots'),
+      icon: Flower2,
+      colorClass: 'preset-emerald',
       description: t('crops.presetContainerDesc', 'Pots, planters, and containers'),
       inputs: {
         soilType: 'Potting Mix',
@@ -25,7 +28,9 @@ const UrbanPresets = ({ onSelect, currentPreset }) => {
     {
       id: 'raised_bed',
       label: t('crops.presetRaisedBed', 'Raised Bed'),
-      tag: 'Bed',
+      tag: t('crops.presetTagBed', 'Raised Bed'),
+      icon: Layers,
+      colorClass: 'preset-amber',
       description: t('crops.presetRaisedBedDesc', 'Elevated garden beds with deep soil'),
       inputs: {
         soilType: 'Loam',
@@ -41,7 +46,9 @@ const UrbanPresets = ({ onSelect, currentPreset }) => {
     {
       id: 'rooftop',
       label: t('crops.presetRooftop', 'Sunny Rooftop'),
-      tag: 'Roof',
+      tag: t('crops.presetTagRoof', 'Rooftop'),
+      icon: Sun,
+      colorClass: 'preset-orange',
       description: t('crops.presetRooftopDesc', 'Full sun, wind exposure'),
       inputs: {
         soilType: 'Sandy Loam',
@@ -57,7 +64,9 @@ const UrbanPresets = ({ onSelect, currentPreset }) => {
     {
       id: 'indoor',
       label: t('crops.presetIndoor', 'Indoor Window'),
-      tag: 'Windowsill',
+      tag: t('crops.presetTagIndoor', 'Indoor'),
+      icon: Home,
+      colorClass: 'preset-blue',
       description: t('crops.presetIndoorDesc', 'Indirect light, controlled room temp'),
       inputs: {
         soilType: 'Potting Mix',
@@ -75,24 +84,36 @@ const UrbanPresets = ({ onSelect, currentPreset }) => {
   return (
     <div className="urban-presets">
       <div className="presets-header">
-        <span className="presets-title">{t('crops.quickPresets', 'Quick Urban Presets')}</span>
-        <span className="presets-sub">{t('crops.presetsSubtitle', 'One-click configurations')}</span>
+        <div className="presets-title-wrap">
+          <div className="presets-badge-group">
+            <SlidersHorizontal size={16} className="presets-badge-icon" />
+            <span className="presets-badge">{t('crops.quickPresets', 'Quick Urban Presets')}</span>
+          </div>
+          <span className="presets-sub">{t('crops.presetsSubtitle', 'One-click configurations')}</span>
+        </div>
       </div>
       <div className="presets-grid">
-        {presets.map(p => (
-          <button
-            key={p.id}
-            type="button"
-            className={`preset-card ${currentPreset === p.id ? 'active' : ''}`}
-            onClick={() => onSelect(p)}
-          >
-            <div className="preset-top">
-              <span className="preset-badge">{p.tag}</span>
-              <span className="preset-name">{p.label}</span>
-            </div>
-            <p className="preset-desc">{p.description}</p>
-          </button>
-        ))}
+        {presets.map(p => {
+          const isActive = currentPreset === p.id;
+          const IconComponent = p.icon;
+          return (
+            <button
+              key={p.id}
+              type="button"
+              className={`preset-card ${isActive ? 'active' : ''} ${p.colorClass}`}
+              onClick={() => onSelect(p)}
+            >
+              <div className="preset-card-top">
+                <div className="preset-icon-box">
+                  <IconComponent size={19} className="preset-icon" />
+                </div>
+                <span className="preset-badge">{p.tag}</span>
+              </div>
+              <h5 className="preset-name">{p.label}</h5>
+              <p className="preset-desc">{p.description}</p>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

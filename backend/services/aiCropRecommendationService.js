@@ -65,9 +65,12 @@ function validateCropInputs(inputData) {
 // Candidate models for Google Gemini
 const getCandidateModels = () => Array.from(new Set([
   aiConfig.gemini?.model,
-  'gemini-1.5-flash',
-  'gemini-2.0-flash',
-  'gemini-2.5-flash'
+  'gemini-flash-latest',
+  'gemini-3.5-flash',
+  'gemini-flash-lite-latest',
+  'gemini-3.5-flash-lite',
+  'gemini-2.5-flash',
+  'gemini-pro-latest'
 ])).filter(Boolean);
 
 /**
@@ -100,8 +103,30 @@ async function getRecommendations(inputData) {
     season,
     region,
     spaceAvailable,
-    targetCrop
+    targetCrop,
+    language
   } = inputData;
+
+  const lang = ['gu', 'hi'].includes(language) ? language : 'en';
+
+  let langInstruction = '';
+  if (lang === 'gu') {
+    langInstruction = `CRITICAL LANGUAGE REQUIREMENT:
+The user has selected GUJARATI (ગુજરાતી).
+You MUST generate ALL text values in the JSON output STRICTLY in fluent, natural Gujarati (ગુજરાતી script).
+- "cropName": Standard Gujarati crop names (e.g., "ચેરી ટામેટા", "શિમલા મરચાં", "વાલ / ચોળી", "મેથી", "તુલસી / ડમરો", "પાલક", "ગાજર", "રીંગણ", "કાકડી", "ફુદીનો"). Do NOT mix English words like "Cherry", "Bush", "Determinate" in crop names; write purely in Gujarati (e.g., "ચેરી ટામેટા").
+- "soilSuitability", "reason", "plantingTips", "expectedYield", "drainageAndTexture", "soilManagementTip", "soilMismatchReason", "suggestedAlternatives": Write completely in natural, fluent Gujarati script.
+Do NOT output English sentences.`;
+  } else if (lang === 'hi') {
+    langInstruction = `CRITICAL LANGUAGE REQUIREMENT:
+The user has selected HINDI (हिन्दी).
+You MUST generate ALL text values in the JSON output STRICTLY in fluent, natural Hindi (Devanagari script).
+- "cropName": Standard Hindi crop names (e.g., "चेरी टमाटर", "शिमला मिर्च", "लोबिया / सेम", "मेथी", "तुलसी", "पालक", "गाजर", "बैंगन", "खीरा", "पुदीना").
+- "soilSuitability", "reason", "plantingTips", "expectedYield", "drainageAndTexture", "soilManagementTip", "soilMismatchReason", "suggestedAlternatives": Write completely in natural, fluent Hindi (Devanagari script).
+Do NOT output English sentences.`;
+  } else {
+    langInstruction = `Language Requirement: Generate all responses in clear, professional English.`;
+  }
 
   const prompt = `You are a senior agronomist, soil scientist, and urban farming expert.
 Evaluate the following exact planting conditions:
@@ -114,6 +139,8 @@ Evaluate the following exact planting conditions:
 - Region / Climate: "${region || 'Temperate'}"
 - Space Available: "${spaceAvailable || 'medium'}"
 ${targetCrop ? `- Specific Inquired Crop to evaluate: "${targetCrop}"` : ''}
+
+${langInstruction}
 
 AGRONOMIC AND SOIL VALIDATION RULES:
 1. The soil type ("${soilType}") and pH (${ph}) MUST strictly govern crop viability:
@@ -133,23 +160,23 @@ Return STRICT JSON matching this exact schema:
   "soilAnalysis": {
     "soilType": "${soilType}",
     "ph": ${ph},
-    "drainageAndTexture": "Concise summary of physical traits of ${soilType} soil",
-    "soilManagementTip": "Practical advice to optimize this ${soilType} soil"
+    "drainageAndTexture": "Summary of physical traits of ${soilType} soil in requested language",
+    "soilManagementTip": "Practical advice to optimize this ${soilType} soil in requested language"
   },
   ${targetCrop ? `"targetCropCheck": {
     "cropName": "${targetCrop}",
     "isSuitable": true or false,
-    "soilMismatchReason": "Explanation of soil compatibility or incompatibility",
-    "suggestedAlternatives": ["Crop 1", "Crop 2", "Crop 3"]
+    "soilMismatchReason": "Explanation in requested language",
+    "suggestedAlternatives": ["Alternative 1", "Alternative 2", "Alternative 3"]
   },` : ''}
   "recommendations": [
     {
-      "cropName": "Crop Name",
+      "cropName": "Crop Name in requested language",
       "confidence": 0.90,
-      "soilSuitability": "Specific reason why this crop thrives in ${soilType} soil",
-      "reason": "Why it suits the climate/season/space",
-      "plantingTips": "Planting depth, spacing, or care tip",
-      "expectedYield": "Estimated yield per plant or square meter"
+      "soilSuitability": "Specific reason why this crop thrives in ${soilType} soil in requested language",
+      "reason": "Why it suits the climate/season/space in requested language",
+      "plantingTips": "Planting depth, spacing, or care tip in requested language",
+      "expectedYield": "Estimated yield per plant or square meter in requested language"
     }
   ]
 }
@@ -160,8 +187,8 @@ Return ONLY valid JSON with no markdown wrapping.`;
     contents: [{ parts: [{ text: prompt }] }],
     generationConfig: {
       temperature: 0.2,
-      maxOutputTokens: 2000,
-      response_mime_type: 'application/json'
+      maxOutputTokens: 8192,
+      responseMimeType: 'application/json'
     }
   };
 

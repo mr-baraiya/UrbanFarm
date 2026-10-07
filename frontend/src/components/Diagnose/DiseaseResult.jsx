@@ -53,7 +53,7 @@ const DiseaseResult = ({ result, isHistory = false, onAddToSchedule, onClose, on
   }, [currentLang, translationCache]);
 
   const handleLanguageSwitch = async (langCode) => {
-    if (langCode === currentLang) return;
+    if (!langCode) return;
     setCurrentLang(langCode);
     setTranslationError(null);
 
@@ -85,33 +85,82 @@ const DiseaseResult = ({ result, isHistory = false, onAddToSchedule, onClose, on
     }
   };
 
-  const handleRetryTips = async () => {
+  const handleGenerateAndTranslateTips = async (langToUse = (i18n.language || 'en')) => {
     if (!diagnosisId) return;
     setIsRetryingTips(true);
     setTipsError(null);
     try {
       const res = await retryGeminiTips(diagnosisId);
       if (res && res.success) {
-        const updated = {
-          ...currentData,
+        const updatedEn = {
+          diseaseName: currentData.diseaseName,
+          description: currentData.description,
           cause: res.cause || currentData.cause,
           treatmentSteps: res.treatmentSteps || currentData.treatmentSteps,
           preventionTips: res.preventionTips || currentData.preventionTips,
         };
-        setCurrentData(updated);
+
         setTranslationCache(prev => ({
           ...prev,
-          en: updated
+          en: updatedEn
         }));
-        addNotification(t('diagnose.tipsUpdated', 'Real Gemini tips loaded successfully!'), 'success');
+
+        if (langToUse && langToUse !== 'en') {
+          setIsTranslating(true);
+          try {
+            const transRes = await translateDiagnosisApi(diagnosisId, langToUse);
+            if (transRes && transRes.translation) {
+              setTranslationCache(prev => ({
+                ...prev,
+                [langToUse]: transRes.translation
+              }));
+              setCurrentData(transRes.translation);
+            } else {
+              setCurrentData(updatedEn);
+            }
+          } catch (transErr) {
+            console.error('Failed to translate newly generated tips:', transErr);
+            setCurrentData(updatedEn);
+          } finally {
+            setIsTranslating(false);
+          }
+        } else {
+          setCurrentData(updatedEn);
+        }
       }
     } catch (err) {
-      console.error('Tips retry error:', err);
+      console.error('Tips generation error:', err);
       setTipsError(err.response?.data?.message || err.message || t('diagnose.tipsRetryFailed', 'Could not generate AI tips at this moment. Please retry.'));
     } finally {
       setIsRetryingTips(false);
     }
   };
+
+  // Automatically generate tips on page load if not present, and load in active language
+  useEffect(() => {
+    const activeLang = i18n.language || 'en';
+    const hasCause = Boolean(result.cause || initialData.cause);
+    const hasPrevention = Array.isArray(result.preventionTips) && result.preventionTips.length > 0;
+
+    if (!isHealthy && (!hasCause || !hasPrevention)) {
+      handleGenerateAndTranslateTips(activeLang);
+    } else if (activeLang !== 'en') {
+      if (translationCache[activeLang]) {
+        setCurrentData(translationCache[activeLang]);
+        setCurrentLang(activeLang);
+      } else {
+        handleLanguageSwitch(activeLang);
+      }
+    }
+  }, [diagnosisId]);
+
+  // Sync when user changes application language
+  useEffect(() => {
+    const activeLang = i18n.language || 'en';
+    if (activeLang !== currentLang && !isRetryingTips) {
+      handleLanguageSwitch(activeLang);
+    }
+  }, [i18n.language]);
 
   const handleToggleShare = async () => {
     if (!diagnosisId) return;
@@ -178,11 +227,12 @@ const DiseaseResult = ({ result, isHistory = false, onAddToSchedule, onClose, on
     }
   };
 
-  const languageOptions = [
-    { code: 'en', label: 'English' },
-    { code: 'gu', label: 'ગુજરાતી' },
-    { code: 'hi', label: 'हिन्दी' },
-  ];
+  // Automatically sync with global i18n language
+  useEffect(() => {
+    if (i18n.language && i18n.language !== currentLang) {
+      handleLanguageSwitch(i18n.language);
+    }
+  }, [i18n.language]);
 
   return (
     <div className="disease-result-fullpage">
@@ -202,22 +252,6 @@ const DiseaseResult = ({ result, isHistory = false, onAddToSchedule, onClose, on
         </div>
 
         <div className="dr-topbar-right">
-          {/* Language Switcher */}
-          <div className="dr-lang-switch" role="group" aria-label="Translate Report">
-            <span className="dr-lang-label">{t('common.language', 'Language')}:</span>
-            {languageOptions.map((opt) => (
-              <button
-                key={opt.code}
-                type="button"
-                className={`dr-lang-btn ${currentLang === opt.code ? 'active' : ''}`}
-                onClick={() => handleLanguageSwitch(opt.code)}
-                disabled={isTranslating}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-
           {/* Share Action */}
           <button 
             type="button" 
@@ -249,25 +283,7 @@ const DiseaseResult = ({ result, isHistory = false, onAddToSchedule, onClose, on
         </div>
       )}
 
-      {/* Public Share Status Banner */}
-      <div className="dr-share-status-strip">
-        <div className="dr-share-status-info">
-          <span className={`dr-status-indicator ${isPublic ? 'active' : 'inactive'}`} />
-          <span>
-            {isPublic 
-              ? `${t('diagnose.publicShareActive', 'Public link is live:')} ${window.location.origin}/d/${shareId}`
-              : t('diagnose.publicShareRevoked', 'Public link is revoked. Anyone with the URL will see a private link message.')}
-          </span>
-        </div>
-        <button 
-          type="button" 
-          className="dr-toggle-share-btn"
-          onClick={handleToggleShare}
-          disabled={isTogglingShare}
-        >
-          {isPublic ? t('diagnose.revokeLink', 'Revoke Public Link') : t('diagnose.enableLink', 'Enable Public Link')}
-        </button>
-      </div>
+
 
       {/* Main Full Page Grid */}
       <div className="dr-main-grid">
@@ -337,7 +353,12 @@ const DiseaseResult = ({ result, isHistory = false, onAddToSchedule, onClose, on
             <div className="dr-section-header">
               <h2 className="dr-section-title">{t('diagnose.causeHeading', 'Pathological Cause & Stress Factors')}</h2>
             </div>
-            {currentData.cause ? (
+            {isRetryingTips ? (
+              <div className="dr-tips-loading-box">
+                <div className="dr-tips-loading-spinner" />
+                <span>{t('diagnose.generatingTipsWithGemini', 'Analyzing pathological cause & AI tips with Gemini...')}</span>
+              </div>
+            ) : currentData.cause ? (
               <p className="dr-section-body">{currentData.cause}</p>
             ) : tipsError ? (
               <div className="dr-tips-error-box">
@@ -345,24 +366,14 @@ const DiseaseResult = ({ result, isHistory = false, onAddToSchedule, onClose, on
                 <button 
                   type="button" 
                   className="dr-retry-btn" 
-                  onClick={handleRetryTips}
+                  onClick={() => handleGenerateAndTranslateTips(i18n.language || 'en')}
                   disabled={isRetryingTips}
                 >
-                  {isRetryingTips ? t('common.loading', 'Loading...') : t('diagnose.retryAiTips', 'Retry Gemini Tips')}
+                  {t('common.retry', 'Retry')}
                 </button>
               </div>
             ) : (
-              <div className="dr-tips-empty-box">
-                <p>{t('diagnose.generatingTipsNotice', 'No cause summary generated yet.')}</p>
-                <button 
-                  type="button" 
-                  className="dr-retry-btn" 
-                  onClick={handleRetryTips}
-                  disabled={isRetryingTips}
-                >
-                  {isRetryingTips ? t('common.loading', 'Loading...') : t('diagnose.generateGeminiTips', 'Generate Tips with Gemini')}
-                </button>
-              </div>
+              <p className="dr-empty-hint">{t('diagnose.noCauseSummary', 'No cause summary available.')}</p>
             )}
           </div>
 
@@ -373,7 +384,12 @@ const DiseaseResult = ({ result, isHistory = false, onAddToSchedule, onClose, on
               <span className="dr-steps-count">{currentData.treatmentSteps.length} {t('diagnose.steps', 'steps')}</span>
             </div>
 
-            {currentData.treatmentSteps.length > 0 ? (
+            {isRetryingTips && currentData.treatmentSteps.length <= 1 ? (
+              <div className="dr-tips-loading-box">
+                <div className="dr-tips-loading-spinner" />
+                <span>{t('diagnose.generatingTreatmentSteps', 'Formulating actionable treatment steps with Gemini...')}</span>
+              </div>
+            ) : currentData.treatmentSteps.length > 0 ? (
               <div className="dr-steps-list">
                 {currentData.treatmentSteps.map((step, idx) => (
                   <div key={idx} className="dr-step-item">
@@ -393,7 +409,12 @@ const DiseaseResult = ({ result, isHistory = false, onAddToSchedule, onClose, on
               <h2 className="dr-section-title">{t('diagnose.preventionTipsHeading', 'Long-Term Prevention Tips')}</h2>
             </div>
 
-            {currentData.preventionTips.length > 0 ? (
+            {isRetryingTips && currentData.preventionTips.length === 0 ? (
+              <div className="dr-tips-loading-box">
+                <div className="dr-tips-loading-spinner" />
+                <span>{t('diagnose.generatingPreventionTips', 'Compiling long-term prevention guidelines...')}</span>
+              </div>
+            ) : currentData.preventionTips.length > 0 ? (
               <div className="dr-tips-list">
                 {currentData.preventionTips.map((tip, idx) => (
                   <div key={idx} className="dr-tip-item">
@@ -424,7 +445,7 @@ const DiseaseResult = ({ result, isHistory = false, onAddToSchedule, onClose, on
               className="dr-secondary-share-btn"
               onClick={handleShare}
             >
-              {t('diagnose.sharePublicLink', 'Share Public Report URL')}
+              {t('diagnose.shareReport', 'Share Report')}
             </button>
           </div>
         </div>

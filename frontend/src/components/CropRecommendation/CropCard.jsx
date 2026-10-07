@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Sparkles, Sprout, Scale, BookOpen, ChevronUp, ChevronDown, Plus } from 'lucide-react';
 import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import './CropCard.css';
 
@@ -14,12 +15,12 @@ const CropCard = ({ crop, spaceAvailable, existingPlants = [], onAddToPlants }) 
     
     const name = (cropName || '').toLowerCase();
     if (containerFriendly.some(c => name.includes(c))) {
-      return { label: t('crops.greatForContainers', 'Container Friendly'), color: '#2d6a4f', bg: '#cce3de' };
+      return { label: t('crops.greatForContainers', 'Great for Containers'), color: '#065f46', bg: '#ecfdf5', border: '#a7f3d0' };
     }
     if (deepRoot.some(c => name.includes(c))) {
-      return { label: t('crops.needsDeepRoot', 'Needs Deep Bed'), color: '#92400e', bg: '#fef3c7' };
+      return { label: t('crops.needsDeepRoot', 'Needs Deep Bed'), color: '#92400e', bg: '#fffbeb', border: '#fde68a' };
     }
-    return { label: t('crops.adaptable', 'Adaptable Space'), color: '#1f3a30', bg: '#eaf4f4' };
+    return { label: t('crops.adaptable', 'Adaptable Space'), color: '#1e3a8a', bg: '#eff6ff', border: '#bfdbfe' };
   };
 
   const containerSuitability = getContainerSuitability(crop.cropName);
@@ -27,15 +28,14 @@ const CropCard = ({ crop, spaceAvailable, existingPlants = [], onAddToPlants }) 
   // Get space suitability
   const getSpaceSuitability = () => {
     const spaceMap = {
-      small: { label: t('crops.spaceSmallDesc', 'Compact Space'), color: '#2d6a4f', bg: '#cce3de' },
-      medium: { label: t('crops.spaceMediumDesc', 'Medium Garden'), color: '#1f3a30', bg: '#eaf4f4' },
-      large: { label: t('crops.spaceLargeDesc', 'Needs Wide Space'), color: '#92400e', bg: '#fef3c7' },
+      small: { label: t('crops.spaceSmallDesc', 'Compact Space'), color: '#065f46', bg: '#ecfdf5', border: '#a7f3d0' },
+      medium: { label: t('crops.spaceMediumDesc', 'Medium Garden'), color: '#1f3a30', bg: '#eaf4f4', border: '#cce3de' },
+      large: { label: t('crops.spaceLargeDesc', 'Needs Wide Space'), color: '#92400e', bg: '#fffbeb', border: '#fde68a' },
     };
     return spaceMap[spaceAvailable] || spaceMap.medium;
   };
 
   const spaceSuitability = getSpaceSuitability();
-
   const localizedCropName = getLocalizedDynamicText(crop.cropName, i18n.language);
   const confidencePercent = Math.round((crop.confidence || 0.85) * 100);
 
@@ -43,24 +43,36 @@ const CropCard = ({ crop, spaceAvailable, existingPlants = [], onAddToPlants }) 
     <div className="crop-card">
       <div className="crop-card-header">
         <div className="crop-title-group">
-          <span className="crop-badge-category">AI Recommendation</span>
+          <div className="crop-badge-category">
+            <Sparkles size={13} className="category-icon" />
+            <span>{t('crops.title', 'AI Crop Choice')}</span>
+          </div>
           <h3 className="crop-name">{localizedCropName}</h3>
         </div>
         <div className="crop-confidence-pill">
-          {confidencePercent}% match
+          <span className="confidence-dot" />
+          {confidencePercent}% {t('crops.match', 'match')}
         </div>
       </div>
 
       <div className="crop-tags-row">
         <span 
           className="crop-tag" 
-          style={{ color: containerSuitability.color, backgroundColor: containerSuitability.bg }}
+          style={{ 
+            color: containerSuitability.color, 
+            backgroundColor: containerSuitability.bg,
+            borderColor: containerSuitability.border
+          }}
         >
           {containerSuitability.label}
         </span>
         <span 
           className="crop-tag" 
-          style={{ color: spaceSuitability.color, backgroundColor: spaceSuitability.bg }}
+          style={{ 
+            color: spaceSuitability.color, 
+            backgroundColor: spaceSuitability.bg,
+            borderColor: spaceSuitability.border
+          }}
         >
           {spaceSuitability.label}
         </span>
@@ -69,18 +81,26 @@ const CropCard = ({ crop, spaceAvailable, existingPlants = [], onAddToPlants }) 
       {/* Soil Compatibility Spotlight */}
       {crop.soilSuitability && (
         <div className="crop-soil-badge-box">
-          <span className="crop-soil-label">Soil Fit:</span>
+          <div className="crop-soil-label">
+            <Sprout size={13} className="soil-label-icon" />
+            <span>{t('crops.soilFit', 'Soil Fit:')}</span>
+          </div>
           <p className="crop-soil-text">{crop.soilSuitability}</p>
         </div>
       )}
 
       {/* Primary Reason */}
-      <p className="crop-reason-text">{crop.reason}</p>
+      {crop.reason && (
+        <p className="crop-reason-text">{crop.reason}</p>
+      )}
 
       {/* Expected Yield */}
       {crop.expectedYield && (
         <div className="crop-yield-row">
-          <span className="crop-meta-title">Expected Yield:</span>
+          <div className="crop-yield-header">
+            <Scale size={13} className="yield-icon" />
+            <span className="crop-meta-title">{t('crops.expectedYield', 'Expected Yield:')}</span>
+          </div>
           <span className="crop-meta-value">{crop.expectedYield}</span>
         </div>
       )}
@@ -93,8 +113,11 @@ const CropCard = ({ crop, spaceAvailable, existingPlants = [], onAddToPlants }) 
             className="crop-tips-toggle" 
             onClick={() => setExpanded(!expanded)}
           >
-            <span>{t('crops.plantingTips', 'Planting & Care Guide')}</span>
-            <span className="toggle-symbol">{expanded ? '▲' : '▼'}</span>
+            <div className="tips-toggle-left">
+              <BookOpen size={14} className="guide-icon" />
+              <span>{t('crops.plantingTips', 'Planting & Care Guide')}</span>
+            </div>
+            {expanded ? <ChevronUp size={15} className="toggle-symbol" /> : <ChevronDown size={15} className="toggle-symbol" />}
           </button>
           {expanded && (
             <div className="crop-tips-content">
@@ -111,7 +134,8 @@ const CropCard = ({ crop, spaceAvailable, existingPlants = [], onAddToPlants }) 
             className="crop-add-btn"
             onClick={onAddToPlants}
           >
-            {t('crops.addToGarden', 'Add to My Garden')}
+            <Plus size={16} />
+            <span>{t('crops.addToGarden', 'Add to My Garden')}</span>
           </button>
         )}
       </div>

@@ -1,9 +1,9 @@
 .footer {
   background: rgba(246, 255, 248, 0.7);
-  padding: 1rem 2rem;
+  padding: 0.75rem 2rem;
   border-top: 1px solid var(--border);
   margin-top: auto;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--text-secondary);
   backdrop-filter: blur(8px);
   width: 100%;
@@ -17,21 +17,23 @@
 
 .footer-content-bar {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   max-width: 1200px;
   margin: 0 auto;
-  gap: 16px;
-  flex-wrap: wrap;
+  text-align: center;
 }
 
-.footer p {
+.footer-copyright {
   margin: 0;
+  color: var(--text-muted, #385b4d);
+  font-weight: 500;
 }
 
 @media (max-width: 768px) {
   .app-layout:not(.admin-layout) .footer {
     margin-left: 0;
     width: 100%;
+    padding: 0.65rem 1rem;
   }
 }

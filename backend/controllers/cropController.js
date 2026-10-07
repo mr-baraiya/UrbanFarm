@@ -15,10 +15,13 @@ exports.getCropRecommendations = async (req, res, next) => {
       region, 
       spaceAvailable, 
       gardenType,
-      targetCrop 
+      targetCrop,
+      language 
     } = req.body;
 
-    console.log('🌾 Getting crop recommendations for:', { soilType, ph, temperature, targetCrop });
+    const userLang = ['gu', 'hi'].includes(language) ? language : (req.headers['accept-language']?.includes('gu') ? 'gu' : (req.headers['accept-language']?.includes('hi') ? 'hi' : 'en'));
+
+    console.log('🌾 Getting crop recommendations for:', { soilType, ph, temperature, targetCrop, language: userLang });
 
     // Call Gemini AI service
     const aiResult = await getRecommendations({
@@ -32,6 +35,7 @@ exports.getCropRecommendations = async (req, res, next) => {
       spaceAvailable,
       gardenType,
       targetCrop,
+      language: userLang
     });
 
     const recommendations = aiResult.recommendations || [];

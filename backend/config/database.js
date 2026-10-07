@@ -10,7 +10,7 @@ if (!cached) {
 }
 
 const connectDB = async () => {
-  if (cached.conn) {
+  if (cached.conn && mongoose.connection.readyState === 1) {
     return cached.conn;
   }
 
@@ -23,11 +23,18 @@ const connectDB = async () => {
 
     const opts = {
       bufferCommands: false,
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+      connectTimeoutMS: 10000,
+      maxPoolSize: 10,
     };
 
     cached.promise = mongoose.connect(mongoUri, opts).then((mongooseInstance) => {
       console.log(`✅ MongoDB Connected: ${mongooseInstance.connection.host}`);
       return mongooseInstance;
+    }).catch((err) => {
+      cached.promise = null;
+      throw err;
     });
   }
 

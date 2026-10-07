@@ -110,29 +110,23 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.75rem;
 }
 
-.badge-geometric-crest {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  border: 2px solid;
+.badge-emblem-wrap {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f6fff8;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.07));
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.badge-crest-inner {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  color: #ffffff;
-  font-weight: 800;
-  font-size: 1.1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.badge-card-item:hover .badge-emblem-wrap {
+  transform: scale(1.08) rotate(2deg);
+}
+
+.badge-card-item.locked .badge-emblem-wrap {
+  opacity: 0.72;
 }
 
 .badge-status-tags {
@@ -400,6 +394,20 @@ input:checked + .toggle-slider:before {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.picker-badge-emblem-mini {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.picker-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .picker-checkbox {
@@ -413,6 +421,7 @@ input:checked + .toggle-slider:before {
   font-weight: 800;
   color: #6b9080;
   font-size: 0.85rem;
+  background: #ffffff;
 }
 
 .picker-name {

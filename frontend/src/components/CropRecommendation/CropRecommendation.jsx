@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Sparkles, MapPin, RotateCcw, FlaskConical, CheckCircle2, AlertTriangle, Sprout } from 'lucide-react';
 import { getCropRecommendations, getRecommendationHistory, saveRecommendation, addPlant, getGardens } from '../../services/plantService';
 import { getWeather } from '../../services/weatherService';
 import { useAuth } from '../../hooks/useAuth';
@@ -23,7 +24,7 @@ const CropRecommendation = () => {
     humidity: 60,
     rainfall: 100,
     season: 'Summer',
-    region: 'Temperate Zone',
+    region: 'Urban Balcony',
     gardenType: 'container',
     spaceAvailable: 'medium',
     targetCrop: '',
@@ -85,11 +86,8 @@ const CropRecommendation = () => {
         return soil.includes(term) || season.includes(term) || hasCropMatch;
       });
     }
-    if (filterType !== 'all') {
-      filtered = filtered.filter(h => {
-        if (filterType === 'saved') return h.saved;
-        return true;
-      });
+    if (filterType === 'saved') {
+      filtered = filtered.filter(h => h.saved);
     }
     setFilteredHistory(filtered);
   };
@@ -189,7 +187,10 @@ const CropRecommendation = () => {
     setTargetCropCheck(null);
 
     try {
-      const data = await getCropRecommendations(inputs);
+      const data = await getCropRecommendations({
+        ...inputs,
+        language: i18n.language || 'en'
+      });
       setRecommendations(data.recommendations || []);
       setSoilAnalysis(data.soilAnalysis || null);
       setTargetCropCheck(data.targetCropCheck || null);
@@ -243,7 +244,10 @@ const CropRecommendation = () => {
   return (
     <div className="crop-recommendation">
       <div className="crop-page-header">
-        <span className="crop-header-badge">Gemini Agronomy Intelligence</span>
+        <div className="crop-header-badge">
+          <Sparkles size={14} className="header-badge-icon" />
+          <span>Gemini Agronomy Intelligence</span>
+        </div>
         <h2>{t('crops.title', 'AI Crop Recommendations')}</h2>
         <p className="subtitle">
           {t('crops.subtitle', 'Get science-backed crop choices tailored directly to your soil chemistry, climate, and space.')}
@@ -266,7 +270,8 @@ const CropRecommendation = () => {
                 onClick={handleUseLocation}
                 disabled={loadingLocation}
               >
-                {loadingLocation ? t('crops.detectingLocation', 'Detecting Climate...') : t('crops.useMyLocation', 'Autofill Climate')}
+                <MapPin size={15} className="location-btn-icon" />
+                <span>{loadingLocation ? t('crops.detectingLocation', 'Detecting Climate...') : t('crops.useMyLocation', 'Autofill Climate')}</span>
               </button>
             </div>
             
@@ -283,14 +288,14 @@ const CropRecommendation = () => {
                   onChange={handleChange}
                   className={formErrors.soilType ? 'input-error' : ''}
                 >
-                  <option value="Loam">Loam (Balanced, rich, versatile)</option>
-                  <option value="Sandy">Sandy (Fast draining, light, warms fast)</option>
-                  <option value="Clay">Clay (Heavy, dense, moisture & nutrient rich)</option>
-                  <option value="Silty">Silty (Smooth, highly fertile, compacts easily)</option>
-                  <option value="Peaty">Peaty (Acidic, dark, high organic matter)</option>
-                  <option value="Chalky">Chalky (Alkaline, stony, free-draining)</option>
-                  <option value="Sandy Loam">Sandy Loam (Aerated & fertile)</option>
-                  <option value="Potting Mix">Potting Mix (Container substrate)</option>
+                  <option value="Loam">{t('crops.soilLoamDesc', 'Loam (Balanced, rich, versatile)')}</option>
+                  <option value="Sandy">{t('crops.soilSandyDesc', 'Sandy (Fast draining, light, warms fast)')}</option>
+                  <option value="Clay">{t('crops.soilClayDesc', 'Clay (Heavy, dense, moisture & nutrient rich)')}</option>
+                  <option value="Silty">{t('crops.soilSiltyDesc', 'Silty (Smooth, highly fertile, compacts easily)')}</option>
+                  <option value="Peaty">{t('crops.soilPeatyDesc', 'Peaty (Acidic, dark, high organic matter)')}</option>
+                  <option value="Chalky">{t('crops.soilChalkyDesc', 'Chalky (Alkaline, stony, free-draining)')}</option>
+                  <option value="Sandy Loam">{t('crops.soilSandyLoamDesc', 'Sandy Loam (Aerated & fertile)')}</option>
+                  <option value="Potting Mix">{t('crops.soilPottingMixDesc', 'Potting Mix (Container substrate)')}</option>
                 </select>
                 {formErrors.soilType && <span className="inline-err">{formErrors.soilType}</span>}
               </div>
@@ -322,8 +327,6 @@ const CropRecommendation = () => {
                   id="temp-input"
                   name="temperature" 
                   type="number" 
-                  min="-20"
-                  max="60"
                   value={inputs.temperature} 
                   onChange={handleChange} 
                   className={formErrors.temperature ? 'input-error' : ''}
@@ -332,9 +335,9 @@ const CropRecommendation = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="hum-input">{t('crops.humidity', 'Humidity (%)')}</label>
+                <label htmlFor="humidity-input">{t('crops.humidity', 'Humidity (%)')}</label>
                 <input 
-                  id="hum-input"
+                  id="humidity-input"
                   name="humidity" 
                   type="number" 
                   min="0" 
@@ -346,16 +349,15 @@ const CropRecommendation = () => {
                 {formErrors.humidity && <span className="inline-err">{formErrors.humidity}</span>}
               </div>
             </div>
-            
+
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="rain-input">{t('crops.rainfall', 'Rainfall / Water (mm)')}</label>
+                <label htmlFor="rainfall-input">{t('crops.rainfall', 'Rainfall (mm)')}</label>
                 <input 
-                  id="rain-input"
+                  id="rainfall-input"
                   name="rainfall" 
                   type="number" 
                   min="0" 
-                  max="5000"
                   value={inputs.rainfall} 
                   onChange={handleChange} 
                   className={formErrors.rainfall ? 'input-error' : ''}
@@ -364,11 +366,11 @@ const CropRecommendation = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="season-select">{t('crops.season', 'Growing Season')}</label>
+                <label htmlFor="season-select">{t('crops.season', 'Season')}</label>
                 <select id="season-select" name="season" value={inputs.season} onChange={handleChange}>
                   <option value="Spring">{t('crops.seasonSpring', 'Spring')}</option>
                   <option value="Summer">{t('crops.seasonSummer', 'Summer')}</option>
-                  <option value="Fall">{t('crops.seasonFall', 'Fall / Autumn')}</option>
+                  <option value="Fall">{t('crops.seasonFall', 'Fall')}</option>
                   <option value="Winter">{t('crops.seasonWinter', 'Winter')}</option>
                 </select>
               </div>
@@ -377,17 +379,17 @@ const CropRecommendation = () => {
             {/* Inquire about a specific crop to test soil validation */}
             <div className="form-group highlight-input-group">
               <label htmlFor="targetCrop-input">
-                Evaluate Specific Crop Compatibility (Optional):
+                {t('crops.targetCropLabel', 'Evaluate Specific Crop Compatibility (Optional):')}
               </label>
               <input 
                 id="targetCrop-input"
                 name="targetCrop" 
                 value={inputs.targetCrop} 
                 onChange={handleChange} 
-                placeholder="e.g., Carrot, Cabbage, Blueberry, Watermelon"
+                placeholder={t('crops.targetCropPlaceholder', 'e.g., Carrot, Cabbage, Blueberry, Watermelon')}
               />
               <span className="field-hint">
-                Tests whether this specific crop can thrive in your chosen {inputs.soilType} soil (pH {inputs.ph}).
+                {t('crops.targetCropHint', 'Tests whether this specific crop can thrive in your chosen {{soil}} soil (pH {{ph}}).', { soil: inputs.soilType, ph: inputs.ph })}
               </span>
             </div>
             
@@ -399,7 +401,7 @@ const CropRecommendation = () => {
                   name="region" 
                   value={inputs.region} 
                   onChange={handleChange} 
-                  placeholder="e.g., Urban Balcony, Suburban Backyard"
+                  placeholder={t('crops.regionPlaceholder', 'e.g., Ahmedabad, Mumbai, London')}
                 />
               </div>
 
@@ -418,7 +420,8 @@ const CropRecommendation = () => {
               className="btn-primary submit-btn" 
               disabled={loading}
             >
-              {loading ? t('crops.generating', 'Analyzing Soil & Calling Gemini AI...') : t('crops.getRecommendations', 'Get AI Crop Recommendations')}
+              <Sparkles size={18} className="btn-icon" />
+              <span>{loading ? t('crops.generating', 'Analyzing Soil & Calling Gemini AI...') : t('crops.getRecommendations', 'Get AI Crop Recommendations')}</span>
             </button>
           </form>
 
@@ -427,8 +430,8 @@ const CropRecommendation = () => {
             <div className="crop-loading-banner">
               <span className="crop-pulse-dot" />
               <div className="loading-text-col">
-                <strong>Consulting Gemini Agronomy Engine...</strong>
-                <span>Evaluating {inputs.soilType} soil traits, pH {inputs.ph}, and climatic suitability.</span>
+                <strong>{t('crops.consultingGemini', 'Consulting Gemini Agronomy Engine...')}</strong>
+                <span>{t('crops.consultingGeminiSub', 'Evaluating {{soil}} soil traits, pH {{ph}}, and climatic suitability.', { soil: inputs.soilType, ph: inputs.ph })}</span>
               </div>
             </div>
           )}
@@ -436,14 +439,18 @@ const CropRecommendation = () => {
           {/* Error & Retry State */}
           {apiError && !loading && (
             <div className="crop-api-error-card">
-              <span className="error-tag">Agronomy Service Error</span>
+              <div className="error-header-row">
+                <AlertTriangle size={18} className="error-icon" />
+                <span className="error-tag">Agronomy Service Notice</span>
+              </div>
               <p className="error-message">{apiError}</p>
               <button 
                 type="button" 
                 className="btn-retry" 
                 onClick={() => handleSubmit()}
               >
-                Retry Analysis
+                <RotateCcw size={14} />
+                <span>{t('crops.retryAnalysis', 'Retry Analysis')}</span>
               </button>
             </div>
           )}
@@ -452,14 +459,17 @@ const CropRecommendation = () => {
           {soilAnalysis && (
             <div className="soil-analysis-card">
               <div className="soil-analysis-header">
-                <span className="soil-badge">Soil Profile</span>
-                <h4>{soilAnalysis.soilType} Soil Assessment (pH {soilAnalysis.ph})</h4>
+                <span className="soil-badge">
+                  <FlaskConical size={13} className="badge-icon" />
+                  <span>{t('crops.soilProfile', 'Soil Profile')}</span>
+                </span>
+                <h4>{soilAnalysis.soilType} {t('crops.soilAssessment', 'Soil Assessment')} (pH {soilAnalysis.ph})</h4>
               </div>
               <p className="soil-drainage-text">
-                <strong>Characteristics:</strong> {soilAnalysis.drainageAndTexture || soilAnalysis.characteristics}
+                <strong>{t('crops.characteristics', 'Characteristics')}:</strong> {soilAnalysis.drainageAndTexture || soilAnalysis.characteristics}
               </p>
               <p className="soil-tip-text">
-                <strong>Agronomic Advice:</strong> {soilAnalysis.soilManagementTip || soilAnalysis.soilAdvice || 'Ensure adequate compost incorporation.'}
+                <strong>{t('crops.agronomicAdvice', 'Agronomic Advice')}:</strong> {soilAnalysis.soilManagementTip || soilAnalysis.soilAdvice || 'Ensure adequate compost incorporation.'}
               </p>
             </div>
           )}
@@ -469,7 +479,17 @@ const CropRecommendation = () => {
             <div className={`target-crop-result-card ${targetCropCheck.isSuitable ? 'suitable' : 'unsuitable'}`}>
               <div className="target-result-header">
                 <span className={`target-suitability-pill ${targetCropCheck.isSuitable ? 'pass' : 'fail'}`}>
-                  {targetCropCheck.isSuitable ? 'Suitable Match' : 'Soil Mismatch Warning'}
+                  {targetCropCheck.isSuitable ? (
+                    <>
+                      <CheckCircle2 size={13} />
+                      <span>{t('crops.suitableMatch', 'Suitable Match')}</span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertTriangle size={13} />
+                      <span>{t('crops.soilMismatchWarning', 'Soil Mismatch Warning')}</span>
+                    </>
+                  )}
                 </span>
                 <h4>Evaluation for "{targetCropCheck.cropName}" in {inputs.soilType} Soil</h4>
               </div>
@@ -480,10 +500,13 @@ const CropRecommendation = () => {
 
               {!targetCropCheck.isSuitable && targetCropCheck.suggestedAlternatives?.length > 0 && (
                 <div className="target-alternatives-box">
-                  <span className="alt-title">Recommended Alternatives for {inputs.soilType} Soil:</span>
+                  <span className="alt-title">{t('crops.recommendedAlternatives', 'Recommended Alternatives for {{soil}} Soil:', { soil: inputs.soilType })}</span>
                   <div className="alt-chips-row">
                     {targetCropCheck.suggestedAlternatives.map((alt, idx) => (
-                      <span key={idx} className="alt-chip">{alt}</span>
+                      <span key={idx} className="alt-chip">
+                        <Sprout size={12} className="alt-icon" />
+                        <span>{alt}</span>
+                      </span>
                     ))}
                   </div>
                 </div>

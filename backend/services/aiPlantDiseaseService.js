@@ -118,9 +118,12 @@ exports.identifyDisease = async (imageUrl) => {
 // Candidate models for Google Gemini
 const getCandidateModels = () => Array.from(new Set([
   aiConfig.gemini?.model,
-  'gemini-1.5-flash',
-  'gemini-2.0-flash',
-  'gemini-2.5-flash'
+  'gemini-flash-latest',
+  'gemini-3.5-flash',
+  'gemini-flash-lite-latest',
+  'gemini-3.5-flash-lite',
+  'gemini-2.5-flash',
+  'gemini-pro-latest'
 ])).filter(Boolean);
 
 /**
@@ -157,8 +160,8 @@ Return ONLY valid JSON matching this schema with no markdown wrapping or additio
     contents: [{ parts: [{ text: prompt }] }],
     generationConfig: {
       temperature: 0.2,
-      maxOutputTokens: 1200,
-      response_mime_type: 'application/json'
+      maxOutputTokens: 8192,
+      responseMimeType: 'application/json'
     }
   };
 
@@ -241,8 +244,8 @@ Return ONLY valid JSON with no markdown formatting.`;
     contents: [{ parts: [{ text: prompt }] }],
     generationConfig: {
       temperature: 0.1,
-      maxOutputTokens: 1500,
-      response_mime_type: 'application/json'
+      maxOutputTokens: 8192,
+      responseMimeType: 'application/json'
     }
   };
 

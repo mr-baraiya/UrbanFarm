@@ -19,6 +19,7 @@ import AIInsights from './AIInsights';
 import PlantGallery from './PlantGallery';
 import TodayTasks from './TodayTasks';
 import GardenHealth from './GardenHealth';
+import HealthScoreBreakdown from './HealthScoreBreakdown';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -29,6 +30,7 @@ const Dashboard = () => {
   const [plants, setPlants] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [gardens, setGardens] = useState([]);
+  const [diagnoses, setDiagnoses] = useState([]);
   const [weather, setWeather] = useState(null);
   const [loading, setLoading] = useState(true);
   const [healthScore, setHealthScore] = useState(85);
@@ -57,6 +59,7 @@ const Dashboard = () => {
       setGardens(gardensData || []);
       setPlants(plantsData || []);
       setTasks(tasksData || []);
+      setDiagnoses(diagnosesData || []);
 
       setStats({
         gardens: gardensData?.length || 0,
@@ -65,24 +68,26 @@ const Dashboard = () => {
         diagnoses: diagnosesData?.length || 0,
       });
 
-      calculateHealthScore(plantsData, tasksData, diagnosesData);
+      calculateHealthScore(gardensData, plantsData, tasksData, diagnosesData);
 
       const recent = [
         ...(plantsData?.slice(0, 3).map(p => ({ 
           type: 'plant', 
-          text: `${t('dashboard.actAdded')}: ${p.name}`, 
+          actionKey: 'dashboard.actAdded',
+          entityName: p.name,
           date: p.createdAt,
           icon: '🌱'
         })) || []),
         ...(tasksData?.slice(0, 3).map(t => ({ 
           type: 'task', 
-          text: t.title, 
+          rawTitle: t.title,
           date: t.createdAt,
           icon: '📌'
         })) || []),
         ...(diagnosesData?.slice(0, 2).map(d => ({ 
           type: 'diagnosis', 
-          text: `${t('dashboard.actDiagnosed')}: ${d.diseaseName}`, 
+          actionKey: 'dashboard.actDiagnosed',
+          entityName: d.diseaseName,
           date: d.createdAt,
           icon: '🔬'
         })) || [])
@@ -109,23 +114,45 @@ const Dashboard = () => {
     }
   };
 
-  const calculateHealthScore = (plantsData, tasksData, diagnosesData) => {
-    let score = 85;
-    if (tasksData?.length > 3) {
-      score -= Math.min(tasksData.length * 2, 20);
+  const calculateHealthScore = (gardensData, plantsData, tasksData, diagnosesData) => {
+    if (!plantsData || plantsData.length === 0) {
+      setHealthScore(100);
+      return;
     }
-    const unhealthyPlants = plantsData?.filter(p => p.health === 'unhealthy' || p.health === 'warning') || [];
-    if (unhealthyPlants.length > 0) {
-      score -= unhealthyPlants.length * 5;
-    }
-    const recentDiagnoses = diagnosesData?.filter(d => 
-      new Date(d.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-    ) || [];
-    if (recentDiagnoses.length > 0) {
-      score -= recentDiagnoses.length * 3;
-    }
-    if (gardens.length > 0) score += 5;
-    setHealthScore(Math.max(0, Math.min(100, score)));
+
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    // 1. Plant Health Vitality (50% weight)
+    const totalPlants = plantsData.length;
+    const healthyCount = plantsData.filter(p => !p.health || p.health === 'healthy').length;
+    const warningCount = plantsData.filter(p => p.health === 'warning').length;
+    const unhealthyCount = plantsData.filter(p => p.health === 'unhealthy').length;
+    // Healthy: 1.0, Warning: 0.75, Unhealthy: 0.3
+    const plantHealthWeight = ((healthyCount * 1.0) + (warningCount * 0.75) + (unhealthyCount * 0.3)) / totalPlants;
+    const plantScore = plantHealthWeight * 50;
+
+    // 2. Task Care & Timeliness (30% weight) - Only penalize overdue/due-today incomplete tasks
+    const overdueOrDueTasks = (tasksData || []).filter(t => {
+      if (t.completed) return false;
+      const dueDateStr = new Date(t.dueDate).toISOString().split('T')[0];
+      return dueDateStr <= todayStr;
+    });
+    const taskPenalty = Math.min(overdueOrDueTasks.length * 6, 30);
+    const taskScore = Math.max(0, 30 - taskPenalty);
+
+    // 3. Active Disease Outbreaks (20% weight) - Unresolved disease issues diagnosed in past 7 days
+    const activeDiseaseDiagnoses = (diagnosesData || []).filter(d => {
+      if (d.isResolved) return false;
+      if (d.isHealthy) return false;
+      if (d.diseaseName && /healthy|સ્વસ્થ|स्वस्थ/i.test(d.diseaseName)) return false;
+      const ageInDays = (Date.now() - new Date(d.createdAt).getTime()) / (24 * 60 * 60 * 1000);
+      return ageInDays <= 7;
+    });
+    const diseasePenalty = Math.min(activeDiseaseDiagnoses.length * 4, 20);
+    const diagnosisScore = Math.max(0, 20 - diseasePenalty);
+
+    const totalScore = Math.round(plantScore + taskScore + diagnosisScore);
+    setHealthScore(Math.max(10, Math.min(100, totalScore)));
   };
 
   if (loading) {
@@ -169,6 +196,7 @@ const Dashboard = () => {
             <QuickActions onActionComplete={fetchDashboardData} />
             <AIInsights plants={plants} weather={weather} />
             <PlantGallery plants={plants} />
+            <HealthScoreBreakdown plants={plants} tasks={tasks} diagnoses={diagnoses} score={healthScore} />
           </div>
 
           {/* Right Column */}

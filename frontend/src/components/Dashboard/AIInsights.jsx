@@ -9,15 +9,16 @@ import {
   RiLeafLine 
 } from 'react-icons/ri';
 import { TbPlant2 } from 'react-icons/tb';
+import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import './AIInsights.css';
 
 const AIInsights = ({ plants, weather }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [insight, setInsight] = useState(null);
 
   useEffect(() => {
     generateInsight();
-  }, [plants, weather, t]);
+  }, [plants, weather, t, i18n.language]);
 
   const generateInsight = () => {
     const insights = [];
@@ -29,18 +30,20 @@ const AIInsights = ({ plants, weather }) => {
       
       if (growingPlants.length > 0) {
         const plant = growingPlants[0];
+        const localizedName = getLocalizedDynamicText(plant.name, i18n.language);
         insights.push({
           icon: <TbPlant2 className="insight-svg-icon growing" />,
-          text: `${plant.name} ${t('dashboard.growingWell')} ${plant.waterFrequency ? `${t('dashboard.waterEvery')} ${plant.waterFrequency} ${t('dashboard.days')}` : ''}`,
+          text: `${localizedName} ${t('dashboard.growingWell')} ${plant.waterFrequency ? `${t('dashboard.waterEvery')} ${plant.waterFrequency} ${t('dashboard.days')}` : ''}`,
           priority: 'info'
         });
       }
       
       if (maturePlants.length > 0) {
         const plant = maturePlants[0];
+        const localizedName = getLocalizedDynamicText(plant.name, i18n.language);
         insights.push({
           icon: <RiShoppingBasketLine className="insight-svg-icon harvest" />,
-          text: `${plant.name} ${t('dashboard.readyForHarvest')}`,
+          text: `${localizedName} ${t('dashboard.readyForHarvest')}`,
           priority: 'success'
         });
       }

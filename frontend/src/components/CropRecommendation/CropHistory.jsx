@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { History, Search, Sprout, Sun, Calendar, ArrowRight, Bookmark, BookmarkCheck, Inbox } from 'lucide-react';
 import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import './CropHistory.css';
 
@@ -26,10 +27,37 @@ const CropHistory = ({
     return 'en-US';
   };
 
+  const getLocalizedSoil = (soil) => {
+    if (!soil) return t('crops.soilType', 'Soil');
+    const s = soil.toLowerCase().replace(/\s+/g, '');
+    if (s === 'loam') return t('crops.soilLoam', 'Loam');
+    if (s === 'sandy') return t('crops.soilSandy', 'Sandy');
+    if (s === 'clay') return t('crops.soilClay', 'Clay');
+    if (s === 'silty') return t('crops.soilSilty', 'Silty');
+    if (s === 'peaty') return t('crops.soilPeaty', 'Peaty');
+    if (s === 'chalky') return t('crops.soilChalky', 'Chalky');
+    if (s === 'sandyloam') return t('crops.soilSandyLoam', 'Sandy Loam');
+    if (s === 'pottingmix') return t('crops.soilPottingMix', 'Potting Mix');
+    return soil;
+  };
+
+  const getLocalizedSeason = (season) => {
+    if (!season) return t('crops.season', 'Season');
+    const s = season.toLowerCase();
+    if (s === 'spring') return t('crops.seasonSpring', 'Spring');
+    if (s === 'summer') return t('crops.seasonSummer', 'Summer');
+    if (s === 'fall' || s === 'autumn') return t('crops.seasonFall', 'Fall');
+    if (s === 'winter') return t('crops.seasonWinter', 'Winter');
+    return season;
+  };
+
   return (
     <div className="crop-history">
       <div className="history-header">
-        <h3>{t('crops.historyTitle', 'Recommendation History')}</h3>
+        <div className="history-title-wrap">
+          <History size={18} className="history-header-icon" />
+          <h3>{t('crops.historyTitle', 'Recommendation History')}</h3>
+        </div>
         <span className="history-count">
           {t('crops.sessionsCount', '{{count}} sessions', { count: history.length })}
         </span>
@@ -37,6 +65,7 @@ const CropHistory = ({
 
       <div className="history-filters">
         <div className="search-bar">
+          <Search size={15} className="search-icon" />
           <input
             type="text"
             placeholder={t('crops.searchPlaceholder', 'Search by crop, soil, season...')}
@@ -59,8 +88,11 @@ const CropHistory = ({
 
       {history.length === 0 ? (
         <div className="no-history">
-          <span className="no-history-tag">No Sessions</span>
-          <p>{t('crops.noHistory', 'No recommendation history yet.')}</p>
+          <div className="no-history-icon-box">
+            <Inbox size={28} className="no-history-icon" />
+          </div>
+          <p className="no-history-title">{t('crops.noHistory', 'No recommendation history yet.')}</p>
+          <span className="no-history-sub">{t('crops.startPrompt', 'Get your first crop suggestions!')}</span>
         </div>
       ) : (
         <div className="history-list">
@@ -71,16 +103,18 @@ const CropHistory = ({
             return (
               <div 
                 key={item._id} 
-                className={`history-card ${isSelected ? 'active' : ''}`}
+                className={`history-card ${isSelected ? 'active' : ''} ${item.saved ? 'is-saved' : ''}`}
                 onClick={() => onItemClick(item)}
               >
                 <div className="history-card-header">
                   <div className="history-meta-tags">
                     <span className="history-soil-tag">
-                      {item.inputData?.soilType || 'Soil'}
+                      <Sprout size={12} className="meta-icon" />
+                      {getLocalizedSoil(item.inputData?.soilType)}
                     </span>
                     <span className="history-season-tag">
-                      {item.inputData?.season || 'Season'}
+                      <Sun size={12} className="meta-icon" />
+                      {getLocalizedSeason(item.inputData?.season)}
                     </span>
                   </div>
                   {onSave && (
@@ -91,9 +125,19 @@ const CropHistory = ({
                         e.stopPropagation();
                         onSave(item._id);
                       }}
-                      title={item.saved ? 'Saved' : 'Save'}
+                      title={item.saved ? t('crops.saved', 'Saved') : t('crops.save', 'Save')}
                     >
-                      {item.saved ? '★ Saved' : '☆ Save'}
+                      {item.saved ? (
+                        <>
+                          <BookmarkCheck size={13} className="save-icon" />
+                          <span>{t('crops.saved', 'Saved')}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Bookmark size={13} className="save-icon" />
+                          <span>{t('crops.save', 'Save')}</span>
+                        </>
+                      )}
                     </button>
                   )}
                 </div>
@@ -111,9 +155,17 @@ const CropHistory = ({
 
                 <div className="history-footer-row">
                   <span className="history-date">
-                    {new Date(item.createdAt).toLocaleDateString(getDateLocale())}
+                    <Calendar size={12} className="date-icon" />
+                    {new Date(item.createdAt).toLocaleDateString(getDateLocale(), {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
                   </span>
-                  <span className="history-view-link">View Details →</span>
+                  <span className="history-view-link">
+                    <span>{t('crops.viewDetails', 'View Details')}</span>
+                    <ArrowRight size={13} className="arrow-icon" />
+                  </span>
                 </div>
               </div>
             );
