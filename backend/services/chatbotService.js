@@ -5,6 +5,31 @@ const { detectIntent, extractPlant, extractSymptom, validateQuickActions } = req
 const { getCachedResponse, setCachedResponse, logQuery } = require('./chatbotCacheService');
 
 /**
+ * Strip repetitive greetings and self-introductions from AI replies
+ * when the user is asking normal questions or follow-ups.
+ */
+function stripRepetitiveGreetings(text, isGreetingIntent = false) {
+  if (!text || typeof text !== 'string' || isGreetingIntent) {
+    return text;
+  }
+  let cleaned = text.trim();
+
+  // 1. English greetings & self-intro
+  cleaned = cleaned.replace(/^(?:Hello|Hi|Hey|Greetings)(?:\s+[^\n!.,]+)?\s*[!.,:;]?\s*/i, '');
+  cleaned = cleaned.replace(/^(?:I am|I'm)\s+(?:Krishi\s*AI|your\s+[^.!\n]+)[^.!\n]*[.!\n]\s*/i, '');
+
+  // 2. Gujarati greetings & self-intro
+  cleaned = cleaned.replace(/^(?:નમસ્તે|નમસ્કાર|કેમ\s*છો|હેલો|હાય)(?:\s+[\u0A80-\u0AFFa-zA-Z0-9_]+(?:\s+[\u0A80-\u0AFFa-zA-Z0-9_]+)?)?\s*[!.,:;]?\s*/u, '');
+  cleaned = cleaned.replace(/^(?:હું\s+[^\n.!।?]*?(?:કૃષિ\s*AI|સહાયક)[^\n.!।?]*[.!।?\n]\s*)/u, '');
+
+  // 3. Hindi greetings & self-intro
+  cleaned = cleaned.replace(/^(?:नमस्ते|नमस्कार|प्रणाम|हेलो|हाय)(?:\s+[\u0900-\u097Fa-zA-Z0-9_]+(?:\s+(?:जी|શર્મા|शर्मा|वर्मा|सिंह|કુમાર|कुमार))?)?\s*[!.,:;]?\s*/u, '');
+  cleaned = cleaned.replace(/^(?:मैं\s+[^\n.!।?]*?(?:कृषि\s*AI|सखी|सहायक)[^\n.!।?]*[.!।?\n]\s*)/u, '');
+
+  return cleaned.trim() || text.trim();
+}
+
+/**
  * Build rich rule-based fallback response from local verified knowledge base
  */
 function buildRichFallbackResponse(message, lang, detected, userContext = { role: 'guest' }) {
@@ -60,8 +85,11 @@ function buildRichFallbackResponse(message, lang, detected, userContext = { role
       : '⚠️ Safety Notice: Never combine unverified chemicals. Always wear protective gloves and a face mask.';
   }
 
+  const isGreeting = detected.intent === 'greeting';
+  const cleanReplyText = stripRepetitiveGreetings(text, isGreeting);
+
   return {
-    text: text.trim(),
+    text: cleanReplyText.trim(),
     intent: detected.intent,
     confidence: detected.confidence,
     entities: {
@@ -186,9 +214,18 @@ CURRENT USER ROLE: GUEST (Unauthenticated Visitor)
 
 IDENTITY & FEMALE PERSONA:
 - Your name is Krishi AI. You are a knowledgeable, friendly, and supportive female farming expert.
-- In Hindi: Always strictly use feminine verb forms and self-references (e.g. "मैं आपकी सहायता करूँगी", "मैं कर सकती हूँ", "मैं एक AI कृषि सखी हूँ", NEVER "करूँगा" or "सकता हूँ").
-- In Gujarati: Introduce yourself as "કૃષિ AI, તમારી કૃષિ સહાયક" with a warm, caring, polite feminine tone.
-- In English: Introduce yourself as "Krishi AI", your intelligent AI farming guide.
+- In Hindi: Always strictly use feminine verb forms and self-references (e.g. "मैं आपकी सहायता करूँगी", "मैं कर सकती हूँ", "मैं सलाह देती हूँ", NEVER masculine "करूँगा" or "सकता हूँ").
+- In Gujarati: Use a warm, caring, polite feminine tone in pure Gujarati script.
+- In English: Use an intelligent, caring, and professional expert tone.
+
+CRITICAL CONVERSATIONAL & GREETING RULES (NO REPETITIVE GREETINGS):
+1. NO GREETINGS OR SALUTATIONS ON QUESTION TURNS:
+   - The user is already in an ongoing chat. An initial welcome greeting has already been delivered.
+   - STRICTLY DO NOT prepend "Hello", "Hi", "Namaste", "नमस्ते", or "નમસ્તે" to regular answers.
+   - STRICTLY DO NOT start answers with user name greetings (e.g. "Hello Priya!", "नमस्ते प्रिया जी!", "નમસ્તે પ્રિયા શર્મા!").
+   - STRICTLY DO NOT re-introduce yourself ("I am Krishi AI...", "હું કૃષિ AI છું...", "मैं कृषि AI हूँ...") on every turn.
+   - ONLY include a greeting if the user's current message is specifically a standalone greeting (e.g. user says "Hello", "Hi", "Namaste", "Kem cho").
+   - For all questions, advice, watering checks, disease diagnosis, gardening steps, and follow-ups: START DIRECTLY with the helpful, direct, and actionable answer!
 
 ${roleContextInstruction}
 
@@ -206,7 +243,7 @@ NEVER invent non-existent features, fake payment checkouts, drone delivery, or i
 STRICT TOPIC SCOPE & DOMAIN RESTRICTION - ZERO TOLERANCE:
 - You are Krishi AI, an AI assistant dedicated EXCLUSIVELY to farming, agricultural machinery & equipment, crop cultivation, gardening, plant care, plant disease diagnosis, smart irrigation, and UrbanFarm platform tools.
 - ALLOWED DOMAINS ONLY:
-  1. Agriculture & farming: crops, plants, soil, fertilizers, compost, pests, plant diseases, pruning, harvesting, sowing.
+  1. Agriculture & farming: crops, plants, soil, fertilizers, compost, pests, plant diseases, pruning, harvesting, sowing, safety gear (gloves, masks, spray precautions).
   2. Agricultural tools, equipment & machinery: tractors, tillers, rotavators, cultivators, ploughs, sprayers, knapsack sprayers, drip irrigation kits, sprinklers, water pumps, shears, secateurs, spades, hoes, soil moisture/pH meters, shade nets, grow bags.
   3. Platform features: plant disease diagnosis (/app/diagnosis), smart watering (/app/watering), garden management (/app/gardens), crops (/app/crops), community (/app/community), contact (/contact).
 - STRICTLY FORBIDDEN OUT-OF-TOPIC QUESTIONS:
@@ -220,13 +257,13 @@ STRICT TOPIC SCOPE & DOMAIN RESTRICTION - ZERO TOLERANCE:
 SAFETY GUARDRAILS:
 1. Always prioritize organic and biological solutions (Neem oil spray, compost tea, companion planting, bio-fungicides) over synthetic chemicals.
 2. STRICT WARNING: Never advise mixing different commercial pesticides or fertilizers together.
-3. Recommend protective gloves, masks, and safe storage away from children/pets whenever garden sprays are mentioned.
+3. Always recommend protective gloves, masks, and safe storage away from children/pets whenever garden sprays (including neem oil) are mentioned.
 4. For severe disease outbreaks or doubtful chemical applications, advise consulting a local agronomist.
 
 RESPONSE FORMAT:
 You MUST respond with a valid JSON object strictly matching this schema:
 {
-  "reply": "Formatted markdown text in the target language (${lang}) respecting the user's role (${userRole}) and language guidelines.",
+  "reply": "Direct formatted markdown text in the target language (${lang}) without repetitive hello or greeting prefixes.",
   "intent": "diagnosis | watering | crops | gardens | community | weather | pests | fertilizer | equipment | safety | greeting | security | out_of_scope | unknown",
   "entities": {
     "plant": "identified plant name or null",
@@ -283,10 +320,10 @@ ${langRequirement}`;
   const candidateModels = Array.from(new Set([
     aiConfig.gemini?.model,
     'gemini-flash-latest',
-    'gemini-3.5-flash',
-    'gemini-flash-lite-latest',
-    'gemini-3.5-flash-lite',
     'gemini-2.5-flash',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash-latest',
+    'gemini-flash-lite-latest',
     'gemini-pro-latest'
   ])).filter(Boolean);
 
@@ -350,8 +387,11 @@ ${langRequirement}`;
           ? validActions
           : detected.quickActions;
 
+        const isGreeting = (parsed.intent || detected.intent) === 'greeting';
+        const cleanedReply = stripRepetitiveGreetings(parsed.reply, isGreeting);
+
         const structuredResult = {
-          text: parsed.reply.trim(),
+          text: cleanedReply.trim(),
           intent: parsed.intent || detected.intent,
           confidence: detected.confidence,
           entities: {

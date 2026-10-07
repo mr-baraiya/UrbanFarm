@@ -6,7 +6,7 @@
 
 const { VALID_PLATFORM_ROUTES, PLATFORM_ROUTES, KNOWLEDGE_BASE } = require('../data/chatbotKnowledge');
 
-// Common agricultural plant dictionaries
+/// Common agricultural plant dictionaries
 const COMMON_PLANTS = [
   { name: 'Tomato', aliases: ['tomato', 'tomatoes', 'ટામેટાં', 'ટામેટા', 'ટમેટા', 'टमाटर'] },
   { name: 'Chilli', aliases: ['chilli', 'chili', 'peppers', 'મરચાં', 'મરચી', 'મરચા', 'मिर्च', 'मिर्ची'] },
@@ -20,25 +20,26 @@ const COMMON_PLANTS = [
   { name: 'Aloe Vera', aliases: ['aloe', 'aloe vera', 'કુવારપાઠું', 'एलोवेरा', 'घृतकुमारी'] },
   { name: 'Methi', aliases: ['methi', 'fenugreek', 'મેથી', 'मेथी'] },
   { name: 'Cucumber', aliases: ['cucumber', 'કાકડી', 'खीरा'] },
-  { name: 'Curry Leaves', aliases: ['curry leaves', 'kadi patta', 'મીઠો લીમડો', 'કઢી પત્તા', 'कढ़ी पत्ता'] },
+  { name: 'Curry Leaves / Neem', aliases: ['curry leaves', 'kadi patta', 'neem', 'લીમડ', 'મીઠો લીમડો', 'કઢી પત્તા', 'નીમ', 'नीम', 'कढ़ी पत्ता'] },
 ];
 
 // Common plant symptoms and conditions
 const SYMPTOMS = [
   { symptom: 'yellow_leaves', patterns: ['yellow', 'yellowing', 'પીળા', 'પીળાશ', 'પીળા પાન', 'पीले', 'पीली', 'पीलापन'] },
-  { symptom: 'leaf_curl', patterns: ['curl', 'curling', 'વળેલા', 'ગોળ વળેલા', 'કુકડાવ', 'मुड़ना', 'सिकुड़न', 'मरोड़'] },
-  { symptom: 'leaf_spots', patterns: ['spots', 'black spots', 'brown spots', 'ડાઘા', 'કાળા ડાઘ', 'ધાબા', 'धब्बे', 'काले धब्बे'] },
+  { symptom: 'leaf_curl', patterns: ['curl', 'curling', 'વળેલા', 'ગોળ વળેલા', 'કુકડાવ', 'મુડવું', 'मुड़ना', 'सिकुड़न', 'मरोड़'] },
+  { symptom: 'leaf_spots', patterns: ['spots', 'black spots', 'brown spots', 'ડાઘા', 'ડાઘ', 'કાળા ડાઘ', 'ધાબા', 'धब्बे', 'काले धब्बे'] },
   { symptom: 'wilting', patterns: ['wilt', 'wilting', 'drooping', 'કરમાય', 'ચીમળાઈ', 'સુકાઈ', 'मुरझाना', 'सूखना'] },
   { symptom: 'powdery_mildew', patterns: ['white powder', 'powder', 'mildew', 'સફેદ પાવડર', 'સફેદ છારી', 'सफेद पाउडर', 'फफूंद'] },
-  { symptom: 'leaf_holes', patterns: ['holes', 'chewed', 'કાણાં', 'કાણા', 'છિદ્ર', 'छेद', 'पत्ते कटे'] }
+  { symptom: 'leaf_holes', patterns: ['holes', 'chewed', 'કાણાં', 'કાણા', 'છિદ્ર', 'छेद', 'पत्ते कटे'] },
+  { symptom: 'whiteflies_pests', patterns: ['whitefly', 'whiteflies', 'aphid', 'સફેદ માખી', 'માખી', 'જીવાત', 'सफेद मक्खी', 'माहू', 'कीड़ा'] }
 ];
 
 // Contextual follow-up markers
 const FOLLOW_UP_PATTERNS = [
   'next', 'what next', 'what should i do next', 'how to fix', 'how to treat',
-  'how much', 'is it safe', 'can i use', 'after this', 'then',
-  'પછી શું', 'ત્યારબાદ', 'હવે શું કરવું', 'કેવી રીતે મટાડવું', 'કેટલું આપવું',
-  'इसके बाद', 'आगे क्या करें', 'अब क्या करना होगा', 'कैसे ठीक करें', 'कितना देना है'
+  'how much', 'is it safe', 'can i use', 'after this', 'then', 'should i',
+  'પછી શું', 'ત્યારબાદ', 'હવે શું કરવું', 'કેવી રીતે મટાડવું', 'કેટલું આપવું', 'જોઈએ', 'કરી શકું',
+  'इसके बाद', 'आगे क्या करें', 'अब क्या करना होगा', 'कैसे ठीक करें', 'कितना देना है', 'चाहिए'
 ];
 
 /**
@@ -69,7 +70,7 @@ function extractSymptom(text) {
 
 /**
  * Check if a query belongs to farming, agriculture, crop cultivation,
- * gardening, agricultural tools & machinery, or UrbanFarm platform features.
+ * gardening, plant health, safety gear, tools & machinery, or UrbanFarm platform features.
  */
 function isFarmingOrEquipmentQuery(text) {
   const lower = (text || '').toLowerCase().trim();
@@ -79,12 +80,12 @@ function isFarmingOrEquipmentQuery(text) {
   if (extractPlant(lower) || extractSymptom(lower)) return true;
 
   // 2. Comprehensive Agricultural & Farming Equipment vocabulary (EN, GU, HI)
-  const AGRI_EQUIPMENT_REGEX = /(farm|farmer|farming|plant|crop|grow|seed|seedling|soil|fertiliz|compost|manure|pest|insect|aphid|disease|leaf|leaves|root|stem|flower|fruit|vegetable|harvest|sow|sowing|yield|garden|gardening|terrace|balcony|irrigation|water|watering|drip|sprayer|knapsack|tractor|tiller|rotavator|cultivator|plough|plow|prun|shear|secateur|khurpi|spade|shovel|rake|hoe|dibber|pot|potting|coco\s*peat|vermicompost|fungus|blight|mildew|weather|rain|sunlight|shade\s*net|grow\s*bag|hydroponic|organic|agri|agriculture|agronomist|pesticide|herbicide|fungicide|bio-fertilizer|trellis|polyhouse|greenhouse|mulch|mulching|lopper|mower|weeder|thresher|harvester|borewell|sprinkler|pipe|hose|nozzle|pump|ph\s*meter|moisture\s*meter|seed\s*drill|seedling\s*tray|ખેત|ખેતી|ખેડૂત|પાક|છોડ|બીજ|વાવણી|લણણી|જમીન|માટી|ખાતર|જીવાત|રોગ|પાન|પાંદડા|ડાળી|ફળ|શાકભાજી|બગીચો|ધાબું|બાલ્કની|કુંડુ|સિંચાઈ|ટપક|ટ્રેક્ટર|ઓજાર|સાધન|પંપ|સ્પ્રેયર|કાતર|સિકેટર્સ|પાવડો|કોદાળી|ત્રિકમ|ખુરપી|પંજેટી|ઝારી|લીમડો|અર્ક|ખેતીવાડી|ખેતઓજાર|હળ|પ્લાઉ|રોટાવેટર|ટિલર|કલ્ટીવેટર|ઓરણી|સીડ\s*ડ્રીલ|શેડ\s*નેટ|ગ્રો\s*બેગ|ખેત|खेत|खेती|किसान|फसल|पौधा|पौधे|बीज|बुवाई|कटाई|मिट्टी|खाद|उर्वरक|कीट|कीड़ा|रोग|पत्ता|पत्ते|फल|सब्जी|बगीचा|छत|गमला|सिंचाई|ड्रिप|फव्वारा|ट्रैक्टर|औजार|उपकरण|पंप|स्प्रेयर|कैंची|सिकेटर|फावड़ा|कुदाल|खुरपी|हजारी|नीम|कृषि|हल|यंत्र|मशीन|रोटावेटर|टिलर|कल्टीवेटर|सीड\s*ड्रिल|शेड\s*नेट|ग्रो\s*बैग|खरपतवार|दवा\s*छिड़काव)/i;
+  const AGRI_EQUIPMENT_REGEX = /(farm|farmer|farming|plant|crop|grow|seed|seedling|soil|fertiliz|compost|manure|pest|insect|aphid|whitefl|bug|caterpillar|worm|disease|leaf|leaves|root|stem|flower|fruit|vegetable|harvest|sow|sowing|yield|garden|gardening|terrace|balcony|irrigation|water|watering|drip|sprayer|spray|knapsack|tractor|tiller|rotavator|cultivator|plough|plow|prun|shear|secateur|khurpi|spade|shovel|rake|hoe|dibber|pot|potting|coco\s*peat|vermicompost|fungus|blight|mildew|weather|rain|sunlight|shade\s*net|grow\s*bag|hydroponic|organic|agri|agriculture|agronomist|pesticide|herbicide|fungicide|bio-fertilizer|trellis|polyhouse|greenhouse|mulch|mulching|lopper|mower|weeder|thresher|harvester|borewell|sprinkler|pipe|hose|nozzle|pump|ph\s*meter|moisture\s*meter|seed\s*drill|seedling\s*tray|neem|mask|glove|safety|protect|cure|treat|symptom|ખેત|ખેતી|ખેડૂત|પાક|છોડ|બીજ|વાવણી|લણણી|જમીન|માટી|ખાતર|જીવાત|રોગ|પાન|પાંદડ|ડાળી|ફળ|શાકભાજી|બગીચ|ધાબ|બાલ્કની|કુંડ|સિંચાઈ|ટપક|ટ્રેક્ટર|ઓજાર|સાધન|પંપ|સ્પ્રે|કાતર|સિકેટર્સ|પાવડો|કોદાળી|ત્રિકમ|ખુરપી|પંજેટી|ઝારી|લીમડ|નીમ|તેલ|ઓઈલ|અર્ક|ખેતીવાડી|ખેતઓજાર|હળ|પ્લાઉ|રોટાવેટર|ટિલર|કલ્ટીવેટર|ઓરણી|સીડ\s*ડ્રીલ|શેડ\s*નેટ|ગ્રો\s*બેગ|મોજા|માસ્ક|ગ્લોવ|દસ્તાણા|સુરક્ષા|સાવચેતી|રક્ષણ|દવા|જંતુનાશક|છાંટ|છંટકાવ|માખી|ઈયળ|સફેદ\s*માખી|લક્ષણ|ઉપચાર|સારવાર|ખેતી|खेत|खेती|किसान|फसल|पौध|बीज|बुवाई|कटाई|मिट्टी|खाद|उर्वरक|कीट|कीड़ा|रोग|पत्त|फल|सब्जी|बगीच|छत|गमल|सिंचाई|ड्रिप|फव्वारा|ट्रैक्टर|औजार|उपकरण|पंप|स्प्रे|कैंची|सिकेटर|फावड़ा|कुदाल|खुरपी|हजारी|नीम|तेल|कृषि|हल|यंत्र|मशीन|रोटावेटर|टिलर|कल्टीवेटर|सीड\s*ड्रिल|शेड\s*नेट|ग्रो\s*बैग|खरपतवार|दवा|छिड़काव|मास्क|दस्ताने|सुरक्षा|सावधानी|सफेद\s*मक्खी|माहू|इल्ली|इलाज|उपचार)/i;
 
   if (lower.match(AGRI_EQUIPMENT_REGEX)) return true;
 
   // 3. Platform navigation / feature names
-  const PLATFORM_REGEX = /(urbanfarm|diagnosis|watering|garden|crop\s*recommend|community|support|contact|sign\s*in|login|register|admin|અર્બનફાર્મ|નિદાન|વોટરિંગ|બગીચો|અર્બન|अर्बनफार्म|निदान|सिंचाई|बगीचा)/i;
+  const PLATFORM_REGEX = /(urbanfarm|diagnosis|diagnose|watering|garden|crop\s*recommend|community|support|contact|sign\s*in|login|register|admin|અર્બનફાર્મ|નિદાન|વોટરિંગ|બગીચો|અર્બન|अर्बनफार्म|निदान|सिंचाई|बगीचा)/i;
 
   return Boolean(lower.match(PLATFORM_REGEX));
 }
@@ -108,7 +109,7 @@ function detectIntent(text, language = 'en', history = []) {
   if (greetingPatterns.some(g => lower === g || lower.startsWith(g + ' ') || lower.startsWith(g + '!'))) {
     return {
       intent: 'greeting',
-      confidence: 0.95,
+      confidence: 0.98,
       route: PLATFORM_ROUTES.gardens,
       quickActions: [
         { label: lang === 'gu' ? 'કૃષિ ઓજારો અને સાધનો' : lang === 'hi' ? 'कृषि उपकरण और औजार' : 'Farming Equipments', path: PLATFORM_ROUTES.gardens },
@@ -144,11 +145,11 @@ function detectIntent(text, language = 'en', history = []) {
     };
   }
 
-  // 3. Strict Out-of-Scope Pre-check: Reject non-agricultural questions immediately
+  // 3. Strict Out-of-Scope Pre-check: Reject non-agricultural questions immediately ONLY if explicit match
   const isExplicitOutOfScope = Boolean(lower.match(STRICT_OUT_OF_SCOPE_REGEX));
   const isAgriRelated = isFarmingOrEquipmentQuery(lower);
 
-  if (isExplicitOutOfScope || (!isAgriRelated && !FOLLOW_UP_PATTERNS.some(fp => lower.includes(fp)))) {
+  if (isExplicitOutOfScope) {
     const kbData = KNOWLEDGE_BASE.unknown[lang] || KNOWLEDGE_BASE.unknown.en;
     return {
       intent: 'out_of_scope',
@@ -208,7 +209,7 @@ function detectIntent(text, language = 'en', history = []) {
   };
 
   // 1. Disease & Diagnosis keywords
-  if (lower.match(/(diagnos|disease|sick|fungus|blight|rot|spot|leaf\s*check|રોગ|નિદાન|બીમારી|બગડી|સડો|रोग|निदान|बीमार|पत्ता\s*खराब|सड़न)/i)) {
+  if (lower.match(/(diagnos|disease|sick|fungus|blight|rot|spot|symptom|leaf\s*check|રોગ|નિદાન|બીમારી|બગડી|સડો|લક્ષણ|લક્ષણો|ડાઘ|પીળા|કુકડાવ|रोग|निदान|बीमार|पत्ता\s*खराब|सड़न|लक्षण|धब्बे)/i)) {
     scores.diagnosis += 5;
   }
   if (extractSymptom(lower)) {
@@ -216,12 +217,12 @@ function detectIntent(text, language = 'en', history = []) {
   }
 
   // 2. Watering & Irrigation
-  if (lower.match(/(water|watering|irrigation|schedule|moisture|dry\s*soil|પાણી|સિંચાઈ|ભેજ|સુકાઈ|पानी|सिंचाई|नमी|सूखी\s*मिट्टी)/i)) {
+  if (lower.match(/(water|watering|irrigation|schedule|moisture|dry\s*soil|પાણી|સિંચાઈ|વોટરિંગ|ભેજ|સુકાઈ|पानी|सिंचाई|नमी|सूखी\s*मिट्टी)/i)) {
     scores.watering += 5;
   }
 
   // 3. Gardens & Containers
-  if (lower.match(/(garden|my\s*garden|add\s*plant|pot|container|balcony|terrace|raised\s*bed|બગીચો|કુંડુ|ધાબું|બાલ્કની|बगीचा|गमला|छत|बालकनी|पौधा\s*लगाना)/i)) {
+  if (lower.match(/(garden|my\s*garden|add\s*plant|pot|container|balcony|terrace|raised\s*bed|બગીચ|કુંડ|ધાબ|બાલ્કની|बगीच|गमल|छत|बालकनी|पौधा\s*लगाना|पौधा\s*जोड़ना)/i)) {
     scores.gardens += 4;
   }
 
@@ -242,7 +243,7 @@ function detectIntent(text, language = 'en', history = []) {
   }
 
   // 7. Pests & Bugs
-  if (lower.match(/(pest|bug|insect|aphid|mealybug|mite|caterpillar|worm|neem|spray|જીવાત|ઈયળ|માખી|કીડા|લીમડો|કીટ|माहू|मिलीबग|कीड़ा|इल्ली|नीम)/i)) {
+  if (lower.match(/(pest|bug|insect|aphid|whitefl|mealybug|mite|caterpillar|worm|neem|spray|oil|જીવાત|ઈયળ|માખી|સફેદ\s*માખી|કીડા|લીમડ|નીમ|તેલ|ઓઈલ|સ્પ્રે|છાંટ|છંટકાવ|કીટ|माहू|सफेद\s*मक्खी|मिलीबग|कीड़ा|इल्ली|नीम|तेल|छिड़काव)/i)) {
     scores.pests += 5;
   }
 
@@ -251,9 +252,9 @@ function detectIntent(text, language = 'en', history = []) {
     scores.fertilizers += 5;
   }
 
-  // 9. Safety & Chemical Warnings
-  if (lower.match(/(chemical|poison|toxic|safe|harmful|danger|mix\s*pesticide|ઝેર|કેમિકલ|નુકસાન|સુરક્ષા|દવા|रसायन|जहर|विषाक्त|खतरा|सुरक्षा|कीटनाशक)/i)) {
-    scores.safety += 5;
+  // 9. Safety, Protection Gear & Chemical Warnings
+  if (lower.match(/(chemical|poison|toxic|safe|safety|harmful|danger|glove|gloves|mask|masks|protect|protective|mix\s*pesticide|ઝેર|કેમિકલ|નુકસાન|સુરક્ષા|સાવચેતી|સાવધાન|રક્ષણ|દવા|મોજા|મોજાં|માસ્ક|ગ્લોવ|ગ્લોવ્સ|ગ્લોવ્ઝ|દસ્તાણા|रसायन|जहर|विषाक्त|खतरा|सुरक्षा|सावधानी|सुरक्षित|दस्ताने|मास्क|कीटनाशक)/i)) {
+    scores.safety += 6;
   }
 
   // 10. Farming & Gardening Equipments / Machinery / Tools
@@ -276,17 +277,18 @@ function detectIntent(text, language = 'en', history = []) {
     }
   }
 
-  // If score is negligible and not a follow-up, mark as out_of_scope
+  // If score is negligible and not a follow-up
   if (maxScore < 2) {
     if (!isAgriRelated && !isFollowUp) {
-      topIntent = 'out_of_scope';
+      topIntent = isExplicitOutOfScope ? 'out_of_scope' : 'unknown';
     } else {
-      topIntent = 'unknown';
+      topIntent = 'general';
     }
   }
 
   // Map intent to route and quick actions
   const routeMap = {
+    greeting: PLATFORM_ROUTES.gardens,
     diagnosis: PLATFORM_ROUTES.diagnosis,
     watering: PLATFORM_ROUTES.watering,
     gardens: PLATFORM_ROUTES.gardens,
@@ -303,11 +305,12 @@ function detectIntent(text, language = 'en', history = []) {
   };
 
   const primaryRoute = routeMap[topIntent] || PLATFORM_ROUTES.diagnosis;
-  const kbData = KNOWLEDGE_BASE[topIntent] ? KNOWLEDGE_BASE[topIntent][lang] : (KNOWLEDGE_BASE.unknown[lang] || KNOWLEDGE_BASE.general[lang]);
+  const kbGroup = KNOWLEDGE_BASE[topIntent] || KNOWLEDGE_BASE.general;
+  const kbData = kbGroup[lang] || kbGroup.en;
 
   return {
     intent: topIntent,
-    confidence: Math.min(1.0, 0.5 + maxScore * 0.1),
+    confidence: Math.min(1.0, 0.6 + maxScore * 0.1),
     route: primaryRoute,
     extractedPlant: extractPlant(lower) || contextPlant,
     extractedSymptom: extractSymptom(lower),

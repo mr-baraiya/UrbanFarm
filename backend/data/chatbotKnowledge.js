@@ -41,18 +41,52 @@ const PLATFORM_ROUTES = {
 };
 
 const KNOWLEDGE_BASE = {
+  greeting: {
+    en: {
+      title: 'Krishi AI Welcome',
+      route: '/app/gardens',
+      steps: `Hello! How can I assist you with your balcony or terrace garden, plant care, smart watering, or farming equipment today? 🌿`,
+      quickActionLabel: 'Explore UrbanFarm',
+      followUps: [
+        'How do I diagnose plant diseases?',
+        'How does smart watering work?',
+        'What crops grow best this season?'
+      ]
+    },
+    gu: {
+      title: 'કૃષિ AI સ્વાગત',
+      route: '/app/gardens',
+      steps: `નમસ્તે! આજે હું તમારા બાલ્કની કે ટેરેસ બગીચા, છોડની કાળજી, સ્માર્ટ સિંચાઈ અથવા ખેતીના સાધનોમાં કઈ રીતે મદદ કરી શકું? 🌿`,
+      quickActionLabel: 'અર્બનફાર્મ જુઓ',
+      followUps: [
+        'છોડનું રોગ નિદાન કેવી રીતે કરવું?',
+        'સ્માર્ટ સિંચાઈ કેવી રીતે કામ કરે છે?',
+        'આ ઋતુમાં કયા પાક ઉગાડવા?'
+      ]
+    },
+    hi: {
+      title: 'कृषि AI स्वागत',
+      route: '/app/gardens',
+      steps: `नमस्ते! आज मैं आपकी बालकनी या छत के बगीचे, पौधों की देखभाल, स्मार्ट सिंचाई या कृषि उपकरणों में क्या सहायता कर सकती हूँ? 🌿`,
+      quickActionLabel: 'अर्बनफार्म देखें',
+      followUps: [
+        'पौधे का रोग निदान कैसे करें?',
+        'स्मार्ट सिंचाई कैसे काम करती है?',
+        'इस मौसम में कौन सी फसलें उगाएं?'
+      ]
+    }
+  },
+
   diagnosis: {
     en: {
       title: 'AI Plant Disease Diagnosis',
       route: '/app/diagnosis',
-      steps: `Hello! I am Krishi AI 🌿. If your plant is showing spots, yellowing, or wilted leaves, I can help you diagnose its health right away!
+      steps: `To diagnose your plant's health and get organic remedies:
+• Take a clear, well-lit photo of the affected leaf, stem, or fruit.
+• Upload the photo to **AI Disease Diagnosis** (/app/diagnosis).
+• Receive an instant identification of the issue along with verified organic treatment steps.
 
-Here is how we can check your plant together:
-• Take a clear photo of the affected leaf or stem.
-• Upload the photo to our **AI Disease Diagnosis** analyzer.
-• Receive an instant diagnosis, confidence score, and step-by-step organic remedies.
-
-Click the button below to start diagnosing your plant!`,
+Click below to start diagnosing your plant!`,
       quickActionLabel: 'Open AI Diagnosis',
       followUps: [
         'How to take a clear photo of the leaf?',
@@ -63,14 +97,12 @@ Click the button below to start diagnosing your plant!`,
     gu: {
       title: 'AI રોગ નિદાન',
       route: '/app/diagnosis',
-      steps: `નમસ્તે! હું કૃષિ AI છું 🌿. જો તમારા છોડના પાંદડા પીળા પડી રહ્યા હોય કે તેમાં ડાઘ દેખાતા હોય, તો હું તમને તુરંત માર્ગદર્શન આપી શકું છું!
+      steps: `તમારા છોડના સચોટ રોગ નિદાન અને દેશી/ઓર્ગેનિક ઉપચાર માટે:
+• અસરગ્રસ્ત પાંદડા, ડાળી કે ફળનો સ્પષ્ટ ફોટો લો.
+• **AI રોગ નિદાન** (/app/diagnosis) વિભાગમાં ફોટો અપલોડ કરો.
+• હું તરત જ રોગની ઓળખ કરીને અસરકારક દેશી ઉપાયો અને કાળજીના પગલાં સૂચવીશ.
 
-આપણે છોડનું રોગ નિદાન કેવી રીતે કરી શકીએ:
-• અસરગ્રસ્ત પાંદડાનો સ્પષ્ટ ફોટો લો.
-• અમારા **AI રોગ નિદાન** ફિચરમાં ફોટો અપલોડ કરો.
-• હું તમને રોગનું નામ, ચોકસાઈ અને દેશી/ઓર્ગેનિક ઉપાયો આપવામા મદદ કરીશ.
-
-નીચે આપેલ બટન પર ક્લિક કરીને તુરંત રોગ નિદાન શરૂ કરો!`,
+રોગ નિદાન શરૂ કરવા નીચે આપેલા બટન પર ક્લિક કરો!`,
       quickActionLabel: 'AI રોગ નિદાન ખોલો',
       followUps: [
         'પાંદડાનો સ્પષ્ટ ફોટો કેવી રીતે લેવો?',
@@ -81,14 +113,12 @@ Click the button below to start diagnosing your plant!`,
     hi: {
       title: 'AI रोग निदान',
       route: '/app/diagnosis',
-      steps: `नमस्ते! मैं कृषि AI हूँ 🌿। यदि आपके पौधे के पत्ते पीले पड़ रहे हैं या उनमें धब्बे दिख रहे हैं, तो मैं तुरंत सहायता कर सकती हूँ!
+      steps: `पौधे के सटीक रोग निदान और जैविक उपचार के लिए:
+• प्रभावित पत्ते, तने या फल की साफ फोटो लें।
+• **AI रोग निदान** (/app/diagnosis) सेक्शन में फोटो अपलोड करें।
+• बीमारी का नाम, पहचान और तुरंत प्रभावी जैविक उपचार प्राप्त करें।
 
-हम पौधे का रोग निदान कैसे कर सकते हैं:
-• प्रभावित पत्ते या तने की एक स्पष्ट फोटो लें।
-• हमारे **AI रोग निदान** सेक्शन में फोटो अपलोड करें।
-• मैं आपको बीमारी का नाम, सटीकता और प्रभावी जैविक उपचार बताएँगी।
-
-नीचे दिए गए बटन पर क्लिक करके अभी रोग निदान शुरू करें!`,
+रोग निदान शुरू करने के लिए नीचे दिए गए बटन पर क्लिक करें!`,
       quickActionLabel: 'AI रोग निदान खोलें',
       followUps: [
         'पत्ते की साफ फोटो कैसे लें?',
@@ -102,11 +132,9 @@ Click the button below to start diagnosing your plant!`,
     en: {
       title: 'Smart Watering Schedule',
       route: '/app/watering',
-      steps: `Hello! I am Krishi AI 🌿. I can help you create an intelligent watering plan tailored to your local weather!
-
-Here is how Smart Irrigation keeps your garden healthy:
-• We connect your live weather forecast (temperature, humidity, rain) with your plants' water needs.
-• You get a personalized 7-day schedule with automated reminders.
+      steps: `Smart Weather-Based Watering (/app/watering) keeps your garden healthy by optimizing irrigation:
+• Analyzes real-time local weather (temperature, humidity, rain forecast) and plant moisture requirements.
+• Generates a customized 7-day watering calendar with timely reminders.
 💡 **Pro Tip**: Water early in the morning (6–8 AM) to minimize evaporation and keep roots strong!`,
       quickActionLabel: 'Open Smart Watering',
       followUps: [
@@ -118,12 +146,10 @@ Here is how Smart Irrigation keeps your garden healthy:
     gu: {
       title: 'સ્માર્ટ સિંચાઈ આયોજન',
       route: '/app/watering',
-      steps: `નમસ્તે! હું કૃષિ AI છું 🌿. હું તમને હવામાન અનુસાર પાણી આપવાનું સ્માર્ટ આયોજન કરવામાં મદદ કરી શકું છું!
-
-અમારું સ્માર્ટ વોટરિંગ સિસ્ટમ કેવી રીતે કામ કરે છે:
-• તમારા વિસ્તારના હવામાન (તાપમાન, વરસાદ) સાથે છોડની જરૂરિયાત મેળવાય છે.
-• તમને આગામી ૭ દિવસનું ચોક્કસ ટાઇમટેબલ અને રિમાઇન્ડર મળશે.
-💡 **ખાસ ટિપ**: સવારે ૬ થી ૮ ની વચ્ચે પાણી આપવું છોડ માટે સૌથી ઉત્તમ છે!`,
+      steps: `સ્માર્ટ વેધર વોટરિંગ (/app/watering) દ્વારા છોડને હવામાન અનુસાર યોગ્ય માત્રામાં પાણી આપવાનું આયોજન:
+• સ્થાનિક હવામાન (તાપમાન, ભેજ, વરસાદની આગાહી) સાથે છોડની ભેજ જરૂરિયાત મેળવાય છે.
+• ૭ દિવસનું સચોટ વોટરિંગ કેલેન્ડર અને જરૂરી રિમાઇન્ડર મળે છે.
+💡 **ખાસ ટિપ**: સવારે ૬ થી ૮ વાગ્યા વચ્ચે પાણી આપવું છોડના મૂળિયા માટે સૌથી ઉત્તમ છે!`,
       quickActionLabel: 'સ્માર્ટ વોટરિંગ ખોલો',
       followUps: [
         'ગરમીમાં કેટલું પાણી આપવું?',
@@ -134,11 +160,9 @@ Here is how Smart Irrigation keeps your garden healthy:
     hi: {
       title: 'स्मार्ट सिंचाई शेड्यूल',
       route: '/app/watering',
-      steps: `नमस्ते! मैं कृषि AI हूँ 🌿। मैं आपके स्थानीय मौसम के अनुसार सही सिंचाई शेड्यूल बनाने में आपकी मदद कर सकती हूँ!
-
-स्मार्ट सिंचाई आपके पौधों का ख्याल कैसे रखती है:
-• आपके क्षेत्र के लाइव मौसम (तापमान, बारिश) के आधार पर पानी की सही मात्रा तय होती है।
-• आपको अगले ७ दिनों का सटीक शेड्यूल और रिमाइंडर मिलेगा।
+      steps: `स्मार्ट मौसम आधारित सिंचाई (/app/watering) पौधों को सही समय और सही मात्रा में पानी देने की सुविधा प्रदान करती है:
+• स्थानीय मौसम (तापमान, आर्द्रता, वर्षा पूर्वानुमान) और पौधों की जरूरतों का विश्लेषण करता है।
+• अगले ७ दिनों का अनुकूलित सिंचाई शेड्यूल और रिमाइंडर प्रदान करता है।
 💡 **महत्वपूर्ण सुझाव**: सुबह जल्दी (६ से ८ बजे) पानी देना पौधों की जड़ों के लिए सबसे लाभकारी होता है!`,
       quickActionLabel: 'स्मार्ट सिंचाई खोलें',
       followUps: [
@@ -153,12 +177,10 @@ Here is how Smart Irrigation keeps your garden healthy:
     en: {
       title: 'My Gardens & Plant Management',
       route: '/app/gardens',
-      steps: `Hello! I am Krishi AI 🌿. I can help you organize and track your balcony or terrace garden spaces!
-
-Here is how you can manage your garden with me:
+      steps: `To manage and track your balcony or terrace garden spaces:
+• Go to **My Gardens & Plant Tracker** (/app/gardens).
 • Add your garden space (Balcony, Terrace, Windowsill, or Backyard).
-• Add your plants, herbs, or vegetables to track growth milestones and health logs.
-• Keep all your watering and fertilizer records in one place!`,
+• Add plants, log growth stages, and track soil and care logs all in one place!`,
       quickActionLabel: 'View My Gardens',
       followUps: [
         'What soil mix is best for pots?',
@@ -169,9 +191,8 @@ Here is how you can manage your garden with me:
     gu: {
       title: 'મારા બગીચાઓ અને છોડ વ્યવસ્થાપન',
       route: '/app/gardens',
-      steps: `નમસ્તે! હું કૃષિ AI છું 🌿. હું તમારા બાલ્કની કે ટેરેસ બગીચાનું વ્યવસ્થાપન કરવામાં તમારી મદદ કરીશ!
-
-આપણે બગીચાનું આયોજન કેવી રીતે કરી શકીએ:
+      steps: `તમારા બાલ્કની કે ટેરેસ બગીચા અને છોડનું વ્યવસ્થાપન કરવા માટે:
+• **મારા બગીચાઓ અને પ્લાન્ટ ટ્રેકર** (/app/gardens) પર જાઓ.
 • તમારો બગીચો ઉમેરો (બાલ્કની, ધાબું કે આંગણું).
 • તમારા શાકભાજી કે ફૂલોના છોડ ઉમેરીને તેમનો વિકાસ અને પાણી આપવાનો હિસાબ રાખો.`,
       quickActionLabel: 'મારા બગીચાઓ જુઓ',
@@ -184,11 +205,10 @@ Here is how you can manage your garden with me:
     hi: {
       title: 'मेरे बगीचे और पौधे प्रबंधन',
       route: '/app/gardens',
-      steps: `नमस्ते! मैं कृषि AI हूँ 🌿। मैं आपकी बालकनी या छत के बगीचे को व्यवस्थित करने में आपकी मदद कर सकती हूँ!
-
-हम बगीचे का प्रबंधन कैसे कर सकते हैं:
+      steps: `अपनी बालकनी या छत के बगीचे और पौधों का प्रबंधन करने के लिए:
+• **मेरे बगीचे और प्लांट ट्रैकर** (/app/gardens) पर जाएं।
 • अपना नया बगीचा जोड़ें (बालकनी, छत, खिड़की या आँगन)।
-• अपने पसंदीदा पौधे जोड़ें और उनकी वृद्धि और स्वास्थ्य का रिकॉर्ड रखें।`,
+• अपने पौधे जोड़ें और उनकी वृद्धि, स्वास्थ्य और पानी का रिकॉर्ड रखें।`,
       quickActionLabel: 'मेरे बगीचे देखें',
       followUps: [
         'गमलों के लिए उत्तम मिट्टी का मिश्रण क्या है?',
@@ -202,11 +222,10 @@ Here is how you can manage your garden with me:
     en: {
       title: 'AI Crop Recommendation',
       route: '/app/crops',
-      steps: `Hello! I am Krishi AI 🌿. I can suggest the best high-yield crops for your balcony or terrace garden!
-
-Based on your soil type, sunlight, space, and current season, I will recommend the top vegetables, herbs, or fruits that thrive best in your location.
-
-Tap below to view tailored crop suggestions!`,
+      steps: `For high-yield crop recommendations tailored to your conditions:
+• Open **Crop Recommendation** (/app/crops).
+• Enter your space type (balcony/terrace), sunlight hours, soil type, and current season.
+• Get tailored recommendations for vegetables, herbs, and fruits with high success rates.`,
       quickActionLabel: 'Open Crop Guide',
       followUps: [
         'What crops grow best in shade?',
@@ -217,9 +236,10 @@ Tap below to view tailored crop suggestions!`,
     gu: {
       title: 'AI પાક ભલામણ',
       route: '/app/crops',
-      steps: `નમસ્તે! હું કૃષિ AI છું 🌿. હું તમારી જગ્યા અને ઋતુ અનુસાર શ્રેષ્ઠ પાકની ભલામણ કરી શકું છું!
-
-તમારી માટી, સૂર્યપ્રકાશ અને જગ્યાના આધારે હું તમને વધુ ઉપજ આપતા શાકભાજી અને છોડ પસંદ કરવામાં મદદ કરીશ.`,
+      steps: `તમારી જગ્યા અને ઋતુ અનુસાર શ્રેષ્ઠ પાકની પસંદગી માટે:
+• **AI પાક ભલામણ** (/app/crops) પર જાઓ.
+• તમારી ઉપલબ્ધ જગ્યા, સૂર્યપ્રકાશ અને માટીનો પ્રકાર પસંદ કરો.
+• વધુ ઉત્પાદન આપતા શાકભાજી, ફળો કે ઔષધીય છોડની વિગતવાર ભલામણ મેળવો.`,
       quickActionLabel: 'પાક માર્ગદર્શિકા ખોલો',
       followUps: [
         'છાંયડામાં કયા શાકભાજી થાય?',
@@ -230,9 +250,10 @@ Tap below to view tailored crop suggestions!`,
     hi: {
       title: 'AI फसल सुझाव',
       route: '/app/crops',
-      steps: `नमस्ते! मैं कृषि AI हूँ 🌿। मैं आपकी जगह और मौसम के अनुसार सर्वोत्तम फसलों के सुझाव दे सकती हूँ!
-
-आपकी मिट्टी, धूप और मौसम के आधार पर मैं आपको सबसे ज्यादा फल देने वाली सब्जियों और पौधों की सिफारिश करूँगी।`,
+      steps: `अपनी जगह और मौसम के अनुसार सर्वोत्तम फसलों के सुझाव के लिए:
+• **AI फसल सुझाव** (/app/crops) सेक्शन में जाएं।
+• अपनी उपलब्ध जगह (बालकनी/छत), धूप के घंटे और मिट्टी का प्रकार चुनें।
+• सबसे ज्यादा उपज देने वाली सब्जियों और पौधों की सटीक सिफारिश प्राप्त करें।`,
       quickActionLabel: 'फसल गाइड खोलें',
       followUps: [
         'कम धूप में कौन सी सब्जियां उग सकती हैं?',
@@ -296,7 +317,7 @@ Tap below to view tailored crop suggestions!`,
 2. **Mealybugs**: Dab affected areas with a cotton swab soaked in 70% rubbing alcohol, or spray strong water pressure.
 3. **Caterpillars**: Handpick into soapy water or spray Bacillus thuringiensis (Bt).
 4. **Fungal Powdery Mildew**: Mix 1 part milk with 9 parts water or baking soda solution (5g/L) and spray foliage in morning sunlight.
-⚠️ Always test homemade sprays on a single leaf first before full application.`,
+⚠️ Always test homemade sprays on a single leaf first before full application. Always wear a mask and gloves when spraying.`,
       quickActionLabel: 'Diagnose Plant Health',
       followUps: [
         'How to make organic neem oil spray?',
@@ -312,7 +333,7 @@ Tap below to view tailored crop suggestions!`,
 ૨. **મીલીબગ (Mealybugs)**: આલ્કોહોલ અથવા સાબુવાળા પાણીના સ્પ્રે દ્વારા સાફ કરવું.
 ૩. **ઈયળો**: હાથથી વીણીને દૂર કરવી.
 ૪. **છાશ/દૂધનો સ્પ્રે**: ફંગસ માટે ખાટી છાશ અથવા દૂધનું મિશ્રણ ઉત્તમ દેશી ઉપાય છે.
-⚠️ હંમેશાં સાંજના સમયે છંટકાવ કરવો જેથી પાંદડા બળી ન જાય.`,
+⚠️ લીમડાનું તેલ કે અન્ય સ્પ્રે છાંટતી વખતે હાથમોજાં અને માસ્ક જરૂર પહેરવા તથા સાંજના સમયે છંટકાવ કરવો.`,
       quickActionLabel: 'રોગ નિદાન કરો',
       followUps: [
         'લીમડાના તેલનો સ્પ્રે કેવી રીતે બનાવવો?',
@@ -328,7 +349,7 @@ Tap below to view tailored crop suggestions!`,
 २. **मिलीबग (Mealybugs)**: रुई को अल्कोहल में भिगोकर कीटों पर लगाएं या तेज धार वाले पानी से धोएं।
 ३. **इल्लियां (Caterpillars)**: पौधों से हाथ से हटा दें।
 ४. **फफूंद / सफेद पाउडर**: खट्टी छाछ या बेकिंग सोडा का हल्का घोल छिड़कें।
-⚠️ धूप में कभी भी नीम का छिड़काव न करें; हमेशा शाम के समय ही करें।`,
+⚠️ नीम तेल या किसी भी घोल के छिड़काव के दौरान मास्क और दस्ताने अवश्य पहनें और हमेशा शाम के समय ही छिड़काव करें।`,
       quickActionLabel: 'रोग निदान खोलें',
       followUps: [
         'नीम तेल का स्प्रे कैसे तैयार करें?',
@@ -391,14 +412,13 @@ Tap below to view tailored crop suggestions!`,
     en: {
       title: 'Agricultural Chemical Safety Guardrails',
       route: '/contact',
-      steps: `IMPORTANT SAFETY GUIDELINES:
-1. **Prioritize Organic Solutions**: Always start with natural remedies (Neem, Bio-fungicides, physical barriers) before considering chemicals.
-2. **Never Mix Unknown Chemicals**: Do NOT combine different commercial pesticides or fertilizers unless explicitly instructed on the official manufacturer label.
-3. **Protective Gear**: Always wear gloves, safety glasses, and a face mask when handling any agricultural solutions.
+      steps: `IMPORTANT SAFETY & PROTECTION GUIDELINES:
+1. **Protective Gear**: Always wear protective gloves, eye protection, and a face mask when spraying any garden mixture (including organic neem oil).
+2. **Prioritize Organic Solutions**: Always start with natural remedies (Neem, Bio-fungicides, physical barriers) before considering chemicals.
+3. **Never Mix Unknown Chemicals**: Do NOT combine different commercial pesticides or fertilizers.
 4. **Safe Storage**: Store all garden inputs in their original labeled containers, locked away from children and pets.
-5. **Harvest Waiting Period**: Respect the "Pre-Harvest Interval" (PHI) — wait required days between treatment and eating homegrown crops.
-⚠️ For severe infestations or doubtful chemical usage, consult your regional agricultural extension center.`,
-      quickActionLabel: 'Contact Agricultural Support',
+5. **Harvest Waiting Period**: Respect the "Pre-Harvest Interval" (PHI) — wait required days between treatment and eating homegrown crops.`,
+      quickActionLabel: 'Contact Support',
       followUps: [
         'What is the safest organic pesticide?',
         'How many days after neem spray can I eat vegetables?',
@@ -408,14 +428,13 @@ Tap below to view tailored crop suggestions!`,
     gu: {
       title: 'કૃષિ સુરક્ષા અને સાવચેતી નિયમો',
       route: '/contact',
-      steps: `મહત્વપૂર્ણ સુરક્ષા માર્ગદર્શિકા:
-૧. **પ્રથમ ઓર્ગેનિક પસંદ કરો**: રાસાયણિક દવાઓ કરતાં લીમડાનું અર્ક, ટ્રાઇકોડર્મા અને દેશી ઉપાયો પ્રથમ અજમાવો.
-૨. **દવાઓનું મિશ્રણ ન કરો**: જુદી જુદી રાસાયણિક દવાઓ ક્યારેય ભેગી ન કરવી.
-૩. **રક્ષણાત્મક સાધનો**: છંટકાવ વખતે મોઢે માસ્ક અને હાથમાં મોજાં જરૂર પહેરો.
-૪. **બાળકો-પાલતુ પ્રાણીઓથી દૂર**: દવાઓ હંમેશાં ઊંચાઈ પર અને બંધ જગ્યાએ રાખો.
-૫. **ફળ-શાકભાજી ધોઈને વાપરો**: દવા છાંટ્યા પછીના જરૂરી દિવસો સુધી શાકભાજી ન તોડવા.
-⚠️ ગંભીર રોગ માટે નજીકના કૃષિ વિજ્ઞાન કેન્દ્ર (KVK) નો સંપર્ક કરવો.`,
-      quickActionLabel: 'કૃષિ સહાય મેળવો',
+      steps: `મહત્વપૂર્ણ સુરક્ષા અને રક્ષણાત્મક માર્ગદર્શિકા:
+૧. **રક્ષણાત્મક સાધનો**: લીમડાનું તેલ કે કોઈપણ દવા છાંટતી વખતે મોં પર માસ્ક અને હાથમાં મોજાં (ગ્લોવ્સ) અવશ્ય પહેરો.
+૨. **પ્રથમ ઓર્ગેનિક પસંદ કરો**: રાસાયણિક દવાઓ કરતાં લીમડાનું અર્ક, ટ્રાઇકોડર્મા અને દેશી ઉપાયો પ્રથમ અજમાવો.
+૩. **દવાઓનું મિશ્રણ ન કરો**: જુદી જુદી રાસાયણિક દવાઓ ક્યારેય ભેગી ન કરવી.
+૪. **બાળકો-પાલતુ પ્રાણીઓથી દૂર**: દવાઓ અને સ્પ્રે હંમેશાં ઊંચાઈ પર અને બંધ જગ્યાએ રાખો.
+૫. **ફળ-શાકભાજી ધોઈને વાપરો**: દવા છાંટ્યા પછીના જરૂરી દિવસો સુધી શાકભાજી ન તોડવા.`,
+      quickActionLabel: 'સુરક્ષા સહાય મેળવો',
       followUps: [
         'સૌથી સુરક્ષિત ઓર્ગેનિક સ્પ્રે કયો?',
         'દવા છાંટ્યા પછી શાકભાજી ક્યારે ખાઈ શકાય?',
@@ -425,14 +444,13 @@ Tap below to view tailored crop suggestions!`,
     hi: {
       title: 'कृषि सुरक्षा और सावधानियां',
       route: '/contact',
-      steps: `महत्वपूर्ण सुरक्षा निर्देश:
-१. **जैविक उपायों को प्राथमिकता दें**: रासायनिक दवाओं से पहले नीम तेल, जैविक फफूंदनाशक और घरेलू नुस्खे अपनाएं।
-२. **रसायनों का अनियंत्रित मिश्रण न करें**: बिना लेबल निर्देश के कभी भी दो रसायनों को आपस में न मिलाएं।
-३. **सुरक्षा उपकरण**: दवा छिड़कते समय मास्क और दस्ताने (Gloves) अवश्य पहनें।
+      steps: `महत्वपूर्ण सुरक्षा और बचाव निर्देश:
+१. **सुरक्षा उपकरण**: नीम का तेल या किसी भी घोल का छिड़काव करते समय मास्क और दस्ताने (Gloves) अनिवार्य रूप से पहनें।
+२. **जैविक उपायों को प्राथमिकता दें**: रासायनिक दवाओं से पहले नीम तेल, जैविक फफूंदनाशक और घरेलू नुस्खे अपनाएं।
+३. **रसायनों का अनियंत्रित मिश्रण न करें**: बिना लेबल निर्देश के कभी भी दो रसायनों को आपस में न मिलाएं।
 ४. **बच्चों और पालतू जानवरों से दूर रखें**: सभी कीटनाशकों को मूल डिब्बे में सुरक्षित ताले में रखें।
-५. **तुड़ाई का समय (PHI)**: दवा छिड़कने के बाद निर्धारित दिनों तक सब्जियों की तुड़ाई न करें और खाने से पहले अच्छी तरह धोएं।
-⚠️ गंभीर समस्याओं के लिए स्थानीय कृषि विज्ञान केंद्र या विशेषज्ञ से संपर्क करें।`,
-      quickActionLabel: 'कृषि सहायता संपर्क',
+५. **तुड़ाई का समय (PHI)**: दवा छिड़कने के बाद निर्धारित दिनों तक सब्जियों की तुड़ाई न करें और खाने से पहले अच्छी तरह धोएं।`,
+      quickActionLabel: 'कृषि सुरक्षा संपर्क',
       followUps: [
         'सबसे सुरक्षित जैविक कीटनाशक कौन सा है?',
         'छिड़काव के कितने दिन बाद सब्जियां खा सकते हैं?',
@@ -445,16 +463,13 @@ Tap below to view tailored crop suggestions!`,
     en: {
       title: 'Krishi AI Guide',
       route: '/app/diagnosis',
-      steps: `Hello! I am Krishi AI, your Intelligent AI Farming Guide for UrbanFarm. 🌿
-I am here to guide you step-by-step with:
-- AI Plant Disease Diagnosis from photos (/app/diagnosis)
-- Smart weather-based watering schedules (/app/watering)
-- Managing urban gardens & container plants (/app/gardens)
-- Tailored crop suggestions for balconies & terraces (/app/crops)
-- Connecting with urban farmers on the Community Hub (/app/community)
-- Organic pest control & homemade bio-fertilizer recipes
-
-What would you like assistance with today?`,
+      steps: `Krishi AI provides step-by-step assistance with:
+• AI Plant Disease Diagnosis from photos (/app/diagnosis)
+• Smart weather-based watering schedules (/app/watering)
+• Managing urban gardens & container plants (/app/gardens)
+• Tailored crop suggestions for balconies & terraces (/app/crops)
+• Connecting with urban farmers on the Community Hub (/app/community)
+• Organic pest control & homemade bio-fertilizer recipes`,
       quickActionLabel: 'Diagnose Plants',
       followUps: [
         'How do I diagnose my plant?',
@@ -465,16 +480,13 @@ What would you like assistance with today?`,
     gu: {
       title: 'કૃષિ AI માર્ગદર્શિકા',
       route: '/app/diagnosis',
-      steps: `નમસ્તે! હું કૃષિ AI છું, તમારી અર્બનફાર્મ કૃષિ સહાયક. 🌿
-હું તમને નીચેની બાબતોમાં પગલાંવાર સહાય કરી શકું છું:
-- ફોટો દ્વારા છોડના રોગનું નિદાન કરવું (/app/diagnosis)
-- હવામાન આધારિત સ્માર્ટ પાણી આપવાનું સમયપત્રક (/app/watering)
-- બાલ્કની અને ટેરેસ બગીચાનું આયોજન (/app/gardens)
-- ઋતુ મુજબ યોગ્ય પાકની પસંદગી (/app/crops)
-- અર્બનફાર્મ કમ્યુનિટીમાં ચર્ચા (/app/community)
-- ઓર્ગેનિક જીવાત નિયંત્રણ અને દેશી ખાતરો
-
-આજે હું તમને કઈ રીતે મદદ કરી શકું?`,
+      steps: `કૃષિ AI નીચેની બાબતોમાં પગલાંવાર સહાય કરે છે:
+• ફોટો દ્વારા છોડના રોગનું નિદાન કરવું (/app/diagnosis)
+• હવામાન આધારિત સ્માર્ટ પાણી આપવાનું સમયપત્રક (/app/watering)
+• બાલ્કની અને ટેરેસ બગીચાનું આયોજન (/app/gardens)
+• ઋતુ મુજબ યોગ્ય પાકની પસંદગી (/app/crops)
+• અર્બનફાર્મ કમ્યુનિટીમાં ચર્ચા (/app/community)
+• ઓર્ગેનિક જીવાત નિયંત્રણ અને દેશી ખાતરો`,
       quickActionLabel: 'રોગ નિદાન ખોલો',
       followUps: [
         'મારા છોડનું રોગ નિદાન કેવી રીતે કરવું?',
@@ -485,16 +497,13 @@ What would you like assistance with today?`,
     hi: {
       title: 'कृषि AI मार्गदर्शिका',
       route: '/app/diagnosis',
-      steps: `नमस्ते! मैं कृषि AI हूँ, आपकी अर्बनफार्म कृषि सहायक। 🌿
-मैं निम्नलिखित कार्यों में आपकी चरण-दर-चरण सहायता कर सकती हूँ:
-- पत्तों की फोटो से पौधे के रोग का निदान (/app/diagnosis)
-- मौसम आधारित स्मार्ट सिंचाई शेड्यूल (/app/watering)
-- छत व बालकनी के लिए बगीचे का प्रबंधन (/app/gardens)
-- मौसम के अनुसार बेहतरीन फसलों के सुझाव (/app/crops)
-- किसान कम्युनिटी में चर्चा और अनुभव साझा करना (/app/community)
-- जैविक कीट नियंत्रण और घरेलू खाद बनाने के उपाय
-
-आज मैं आपकी क्या सहायता कर सकती हूँ?`,
+      steps: `कृषि AI निम्नलिखित कार्यों में आपकी सहायता करती है:
+• पत्तों की फोटो से पौधे के रोग का निदान (/app/diagnosis)
+• मौसम आधारित स्मार्ट सिंचाई शेड्यूल (/app/watering)
+• छत व बालकनी के लिए बगीचे का प्रबंधन (/app/gardens)
+• मौसम के अनुसार बेहतरीन फसलों के सुझाव (/app/crops)
+• किसान कम्युनिटी में चर्चा और अनुभव साझा करना (/app/community)
+• जैविक कीट नियंत्रण और घरेलू खाद बनाने के उपाय`,
       quickActionLabel: 'रोग निदान खोलें',
       followUps: [
         'पौधे का रोग निदान कैसे करें?',
@@ -583,17 +592,17 @@ What would you like assistance with today?`,
 
   unknown: {
     en: {
-      title: 'Agricultural & Equipment Domain Restriction',
+      title: 'Agricultural & Equipment Scope',
       route: '/app/gardens',
-      steps: `I am "Krishi AI", UrbanFarm's dedicated farming and agricultural machinery specialist. 🚜🌱
+      steps: `Krishi AI is dedicated exclusively to farming, plant care, and agricultural tools. 🚜🌱
 
-I can ONLY assist you with:
+I can assist you with:
 • Crop and plant care, disease diagnosis, and botanical remedies
 • Farming and gardening machinery & tools (tractors, tillers, sprayers, drip kits, pruning shears)
 • Soil health, organic fertilizers, and pest management
 • Smart irrigation and garden planning
 
-I am strictly prohibited from answering non-farming, non-gardening, or non-agricultural equipment questions. Please ask anything related to your plants, crops, or farming equipment!`,
+Please ask any question related to your crops, garden, or farming equipment!`,
       quickActionLabel: 'Explore Farming Tools',
       followUps: [
         'What equipment is needed for gardening?',
@@ -604,15 +613,15 @@ I am strictly prohibited from answering non-farming, non-gardening, or non-agric
     gu: {
       title: 'કૃષિ અને સાધન સહાયક',
       route: '/app/gardens',
-      steps: `હું "કૃષિ AI" છું, અર્બનફાર્મની સમર્પિત ખેતી અને કૃષિ સાધન સહાયક. 🚜🌱
+      steps: `કૃષિ AI ફક્ત ખેતી, છોડ સંભાળ અને બાગકામના સાધનો માટે સમર્પિત છે. 🚜🌱
 
-હું ફક્ત નીચેના વિષયોમાં જ માર્ગદર્શન આપી શકું છું:
+હું નીચેના વિષયોમાં માર્ગદર્શન આપી શકું છું:
 • પાક અને છોડની સંભાળ, રોગ નિદાન અને ઉપચાર
 • ખેતી અને બાગકામના ઓજારો તથા સાધનો (ટ્રેક્ટર, ટિલર, સ્પ્રેયર, ટપક સિંચાઈ, કટીંગ ટૂલ્સ)
 • જમીનનું સ્વાસ્થ્ય, ઓર્ગેનિક ખાતરો અને કુદરતી જીવાત નિયંત્રણ
 • સ્માર્ટ સિંચાઈ અને બગીચાનું આયોજન
 
-ખેતી, બાગકામ અને કૃષિ સાધનો સિવાયના કોઈપણ અન્ય વિષયો પર હું ઉત્તર આપી શકતી નથી. કૃપા કરીને તમારા પાક, છોડ કે ખેતીના સાધનો સંબંધિત પ્રશ્નો પૂછો!`,
+કૃપા કરીને તમારા પાક, છોડ કે ખેતીના સાધનો સંબંધિત કોઈપણ પ્રશ્ન પૂછો!`,
       quickActionLabel: 'સાધનો અને ઓજારો જુઓ',
       followUps: [
         'બાગકામ માટે કયા સાધનો જરૂરી છે?',
@@ -623,15 +632,15 @@ I am strictly prohibited from answering non-farming, non-gardening, or non-agric
     hi: {
       title: 'कृषि एवं उपकरण विशेषज्ञ',
       route: '/app/gardens',
-      steps: `मैं "कृषि AI" हूँ, अर्बनफार्म की समर्पित कृषि और कृषि उपकरण विशेषज्ञ। 🚜🌱
+      steps: `कृषि AI विशेष रूप से खेती, पौधों की देखभाल और कृषि उपकरणों के लिए समर्पित है। 🚜🌱
 
-मैं केवल निम्नलिखित विषयों पर ही मार्गदर्शन प्रदान कर सकती हूँ:
+मैं निम्नलिखित विषयों पर मार्गदर्शन प्रदान कर सकती हूँ:
 • फसलों और पौधों की देखभाल, रोग निदान व उपचार
 • कृषि एवं बागवानी के उपकरण व औजार (ट्रैक्टर, टिलर, स्प्रेयर, ड्रिप सिंचाई किट, छंटाई औजार)
 • मिट्टी का स्वास्थ्य, जैविक खाद और प्राकृतिक कीट नियंत्रण
 • स्मार्ट सिंचाई और बगीचे का प्रबंधन
 
-खेती, बागवानी और कृषि उपकरणों से अलग अन्य किसी भी विषय पर मैं उत्तर नहीं दे सकती। कृपया अपनी फसलों, पौधों या कृषि उपकरणों के संबंध में कोई भी प्रश्न पूछें!`,
+कृपया अपनी फसलों, पौधों या कृषि उपकरणों के संबंध में कोई भी प्रश्न पूछें!`,
       quickActionLabel: 'उपकरण और औजार देखें',
       followUps: [
         'बागवानी के लिए कौन से उपकरण आवश्यक हैं?',
