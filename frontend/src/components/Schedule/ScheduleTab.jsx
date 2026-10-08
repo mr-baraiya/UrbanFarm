@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 import { 
   RiCalendarEventLine, 
   RiCalendar2Line, 
@@ -24,6 +25,7 @@ import './ScheduleTab.css';
 
 const ScheduleTab = () => {
   const { t, i18n } = useTranslation();
+  const location = useLocation();
   const [tasks, setTasks] = useState([]);
   const [filteredTasks, setFilteredTasks] = useState([]);
   const [completedTasks, setCompletedTasks] = useState([]);
@@ -42,20 +44,31 @@ const ScheduleTab = () => {
 
   useEffect(() => {
     loadData();
+  }, []);
 
+  useEffect(() => {
     // Check if there is a pending quickTask from Diagnose or other tabs
+    const stateQuickTask = location.state?.quickTask;
     const savedQuickTask = sessionStorage.getItem('quickTask');
-    if (savedQuickTask) {
+    
+    let taskToApply = stateQuickTask;
+    if (!taskToApply && savedQuickTask) {
       try {
-        const parsed = JSON.parse(savedQuickTask);
-        sessionStorage.removeItem('quickTask');
-        setEditingTask(parsed);
-        setShowForm(true);
+        taskToApply = JSON.parse(savedQuickTask);
       } catch (e) {
         console.error('Failed to parse quickTask:', e);
       }
     }
-  }, []);
+
+    if (taskToApply) {
+      sessionStorage.removeItem('quickTask');
+      setEditingTask(taskToApply);
+      setShowForm(true);
+      if (window.history.replaceState) {
+        window.history.replaceState({}, document.title);
+      }
+    }
+  }, [location]);
 
   useEffect(() => {
     applyFilters();

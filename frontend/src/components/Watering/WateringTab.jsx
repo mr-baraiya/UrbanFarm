@@ -19,6 +19,7 @@ import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import WateringSchedule from './WateringSchedule';
 import WateringHistory from './WateringHistory';
 import WeatherWidget from './WeatherWidget';
+import SmartWateringBanner from './SmartWateringBanner';
 import './WateringTab.css';
 
 const WateringTab = () => {
@@ -412,6 +413,9 @@ const WateringTab = () => {
             </button>
           </div>
         </div>
+
+        {/* AI Smart IoT Watering Banner */}
+        <SmartWateringBanner plant={selectedPlant} weather={weatherData} />
 
         {/* Bulk Adjustment Controls */}
         {schedule && schedule.schedule && schedule.schedule.length > 0 && (

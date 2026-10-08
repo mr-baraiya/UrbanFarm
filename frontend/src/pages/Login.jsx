@@ -56,6 +56,8 @@ const Login = () => {
 
       if (data.user?.role === "admin") {
         navigate("/admin");
+      } else if (sessionStorage.getItem('quickTask')) {
+        navigate("/app/schedule");
       } else {
         navigate("/app");
       }

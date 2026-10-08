@@ -112,6 +112,12 @@ export const toggleDiagnosisShare = async (id, isPublic) => {
   return res.data;
 };
 
+export const deleteDiagnosis = async (id) => {
+  const res = await api.delete(`/disease/${id}`);
+  window.dispatchEvent(new CustomEvent('urbanfarm:refresh-data'));
+  return res.data;
+};
+
 // Crop Recommendations
 export const getCropRecommendations = async (data) => {
   const res = await api.post('/crops/recommend', data);
@@ -126,6 +132,12 @@ export const getRecommendationHistory = async () => {
 export const saveRecommendation = async (id) => {
   const res = await api.put(`/crops/save/${id}`);
   return res.data.rec;
+};
+
+export const deleteCropRecommendation = async (id) => {
+  const res = await api.delete(`/crops/history/${id}`);
+  window.dispatchEvent(new CustomEvent('urbanfarm:refresh-data'));
+  return res.data;
 };
 
 // Watering

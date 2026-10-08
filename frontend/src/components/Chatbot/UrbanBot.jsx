@@ -17,6 +17,7 @@ import {
   FaCopy,
   FaCheck,
   FaRedo,
+  FaComments,
 } from 'react-icons/fa';
 import { MdSupportAgent } from 'react-icons/md';
 import './UrbanBot.css';
@@ -309,6 +310,9 @@ const UrbanBot = () => {
   const prevLangRef = useRef(currentLang);
 
   const [isOpen, setIsOpen] = useState(false);
+  const [mode, setMode] = useState(() => {
+    return localStorage.getItem('urbanfarm_chatbot_mode') || 'chat';
+  });
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -320,6 +324,7 @@ const UrbanBot = () => {
   const [failedMessage, setFailedMessage] = useState(null);
   const [speechError, setSpeechError] = useState(null);
   const [dynamicChips, setDynamicChips] = useState(null);
+  const [voiceSubtitle, setVoiceSubtitle] = useState('');
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -848,6 +853,7 @@ const UrbanBot = () => {
     setMessages((prev) => [...prev, userMsg]);
     setInputMessage('');
     setLoading(true);
+    setVoiceSubtitle(textToSend);
 
     try {
       const response = await api.post('/chat/message', {
@@ -872,6 +878,7 @@ const UrbanBot = () => {
       };
 
       setMessages((prev) => [...prev, botReply]);
+      setVoiceSubtitle(botReply.text);
 
       // Update bottom chips bar with dynamic follow-up suggestions from this response
       if (botReply.followUpSuggestions && botReply.followUpSuggestions.length > 0) {
@@ -900,6 +907,10 @@ const UrbanBot = () => {
         isError: true,
       };
       setMessages((prev) => [...prev, fallbackReply]);
+      setVoiceSubtitle(fallbackReply.text);
+      if (soundEnabled) {
+        speakText(fallbackReply.text, fallbackReply.id);
+      }
     } finally {
       setLoading(false);
       setTimeout(() => inputRef.current?.focus(), 100);
@@ -986,6 +997,36 @@ const UrbanBot = () => {
             </div>
 
             <div className="bot-header-controls">
+              {/* Header Mode Switcher (Chat vs Voice) - Icons Only */}
+              <div className="bot-mode-toggle" role="group" aria-label="Mode">
+                <button
+                  type="button"
+                  className={`bot-mode-btn ${mode === 'chat' ? 'active-mode' : ''}`}
+                  onClick={() => {
+                    setMode('chat');
+                    localStorage.setItem('urbanfarm_chatbot_mode', 'chat');
+                  }}
+                  title={t('chatbot.switchToChat', 'Switch to Chat Mode')}
+                  aria-label={t('chatbot.switchToChat', 'Switch to Chat Mode')}
+                  aria-pressed={mode === 'chat'}
+                >
+                  <FaComments className="mode-btn-icon" />
+                </button>
+                <button
+                  type="button"
+                  className={`bot-mode-btn ${mode === 'voice' ? 'active-mode' : ''}`}
+                  onClick={() => {
+                    setMode('voice');
+                    localStorage.setItem('urbanfarm_chatbot_mode', 'voice');
+                  }}
+                  title={t('chatbot.switchToVoice', 'Switch to Voice Mode')}
+                  aria-label={t('chatbot.switchToVoice', 'Switch to Voice Mode')}
+                  aria-pressed={mode === 'voice'}
+                >
+                  <FaMicrophone className="mode-btn-icon" />
+                </button>
+              </div>
+
               <button
                 type="button"
                 className={`bot-icon-btn ${soundEnabled ? 'active-sound' : 'muted-sound'}`}
@@ -1020,240 +1061,409 @@ const UrbanBot = () => {
             </div>
           </div>
 
-          {/* Messages Area */}
-          <div className="urban-bot-messages">
-            {messages.map((msg, index) => (
-              <div
-                key={msg.id}
-                className={`urban-bot-message-row ${msg.sender === 'user' ? 'user-row' : 'bot-row'}`}
-              >
-                {msg.sender === 'bot' && (
-                  <div className="msg-bot-avatar">
-                    <KrishiAIAvatar size={24} className="msg-agent-svg" />
-                  </div>
-                )}
+          {/* Main Body: Dedicated Voice Assistant View OR Standard Chat Messages */}
+          {mode === 'voice' ? (
+            <div className="urban-bot-voice-view">
+              <div className="voice-sphere-container">
+                {/* Concentric Sound Wave Ripple Rings */}
+                <div
+                  className={`voice-ripple-ring ring-1 ${
+                    Boolean(speakingMsgId)
+                      ? 'speaking-wave'
+                      : isListening
+                      ? 'listening-wave'
+                      : ''
+                  }`}
+                />
+                <div
+                  className={`voice-ripple-ring ring-2 ${
+                    Boolean(speakingMsgId)
+                      ? 'speaking-wave'
+                      : isListening
+                      ? 'listening-wave'
+                      : ''
+                  }`}
+                />
+                <div
+                  className={`voice-ripple-ring ring-3 ${
+                    Boolean(speakingMsgId)
+                      ? 'speaking-wave'
+                      : isListening
+                      ? 'listening-wave'
+                      : ''
+                  }`}
+                />
 
-                <div className={`urban-bot-bubble ${msg.sender} ${msg.isError ? 'bubble-error' : ''} ${msg.isSystemNotice ? 'bubble-system-notice' : ''}`}>
-                  <div className="msg-content">{renderMessageContent(msg.text)}</div>
-
-                  {/* Safety Warning Banner */}
-                  {msg.safetyNotice && (
-                    <div className="msg-safety-banner">
-                      <span className="safety-badge-icon">⚠️</span>
-                      <span className="safety-badge-text">{msg.safetyNotice}</span>
-                    </div>
-                  )}
-
-                  {/* Action Link Chips */}
-                  {msg.quickActions && msg.quickActions.length > 0 && (
-                    <div className="msg-action-chips">
-                      {msg.quickActions.map((act, aIdx) => (
-                        <button
-                          key={aIdx}
-                          type="button"
-                          className="msg-action-btn"
-                          onClick={() => {
-                            if (act.path) {
-                              navigate(act.path);
-                              setIsOpen(false);
-                            }
-                          }}
-                        >
-                          <span>{act.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Footer with Timestamp and Action Controls */}
-                  <div className="msg-footer">
-                    <span className="msg-timestamp">{msg.time}</span>
-
-                    {msg.sender === 'bot' && !msg.isSystemNotice && (
-                      <div className="msg-footer-actions">
-                        {/* Copy Response Button */}
-                        <button
-                          type="button"
-                          className={`msg-action-icon-btn ${copiedMsgId === msg.id ? 'copied' : ''}`}
-                          onClick={() => handleCopyText(msg.text, msg.id)}
-                          title={copiedMsgId === msg.id ? 'Copied to clipboard' : 'Copy response'}
-                          aria-label="Copy response"
-                        >
-                          {copiedMsgId === msg.id ? <FaCheck /> : <FaCopy />}
-                        </button>
-
-                        {/* Thumbs Up Button */}
-                        <button
-                          type="button"
-                          className={`msg-action-icon-btn ${msg.feedback === 'like' ? 'active-like' : ''}`}
-                          onClick={() => {
-                            const prevUserMsg = index > 0 && messages[index - 1]?.sender === 'user' ? messages[index - 1].text : '';
-                            handleFeedback(msg.id, 'like', prevUserMsg, msg.text);
-                          }}
-                          title="Helpful response"
-                          aria-label="Thumbs up"
-                        >
-                          <FaThumbsUp />
-                        </button>
-
-                        {/* Thumbs Down Button */}
-                        <button
-                          type="button"
-                          className={`msg-action-icon-btn ${msg.feedback === 'dislike' ? 'active-dislike' : ''}`}
-                          onClick={() => {
-                            const prevUserMsg = index > 0 && messages[index - 1]?.sender === 'user' ? messages[index - 1].text : '';
-                            handleFeedback(msg.id, 'dislike', prevUserMsg, msg.text);
-                          }}
-                          title="Report or unhelpful"
-                          aria-label="Thumbs down"
-                        >
-                          <FaThumbsDown />
-                        </button>
-
-                        {/* Audio playback button */}
-                        <button
-                          type="button"
-                          className={`msg-action-icon-btn ${speakingMsgId === msg.id ? 'speaking' : ''}`}
-                          onClick={() => {
-                            if (speakingMsgId === msg.id) {
-                              stopSpeaking();
-                            } else {
-                              speakText(msg.text, msg.id);
-                            }
-                          }}
-                          title={speakingMsgId === msg.id ? 'Stop voice' : 'Listen in Krishi AI female voice'}
-                          aria-label={speakingMsgId === msg.id ? 'Stop voice' : 'Listen aloud'}
-                        >
-                          {speakingMsgId === msg.id ? <FaVolumeMute /> : <FaVolumeUp />}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            {/* Error Retry Banner */}
-            {failedMessage && (
-              <div className="urban-bot-retry-banner">
-                <span>Failed to send question.</span>
+                {/* Central Chatbot Avatar Button with Dynamic Orb Animations */}
                 <button
                   type="button"
-                  className="retry-send-btn"
-                  onClick={() => handleSendMessage(failedMessage)}
-                  disabled={loading}
+                  className={`voice-avatar-orb ${
+                    Boolean(speakingMsgId)
+                      ? 'orb-speaking'
+                      : isListening
+                      ? 'orb-listening'
+                      : loading
+                      ? 'orb-thinking'
+                      : 'orb-idle'
+                  }`}
+                  onClick={() => {
+                    if (Boolean(speakingMsgId)) {
+                      stopSpeaking();
+                    } else {
+                      toggleListening();
+                    }
+                  }}
+                  title={
+                    Boolean(speakingMsgId)
+                      ? t('chatbot.tapToStop', 'Tap to stop voice')
+                      : t('chatbot.tapToSpeak', 'Tap to speak')
+                  }
+                  aria-label="Krishi AI Voice Orb"
                 >
-                  <FaRedo /> Retry
+                  <div className="voice-avatar-orb-inner">
+                    <KrishiAIAvatar size={56} className="voice-center-avatar-svg" />
+                  </div>
+
+                  {/* Equalizer Waveform Overlay during active speech */}
+                  {Boolean(speakingMsgId) && (
+                    <div className="voice-orb-eq-overlay">
+                      <span className="voice-eq-bar bar-1" />
+                      <span className="voice-eq-bar bar-2" />
+                      <span className="voice-eq-bar bar-3" />
+                      <span className="voice-eq-bar bar-4" />
+                      <span className="voice-eq-bar bar-5" />
+                    </div>
+                  )}
                 </button>
               </div>
-            )}
 
-            {loading && (
-              <div className="urban-bot-message-row bot-row">
-                <div className="msg-bot-avatar">
-                  <KrishiAIAvatar size={24} className="msg-agent-svg" />
-                </div>
-                <div className="urban-bot-bubble bot typing-bubble">
-                  <span className="dot"></span>
-                  <span className="dot"></span>
-                  <span className="dot"></span>
+              {/* Status Indicator */}
+              <div className="voice-status-wrapper">
+                <div className="voice-state-pill">
+                  {Boolean(speakingMsgId) && (
+                    <span className="voice-state-badge state-speaking">
+                      <FaVolumeUp className="voice-pulse-icon" />{' '}
+                      {t('chatbot.voiceSpeaking', 'Krishi AI is speaking...')}
+                    </span>
+                  )}
+                  {isListening && (
+                    <span className="voice-state-badge state-listening">
+                      <FaMicrophone className="voice-pulse-icon" />{' '}
+                      {t('chatbot.voiceListening', 'Listening... speak now')}
+                    </span>
+                  )}
+                  {loading && !Boolean(speakingMsgId) && (
+                    <span className="voice-state-badge state-thinking">
+                      <FaSeedling className="voice-spin-icon" />{' '}
+                      {t('chatbot.voiceThinking', 'Krishi AI is thinking...')}
+                    </span>
+                  )}
+                  {!Boolean(speakingMsgId) && !isListening && !loading && (
+                    <span className="voice-state-badge state-idle">
+                      🌿 {t('chatbot.voiceIdlePrompt', 'Tap the avatar or microphone to talk with Krishi AI')}
+                    </span>
+                  )}
                 </div>
               </div>
-            )}
 
-            <div ref={messagesEndRef} />
-          </div>
+              {/* Speech Error Banner (in Voice Mode) */}
+              {speechError && (
+                <div className="urban-bot-speech-error voice-error-banner">
+                  <span>{speechError}</span>
+                  <button
+                    type="button"
+                    onClick={() => setSpeechError(null)}
+                    title="Dismiss"
+                  >
+                    <FaTimes />
+                  </button>
+                </div>
+              )}
 
-          {/* Quick Starter Suggestions Bar */}
-          <div className="urban-bot-chips-bar">
-            {currentChips.map((chip, idx) => (
-              <button
-                key={idx}
-                type="button"
-                className="urban-bot-chip"
-                onClick={() => handleSendMessage(chip.query)}
-                disabled={loading}
-              >
-                <span>{chip.label}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Speech Error Banner */}
-          {speechError && (
-            <div className="urban-bot-speech-error">
-              <span>{speechError}</span>
-              <button
-                type="button"
-                onClick={() => setSpeechError(null)}
-                title="Dismiss"
-              >
-                <FaTimes />
-              </button>
+              {/* Dedicated Large Bottom Push-to-Talk Voice Action Button */}
+              <div className="voice-action-dock">
+                <button
+                  type="button"
+                  className={`voice-dock-btn ${
+                    Boolean(speakingMsgId)
+                      ? 'dock-btn-speaking'
+                      : isListening
+                      ? 'dock-btn-listening'
+                      : 'dock-btn-idle'
+                  }`}
+                  onClick={() => {
+                    if (Boolean(speakingMsgId)) {
+                      stopSpeaking();
+                    } else {
+                      toggleListening();
+                    }
+                  }}
+                  title={
+                    Boolean(speakingMsgId)
+                      ? t('chatbot.tapToStop', 'Tap to stop voice')
+                      : isListening
+                      ? 'Listening... click to stop'
+                      : t('chatbot.tapToSpeak', 'Tap to speak')
+                  }
+                  aria-label="Voice conversation button"
+                >
+                  <span className="voice-dock-icon-circle">
+                    {Boolean(speakingMsgId) ? (
+                      <FaVolumeMute />
+                    ) : isListening ? (
+                      <FaMicrophoneSlash />
+                    ) : (
+                      <FaMicrophone />
+                    )}
+                  </span>
+                  <span className="voice-dock-label">
+                    {Boolean(speakingMsgId)
+                      ? t('chatbot.tapToStop', 'Tap to stop voice')
+                      : isListening
+                      ? t('chatbot.voiceListening', 'Listening... speak now')
+                      : t('chatbot.tapToSpeak', 'Tap to speak')}
+                  </span>
+                </button>
+              </div>
             </div>
-          )}
+          ) : (
+            <>
+              {/* Messages Area */}
+              <div className="urban-bot-messages">
+                {messages.map((msg, index) => (
+                  <div
+                    key={msg.id}
+                    className={`urban-bot-message-row ${msg.sender === 'user' ? 'user-row' : 'bot-row'}`}
+                  >
+                    {msg.sender === 'bot' && (
+                      <div className="msg-bot-avatar">
+                        <KrishiAIAvatar size={24} className="msg-agent-svg" />
+                      </div>
+                    )}
 
-          {/* Input Bar */}
-          <form
-            className="urban-bot-input-bar"
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSendMessage();
-            }}
-          >
-            <button
-              type="button"
-              className={`bot-mic-btn ${isListening ? 'listening' : ''}`}
-              onClick={toggleListening}
-              title={isListening ? 'Listening... click to stop' : 'Voice input (Speak to ask)'}
-            >
-              {isListening ? <FaMicrophoneSlash /> : <FaMicrophone />}
-              {isListening && <span className="mic-wave"></span>}
-            </button>
+                    <div className={`urban-bot-bubble ${msg.sender} ${msg.isError ? 'bubble-error' : ''} ${msg.isSystemNotice ? 'bubble-system-notice' : ''}`}>
+                      <div className="msg-content">{renderMessageContent(msg.text)}</div>
 
-            <input
-              ref={inputRef}
-              type="text"
-              className="urban-bot-input"
-              placeholder={
-                isListening
-                  ? currentLang === 'gu'
-                    ? 'કૃષિ AI સાંભળી રહી છે... હવે બોલો'
-                    : currentLang === 'hi'
-                    ? 'कृषि AI सुन रही है... अब बोलिए'
-                    : t('chatbot.listeningPlaceholder', 'Krishi AI is listening... speak now')
-                  : currentLang === 'gu'
-                  ? 'છોડના રોગ, સિંચાઈ, ખાતર વિશે પૂછો...'
-                  : currentLang === 'hi'
-                  ? 'रोग निदान, सिंचाई या बगीचे के बारे में पूछें...'
-                  : t('chatbot.placeholder', 'Ask Krishi AI about diagnosis, watering, gardens...')
-              }
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              disabled={loading}
-            />
+                      {/* Safety Warning Banner */}
+                      {msg.safetyNotice && (
+                        <div className="msg-safety-banner">
+                          <span className="safety-badge-icon">⚠️</span>
+                          <span className="safety-badge-text">{msg.safetyNotice}</span>
+                        </div>
+                      )}
 
-            <button
-              type="submit"
-              className="bot-send-btn"
-              disabled={!inputMessage.trim() || loading}
-              aria-label="Send message"
-            >
-              <FaPaperPlane />
-            </button>
-          </form>
+                      {/* Action Link Chips */}
+                      {msg.quickActions && msg.quickActions.length > 0 && (
+                        <div className="msg-action-chips">
+                          {msg.quickActions.map((act, aIdx) => (
+                            <button
+                              key={aIdx}
+                              type="button"
+                              className="msg-action-btn"
+                              onClick={() => {
+                                if (act.path) {
+                                  navigate(act.path);
+                                  setIsOpen(false);
+                                }
+                              }}
+                            >
+                              <span>{act.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
 
-          {/* Disclaimer Footer */}
-          <div className="urban-bot-disclaimer">
-            {currentLang === 'gu'
-              ? 'કૃષિ AI સ્માર્ટ ખેતી માર્ગદર્શન પૂરું પાડે છે. સ્થાનિક આબોહવા પરિબળો ચકાસો.'
-              : currentLang === 'hi'
-              ? 'कृषि AI स्मार्ट कृषि मार्गदर्शन प्रदान करता है। स्थानीय मौसम कारकों की पुष्टि करें।'
-              : t(
-                  'chatbot.disclaimer',
-                  'Krishi AI provides smart agricultural guidance. Verify regional climatic factors.'
+                      {/* Footer with Timestamp and Action Controls */}
+                      <div className="msg-footer">
+                        <span className="msg-timestamp">{msg.time}</span>
+
+                        {msg.sender === 'bot' && !msg.isSystemNotice && (
+                          <div className="msg-footer-actions">
+                            {/* Copy Response Button */}
+                            <button
+                              type="button"
+                              className={`msg-action-icon-btn ${copiedMsgId === msg.id ? 'copied' : ''}`}
+                              onClick={() => handleCopyText(msg.text, msg.id)}
+                              title={copiedMsgId === msg.id ? 'Copied to clipboard' : 'Copy response'}
+                              aria-label="Copy response"
+                            >
+                              {copiedMsgId === msg.id ? <FaCheck /> : <FaCopy />}
+                            </button>
+
+                            {/* Thumbs Up Button */}
+                            <button
+                              type="button"
+                              className={`msg-action-icon-btn ${msg.feedback === 'like' ? 'active-like' : ''}`}
+                              onClick={() => {
+                                const prevUserMsg = index > 0 && messages[index - 1]?.sender === 'user' ? messages[index - 1].text : '';
+                                handleFeedback(msg.id, 'like', prevUserMsg, msg.text);
+                              }}
+                              title="Helpful response"
+                              aria-label="Thumbs up"
+                            >
+                              <FaThumbsUp />
+                            </button>
+
+                            {/* Thumbs Down Button */}
+                            <button
+                              type="button"
+                              className={`msg-action-icon-btn ${msg.feedback === 'dislike' ? 'active-dislike' : ''}`}
+                              onClick={() => {
+                                const prevUserMsg = index > 0 && messages[index - 1]?.sender === 'user' ? messages[index - 1].text : '';
+                                handleFeedback(msg.id, 'dislike', prevUserMsg, msg.text);
+                              }}
+                              title="Report or unhelpful"
+                              aria-label="Thumbs down"
+                            >
+                              <FaThumbsDown />
+                            </button>
+
+                            {/* Audio playback button */}
+                            <button
+                              type="button"
+                              className={`msg-action-icon-btn ${speakingMsgId === msg.id ? 'speaking' : ''}`}
+                              onClick={() => {
+                                if (speakingMsgId === msg.id) {
+                                  stopSpeaking();
+                                } else {
+                                  speakText(msg.text, msg.id);
+                                }
+                              }}
+                              title={speakingMsgId === msg.id ? 'Stop voice' : 'Listen in Krishi AI female voice'}
+                              aria-label={speakingMsgId === msg.id ? 'Stop voice' : 'Listen aloud'}
+                            >
+                              {speakingMsgId === msg.id ? <FaVolumeMute /> : <FaVolumeUp />}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Error Retry Banner */}
+                {failedMessage && (
+                  <div className="urban-bot-retry-banner">
+                    <span>Failed to send question.</span>
+                    <button
+                      type="button"
+                      className="retry-send-btn"
+                      onClick={() => handleSendMessage(failedMessage)}
+                      disabled={loading}
+                    >
+                      <FaRedo /> Retry
+                    </button>
+                  </div>
                 )}
-          </div>
+
+                {loading && (
+                  <div className="urban-bot-message-row bot-row">
+                    <div className="msg-bot-avatar">
+                      <KrishiAIAvatar size={24} className="msg-agent-svg" />
+                    </div>
+                    <div className="urban-bot-bubble bot typing-bubble">
+                      <span className="dot"></span>
+                      <span className="dot"></span>
+                      <span className="dot"></span>
+                    </div>
+                  </div>
+                )}
+
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Quick Starter Suggestions Bar (ONLY IN CHAT MODE) */}
+              <div className="urban-bot-chips-bar">
+                {currentChips.map((chip, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    className="urban-bot-chip"
+                    onClick={() => handleSendMessage(chip.query)}
+                    disabled={loading}
+                  >
+                    <span>{chip.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Speech Error Banner (in Chat Mode) */}
+              {speechError && (
+                <div className="urban-bot-speech-error">
+                  <span>{speechError}</span>
+                  <button
+                    type="button"
+                    onClick={() => setSpeechError(null)}
+                    title="Dismiss"
+                  >
+                    <FaTimes />
+                  </button>
+                </div>
+              )}
+
+              {/* Input Bar (ONLY IN CHAT MODE) */}
+              <form
+                className="urban-bot-input-bar"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSendMessage();
+                }}
+              >
+                <button
+                  type="button"
+                  className={`bot-mic-btn ${isListening ? 'listening' : ''}`}
+                  onClick={toggleListening}
+                  title={isListening ? 'Listening... click to stop' : 'Voice input (Speak to ask)'}
+                >
+                  {isListening ? <FaMicrophoneSlash /> : <FaMicrophone />}
+                  {isListening && <span className="mic-wave"></span>}
+                </button>
+
+                <input
+                  ref={inputRef}
+                  type="text"
+                  className="urban-bot-input"
+                  placeholder={
+                    isListening
+                      ? currentLang === 'gu'
+                        ? 'કૃષિ AI સાંભળી રહી છે... હવે બોલો'
+                        : currentLang === 'hi'
+                        ? 'कृषि AI सुन रही है... अब बोलिए'
+                        : t('chatbot.listeningPlaceholder', 'Krishi AI is listening... speak now')
+                      : currentLang === 'gu'
+                      ? 'છોડના રોગ, સિંચાઈ, ખાતર વિશે પૂછો...'
+                      : currentLang === 'hi'
+                      ? 'रोग निदान, सिंचाई या बगीचे के बारे में पूछें...'
+                      : t('chatbot.placeholder', 'Ask Krishi AI about diagnosis, watering, gardens...')
+                  }
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  disabled={loading}
+                />
+
+                <button
+                  type="submit"
+                  className="bot-send-btn"
+                  disabled={!inputMessage.trim() || loading}
+                  aria-label="Send message"
+                >
+                  <FaPaperPlane />
+                </button>
+              </form>
+
+              {/* Disclaimer Footer (ONLY IN CHAT MODE) */}
+              <div className="urban-bot-disclaimer">
+                {currentLang === 'gu'
+                  ? 'કૃષિ AI સ્માર્ટ ખેતી માર્ગદર્શન પૂરું પાડે છે. સ્થાનિક આબોહવા પરિબળો ચકાસો.'
+                  : currentLang === 'hi'
+                  ? 'कृषि AI स्मार्ट कृषि मार्गदर्शन प्रदान करता है। स्थानीय मौसम कारकों की पुष्टि करें।'
+                  : t(
+                      'chatbot.disclaimer',
+                      'Krishi AI provides smart agricultural guidance. Verify regional climatic factors.'
+                    )}
+              </div>
+            </>
+          )}
         </div>
       )}
     </>

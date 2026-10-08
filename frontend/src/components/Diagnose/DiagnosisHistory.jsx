@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Trash2 } from 'lucide-react';
 import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import './DiagnosisHistory.css';
 
@@ -11,7 +12,8 @@ const DiagnosisHistory = ({
   onFilterChange,
   searchTerm,
   onSearchChange,
-  onAddToSchedule
+  onAddToSchedule,
+  onDelete
 }) => {
   const { t, i18n } = useTranslation();
 
@@ -146,9 +148,9 @@ const DiagnosisHistory = ({
                       className="history-qa-link"
                       title={t('diagnose.viewPublicReport', 'View Public Report')}
                     >
-                      {t('diagnose.viewReportOnline', 'Public Page')}
+                      {t('diagnose.viewReportOnline', 'Public Report')}
                     </a>
-                    {item.treatment && onAddToSchedule && (
+                    {onAddToSchedule && (
                       <button
                         type="button"
                         className="history-qa-btn"
@@ -158,7 +160,21 @@ const DiagnosisHistory = ({
                         }}
                         title={t('diagnose.quickActionSchedule', 'Quick Schedule Treatment')}
                       >
-                        {t('diagnose.addToSchedule', 'Schedule')}
+                        {t('diagnose.addToSchedule', 'Add to Schedule')}
+                      </button>
+                    )}
+                    {onDelete && (
+                      <button
+                        type="button"
+                        className="history-qa-delete-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(item._id || item.id);
+                        }}
+                        title={t('common.delete', 'Delete')}
+                        aria-label={t('common.delete', 'Delete')}
+                      >
+                        <Trash2 size={13} className="qa-del-icon" />
                       </button>
                     )}
                   </div>

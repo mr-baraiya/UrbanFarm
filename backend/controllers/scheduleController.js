@@ -9,9 +9,9 @@ exports.createTask = async (req, res, next) => {
   try {
     const { title, description, type, priority, dueDate, plantId, gardenId, reminder } = req.body;
 
-    // ✅ Validate and clean IDs - convert empty strings to null
-    const cleanPlantId = plantId && plantId.trim() !== '' ? plantId : null;
-    const cleanGardenId = gardenId && gardenId.trim() !== '' ? gardenId : null;
+    // ✅ Validate and clean IDs - convert non-valid ObjectIds or empty strings to null
+    const cleanPlantId = plantId && mongoose.isValidObjectId(plantId) ? plantId : null;
+    const cleanGardenId = gardenId && mongoose.isValidObjectId(gardenId) ? gardenId : null;
 
     // ✅ Validate required fields
     if (!title || title.trim() === '') {

@@ -598,3 +598,27 @@ exports.getDiagnosisById = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Delete diagnosis record
+// @route   DELETE /api/disease/:id
+exports.deleteDiagnosis = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const diagnosis = await Diagnosis.findById(id);
+
+    if (!diagnosis) {
+      return res.status(404).json({ success: false, message: 'Diagnosis record not found' });
+    }
+
+    const isOwner = req.user && String(req.user.id) === String(diagnosis.userId);
+    const isAdmin = req.user && req.user.role === 'admin';
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ success: false, message: 'Not authorized to delete this diagnosis record' });
+    }
+
+    await diagnosis.deleteOne();
+    res.status(200).json({ success: true, message: 'Diagnosis record deleted successfully', id });
+  } catch (error) {
+    next(error);
+  }
+};

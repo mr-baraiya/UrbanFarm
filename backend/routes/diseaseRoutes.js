@@ -7,7 +7,8 @@ const {
   getPublicDiagnosis,
   getGeminiTipsForDiagnosis,
   translateDiagnosis,
-  toggleShareStatus
+  toggleShareStatus,
+  deleteDiagnosis
 } = require('../controllers/diseaseController');
 const { protect, optionalProtect } = require('../middleware/authMiddleware');
 const { uploadSingle, handleUploadError } = require('../middleware/uploadMiddleware');
@@ -22,6 +23,7 @@ router.get('/history', protect, getDiagnosisHistory);
 router.post('/:id/tips', protect, aiLimiter, getGeminiTipsForDiagnosis);
 router.post('/:id/translate', optionalProtect, aiLimiter, translateDiagnosis);
 router.put('/:id/share', protect, toggleShareStatus);
+router.delete('/:id', protect, deleteDiagnosis);
 router.get('/:id', optionalProtect, getDiagnosisById);
 
 module.exports = router;

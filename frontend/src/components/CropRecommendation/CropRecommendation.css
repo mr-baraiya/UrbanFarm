@@ -496,6 +496,61 @@
   box-shadow: 0 4px 20px rgba(31, 58, 48, 0.04);
 }
 
+/* History Active Session Banner */
+.crop-history-active-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  background: linear-gradient(135deg, #f0fdf4 0%, #e6f7ef 100%);
+  border: 1.5px solid #86efac;
+  border-radius: 12px;
+  padding: 0.85rem 1.15rem;
+  margin-bottom: 1.25rem;
+}
+
+.history-banner-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.history-banner-icon {
+  color: #16a34a;
+  flex-shrink: 0;
+}
+
+.history-banner-info strong {
+  display: block;
+  font-size: 0.92rem;
+  color: #14532d;
+}
+
+.history-banner-sub {
+  font-size: 0.78rem;
+  color: #15803d;
+}
+
+.btn-exit-history {
+  background: #ffffff;
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+  font-weight: 600;
+  font-size: 0.78rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-exit-history:hover {
+  background: #dcfce7;
+  color: #14532d;
+  border-color: #86efac;
+}
+
 .results-header {
   display: flex;
   justify-content: space-between;

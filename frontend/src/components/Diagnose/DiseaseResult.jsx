@@ -3,15 +3,135 @@ import { useTranslation } from 'react-i18next';
 import { useNotification } from '../../hooks/useNotification';
 import { retryGeminiTips, translateDiagnosisApi, toggleDiagnosisShare } from '../../services/plantService';
 import { downloadDiagnosisPDF, generatePdfFileName } from '../../utils/pdfGenerator';
+import { playReportNarration, stopReportNarration, isSpeechSupported } from '../../utils/reportAudioNarrator';
 import {
   ArrowLeft,
   Calendar,
   Share2,
   FileDown,
   RotateCcw,
-  Loader2
+  Loader2,
+  Volume2,
+  VolumeX,
+  Sparkles
 } from 'lucide-react';
 import './DiseaseResult.css';
+
+// Data normalization for the 9 clinical agricultural sections
+export const extractInitialData = (res) => {
+  if (!res) return {};
+
+  const observedSymptoms = Array.isArray(res.observedSymptoms) && res.observedSymptoms.length > 0
+    ? res.observedSymptoms
+    : (Array.isArray(res.symptoms) && res.symptoms.length > 0
+      ? res.symptoms
+      : []);
+
+  const possibleCauses = Array.isArray(res.possibleCauses) && res.possibleCauses.length > 0
+    ? res.possibleCauses
+    : (Array.isArray(res.causes) && res.causes.length > 0
+      ? res.causes
+      : (res.cause ? [res.cause] : []));
+
+  const immediateActions = Array.isArray(res.immediateActions) && res.immediateActions.length > 0
+    ? res.immediateActions
+    : (Array.isArray(res.treatmentSteps) && res.treatmentSteps.length > 0
+      ? res.treatmentSteps
+      : (Array.isArray(res.treatment_steps) && res.treatment_steps.length > 0
+        ? res.treatment_steps
+        : (res.treatment ? [res.treatment] : [])));
+
+  const modernSolutions = Array.isArray(res.modernSolutions) && res.modernSolutions.length > 0
+    ? res.modernSolutions
+    : (Array.isArray(res.medicalSolutions) && res.medicalSolutions.length > 0
+      ? res.medicalSolutions
+      : (Array.isArray(res.medical_solutions) ? res.medical_solutions : []));
+
+  const naturalSolutions = Array.isArray(res.naturalSolutions) && res.naturalSolutions.length > 0
+    ? res.naturalSolutions
+    : (Array.isArray(res.desiSolutions) && res.desiSolutions.length > 0
+      ? res.desiSolutions
+      : (Array.isArray(res.desi_solutions) ? res.desi_solutions : []));
+
+  const preventionTips = Array.isArray(res.preventionTips) && res.preventionTips.length > 0
+    ? res.preventionTips
+    : (Array.isArray(res.prevention_tips) ? res.prevention_tips : []);
+
+  const rawConf = res?.confidence ?? res?.confidenceScore ?? res?.confidence_score ?? res?.accuracy;
+  const confidencePercentage = typeof rawConf === 'number'
+    ? (rawConf <= 1 ? Math.round(rawConf * 100) : Math.round(rawConf))
+    : 85;
+
+  const rawSeverity = res?.severityLevel || res?.severity_level || (res?.isHealthy ? 'Healthy' : 'Moderate');
+  const isHealthyCheck = Boolean(
+    res?.isHealthy || 
+    res?.is_healthy || 
+    (res?.diseaseName || '').toLowerCase().includes('healthy') || 
+    rawSeverity.toLowerCase() === 'healthy'
+  );
+
+  const severityPercentage = typeof res?.severityPercentage === 'number'
+    ? res.severityPercentage
+    : typeof res?.severity_percentage === 'number'
+    ? res.severity_percentage
+    : isHealthyCheck ? 0 : rawSeverity.toLowerCase().includes('severe') ? 75 : rawSeverity.toLowerCase().includes('mild') ? 20 : 40;
+
+  return {
+    plantName: res.plantName || res.plant_name || '',
+    scientificName: res.scientificName || res.scientific_name || '',
+    diseaseName: res.diseaseName || res.condition_name || res.disease || (isHealthyCheck ? 'Healthy Plant' : 'Condition Detected'),
+    shortExplanation: res.shortExplanation || res.description || '',
+    description: res.description || res.shortExplanation || '',
+    observedSymptoms: observedSymptoms,
+    possibleCauses: possibleCauses,
+    cause: res.cause || (possibleCauses.length ? possibleCauses.join('. ') : ''),
+    severityLevel: rawSeverity,
+    severityPercentage: severityPercentage,
+    damageIndex: severityPercentage,
+    confidence: confidencePercentage,
+    confidenceScore: confidencePercentage,
+    confidencePercent: confidencePercentage,
+    confidencePercentage: confidencePercentage,
+    isHealthy: isHealthyCheck,
+    severityDescription: res.severityDescription || res.severity_description || '',
+    immediateActions: immediateActions,
+    modernSolutions: modernSolutions,
+    naturalSolutions: naturalSolutions,
+    preventionTips: preventionTips,
+    whenToContactExpert: res.whenToContactExpert || res.when_to_contact_expert || res.whenToSeekExpertHelp || res.when_to_seek_expert_help || '',
+    noteIfUnsure: res.noteIfUnsure || res.note_if_unsure || ''
+  };
+};
+
+export const detectTextLanguage = (res) => {
+  if (!res) return 'en';
+  const sample = [
+    res.diseaseName,
+    res.condition_name,
+    res.disease,
+    res.shortExplanation,
+    res.description,
+    res.plantName,
+    res.plant_name,
+    Array.isArray(res.observedSymptoms) ? res.observedSymptoms.join(' ') : (Array.isArray(res.symptoms) ? res.symptoms.join(' ') : ''),
+    Array.isArray(res.possibleCauses) ? res.possibleCauses.join(' ') : (Array.isArray(res.causes) ? res.causes.join(' ') : ''),
+    Array.isArray(res.immediateActions) ? res.immediateActions.join(' ') : (Array.isArray(res.treatmentSteps) ? res.treatmentSteps.join(' ') : ''),
+    res.noteIfUnsure
+  ].filter(Boolean).join(' ');
+
+  if (!sample) return 'en';
+
+  const gujMatches = sample.match(/[\u0A80-\u0AFF]/g) || [];
+  const devMatches = sample.match(/[\u0900-\u097F]/g) || [];
+
+  if (gujMatches.length > 5 || (gujMatches.length > devMatches.length && gujMatches.length > 0)) {
+    return 'gu';
+  }
+  if (devMatches.length > 5 || (devMatches.length > gujMatches.length && devMatches.length > 0)) {
+    return 'hi';
+  }
+  return 'en';
+};
 
 const DiseaseResult = ({ result, isHistory = false, onAddToSchedule, onClose, onBack }) => {
   const { t, i18n } = useTranslation();
@@ -26,75 +146,32 @@ const DiseaseResult = ({ result, isHistory = false, onAddToSchedule, onClose, on
   const isPlant = result?.isPlant !== false && result?.is_plant !== false;
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
 
-  // Data normalization for the 9 clinical agricultural sections
-  const extractInitialData = (res) => {
-    if (!res) return {};
+  const [translationCache, setTranslationCache] = useState(() => {
+    const init = {};
+    if (result) {
+      const origLang = detectTextLanguage(result);
+      init[origLang] = extractInitialData(result);
+      if (result.translations) {
+        Object.keys(result.translations).forEach((k) => {
+          const val = result.translations[k];
+          if (val) init[k] = extractInitialData(val);
+        });
+      }
+    }
+    return init;
+  });
 
-    const observedSymptoms = Array.isArray(res.observedSymptoms) && res.observedSymptoms.length > 0
-      ? res.observedSymptoms
-      : (Array.isArray(res.symptoms) && res.symptoms.length > 0
-        ? res.symptoms
-        : []);
-
-    const possibleCauses = Array.isArray(res.possibleCauses) && res.possibleCauses.length > 0
-      ? res.possibleCauses
-      : (Array.isArray(res.causes) && res.causes.length > 0
-        ? res.causes
-        : (res.cause ? [res.cause] : []));
-
-    const immediateActions = Array.isArray(res.immediateActions) && res.immediateActions.length > 0
-      ? res.immediateActions
-      : (Array.isArray(res.treatmentSteps) && res.treatmentSteps.length > 0
-        ? res.treatmentSteps
-        : (Array.isArray(res.treatment_steps) && res.treatment_steps.length > 0
-          ? res.treatment_steps
-          : (res.treatment ? [res.treatment] : [])));
-
-    const modernSolutions = Array.isArray(res.modernSolutions) && res.modernSolutions.length > 0
-      ? res.modernSolutions
-      : (Array.isArray(res.medicalSolutions) && res.medicalSolutions.length > 0
-        ? res.medicalSolutions
-        : (Array.isArray(res.medical_solutions) ? res.medical_solutions : []));
-
-    const naturalSolutions = Array.isArray(res.naturalSolutions) && res.naturalSolutions.length > 0
-      ? res.naturalSolutions
-      : (Array.isArray(res.desiSolutions) && res.desiSolutions.length > 0
-        ? res.desiSolutions
-        : (Array.isArray(res.desi_solutions) ? res.desi_solutions : []));
-
-    const preventionTips = Array.isArray(res.preventionTips) && res.preventionTips.length > 0
-      ? res.preventionTips
-      : (Array.isArray(res.prevention_tips) ? res.prevention_tips : []);
-
-    const rawSeverity = res.severityLevel || res.severity_level || (res.isHealthy ? 'Healthy' : 'Moderate');
-    const severityPercentage = typeof res.severityPercentage === 'number'
-      ? res.severityPercentage
-      : typeof res.severity_percentage === 'number'
-      ? res.severity_percentage
-      : rawSeverity === 'Severe' ? 75 : rawSeverity === 'Moderate' ? 45 : rawSeverity === 'Mild' ? 20 : 0;
-
-    return {
-      plantName: res.plantName || res.plant_name || '',
-      scientificName: res.scientificName || res.scientific_name || '',
-      diseaseName: res.diseaseName || res.condition_name || res.disease || (res.isHealthy ? 'Healthy Plant' : 'Condition Detected'),
-      shortExplanation: res.shortExplanation || res.description || '',
-      description: res.description || res.shortExplanation || '',
-      observedSymptoms: observedSymptoms,
-      possibleCauses: possibleCauses,
-      cause: res.cause || (possibleCauses.length ? possibleCauses.join('. ') : ''),
-      severityLevel: rawSeverity,
-      severityPercentage: severityPercentage,
-      severityDescription: res.severityDescription || res.severity_description || '',
-      immediateActions: immediateActions,
-      modernSolutions: modernSolutions,
-      naturalSolutions: naturalSolutions,
-      preventionTips: preventionTips,
-      whenToContactExpert: res.whenToContactExpert || res.when_to_contact_expert || res.whenToSeekExpertHelp || res.when_to_seek_expert_help || '',
-      noteIfUnsure: res.noteIfUnsure || res.note_if_unsure || ''
-    };
-  };
-
-  const [currentData, setCurrentData] = useState(() => extractInitialData(result));
+  const [currentData, setCurrentData] = useState(() => {
+    const activeAppLang = i18n.language || 'en';
+    const origLang = detectTextLanguage(result);
+    if (result?.translations?.[activeAppLang]) {
+      return extractInitialData(result.translations[activeAppLang]);
+    }
+    if (activeAppLang === origLang) {
+      return extractInitialData(result);
+    }
+    return extractInitialData(result);
+  });
   const [currentLang, setCurrentLang] = useState(i18n.language || 'en');
   const [isTranslating, setIsTranslating] = useState(false);
   const [translationError, setTranslationError] = useState(null);
@@ -106,21 +183,100 @@ const DiseaseResult = ({ result, isHistory = false, onAddToSchedule, onClose, on
   const [shareId, setShareId] = useState(initialShareId);
   const [isTogglingShare, setIsTogglingShare] = useState(false);
 
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [currentSpokenSentence, setCurrentSpokenSentence] = useState('');
+
+  // Stop speech narration when component unmounts
+  useEffect(() => {
+    return () => {
+      stopReportNarration();
+    };
+  }, []);
+
+  // Stop narration if user switches report or language
+  useEffect(() => {
+    stopReportNarration();
+    setIsSpeaking(false);
+    setCurrentSpokenSentence('');
+  }, [diagnosisId, currentLang, i18n.language]);
+
+  const handleLanguageSwitch = async (targetLang, customCache = null) => {
+    if (!targetLang) return;
+    const cacheToUse = customCache || translationCache;
+    const origLang = detectTextLanguage(result);
+
+    // Check if translation is already cached
+    const cachedItem = cacheToUse?.[targetLang];
+    if (cachedItem && (cachedItem.diseaseName || cachedItem.plantName)) {
+      setCurrentData(cachedItem);
+      setCurrentLang(targetLang);
+      setIsTranslating(false);
+      return;
+    }
+
+    // If target matches original document language
+    if (targetLang === origLang && result) {
+      const origData = extractInitialData(result);
+      setTranslationCache(prev => ({ ...prev, [origLang]: origData }));
+      setCurrentData(origData);
+      setCurrentLang(origLang);
+      setIsTranslating(false);
+      return;
+    }
+
+    setIsTranslating(true);
+    setTranslationError(null);
+
+    try {
+      if (diagnosisId) {
+        const transRes = await translateDiagnosisApi(diagnosisId, targetLang);
+        const translationPayload = transRes?.translation || transRes?.data || transRes;
+        if (translationPayload && (translationPayload.diseaseName || translationPayload.plantName || translationPayload.description)) {
+          const transExtracted = extractInitialData(translationPayload);
+          setTranslationCache(prev => ({ ...prev, [targetLang]: transExtracted }));
+          setCurrentData(transExtracted);
+          setCurrentLang(targetLang);
+          return;
+        }
+      }
+      setCurrentLang(targetLang);
+    } catch (err) {
+      console.error('Translation error:', err);
+      setTranslationError(t('diagnose.translationFailed', 'Failed to translate report.'));
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
   useEffect(() => {
     if (result) {
       const activeAppLang = i18n.language || 'en';
+      const origLang = detectTextLanguage(result);
       const extracted = extractInitialData(result);
-      setCurrentData(extracted);
       setIsPublic(result.isPublic || false);
       setShareId(result.shareId || result._id || result.id);
 
+      const newCache = { [origLang]: extracted };
+      if (result.translations) {
+        Object.keys(result.translations).forEach((k) => {
+          const val = result.translations[k];
+          if (val) newCache[k] = extractInitialData(val);
+        });
+      }
+      setTranslationCache(newCache);
+
       // Check if translation for active language is already available
-      const existingLangTrans = result.translations?.[activeAppLang] || result.translations?.get?.(activeAppLang);
+      const existingLangTrans = newCache[activeAppLang];
       if (existingLangTrans && (existingLangTrans.diseaseName || existingLangTrans.plantName)) {
-        setCurrentData(extractInitialData(existingLangTrans));
+        setCurrentData(existingLangTrans);
         setCurrentLang(activeAppLang);
-      } else if (diagnosisId && activeAppLang !== 'en') {
-        handleLanguageSwitch(activeAppLang);
+        setIsTranslating(false);
+      } else if (diagnosisId && activeAppLang !== origLang && isPlant) {
+        handleLanguageSwitch(activeAppLang, newCache);
+      } else {
+        setCurrentData(extracted);
+        setCurrentLang(activeAppLang);
+        setIsTranslating(false);
       }
     }
   }, [result]);
@@ -162,31 +318,6 @@ const DiseaseResult = ({ result, isHistory = false, onAddToSchedule, onClose, on
     : confidencePercent >= 60 
     ? t('diagnose.medConfidence', 'Moderate Accuracy') 
     : t('diagnose.lowConfidence', 'Low Accuracy');
-
-  const handleLanguageSwitch = async (targetLang) => {
-    if (!targetLang) return;
-    setIsTranslating(true);
-    setTranslationError(null);
-
-    try {
-      if (diagnosisId) {
-        const transRes = await translateDiagnosisApi(diagnosisId, targetLang);
-        const translationPayload = transRes?.translation || transRes?.data || transRes;
-        if (translationPayload && (translationPayload.diseaseName || translationPayload.plantName || translationPayload.description)) {
-          const transExtracted = extractInitialData(translationPayload);
-          setCurrentData(transExtracted);
-          setCurrentLang(targetLang);
-          return;
-        }
-      }
-      setCurrentLang(targetLang);
-    } catch (err) {
-      console.error('Translation error:', err);
-      setTranslationError(t('diagnose.translationFailed', 'Failed to translate report.'));
-    } finally {
-      setIsTranslating(false);
-    }
-  };
 
   useEffect(() => {
     const activeAppLang = i18n.language || 'en';
@@ -293,6 +424,55 @@ const DiseaseResult = ({ result, isHistory = false, onAddToSchedule, onClose, on
     }
   };
 
+  const handleToggleSpeech = () => {
+    if (!isSpeechSupported()) {
+      addNotification(t('diagnose.speechNotSupported', 'Audio speech is not supported in this browser.'), 'warning');
+      return;
+    }
+
+    if (isSpeaking) {
+      stopReportNarration();
+      setIsSpeaking(false);
+      setCurrentSpokenSentence('');
+      addNotification(t('diagnose.stopAudio', 'Audio stopped.'), 'info');
+    } else {
+      const activeLang = currentLang || i18n.language || 'en';
+      const narrativeData = {
+        ...currentData,
+        confidence: confidencePercent,
+        confidencePercent: confidencePercent,
+        confidencePercentage: confidencePercent,
+        confidenceScore: confidencePercent,
+        severityPercentage: typeof currentData.severityPercentage === 'number'
+          ? currentData.severityPercentage
+          : typeof currentData.damageIndex === 'number'
+          ? currentData.damageIndex
+          : (isHealthy ? 0 : severityNorm.includes('severe') ? 75 : severityNorm.includes('mild') ? 20 : 40),
+        severityLevel: currentData.severityLevel || (isHealthy ? 'Healthy' : 'Moderate'),
+        severityDisplayLabel: severityDisplayLabel,
+        isHealthy: isHealthy
+      };
+      playReportNarration(narrativeData, activeLang, {
+        onStart: () => {
+          setIsSpeaking(true);
+          addNotification(t('diagnose.readingReport', 'Reading report aloud...'), 'info');
+        },
+        onEnd: () => {
+          setIsSpeaking(false);
+          setCurrentSpokenSentence('');
+        },
+        onError: (err) => {
+          setIsSpeaking(false);
+          setCurrentSpokenSentence('');
+          console.warn('Speech playback notice:', err);
+        },
+        onSentence: (sentence) => {
+          setCurrentSpokenSentence(sentence);
+        }
+      });
+    }
+  };
+
   // Case 1: Non-plant image detected banner
   if (!isPlant) {
     return (
@@ -350,11 +530,33 @@ const DiseaseResult = ({ result, isHistory = false, onAddToSchedule, onClose, on
         </div>
 
         <div className="dr-topbar-right">
+          {/* Audio Narration Button */}
+          <button 
+            type="button" 
+            className={`dr-audio-btn ${isSpeaking ? 'active-speaking' : ''}`}
+            onClick={handleToggleSpeech}
+            disabled={isTranslating}
+            title={isSpeaking ? t('diagnose.stopAudio', 'Stop Audio') : t('diagnose.listenReport', 'Listen to Report')}
+            aria-label={isSpeaking ? 'Stop Audio Report' : 'Listen to Report'}
+          >
+            {isSpeaking ? (
+              <>
+                <VolumeX size={16} className="dr-speaker-icon dr-pulse-speaker" />
+                <span>{t('diagnose.stopAudio', 'Stop Audio')}</span>
+              </>
+            ) : (
+              <>
+                <Volume2 size={16} className="dr-speaker-icon" />
+                <span>{t('diagnose.listenReport', 'Listen Report')}</span>
+              </>
+            )}
+          </button>
+
           <button 
             type="button" 
             className="dr-pdf-btn" 
             onClick={handleDownloadPDF}
-            disabled={isDownloadingPdf}
+            disabled={isDownloadingPdf || isTranslating}
           >
             {isDownloadingPdf ? (
               <>
@@ -373,12 +575,37 @@ const DiseaseResult = ({ result, isHistory = false, onAddToSchedule, onClose, on
             type="button" 
             className="dr-share-btn" 
             onClick={handleShare}
+            disabled={isTranslating}
           >
             <Share2 size={16} />
             <span>{t('diagnose.shareReport', 'Share Report')}</span>
           </button>
         </div>
       </div>
+
+      {/* Live Audio Narration Bar */}
+      {isSpeaking && currentSpokenSentence && (
+        <div className="dr-live-narration-banner">
+          <div className="dr-audio-waveform">
+            <span className="sw-bar b1" />
+            <span className="sw-bar b2" />
+            <span className="sw-bar b3" />
+            <span className="sw-bar b4" />
+          </div>
+          <div className="dr-narration-content">
+            <span className="dr-narration-tag">{t('diagnose.readingReport', 'Reading report aloud...')}</span>
+            <p className="dr-narration-sentence">"{currentSpokenSentence}"</p>
+          </div>
+          <button 
+            type="button" 
+            className="dr-stop-narration-btn" 
+            onClick={handleToggleSpeech}
+            title={t('diagnose.stopAudio', 'Stop Audio')}
+          >
+            {t('diagnose.stopAudio', 'Stop Audio')}
+          </button>
+        </div>
+      )}
 
       {/* Translation Error (if any) */}
       {translationError && (
@@ -395,7 +622,7 @@ const DiseaseResult = ({ result, isHistory = false, onAddToSchedule, onClose, on
       )}
 
       {/* Uncertainty Notice if Low Confidence or Unsure Note */}
-      {currentData.noteIfUnsure && (
+      {currentData.noteIfUnsure && !isTranslating && (
         <div className="dr-notice-banner dr-notice-unsure">
           <div className="dr-notice-text">
             <strong>{t('diagnose.noteIfUnsure', 'Photo & Diagnostic Note')}:</strong> {currentData.noteIfUnsure}
@@ -403,8 +630,59 @@ const DiseaseResult = ({ result, isHistory = false, onAddToSchedule, onClose, on
         </div>
       )}
 
-      {/* Printable Area Wrapper for PDF & Screen */}
-      <div ref={reportRef} className="dr-report-printable-area">
+      {/* Translation State Loader vs Fully Translated Report Area */}
+      {isTranslating ? (
+        <div className="dr-translating-overlay-container">
+          <div className="dr-card dr-translating-card">
+            <div className="dr-translating-anim-box">
+              <div className="dr-translating-pulse-halo" />
+              <div className="dr-translating-icon-orb">
+                <Sparkles size={34} className="dr-translating-sparkle-spin" />
+              </div>
+            </div>
+
+            <div className="dr-translating-lang-badge">
+              <span className="dr-translating-pulse-dot" />
+              <span>
+                {i18n.language === 'gu'
+                  ? 'ગુજરાતી અનુવાદ'
+                  : i18n.language === 'hi'
+                  ? 'हिन्दी अनुवाद'
+                  : t('diagnose.translatingEngine', 'Gemini AI Multilingual Engine')}
+              </span>
+            </div>
+
+            <h2 className="dr-translating-main-title">
+              {t('diagnose.translatingTitle', 'Translating Diagnosis Report...')}
+            </h2>
+
+            <p className="dr-translating-main-desc">
+              {t(
+                'diagnose.translatingSub',
+                'Translating clinical findings, symptoms, causes, remedies and prevention advice...'
+              )}
+            </p>
+
+            <div className="dr-translating-progress-track">
+              <div className="dr-translating-progress-bar" />
+            </div>
+
+            <div className="dr-translating-pill-pills">
+              <span className="dr-trans-pill">{t('diagnose.section1Title', 'Diagnosis')}</span>
+              <span className="dr-trans-pill">{t('diagnose.section2Title', 'Observed Symptoms')}</span>
+              <span className="dr-trans-pill">{t('diagnose.section5Title', 'Immediate Action')}</span>
+              <span className="dr-trans-pill">{t('diagnose.section8Title', 'Prevention')}</span>
+            </div>
+
+            <div className="dr-translating-model-tag">
+              <span className="dr-ai-spark-tag">{t('diagnose.translatingWithGemini', 'Translating diagnosis with Gemini AI...')}</span>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Printable Area Wrapper for PDF & Screen */}
+          <div ref={reportRef} className="dr-report-printable-area">
         {/* ========================================================================= */}
         {/* HERO SECTION 1: Diagnosis & Specimen Media Banner */}
         {/* ========================================================================= */}
@@ -427,10 +705,6 @@ const DiseaseResult = ({ result, isHistory = false, onAddToSchedule, onClose, on
               <div className="dr-hero-media-tags">
                 <span className={`dr-pill-tag ${isHealthy ? 'healthy' : confidencePercent > 70 ? 'critical' : 'warning'}`}>
                   {isHealthy ? t('diagnose.healthy', 'Healthy') : t('diagnose.issueDetected', 'Issue Detected')}
-                </span>
-
-                <span className={`dr-confidence-badge ${confidenceBadgeClass}`}>
-                  {confidencePercent}% {confidenceBadgeLabel}
                 </span>
               </div>
             </div>
@@ -933,60 +1207,62 @@ const DiseaseResult = ({ result, isHistory = false, onAddToSchedule, onClose, on
         </div>
       </div>
 
-      {/* Floating Bottom Action Dock */}
-      <div className="dr-bottom-dock">
-        <div className="dr-dock-left-group">
-          {onAddToSchedule && !isHealthy && (
+        {/* Floating Bottom Action Dock */}
+        <div className="dr-bottom-dock">
+          <div className="dr-dock-left-group">
+            {onAddToSchedule && !isHealthy && (
+              <button 
+                type="button" 
+                className="dr-schedule-btn" 
+                onClick={() => onAddToSchedule({ ...result, ...currentData })}
+              >
+                <Calendar size={16} />
+                <span>{t('diagnose.addToCareSchedule', 'Add Treatment to Care Schedule')}</span>
+              </button>
+            )}
+
             <button 
               type="button" 
-              className="dr-schedule-btn" 
-              onClick={() => onAddToSchedule(currentData || result)}
+              className="dr-pdf-btn" 
+              onClick={handleDownloadPDF}
+              disabled={isDownloadingPdf}
             >
-              <Calendar size={16} />
-              <span>{t('diagnose.addToCareSchedule', 'Add Treatment to Care Schedule')}</span>
+              {isDownloadingPdf ? (
+                <>
+                  <Loader2 size={16} className="dr-spin-icon" />
+                  <span>{t('diagnose.downloadingPdf', 'Generating PDF...')}</span>
+                </>
+              ) : (
+                <>
+                  <FileDown size={16} />
+                  <span>{t('diagnose.downloadPdf', 'Download PDF')}</span>
+                </>
+              )}
             </button>
-          )}
 
-          <button 
-            type="button" 
-            className="dr-pdf-btn" 
-            onClick={handleDownloadPDF}
-            disabled={isDownloadingPdf}
-          >
-            {isDownloadingPdf ? (
-              <>
-                <Loader2 size={16} className="dr-spin-icon" />
-                <span>{t('diagnose.downloadingPdf', 'Generating PDF...')}</span>
-              </>
-            ) : (
-              <>
-                <FileDown size={16} />
-                <span>{t('diagnose.downloadPdf', 'Download PDF')}</span>
-              </>
-            )}
-          </button>
+            <button 
+              type="button" 
+              className="dr-dock-share-btn" 
+              onClick={handleShare}
+            >
+              <Share2 size={16} />
+              <span>{t('diagnose.shareReport', 'Share Report')}</span>
+            </button>
+          </div>
 
-          <button 
-            type="button" 
-            className="dr-dock-share-btn" 
-            onClick={handleShare}
-          >
-            <Share2 size={16} />
-            <span>{t('diagnose.shareReport', 'Share Report')}</span>
-          </button>
+          <div className="dr-dock-right-group">
+            <button 
+              type="button" 
+              className="dr-rescan-btn" 
+              onClick={onBack || onClose}
+            >
+              <RotateCcw size={16} />
+              <span>{t('diagnose.analyzeAnother', 'Analyze another image')}</span>
+            </button>
+          </div>
         </div>
-
-        <div className="dr-dock-right-group">
-          <button 
-            type="button" 
-            className="dr-rescan-btn" 
-            onClick={onBack || onClose}
-          >
-            <RotateCcw size={16} />
-            <span>{t('diagnose.analyzeAnother', 'Analyze another image')}</span>
-          </button>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 };

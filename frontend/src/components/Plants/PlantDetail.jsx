@@ -8,6 +8,7 @@ import { formatDate, getStatusColor, getPlantImage } from '../../utils/helpers';
 import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import QRCodeModal from '../Common/QRCodeModal';
 import HarvestTrackerModal from './HarvestTrackerModal';
+import IoTSensorCard from '../Common/IoTSensorCard';
 import './PlantDetail.css';
 
 const PlantDetail = () => {
@@ -318,6 +319,11 @@ const PlantDetail = () => {
                 </span>
               </div>
             </div>
+          </div>
+
+          {/* Live Virtual IoT Sensor Component */}
+          <div className="my-4">
+            <IoTSensorCard plantId={plant._id || 'tomato-01'} plantName={plant.name} deviceId="ESP32-TOMATO-01" />
           </div>
 
           {/* Quick Water Action Card */}

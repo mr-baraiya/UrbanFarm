@@ -85,13 +85,13 @@ const CropCard = ({ crop, spaceAvailable, existingPlants = [], onAddToPlants }) 
             <Sprout size={13} className="soil-label-icon" />
             <span>{t('crops.soilFit', 'Soil Fit:')}</span>
           </div>
-          <p className="crop-soil-text">{crop.soilSuitability}</p>
+          <p className="crop-soil-text">{getLocalizedDynamicText(crop.soilSuitability, i18n.language)}</p>
         </div>
       )}
 
       {/* Primary Reason */}
       {crop.reason && (
-        <p className="crop-reason-text">{crop.reason}</p>
+        <p className="crop-reason-text">{getLocalizedDynamicText(crop.reason, i18n.language)}</p>
       )}
 
       {/* Expected Yield */}
@@ -101,7 +101,7 @@ const CropCard = ({ crop, spaceAvailable, existingPlants = [], onAddToPlants }) 
             <Scale size={13} className="yield-icon" />
             <span className="crop-meta-title">{t('crops.expectedYield', 'Expected Yield:')}</span>
           </div>
-          <span className="crop-meta-value">{crop.expectedYield}</span>
+          <span className="crop-meta-value">{getLocalizedDynamicText(crop.expectedYield, i18n.language)}</span>
         </div>
       )}
 
@@ -121,7 +121,7 @@ const CropCard = ({ crop, spaceAvailable, existingPlants = [], onAddToPlants }) 
           </button>
           {expanded && (
             <div className="crop-tips-content">
-              <p>{crop.plantingTips}</p>
+              <p>{getLocalizedDynamicText(crop.plantingTips, i18n.language)}</p>
             </div>
           )}
         </div>

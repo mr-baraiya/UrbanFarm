@@ -20,6 +20,7 @@ import PlantGallery from './PlantGallery';
 import TodayTasks from './TodayTasks';
 import GardenHealth from './GardenHealth';
 import HealthScoreBreakdown from './HealthScoreBreakdown';
+import IoTSummaryWidget from './IoTSummaryWidget';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -180,6 +181,11 @@ const Dashboard = () => {
 
         {/* Garden Health Score */}
         <GardenHealth score={healthScore} />
+
+        {/* IoT Monitoring Summary Widget */}
+        <div className="my-5">
+          <IoTSummaryWidget />
+        </div>
 
         {/* Stats Grid */}
         <div className="stats-grid">

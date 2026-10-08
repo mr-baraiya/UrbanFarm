@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { diagnosePlant, getDiagnosisHistory, getPlants } from '../../services/plantService';
+import { diagnosePlant, getDiagnosisHistory, getPlants, deleteDiagnosis } from '../../services/plantService';
 import { useNotification } from '../../hooks/useNotification';
 import { getPlantImage } from '../../utils/helpers';
 import { getLocalizedDynamicText } from '../../utils/localizationHelper';
 import DiseaseResult from './DiseaseResult';
 import DiagnosisHistory from './DiagnosisHistory';
+import ConfirmModal from '../Common/ConfirmModal';
+import { Sparkles, CheckCircle2, Lightbulb } from 'lucide-react';
 import './DiagnoseTab.css';
 
 const DiagnoseTab = () => {
@@ -27,6 +29,7 @@ const DiagnoseTab = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, id: null });
   const fileInputRef = useRef(null);
   const { addNotification } = useNotification();
 
@@ -290,27 +293,62 @@ const DiagnoseTab = () => {
     }
     if (diag.naturalSolutions && diag.naturalSolutions.length > 0) {
       actions.push(`[${t('diagnose.section7Title', 'Natural Solution')}]:\n` + diag.naturalSolutions.map((s, i) => `• ${s}`).join('\n'));
-    } else if (diag.modernSolutions && diag.modernSolutions.length > 0) {
+    }
+    if (diag.modernSolutions && diag.modernSolutions.length > 0) {
       actions.push(`[${t('diagnose.section6Title', 'Modern Solution')}]:\n` + diag.modernSolutions.map((s, i) => `• ${s}`).join('\n'));
-    } else if (diag.treatmentSteps && diag.treatmentSteps.length > 0) {
-      actions.push(diag.treatmentSteps.join('\n'));
-    } else if (diag.treatment) {
+    }
+    if (diag.treatmentSteps && diag.treatmentSteps.length > 0) {
+      actions.push(`[${t('diagnose.treatment', 'Treatment Steps')}]:\n` + diag.treatmentSteps.map((s, i) => `${i + 1}. ${s}`).join('\n'));
+    }
+    if (diag.treatment && !diag.treatmentSteps?.length && !diag.immediateActions?.length) {
       actions.push(diag.treatment);
     }
+    if (diag.preventionTips && diag.preventionTips.length > 0) {
+      actions.push(`[${t('diagnose.section8Title', 'Prevention')}]:\n` + diag.preventionTips.map((s, i) => `• ${s}`).join('\n'));
+    }
 
-    const targetPlantId = diag.plantId?._id || (typeof diag.plantId === 'string' ? diag.plantId : '') || selectedPlant || '';
+    const rawPlantId = diag.plantId?._id || diag.plantId || selectedPlant || '';
+    const targetPlantId = typeof rawPlantId === 'string' && rawPlantId.length === 24 ? rawPlantId : '';
+
+    const isSevere = (diag.severityLevel || diag.severity || '').toLowerCase().includes('severe') || (diag.confidence || 0) > 0.7;
 
     const taskData = {
       title: `${t('diagnose.treatment', 'Treatment')}: ${diseaseName}`,
       description: actions.join('\n\n') || `Care routine for ${diseaseName}`,
       type: 'pest_check',
-      priority: (diag.severity || '').toLowerCase().includes('severe') || (diag.confidence || 0) > 0.7 ? 'high' : 'medium',
+      priority: isSevere ? 'high' : 'medium',
       dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      plantId: targetPlantId,
+      plantId: targetPlantId || undefined,
     };
     
     sessionStorage.setItem('quickTask', JSON.stringify(taskData));
-    navigate('/app/schedule');
+    navigate('/app/schedule', { state: { quickTask: taskData } });
+  };
+
+  const handleDeleteDiagnosisClick = (id) => {
+    if (!id) return;
+    setDeleteConfirm({ isOpen: true, id });
+  };
+
+  const handleConfirmDeleteDiagnosis = async () => {
+    const id = deleteConfirm.id;
+    if (!id) return;
+    try {
+      await deleteDiagnosis(id);
+      setHistory(prev => prev.filter(item => (item._id || item.id) !== id));
+      setFilteredHistory(prev => prev.filter(item => (item._id || item.id) !== id));
+      if (selectedHistory && (selectedHistory._id || selectedHistory.id) === id) {
+        setSelectedHistory(null);
+      }
+      if (result && (result._id || result.id) === id) {
+        setResult(null);
+      }
+      addNotification(t('diagnose.deletedSuccess', 'Diagnosis record deleted successfully'), 'success');
+    } catch (error) {
+      console.error('Failed to delete diagnosis:', error);
+      const errMsg = error.response?.data?.message || t('diagnose.deleteFailed', 'Failed to delete diagnosis record');
+      addNotification(errMsg, 'error');
+    }
   };
 
   const activePlantObj = plants.find(p => p._id === selectedPlant);
@@ -435,6 +473,40 @@ const DiagnoseTab = () => {
                 {loading ? t('diagnose.analyzing', 'Analyzing...') : t('diagnose.runDiagnosis', 'Run Diagnosis')}
               </button>
             </div>
+
+            {/* Get a Better Diagnosis Guidelines Box */}
+            <div className="photo-guide-card">
+              <div className="photo-guide-header">
+                <div className="photo-guide-badge">
+                  <Sparkles size={14} className="guide-sparkle-icon" />
+                  <span>{t('diagnose.betterDiagnosisTitle', 'Get a Better Diagnosis')}</span>
+                </div>
+                <p className="photo-guide-sub">{t('diagnose.betterDiagnosisSubtitle', 'Upload one clear photo of your plant.')}</p>
+              </div>
+
+              <ul className="photo-guide-list">
+                <li className="photo-guide-item">
+                  <CheckCircle2 size={15} className="guide-check-icon" />
+                  <span>{t('diagnose.betterDiagnosisPoint1', 'Show the affected area clearly.')}</span>
+                </li>
+                <li className="photo-guide-item">
+                  <CheckCircle2 size={15} className="guide-check-icon" />
+                  <span>{t('diagnose.betterDiagnosisPoint2', 'Use good lighting.')}</span>
+                </li>
+                <li className="photo-guide-item">
+                  <CheckCircle2 size={15} className="guide-check-icon" />
+                  <span>{t('diagnose.betterDiagnosisPoint3', 'Keep the image in focus.')}</span>
+                </li>
+              </ul>
+
+              <div className="photo-guide-tip">
+                <Lightbulb size={15} className="guide-tip-icon" />
+                <p>
+                  <strong>{t('diagnose.betterDiagnosisTipLabel', 'Tip:')}</strong>{' '}
+                  {t('diagnose.betterDiagnosisTip', 'A clear, close-up photo helps identify plant problems more accurately.')}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -449,9 +521,22 @@ const DiagnoseTab = () => {
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
             onAddToSchedule={handleAddToSchedule}
+            onDelete={handleDeleteDiagnosisClick}
           />
         </div>
       </div>
+
+      {/* Custom Delete Confirm Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        title={t('diagnose.deleteTitle', 'Delete Diagnosis Record')}
+        message={t('diagnose.confirmDelete', 'Are you sure you want to delete this diagnosis record?')}
+        confirmText={t('common.delete', 'Delete')}
+        cancelText={t('common.cancel', 'Cancel')}
+        isDanger={true}
+        onConfirm={handleConfirmDeleteDiagnosis}
+        onClose={() => setDeleteConfirm({ isOpen: false, id: null })}
+      />
 
       {/* Live Camera Viewfinder Modal */}
       {isCameraOpen && (

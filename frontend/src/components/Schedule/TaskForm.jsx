@@ -247,7 +247,7 @@ const TaskForm = ({ task, onClose, onSubmit, plants, gardens }) => {
               {t('schedule.cancel', 'Cancel')}
             </button>
             <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? t('schedule.saving', 'Saving...') : task ? t('schedule.updateTask', 'Update Task') : t('schedule.createTask', 'Create Task')}
+              {loading ? t('schedule.saving', 'Saving...') : task?._id ? t('schedule.updateTask', 'Update Task') : t('schedule.createTask', 'Create Task')}
             </button>
           </div>
         </form>

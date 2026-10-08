@@ -19,6 +19,7 @@ import {
   FaCheckCircle,
   FaArrowRight,
 } from 'react-icons/fa';
+import AdminIoTSimulator from './AdminIoTSimulator';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -277,7 +278,10 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Quick Actions */}
+      <div className="my-6">
+        <AdminIoTSimulator />
+      </div>
+
       <div className="admin-card">
         <div className="admin-card-header">
           <h3><FaChartLine /> {t('admin.quickActions.title', 'Quick Actions')}</h3>

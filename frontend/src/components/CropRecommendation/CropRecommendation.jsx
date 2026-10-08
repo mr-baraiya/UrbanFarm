@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Sparkles, MapPin, RotateCcw, FlaskConical, CheckCircle2, AlertTriangle, Sprout } from 'lucide-react';
-import { getCropRecommendations, getRecommendationHistory, saveRecommendation, addPlant, getGardens } from '../../services/plantService';
+import { getCropRecommendations, getRecommendationHistory, saveRecommendation, deleteCropRecommendation, addPlant, getGardens } from '../../services/plantService';
 import { getWeather } from '../../services/weatherService';
 import { useAuth } from '../../hooks/useAuth';
 import { useNotification } from '../../hooks/useNotification';
@@ -10,6 +10,8 @@ import CropCard from './CropCard';
 import CropHistory from './CropHistory';
 import UrbanPresets from './UrbanPresets';
 import PlantForm from '../GrowthTracker/PlantForm';
+import ConfirmModal from '../Common/ConfirmModal';
+import CropResultsModal from './CropResultsModal';
 import './CropRecommendation.css';
 
 const CropRecommendation = () => {
@@ -44,6 +46,8 @@ const CropRecommendation = () => {
   const [selectedHistory, setSelectedHistory] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
+  const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, id: null });
+  const [showResultsModal, setShowResultsModal] = useState(false);
 
   useEffect(() => {
     loadHistory();
@@ -194,6 +198,8 @@ const CropRecommendation = () => {
       setRecommendations(data.recommendations || []);
       setSoilAnalysis(data.soilAnalysis || null);
       setTargetCropCheck(data.targetCropCheck || null);
+      setSelectedHistory(null);
+      setShowResultsModal(true);
       addNotification(t('crops.recommendationsReady', 'Recommendations generated via Gemini AI!'), 'success');
       loadHistory();
     } catch (error) {
@@ -207,16 +213,42 @@ const CropRecommendation = () => {
   };
 
   const handleHistoryClick = (item) => {
+    if (!item) return;
     setSelectedHistory(item);
     setRecommendations(item.recommendations || []);
-    setSoilAnalysis(null);
-    setTargetCropCheck(null);
+    setSoilAnalysis(item.soilAnalysis || null);
+    setTargetCropCheck(item.targetCropCheck || null);
     setApiError(null);
     if (item.inputData) {
       setInputs(prev => ({
         ...prev,
         ...item.inputData,
       }));
+    }
+    setShowResultsModal(true);
+  };
+
+  const handleDeleteHistoryClick = (id) => {
+    if (!id) return;
+    setDeleteConfirm({ isOpen: true, id });
+  };
+
+  const handleConfirmDeleteHistory = async () => {
+    const id = deleteConfirm.id;
+    if (!id) return;
+    try {
+      await deleteCropRecommendation(id);
+      setHistory(prev => prev.filter(item => item._id !== id));
+      setFilteredHistory(prev => prev.filter(item => item._id !== id));
+      if (selectedHistory && selectedHistory._id === id) {
+        setSelectedHistory(null);
+        setRecommendations([]);
+      }
+      addNotification(t('crops.deletedSuccess', 'Recommendation record deleted successfully'), 'success');
+    } catch (error) {
+      console.error('Failed to delete crop recommendation:', error);
+      const errMsg = error.response?.data?.message || t('crops.deleteFailed', 'Failed to delete recommendation record');
+      addNotification(errMsg, 'error');
     }
   };
 
@@ -246,7 +278,7 @@ const CropRecommendation = () => {
       <div className="crop-page-header">
         <div className="crop-header-badge">
           <Sparkles size={14} className="header-badge-icon" />
-          <span>Gemini Agronomy Intelligence</span>
+          <span>{t('crops.geminiIntelligence', 'Gemini Agronomy Intelligence')}</span>
         </div>
         <h2>{t('crops.title', 'AI Crop Recommendations')}</h2>
         <p className="subtitle">
@@ -454,102 +486,6 @@ const CropRecommendation = () => {
               </button>
             </div>
           )}
-
-          {/* Soil Analysis Spotlight Card */}
-          {soilAnalysis && (
-            <div className="soil-analysis-card">
-              <div className="soil-analysis-header">
-                <span className="soil-badge">
-                  <FlaskConical size={13} className="badge-icon" />
-                  <span>{t('crops.soilProfile', 'Soil Profile')}</span>
-                </span>
-                <h4>{soilAnalysis.soilType} {t('crops.soilAssessment', 'Soil Assessment')} (pH {soilAnalysis.ph})</h4>
-              </div>
-              <p className="soil-drainage-text">
-                <strong>{t('crops.characteristics', 'Characteristics')}:</strong> {soilAnalysis.drainageAndTexture || soilAnalysis.characteristics}
-              </p>
-              <p className="soil-tip-text">
-                <strong>{t('crops.agronomicAdvice', 'Agronomic Advice')}:</strong> {soilAnalysis.soilManagementTip || soilAnalysis.soilAdvice || 'Ensure adequate compost incorporation.'}
-              </p>
-            </div>
-          )}
-
-          {/* Target Crop Validation Card */}
-          {targetCropCheck && (
-            <div className={`target-crop-result-card ${targetCropCheck.isSuitable ? 'suitable' : 'unsuitable'}`}>
-              <div className="target-result-header">
-                <span className={`target-suitability-pill ${targetCropCheck.isSuitable ? 'pass' : 'fail'}`}>
-                  {targetCropCheck.isSuitable ? (
-                    <>
-                      <CheckCircle2 size={13} />
-                      <span>{t('crops.suitableMatch', 'Suitable Match')}</span>
-                    </>
-                  ) : (
-                    <>
-                      <AlertTriangle size={13} />
-                      <span>{t('crops.soilMismatchWarning', 'Soil Mismatch Warning')}</span>
-                    </>
-                  )}
-                </span>
-                <h4>Evaluation for "{targetCropCheck.cropName}" in {inputs.soilType} Soil</h4>
-              </div>
-
-              <p className="target-explanation">
-                {targetCropCheck.soilMismatchReason}
-              </p>
-
-              {!targetCropCheck.isSuitable && targetCropCheck.suggestedAlternatives?.length > 0 && (
-                <div className="target-alternatives-box">
-                  <span className="alt-title">{t('crops.recommendedAlternatives', 'Recommended Alternatives for {{soil}} Soil:', { soil: inputs.soilType })}</span>
-                  <div className="alt-chips-row">
-                    {targetCropCheck.suggestedAlternatives.map((alt, idx) => (
-                      <span key={idx} className="alt-chip">
-                        <Sprout size={12} className="alt-icon" />
-                        <span>{alt}</span>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Results Grid */}
-          {recommendations.length > 0 && (
-            <div className="crop-results">
-              <div className="results-header">
-                <h4>{t('crops.recommendationsTitle', 'Recommended Crops')}</h4>
-                <span className="result-count">
-                  {t('crops.cropsFound', '{{count}} crops found', { count: recommendations.length })}
-                </span>
-              </div>
-              <div className="crop-grid">
-                {recommendations.map((crop, idx) => (
-                  <CropCard 
-                    key={idx} 
-                    crop={crop} 
-                    spaceAvailable={inputs.spaceAvailable}
-                    existingPlants={[]}
-                    onAddToPlants={() => handleAddToPlants(crop)}
-                  />
-                ))}
-              </div>
-              {selectedHistory && (
-                <div className="crop-history-detail">
-                  <button 
-                    type="button"
-                    className="btn-secondary" 
-                    onClick={() => {
-                      setSelectedHistory(null);
-                      setRecommendations([]);
-                    }}
-                  >
-                    {t('crops.closeHistory', 'Close History View')}
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
         </div>
 
         {/* Right Column - History */}
@@ -559,6 +495,7 @@ const CropRecommendation = () => {
             onItemClick={handleHistoryClick}
             selectedId={selectedHistory?._id}
             onSave={handleSaveRecommendation}
+            onDelete={handleDeleteHistoryClick}
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
             filterType={filterType}
@@ -566,6 +503,34 @@ const CropRecommendation = () => {
           />
         </div>
       </div>
+
+      {/* Results & History Details Popup Modal */}
+      <CropResultsModal
+        isOpen={showResultsModal}
+        onClose={() => setShowResultsModal(false)}
+        recommendations={recommendations}
+        soilAnalysis={soilAnalysis}
+        targetCropCheck={targetCropCheck}
+        sessionData={selectedHistory ? selectedHistory : inputs}
+        isHistory={Boolean(selectedHistory)}
+        onAddToPlants={handleAddToPlants}
+        onSave={handleSaveRecommendation}
+        historyId={selectedHistory?._id}
+        isSaved={Boolean(selectedHistory?.saved)}
+        spaceAvailable={inputs.spaceAvailable}
+      />
+
+      {/* Custom Delete Confirm Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        title={t('crops.deleteTitle', 'Delete Recommendation Record')}
+        message={t('crops.confirmDelete', 'Are you sure you want to delete this crop recommendation record?')}
+        confirmText={t('common.delete', 'Delete')}
+        cancelText={t('common.cancel', 'Cancel')}
+        isDanger={true}
+        onConfirm={handleConfirmDeleteHistory}
+        onClose={() => setDeleteConfirm({ isOpen: false, id: null })}
+      />
 
       {selectedCropForAdd && (
         <PlantForm

@@ -9,6 +9,7 @@ import {
   ArrowRight, 
   Bookmark, 
   BookmarkCheck, 
+  Trash2,
   Inbox, 
   ChevronLeft, 
   ChevronRight 
@@ -23,6 +24,7 @@ const CropHistory = ({
   onItemClick, 
   selectedId, 
   onSave,
+  onDelete,
   searchTerm,
   onSearchChange,
   filterType,
@@ -49,26 +51,28 @@ const CropHistory = ({
 
   const getLocalizedSoil = (soil) => {
     if (!soil) return t('crops.soilType', 'Soil');
-    const s = soil.toLowerCase().replace(/\s+/g, '');
-    if (s === 'loam') return t('crops.soilLoam', 'Loam');
-    if (s === 'sandy') return t('crops.soilSandy', 'Sandy');
-    if (s === 'clay') return t('crops.soilClay', 'Clay');
-    if (s === 'silty') return t('crops.soilSilty', 'Silty');
-    if (s === 'peaty') return t('crops.soilPeaty', 'Peaty');
-    if (s === 'chalky') return t('crops.soilChalky', 'Chalky');
-    if (s === 'sandyloam') return t('crops.soilSandyLoam', 'Sandy Loam');
-    if (s === 'pottingmix') return t('crops.soilPottingMix', 'Potting Mix');
-    return soil;
+    const s = String(soil).toLowerCase().replace(/\s+/g, '');
+    if (s === 'loam' || s.includes('દોમટ') || s.includes('दोमट') || s.includes('ગોરાડુ')) return i18n.language === 'gu' ? 'દોમટ / ગોરાડુ' : i18n.language === 'hi' ? 'दोमट' : 'Loam';
+    if (s === 'sandy' || s.includes('રેતાળ') || s.includes('बलुई') || s.includes('रेतीली')) return i18n.language === 'gu' ? 'રેતાળ' : i18n.language === 'hi' ? 'बलुई' : 'Sandy';
+    if (s === 'clay' || s.includes('ચીકણી') || s.includes('चिकनी')) return i18n.language === 'gu' ? 'ચીકણી માટી' : i18n.language === 'hi' ? 'चिकनी मिट्टी' : 'Clay';
+    if (s === 'silty' || s.includes('કાંપવાળી') || s.includes('गाद')) return i18n.language === 'gu' ? 'કાંપવાળી' : i18n.language === 'hi' ? 'गाद' : 'Silty';
+    if (s === 'peaty' || s.includes('પીટ') || s.includes('पीट')) return i18n.language === 'gu' ? 'પીટ માટી' : i18n.language === 'hi' ? 'पीट' : 'Peaty';
+    if (s === 'chalky' || s.includes('ચૂનાવાળી') || s.includes('चूनेदार')) return i18n.language === 'gu' ? 'ચૂનાવાળી' : i18n.language === 'hi' ? 'चूनेदार' : 'Chalky';
+    if (s === 'sandyloam' || s.includes('રેતાળગોરાડુ') || s.includes('बलुईदोमट')) return i18n.language === 'gu' ? 'રેતાળ ગોરાડુ' : i18n.language === 'hi' ? 'बलुई दोमट' : 'Sandy Loam';
+    if (s === 'pottingmix' || s.includes('પોટિંગમિક્સ') || s.includes('पोटिंगमिक्स')) return i18n.language === 'gu' ? 'પોટિંગ મિક્સ' : i18n.language === 'hi' ? 'पोटिंग मिक्स' : 'Potting Mix';
+    const dynamic = getLocalizedDynamicText(soil, i18n.language);
+    return dynamic || soil;
   };
 
   const getLocalizedSeason = (season) => {
     if (!season) return t('crops.season', 'Season');
-    const s = season.toLowerCase();
-    if (s === 'spring') return t('crops.seasonSpring', 'Spring');
-    if (s === 'summer') return t('crops.seasonSummer', 'Summer');
-    if (s === 'fall' || s === 'autumn') return t('crops.seasonFall', 'Fall');
-    if (s === 'winter') return t('crops.seasonWinter', 'Winter');
-    return season;
+    const s = String(season).toLowerCase();
+    if (s.includes('spring') || s.includes('વસંત') || s.includes('वसंत')) return i18n.language === 'gu' ? 'વસંત' : i18n.language === 'hi' ? 'वसंत' : 'Spring';
+    if (s.includes('summer') || s.includes('ઉનાળો') || s.includes('ग्रीष्म') || s.includes('गर्मी')) return i18n.language === 'gu' ? 'ઉનાળો' : i18n.language === 'hi' ? 'ग्रीष्म' : 'Summer';
+    if (s.includes('fall') || s.includes('autumn') || s.includes('શરદ') || s.includes('પાનખર') || s.includes('शरद')) return i18n.language === 'gu' ? 'શરદ / પાનખર' : i18n.language === 'hi' ? 'शरद' : 'Fall';
+    if (s.includes('winter') || s.includes('શિયાળો') || s.includes('શીત') || s.includes('सर्दी')) return i18n.language === 'gu' ? 'શિયાળો' : i18n.language === 'hi' ? 'शीत' : 'Winter';
+    const dynamic = getLocalizedDynamicText(season, i18n.language);
+    return dynamic || season;
   };
 
   // Pagination calculations
@@ -158,29 +162,46 @@ const CropHistory = ({
                       {getLocalizedSeason(item.inputData?.season)}
                     </span>
                   </div>
-                  {onSave && (
-                    <button 
-                      type="button" 
-                      className={`history-save-btn ${item.saved ? 'saved' : ''}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onSave(item._id);
-                      }}
-                      title={item.saved ? t('crops.saved', 'Saved') : t('crops.save', 'Save')}
-                    >
-                      {item.saved ? (
-                        <>
-                          <BookmarkCheck size={13} className="save-icon" />
-                          <span>{t('crops.saved', 'Saved')}</span>
-                        </>
-                      ) : (
-                        <>
-                          <Bookmark size={13} className="save-icon" />
-                          <span>{t('crops.save', 'Save')}</span>
-                        </>
-                      )}
-                    </button>
-                  )}
+                  <div className="history-header-actions" onClick={(e) => e.stopPropagation()}>
+                    {onSave && (
+                      <button 
+                        type="button" 
+                        className={`history-save-btn ${item.saved ? 'saved' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onSave(item._id);
+                        }}
+                        title={item.saved ? t('crops.saved', 'Saved') : t('crops.save', 'Save')}
+                        aria-label={item.saved ? t('crops.saved', 'Saved') : t('crops.save', 'Save')}
+                      >
+                        {item.saved ? (
+                          <>
+                            <BookmarkCheck size={13} className="save-icon" />
+                            <span>{t('crops.saved', 'Saved')}</span>
+                          </>
+                        ) : (
+                          <>
+                            <Bookmark size={13} className="save-icon" />
+                            <span>{t('crops.save', 'Save')}</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+                    {onDelete && (
+                      <button
+                        type="button"
+                        className="history-crop-del-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(item._id);
+                        }}
+                        title={t('common.delete', 'Delete')}
+                        aria-label={t('common.delete', 'Delete')}
+                      >
+                        <Trash2 size={13} className="del-icon" />
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="history-crops-chips">
@@ -203,10 +224,18 @@ const CropHistory = ({
                       year: 'numeric'
                     })}
                   </span>
-                  <span className="history-view-link">
+                  <button 
+                    type="button" 
+                    className="history-view-link"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onItemClick(item);
+                    }}
+                    title={t('crops.viewDetails', 'View Details')}
+                  >
                     <span>{t('crops.viewDetails', 'View Details')}</span>
                     <ArrowRight size={13} className="arrow-icon" />
-                  </span>
+                  </button>
                 </div>
               </div>
             );

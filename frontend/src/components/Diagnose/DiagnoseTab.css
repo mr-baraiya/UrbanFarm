@@ -238,6 +238,111 @@
   cursor: not-allowed;
 }
 
+/* Photo Guide Card */
+.photo-guide-card {
+  margin-top: 1.25rem;
+  padding: 1.15rem 1.25rem;
+  background: linear-gradient(135deg, rgba(236, 253, 245, 0.7) 0%, rgba(240, 253, 250, 0.45) 100%);
+  border: 1px solid rgba(167, 243, 208, 0.7);
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(6, 95, 70, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.photo-guide-card:hover {
+  border-color: rgba(52, 211, 153, 0.85);
+  box-shadow: 0 4px 14px rgba(6, 95, 70, 0.06);
+}
+
+.photo-guide-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.photo-guide-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  align-self: flex-start;
+  padding: 0.25rem 0.65rem;
+  background: rgba(16, 185, 129, 0.12);
+  color: #065f46;
+  border: 1px solid rgba(110, 231, 183, 0.5);
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.photo-guide-badge .guide-sparkle-icon {
+  color: #059669;
+  flex-shrink: 0;
+}
+
+.photo-guide-sub {
+  margin: 0.35rem 0 0 0 !important;
+  font-size: 0.88rem !important;
+  font-weight: 600;
+  color: #1f2937 !important;
+  line-height: 1.4 !important;
+}
+
+.photo-guide-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.photo-guide-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.84rem;
+  color: #374151;
+  line-height: 1.35;
+}
+
+.photo-guide-item .guide-check-icon {
+  color: #10b981;
+  flex-shrink: 0;
+}
+
+.photo-guide-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.65rem 0.85rem;
+  background: rgba(254, 243, 199, 0.6);
+  border: 1px solid rgba(253, 230, 138, 0.8);
+  border-radius: 10px;
+  margin-top: 0.25rem;
+}
+
+.photo-guide-tip .guide-tip-icon {
+  color: #d97706;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.photo-guide-tip p {
+  margin: 0 !important;
+  font-size: 0.82rem !important;
+  color: #78350f !important;
+  line-height: 1.4 !important;
+}
+
+.photo-guide-tip strong {
+  color: #92400e;
+  font-weight: 700;
+}
+
 .diagnose-result-section {
   background: var(--bg-primary, #fbf9f7);
   padding: 1.5rem;

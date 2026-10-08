@@ -112,3 +112,23 @@ exports.saveRecommendation = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Delete a recommendation history record
+// @route   DELETE /api/crops/history/:id
+exports.deleteRecommendation = async (req, res, next) => {
+  try {
+    const rec = await CropRecommendation.findOne({
+      _id: req.params.id,
+      userId: req.user.id
+    });
+
+    if (!rec) {
+      return res.status(404).json({ success: false, message: 'Recommendation record not found' });
+    }
+
+    await rec.deleteOne();
+    res.status(200).json({ success: true, message: 'Recommendation record deleted successfully', id: req.params.id });
+  } catch (error) {
+    next(error);
+  }
+};

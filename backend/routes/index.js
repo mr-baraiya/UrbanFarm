@@ -16,6 +16,7 @@ const weatherRoutes = require('./weatherRoutes');
 const contactRoutes = require('./contactRoutes');
 const chatbotRoutes = require('./chatbotRoutes');
 const marketRoutes = require('./marketRoutes');
+const iotRoutes = require('./iotRoutes');
 
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
@@ -32,5 +33,6 @@ router.use('/weather', weatherRoutes);
 router.use('/contact', contactRoutes);
 router.use('/chat', chatbotRoutes);
 router.use('/market', marketRoutes);
+router.use('/iot', iotRoutes);
 
 module.exports = router;

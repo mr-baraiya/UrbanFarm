@@ -1,0 +1,278 @@
+/* AdminIoTSimulator Component Styles - Theme Matched */
+.admin-iot-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Metrics Row */
+.admin-iot-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.admin-metric-card {
+  background: var(--surface-primary, #ffffff);
+  border: 1px solid var(--border-light, rgba(45, 106, 79, 0.2));
+  padding: 16px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 6px 20px rgba(31, 58, 48, 0.05);
+}
+
+.admin-metric-icon {
+  padding: 12px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-metric-icon.emerald {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.admin-metric-icon.rose {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.admin-metric-icon.sky {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.admin-metric-label {
+  font-size: 0.75rem;
+  color: #52796f;
+  display: block;
+}
+
+.admin-metric-val {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #1f3a30;
+}
+
+.admin-status-text {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #15803d;
+}
+
+/* Simulator Card */
+.admin-simulator-card {
+  background: var(--surface-primary, #ffffff);
+  border: 1px solid var(--border-light, rgba(45, 106, 79, 0.25));
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 8px 30px rgba(31, 58, 48, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.admin-simulator-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(45, 106, 79, 0.12);
+}
+
+.admin-simulator-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #1f3a30;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-simulator-desc {
+  font-size: 0.78rem;
+  color: #52796f;
+  margin-top: 4px;
+}
+
+.admin-refresh-btn {
+  background: #f6fff8;
+  border: 1px solid rgba(45, 106, 79, 0.2);
+  color: #2d6a4f;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-refresh-btn:hover {
+  background: #eaf4f4;
+  color: #1b4332;
+}
+
+/* Form fields */
+.admin-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.admin-field-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #1f3a30;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.admin-field-select {
+  width: 100%;
+  background: #fbf9f7;
+  border: 1px solid rgba(45, 106, 79, 0.25);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 0.88rem;
+  color: #1f3a30;
+  outline: none;
+}
+
+.admin-field-select:focus {
+  border-color: #2d6a4f;
+}
+
+/* Scenarios Grid */
+.admin-scenarios-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.admin-scenario-btn {
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.25s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.admin-scenario-btn.normal {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #15803d;
+}
+
+.admin-scenario-btn.dry {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #b45309;
+}
+
+.admin-scenario-btn.rain {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+  color: #0369a1;
+}
+
+.admin-scenario-btn.heat {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
+.admin-scenario-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.admin-scenario-btn.active {
+  outline: 2px solid #2d6a4f;
+}
+
+.admin-scenario-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-scenario-name {
+  font-weight: 800;
+  font-size: 0.92rem;
+}
+
+.admin-scenario-desc {
+  font-size: 0.75rem;
+  opacity: 0.85;
+  margin-top: 8px;
+}
+
+.admin-scenario-footer {
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Live Telemetry Box */
+.admin-live-telemetry-box {
+  background: #f6fff8;
+  border: 1px solid rgba(45, 106, 79, 0.25);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-telemetry-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #15803d;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.admin-telemetry-label {
+  font-size: 0.72rem;
+  color: #52796f;
+  display: block;
+}
+
+.admin-telemetry-val {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.text-emerald { color: #15803d; }
+.text-amber { color: #b45309; }
+.text-sky { color: #0369a1; }
+.text-yellow { color: #a16207; }
+
+@media (max-width: 768px) {
+  .admin-iot-metrics-grid,
+  .admin-scenarios-grid,
+  .admin-telemetry-grid,
+  .admin-selector-grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}

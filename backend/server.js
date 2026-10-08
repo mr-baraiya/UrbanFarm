@@ -353,9 +353,21 @@ app.use('*', (req, res) => {
 // Start local server if not running as a Vercel serverless function
 if (!process.env.VERCEL) {
   const PORT = process.env.PORT || 5000;
-  connectDB().then(() => {
+  connectDB().then(async () => {
     const server = app.listen(PORT, () => {
       console.log(`🚀 UrbanFarm Backend running on http://localhost:${PORT}`);
+      // Initialize MQTT Service safely
+      try {
+        const mqttService = require('./services/mqttService');
+        const iotService = require('./services/iotService');
+        mqttService.initMQTT();
+        // Seed initial virtual reading for ESP32-TOMATO-01 if none exists
+        setTimeout(async () => {
+          await iotService.generateSimulation('NORMAL', 'ESP32-TOMATO-01', 'tomato-01');
+        }, 3000);
+      } catch (mqttErr) {
+        console.warn('⚠️ MQTT initialization warning:', mqttErr.message);
+      }
     });
 
     server.on('error', (err) => {
