@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../l10n/app_strings.dart';
 
 class ConfidenceChip extends StatelessWidget {
@@ -38,7 +38,7 @@ class ConfidenceChip extends StatelessWidget {
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.6),
+          color: theme.colorScheme.outlineVariant.withOpacity(0.6),
         ),
       ),
       child: Row(

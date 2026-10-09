@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_strings.dart';
 import '../providers/app_provider.dart';
@@ -29,7 +29,7 @@ class LanguageSelector extends StatelessWidget {
             color: theme.colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+              color: theme.colorScheme.outlineVariant.withOpacity(0.5),
             ),
           ),
           child: Row(
@@ -106,7 +106,7 @@ class LanguageSelector extends StatelessWidget {
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: theme.colorScheme.primary.withValues(alpha: 0.25),
+                          color: theme.colorScheme.primary.withOpacity(0.25),
                           blurRadius: 6,
                           offset: const Offset(0, 2),
                         )

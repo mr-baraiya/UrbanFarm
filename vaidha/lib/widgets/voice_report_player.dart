@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../l10n/app_strings.dart';
 import '../models/analysis_result.dart';
 import '../services/tts_service.dart';
@@ -87,15 +87,15 @@ class _VoiceReportPlayerState extends State<VoiceReportPlayer>
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: isActive
-              ? primaryColor.withValues(alpha: 0.6)
-              : theme.colorScheme.outlineVariant.withValues(alpha: 0.7),
+              ? primaryColor.withOpacity(0.6)
+              : theme.colorScheme.outlineVariant.withOpacity(0.7),
           width: isActive ? 1.8 : 1.0,
         ),
         boxShadow: [
           BoxShadow(
             color: isActive
-                ? primaryColor.withValues(alpha: 0.12)
-                : Colors.black.withValues(alpha: 0.03),
+                ? primaryColor.withOpacity(0.12)
+                : Colors.black.withOpacity(0.03),
             blurRadius: isActive ? 12 : 6,
             offset: const Offset(0, 3),
           ),

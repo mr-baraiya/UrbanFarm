@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
@@ -191,7 +191,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
         decoration: BoxDecoration(
           border: Border(
             top: BorderSide(
-              color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+              color: theme.colorScheme.outlineVariant.withOpacity(0.5),
             ),
           ),
         ),

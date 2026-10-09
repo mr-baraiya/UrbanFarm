@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
@@ -87,7 +87,7 @@ class _SplashScreenState extends State<SplashScreen>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      const Color(0xFF4CAF50).withValues(alpha: 0.18),
+                      const Color(0xFF4CAF50).withOpacity(0.18),
                       Colors.transparent,
                     ],
                   ),
@@ -113,7 +113,7 @@ class _SplashScreenState extends State<SplashScreen>
                           color: Colors.white,
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF2E7D32).withValues(alpha: 0.22),
+                              color: const Color(0xFF2E7D32).withOpacity(0.22),
                               blurRadius: 30,
                               offset: const Offset(0, 10),
                             ),
@@ -154,7 +154,7 @@ class _SplashScreenState extends State<SplashScreen>
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF2E7D32).withValues(alpha: 0.12),
+                          color: const Color(0xFF2E7D32).withOpacity(0.12),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -174,7 +174,7 @@ class _SplashScreenState extends State<SplashScreen>
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
-                          color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                          color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
                         ),
                       ),
                     ],
@@ -206,7 +206,7 @@ class _SplashScreenState extends State<SplashScreen>
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                      color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
                       letterSpacing: 0.5,
                     ),
                   ),

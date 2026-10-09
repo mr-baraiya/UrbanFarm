@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
 
@@ -29,7 +29,7 @@ class TipsScreen extends StatelessWidget {
                   color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: theme.colorScheme.outlineVariant.withValues(alpha: 0.6),
+                    color: theme.colorScheme.outlineVariant.withOpacity(0.6),
                   ),
                 ),
                 child: Row(
@@ -37,7 +37,7 @@ class TipsScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                        color: theme.colorScheme.primary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
@@ -130,7 +130,7 @@ class TipsScreen extends StatelessWidget {
                   color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: theme.colorScheme.outlineVariant.withValues(alpha: 0.6),
+                    color: theme.colorScheme.outlineVariant.withOpacity(0.6),
                   ),
                 ),
                 child: Column(
@@ -219,7 +219,7 @@ class TipsScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.6)),
+                  border: Border.all(color: theme.colorScheme.outlineVariant.withOpacity(0.6)),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -282,7 +282,7 @@ class TipsScreen extends StatelessWidget {
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.6),
+          color: theme.colorScheme.outlineVariant.withOpacity(0.6),
         ),
       ),
       child: Row(
@@ -292,7 +292,7 @@ class TipsScreen extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
+              color: color.withOpacity(0.12),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
@@ -309,7 +309,7 @@ class TipsScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: color.withValues(alpha: 0.15),
+                        color: color.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -404,7 +404,7 @@ class TipsScreen extends StatelessWidget {
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.6),
+          color: theme.colorScheme.outlineVariant.withOpacity(0.6),
         ),
       ),
       child: Column(
@@ -424,7 +424,7 @@ class TipsScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                  color: theme.colorScheme.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_strings.dart';
@@ -393,11 +393,11 @@ class _ResultScreenState extends State<ResultScreen> {
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.6),
+          color: theme.colorScheme.outlineVariant.withOpacity(0.6),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -489,7 +489,7 @@ class _ResultScreenState extends State<ResultScreen> {
                   color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: theme.colorScheme.outlineVariant.withValues(alpha: 0.6),
+                    color: theme.colorScheme.outlineVariant.withOpacity(0.6),
                   ),
                 ),
                 child: Row(
@@ -531,7 +531,7 @@ class _ResultScreenState extends State<ResultScreen> {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.6)),
+        border: Border.all(color: theme.colorScheme.outlineVariant.withOpacity(0.6)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -583,7 +583,7 @@ class _ResultScreenState extends State<ResultScreen> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: theme.colorScheme.outlineVariant.withValues(alpha: 0.6),
+                  color: theme.colorScheme.outlineVariant.withOpacity(0.6),
                 ),
               ),
               child: Image.asset(
@@ -614,7 +614,7 @@ class _ResultScreenState extends State<ResultScreen> {
               width: 140,
               child: LinearProgressIndicator(
                 minHeight: 3,
-                backgroundColor: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
+                backgroundColor: theme.colorScheme.outlineVariant.withOpacity(0.4),
                 color: theme.colorScheme.primary,
               ),
             ),
@@ -640,7 +640,7 @@ class _ResultScreenState extends State<ResultScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: theme.colorScheme.errorContainer.withValues(alpha: 0.6),
+                color: theme.colorScheme.errorContainer.withOpacity(0.6),
                 shape: BoxShape.circle,
               ),
               child: Icon(

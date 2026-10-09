@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
@@ -64,7 +64,7 @@ class NotPlantScreen extends StatelessWidget {
                     color: theme.colorScheme.surface,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: theme.colorScheme.outlineVariant.withValues(alpha: 0.6),
+                      color: theme.colorScheme.outlineVariant.withOpacity(0.6),
                     ),
                   ),
                   child: Center(

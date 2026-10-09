@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_strings.dart';
 import '../providers/app_provider.dart';
@@ -103,7 +103,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                       borderRadius: BorderRadius.circular(16),
                       color: Colors.white,
                       border: Border.all(
-                        color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+                        color: theme.colorScheme.outlineVariant.withOpacity(0.5),
                       ),
                     ),
                     child: ClipRRect(
@@ -170,19 +170,19 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                         padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? theme.colorScheme.primaryContainer.withValues(alpha: 0.35)
+                              ? theme.colorScheme.primaryContainer.withOpacity(0.35)
                               : theme.colorScheme.surface,
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
                             color: isSelected
                                 ? theme.colorScheme.primary
-                                : theme.colorScheme.outlineVariant.withValues(alpha: 0.7),
+                                : theme.colorScheme.outlineVariant.withOpacity(0.7),
                             width: isSelected ? 2 : 1,
                           ),
                           boxShadow: isSelected
                               ? [
                                   BoxShadow(
-                                    color: theme.colorScheme.primary.withValues(alpha: 0.12),
+                                    color: theme.colorScheme.primary.withOpacity(0.12),
                                     blurRadius: 12,
                                     offset: const Offset(0, 4),
                                   ),
@@ -197,7 +197,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? theme.colorScheme.primary.withValues(alpha: 0.12)
+                                    ? theme.colorScheme.primary.withOpacity(0.12)
                                     : theme.colorScheme.surfaceContainerHighest,
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -274,7 +274,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
+                  color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.6),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(

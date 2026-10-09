@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 class SectionCard extends StatelessWidget {
   final String title;
@@ -40,7 +40,7 @@ class SectionCard extends StatelessWidget {
         color: cardColor ?? theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: borderColor ?? theme.colorScheme.outlineVariant.withValues(alpha: 0.6),
+          color: borderColor ?? theme.colorScheme.outlineVariant.withOpacity(0.6),
         ),
       ),
       child: Theme(
@@ -53,7 +53,7 @@ class SectionCard extends StatelessWidget {
           leading: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: effectiveIconColor.withValues(alpha: 0.12),
+              color: effectiveIconColor.withOpacity(0.12),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, size: 20, color: effectiveIconColor),
@@ -113,7 +113,7 @@ class SectionCard extends StatelessWidget {
                         alignment: Alignment.center,
                         decoration: isOrdered
                             ? BoxDecoration(
-                                color: effectiveIconColor.withValues(alpha: 0.15),
+                                color: effectiveIconColor.withOpacity(0.15),
                                 shape: BoxShape.circle,
                               )
                             : BoxDecoration(

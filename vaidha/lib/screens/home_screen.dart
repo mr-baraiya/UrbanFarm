@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
@@ -46,7 +46,7 @@ class HomeScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
                 color: Colors.white,
                 border: Border.all(
-                  color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+                  color: theme.colorScheme.outlineVariant.withOpacity(0.5),
                 ),
               ),
               child: ClipRRect(
@@ -114,7 +114,7 @@ class HomeScreen extends StatelessWidget {
                   color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: theme.colorScheme.outlineVariant.withValues(alpha: 0.6),
+                    color: theme.colorScheme.outlineVariant.withOpacity(0.6),
                   ),
                 ),
                 child: Row(
@@ -147,7 +147,7 @@ class HomeScreen extends StatelessWidget {
                         color: theme.colorScheme.surface,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.6),
+                          color: theme.colorScheme.outlineVariant.withOpacity(0.6),
                         ),
                       ),
                       child: Row(
@@ -185,7 +185,7 @@ class HomeScreen extends StatelessWidget {
                   color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: theme.colorScheme.outlineVariant.withValues(alpha: 0.6),
+                    color: theme.colorScheme.outlineVariant.withOpacity(0.6),
                   ),
                 ),
                 child: Column(
@@ -199,7 +199,7 @@ class HomeScreen extends StatelessWidget {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.6),
+                          color: theme.colorScheme.outlineVariant.withOpacity(0.6),
                         ),
                       ),
                       child: Image.asset(
@@ -283,7 +283,7 @@ class HomeScreen extends StatelessWidget {
                     color: theme.colorScheme.surface,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: theme.colorScheme.outlineVariant.withValues(alpha: 0.6),
+                      color: theme.colorScheme.outlineVariant.withOpacity(0.6),
                     ),
                   ),
                   child: Row(
@@ -291,7 +291,7 @@ class HomeScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                          color: theme.colorScheme.primary.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
@@ -426,7 +426,7 @@ class HomeScreen extends StatelessWidget {
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.6),
+          color: theme.colorScheme.outlineVariant.withOpacity(0.6),
         ),
       ),
       child: Column(

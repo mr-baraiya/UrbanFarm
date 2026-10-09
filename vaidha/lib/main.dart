@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'providers/app_provider.dart';
@@ -66,7 +66,7 @@ class PlantDoctorApp extends StatelessWidget {
         navigationBarTheme: NavigationBarThemeData(
           elevation: 0,
           backgroundColor: Colors.white,
-          indicatorColor: const Color(0xFF166534).withValues(alpha: 0.12),
+          indicatorColor: const Color(0xFF166534).withOpacity(0.12),
         ),
         cardTheme: CardThemeData(
           elevation: 0,
@@ -89,7 +89,7 @@ class PlantDoctorApp extends StatelessWidget {
         navigationBarTheme: NavigationBarThemeData(
           elevation: 0,
           backgroundColor: const Color(0xFF0F172A),
-          indicatorColor: const Color(0xFF166534).withValues(alpha: 0.25),
+          indicatorColor: const Color(0xFF166534).withOpacity(0.25),
         ),
         cardTheme: CardThemeData(
           elevation: 0,

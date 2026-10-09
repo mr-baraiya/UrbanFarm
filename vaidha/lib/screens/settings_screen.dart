@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_strings.dart';
 import '../providers/app_provider.dart';
@@ -33,11 +33,11 @@ class SettingsScreen extends StatelessWidget {
                   color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: theme.colorScheme.outlineVariant.withValues(alpha: 0.6),
+                    color: theme.colorScheme.outlineVariant.withOpacity(0.6),
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
+                      color: Colors.black.withOpacity(0.03),
                       blurRadius: 10,
                       offset: const Offset(0, 3),
                     ),
@@ -53,7 +53,7 @@ class SettingsScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(14),
                         color: Colors.white,
                         border: Border.all(
-                          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.6),
+                          color: theme.colorScheme.outlineVariant.withOpacity(0.6),
                         ),
                       ),
                       child: ClipRRect(
@@ -122,7 +122,7 @@ class SettingsScreen extends StatelessWidget {
                   color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: theme.colorScheme.outlineVariant.withValues(alpha: 0.6),
+                    color: theme.colorScheme.outlineVariant.withOpacity(0.6),
                   ),
                 ),
                 child: Column(
@@ -133,7 +133,7 @@ class SettingsScreen extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                            color: theme.colorScheme.primary.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Icon(
@@ -199,7 +199,7 @@ class SettingsScreen extends StatelessWidget {
                   color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: theme.colorScheme.outlineVariant.withValues(alpha: 0.6),
+                    color: theme.colorScheme.outlineVariant.withOpacity(0.6),
                   ),
                 ),
                 child: Row(
@@ -207,7 +207,7 @@ class SettingsScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Colors.blue.withValues(alpha: 0.1),
+                        color: Colors.blue.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
@@ -241,7 +241,7 @@ class SettingsScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.green.withValues(alpha: 0.12),
+                        color: Colors.green.withOpacity(0.12),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Row(
@@ -273,7 +273,7 @@ class SettingsScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: isDark
-                      ? const Color(0xFF1E293B).withValues(alpha: 0.5)
+                      ? const Color(0xFF1E293B).withOpacity(0.5)
                       : const Color(0xFFF1F5F9),
                   borderRadius: BorderRadius.circular(16),
                 ),
