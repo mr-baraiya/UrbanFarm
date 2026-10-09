@@ -430,55 +430,6 @@
   display: block;
 }
 
-.dl-custom-controls {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  right: 10px;
-  background: rgba(15, 28, 22, 0.85);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-  padding: 6px 10px;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  opacity: 0;
-  transform: translateY(4px);
-  transition: all 0.3s ease;
-  z-index: 5;
-}
-
-.dl-video-wrapper:hover .dl-custom-controls,
-.dl-video-wrapper:focus-within .dl-custom-controls {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.dl-control-btn {
-  background: transparent;
-  border: none;
-  color: #ffffff;
-  font-size: 0.95rem;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 6px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s ease, transform 0.15s ease;
-}
-
-.dl-control-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: scale(1.08);
-}
-
-.dl-control-btn.main-play {
-  font-size: 1.15rem;
-  color: #3fa88a;
-}
-
 /* Right: Step By Step Timeline */
 .dl-steps-card {
   background: var(--surface, #eaf4f4);

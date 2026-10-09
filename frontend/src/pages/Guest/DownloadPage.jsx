@@ -5,10 +5,6 @@ import {
   FaAndroid,
   FaDownload,
   FaPlay,
-  FaPause,
-  FaVolumeMute,
-  FaVolumeUp,
-  FaRedo,
   FaShieldAlt,
   FaMobileAlt,
   FaCheckCircle,
@@ -50,34 +46,9 @@ const DownloadPage = () => {
   const D = t('downloadPage', { returnObjects: true }) || {};
 
   const videoRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
   const [copied, setCopied] = useState(false);
   const [activeFaq, setActiveFaq] = useState(null);
   const [activeStep, setActiveStep] = useState(0);
-
-  // Video playback controls
-  const handleTogglePlay = () => {
-    if (!videoRef.current) return;
-    if (isPlaying) {
-      videoRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
-    }
-  };
-
-  const handleToggleMute = () => {
-    if (!videoRef.current) return;
-    videoRef.current.muted = !isMuted;
-    setIsMuted(!isMuted);
-  };
-
-  const handleRestartVideo = () => {
-    if (!videoRef.current) return;
-    videoRef.current.currentTime = 0;
-    videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
-  };
 
   const handleCopyDownloadLink = async () => {
     const linkToCopy = DEFAULT_APK_URL;
@@ -326,39 +297,8 @@ const DownloadPage = () => {
                   className="dl-video-element"
                   playsInline
                   controlsList="nofullscreen nodownload noremoteplayback"
-                  onPlay={() => setIsPlaying(true)}
-                  onPause={() => setIsPlaying(false)}
-                  onEnded={() => setIsPlaying(false)}
                   controls
                 />
-
-                {/* Custom Overlay Controls */}
-                <div className="dl-custom-controls">
-                  <button
-                    type="button"
-                    className="dl-control-btn main-play"
-                    onClick={handleTogglePlay}
-                    aria-label={isPlaying ? 'Pause' : 'Play'}
-                  >
-                    {isPlaying ? <FaPause /> : <FaPlay />}
-                  </button>
-                  <button
-                    type="button"
-                    className="dl-control-btn"
-                    onClick={handleToggleMute}
-                    aria-label={isMuted ? 'Unmute' : 'Mute'}
-                  >
-                    {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
-                  </button>
-                  <button
-                    type="button"
-                    className="dl-control-btn"
-                    onClick={handleRestartVideo}
-                    aria-label="Restart Video"
-                  >
-                    <FaRedo />
-                  </button>
-                </div>
               </div>
             </div>
 
