@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'providers/app_provider.dart';
@@ -68,7 +68,7 @@ class PlantDoctorApp extends StatelessWidget {
           backgroundColor: Colors.white,
           indicatorColor: const Color(0xFF166534).withOpacity(0.12),
         ),
-        cardTheme: CardThemeData(
+        cardTheme: CardTheme(
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
@@ -91,7 +91,7 @@ class PlantDoctorApp extends StatelessWidget {
           backgroundColor: const Color(0xFF0F172A),
           indicatorColor: const Color(0xFF166534).withOpacity(0.25),
         ),
-        cardTheme: CardThemeData(
+        cardTheme: CardTheme(
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
