@@ -36,37 +36,94 @@ class AnalysisResult {
   });
 
   factory AnalysisResult.fromJson(Map<String, dynamic> json) {
+    // Unwrap nested diagnosis object if backend sends { success: true, diagnosis: { ... } }
+    final Map<String, dynamic> data = (json['diagnosis'] is Map<String, dynamic>)
+        ? json['diagnosis'] as Map<String, dynamic>
+        : json;
+
     List<String> parseStringList(dynamic value) {
       if (value is List) {
         return value
             .map((item) => item?.toString().trim() ?? '')
             .where((item) => item.isNotEmpty)
             .toList();
+      } else if (value is String && value.trim().isNotEmpty) {
+        return value
+            .split('\n')
+            .map((s) => s.trim().replaceAll(RegExp(r'^[-•*\d.]+\s*'), ''))
+            .where((s) => s.isNotEmpty)
+            .toList();
       }
       return <String>[];
     }
 
-    final rawConfidence = json['confidence']?.toString().toLowerCase().trim() ?? 'medium';
+    final rawConfidence = (data['confidenceLevel'] ??
+            data['confidence_level'] ??
+            data['confidence'])
+        ?.toString()
+        .toLowerCase()
+        .trim() ??
+        'medium';
+
     final normalizedConfidence =
         ['high', 'medium', 'low'].contains(rawConfidence) ? rawConfidence : 'medium';
 
+    final isPlant = data['is_plant'] == true || data['isPlant'] == true;
+    final isHealthy = data['is_healthy'] == true || data['isHealthy'] == true;
+
+    final conditionName = data['condition_name']?.toString().trim() ??
+        data['diseaseName']?.toString().trim() ??
+        data['disease']?.toString().trim() ??
+        (isHealthy ? 'Healthy Plant' : '');
+
+    final description = data['description']?.toString().trim() ??
+        data['short_explanation']?.toString().trim() ??
+        data['shortExplanation']?.toString().trim() ??
+        '';
+
+    final whenToSeek = data['when_to_seek_expert_help']?.toString().trim() ??
+        data['when_to_contact_expert']?.toString().trim() ??
+        data['whenToContactExpert']?.toString().trim() ??
+        data['whenToSeekExpertHelp']?.toString().trim() ??
+        '';
+
+    final noteIfUnsure = data['note_if_unsure']?.toString().trim() ??
+        data['noteIfUnsure']?.toString().trim() ??
+        '';
+
     return AnalysisResult(
-      isPlant: json['is_plant'] == true,
-      plantName: json['plant_name']?.toString().trim() ?? '',
-      scientificName: json['scientific_name']?.toString().trim() ?? '',
-      isHealthy: json['is_healthy'] == true,
-      conditionName: json['condition_name']?.toString().trim() ?? '',
+      isPlant: isPlant,
+      plantName: data['plant_name']?.toString().trim() ??
+          data['plantName']?.toString().trim() ??
+          '',
+      scientificName: data['scientific_name']?.toString().trim() ??
+          data['scientificName']?.toString().trim() ??
+          '',
+      isHealthy: isHealthy,
+      conditionName: conditionName,
       confidence: normalizedConfidence,
-      description: json['description']?.toString().trim() ?? '',
-      symptoms: parseStringList(json['symptoms']),
-      causes: parseStringList(json['causes']),
-      treatmentSteps: parseStringList(json['treatment_steps']),
-      medicalSolutions: parseStringList(json['medical_solutions']),
-      desiSolutions: parseStringList(json['desi_solutions']),
-      recoveryTips: parseStringList(json['recovery_tips']),
-      preventionTips: parseStringList(json['prevention_tips']),
-      whenToSeekExpertHelp: json['when_to_seek_expert_help']?.toString().trim() ?? '',
-      noteIfUnsure: json['note_if_unsure']?.toString().trim() ?? '',
+      description: description,
+      symptoms: parseStringList(
+          data['symptoms'] ?? data['observed_symptoms'] ?? data['observedSymptoms']),
+      causes: parseStringList(
+          data['causes'] ?? data['possible_causes'] ?? data['possibleCauses'] ?? data['cause']),
+      treatmentSteps: parseStringList(data['treatment_steps'] ??
+          data['treatmentSteps'] ??
+          data['immediate_actions'] ??
+          data['immediateActions'] ??
+          data['treatment']),
+      medicalSolutions: parseStringList(data['medical_solutions'] ??
+          data['medicalSolutions'] ??
+          data['modern_solutions'] ??
+          data['modernSolutions']),
+      desiSolutions: parseStringList(data['desi_solutions'] ??
+          data['desiSolutions'] ??
+          data['natural_solutions'] ??
+          data['naturalSolutions']),
+      recoveryTips: parseStringList(data['recovery_tips'] ?? data['recoveryTips']),
+      preventionTips: parseStringList(data['prevention_tips'] ?? data['preventionTips']),
+      whenToSeekExpertHelp: whenToSeek,
+      noteIfUnsure: noteIfUnsure,
     );
   }
 

@@ -1,0 +1,49 @@
+name: Build Vaidha APK
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'vaidha/**'
+      - '.github/workflows/build_apk.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Java Development Kit
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+          channel: 'stable'
+          cache: true
+
+      - name: Verify Flutter Installation
+        run: flutter --version
+
+      - name: Install Dependencies
+        working-directory: ./vaidha
+        run: flutter pub get
+
+      - name: Build Release APK
+        working-directory: ./vaidha
+        run: flutter build apk --release
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vaidha-release-apk
+          path: vaidha/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error

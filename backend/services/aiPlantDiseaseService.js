@@ -344,6 +344,15 @@ async function extractBase64AndMime(imageInput, fileBuffer, fileMime) {
       const base64Data = Buffer.from(response.data).toString('base64');
       return { base64Data, mimeType };
     }
+
+    // Direct base64 string without data: prefix
+    if (imageInput.length > 30) {
+      const cleanBase64 = imageInput.replace(/\s+/g, '');
+      return {
+        base64Data: cleanBase64,
+        mimeType: fileMime || 'image/jpeg'
+      };
+    }
   }
 
   throw new Error('Invalid image input provided.');

@@ -10,57 +10,69 @@ const {
 } = require('../services/aiPlantDiseaseService');
 const badgeService = require('../services/badgeService');
 
-// @desc    Diagnose plant disease from image with 9 clinical agricultural sections using Groq API
-// @route   POST /api/disease/diagnose
+// @desc    Diagnose plant disease from image with 9 clinical agricultural sections using Groq / Gemini API
+// @route   POST /api/disease/diagnose and POST /api/analyze
 exports.diagnosePlant = async (req, res, next) => {
   try {
-    const { plantId, imageUrl: bodyImageUrl, language } = req.body;
+    const { plantId, imageUrl: bodyImageUrl, image, imageBase64, mimeType, language } = req.body;
     const file = req.file;
 
     console.log('📸 Diagnose request received');
-    console.log('  Plant ID:', plantId);
+    console.log('  Plant ID:', plantId || 'None');
     console.log('  Language:', language || 'English');
+    console.log('  User:', req.user ? req.user.id : 'Guest / Mobile');
     console.log('  File:', file ? `${file.originalname} (${file.size} bytes)` : 'No file');
-    console.log('  Image URL:', bodyImageUrl || 'None');
+    console.log('  Image URL/Base64:', bodyImageUrl ? 'URL provided' : (image || imageBase64 ? 'Base64 provided' : 'None'));
 
-    let finalImageUrl = bodyImageUrl;
+    let rawImage = bodyImageUrl || image || imageBase64;
 
-    if (file) {
-      try {
-        console.log('☁️ Uploading to Cloudinary...');
-        const b64 = Buffer.from(file.buffer).toString('base64');
-        const dataURI = `data:${file.mimetype};base64,${b64}`;
-
-        const uploadResult = await cloudinary.uploader.upload(dataURI, {
-          folder: 'diagnoses',
-          resource_type: 'image',
-        });
-        finalImageUrl = uploadResult.secure_url;
-        console.log('✅ Cloudinary upload successful:', finalImageUrl);
-      } catch (cloudErr) {
-        console.warn('⚠️ Cloudinary upload failed, falling back to dataURI/local buffer:', cloudErr.message);
-        const b64 = Buffer.from(file.buffer).toString('base64');
-        finalImageUrl = `data:${file.mimetype};base64,${b64}`;
-      }
+    if (!rawImage && file) {
+      const b64 = Buffer.from(file.buffer).toString('base64');
+      rawImage = `data:${file.mimetype || 'image/jpeg'};base64,${b64}`;
     }
 
-    if (!finalImageUrl) {
+    if (rawImage && typeof rawImage === 'string' && !rawImage.startsWith('http://') && !rawImage.startsWith('https://') && !rawImage.startsWith('data:')) {
+      rawImage = `data:${mimeType || 'image/jpeg'};base64,${rawImage}`;
+    }
+
+    if (!rawImage) {
       return res.status(400).json({ success: false, message: 'Please provide or upload an image' });
+    }
+
+    let finalImageUrl = rawImage;
+
+    // Optional: upload to Cloudinary if available and image is dataURI
+    if (finalImageUrl.startsWith('data:')) {
+      try {
+        if (cloudinary.config().cloud_name && cloudinary.config().api_key) {
+          console.log('☁️ Uploading to Cloudinary...');
+          const uploadResult = await cloudinary.uploader.upload(finalImageUrl, {
+            folder: 'diagnoses',
+            resource_type: 'image',
+          });
+          if (uploadResult && uploadResult.secure_url) {
+            finalImageUrl = uploadResult.secure_url;
+            console.log('✅ Cloudinary upload successful:', finalImageUrl);
+          }
+        }
+      } catch (cloudErr) {
+        console.warn('⚠️ Cloudinary upload skipped/failed, using direct image data:', cloudErr.message);
+      }
     }
 
     let diagnosisResult = null;
     let tipsError = null;
 
-    // 1. Primary AI Diagnosis via Groq Vision Pathology
+    // 1. Primary AI Diagnosis via Groq Vision Pathology (with Gemini fallback inside aiPlantDiseaseService)
     try {
-      console.log('🔬 Performing Groq Vision Pathology analysis with 9-section schema...');
+      console.log('🔬 Performing AI Vision Pathology analysis with 9-section schema...');
       diagnosisResult = await identifyDiseaseWithGroq({
         imageInput: finalImageUrl,
         fileBuffer: file ? file.buffer : null,
-        fileMime: file ? file.mimetype : 'image/jpeg',
+        fileMime: file ? file.mimetype : (mimeType || 'image/jpeg'),
         language: language || 'English'
       });
-      console.log('✅ Groq Diagnosis complete:', diagnosisResult.diseaseName, `(isPlant: ${diagnosisResult.isPlant})`);
+      console.log('✅ AI Diagnosis complete:', diagnosisResult.diseaseName, `(isPlant: ${diagnosisResult.isPlant})`);
     } catch (groqErr) {
       console.warn('⚠️ Primary Groq Vision failed, attempting secondary fallback:', groqErr.message);
       try {
@@ -115,123 +127,153 @@ exports.diagnosePlant = async (req, res, next) => {
 
     // Generate unique, unguessable public share token
     const shareId = crypto.randomBytes(8).toString('hex');
+    const userId = req.user ? req.user.id : null;
 
-    // 2. Save diagnosis to database with all 9 structured sections
-    const diagnosis = new Diagnosis({
-      userId: req.user.id,
-      plantId: plantId || null,
-      imageUrl: finalImageUrl,
-      isPlant: diagnosisResult.isPlant !== false,
-      plantName: diagnosisResult.plantName || '',
-      scientificName: diagnosisResult.scientificName || '',
-      isHealthy: Boolean(diagnosisResult.isHealthy),
-      diseaseName: diagnosisResult.diseaseName || (diagnosisResult.isHealthy ? 'Healthy Plant' : 'Condition Detected'),
-      shortExplanation: diagnosisResult.shortExplanation || diagnosisResult.description || '',
-      description: diagnosisResult.description || diagnosisResult.shortExplanation || '',
-      observedSymptoms: diagnosisResult.observedSymptoms || diagnosisResult.symptoms || [],
-      symptoms: diagnosisResult.symptoms || diagnosisResult.observedSymptoms || [],
-      possibleCauses: diagnosisResult.possibleCauses || diagnosisResult.causes || [],
-      causes: diagnosisResult.causes || diagnosisResult.possibleCauses || [],
-      cause: diagnosisResult.cause || '',
-      severityLevel: diagnosisResult.severityLevel || 'Moderate',
-      severityPercentage: typeof diagnosisResult.severityPercentage === 'number' ? diagnosisResult.severityPercentage : 50,
-      severityDescription: diagnosisResult.severityDescription || '',
-      immediateActions: diagnosisResult.immediateActions || diagnosisResult.treatmentSteps || [],
-      treatmentSteps: diagnosisResult.treatmentSteps || diagnosisResult.immediateActions || [],
-      modernSolutions: diagnosisResult.modernSolutions || diagnosisResult.medicalSolutions || [],
-      medicalSolutions: diagnosisResult.medicalSolutions || diagnosisResult.modernSolutions || [],
-      naturalSolutions: diagnosisResult.naturalSolutions || diagnosisResult.desiSolutions || [],
-      desiSolutions: diagnosisResult.desiSolutions || diagnosisResult.naturalSolutions || [],
-      preventionTips: diagnosisResult.preventionTips || [],
-      whenToContactExpert: diagnosisResult.whenToContactExpert || diagnosisResult.whenToSeekExpertHelp || '',
-      whenToSeekExpertHelp: diagnosisResult.whenToSeekExpertHelp || diagnosisResult.whenToContactExpert || '',
-      confidence: typeof diagnosisResult.confidenceScore === 'number' ? diagnosisResult.confidenceScore : 0.85,
-      confidenceLevel: diagnosisResult.confidenceLevel || diagnosisResult.confidence || 'medium',
-      treatment: diagnosisResult.treatment || (diagnosisResult.immediateActions ? diagnosisResult.immediateActions.join('\n') : ''),
-      recoveryTips: diagnosisResult.recoveryTips || [],
-      noteIfUnsure: diagnosisResult.noteIfUnsure || '',
-      shareId: shareId,
-      isPublic: true,
-      translations: {},
-    });
+    // 2. Save diagnosis to database with all 9 structured sections (optional if DB is connected)
+    let savedDoc = null;
+    try {
+      const diagnosis = new Diagnosis({
+        userId: userId,
+        plantId: plantId || null,
+        imageUrl: finalImageUrl.length > 5000 ? finalImageUrl.slice(0, 100) + '...' : finalImageUrl,
+        isPlant: diagnosisResult.isPlant !== false,
+        plantName: diagnosisResult.plantName || '',
+        scientificName: diagnosisResult.scientificName || '',
+        isHealthy: Boolean(diagnosisResult.isHealthy),
+        diseaseName: diagnosisResult.diseaseName || (diagnosisResult.isHealthy ? 'Healthy Plant' : 'Condition Detected'),
+        shortExplanation: diagnosisResult.shortExplanation || diagnosisResult.description || '',
+        description: diagnosisResult.description || diagnosisResult.shortExplanation || '',
+        observedSymptoms: diagnosisResult.observedSymptoms || diagnosisResult.symptoms || [],
+        symptoms: diagnosisResult.symptoms || diagnosisResult.observedSymptoms || [],
+        possibleCauses: diagnosisResult.possibleCauses || diagnosisResult.causes || [],
+        causes: diagnosisResult.causes || diagnosisResult.possibleCauses || [],
+        cause: diagnosisResult.cause || '',
+        severityLevel: diagnosisResult.severityLevel || 'Moderate',
+        severityPercentage: typeof diagnosisResult.severityPercentage === 'number' ? diagnosisResult.severityPercentage : 50,
+        severityDescription: diagnosisResult.severityDescription || '',
+        immediateActions: diagnosisResult.immediateActions || diagnosisResult.treatmentSteps || [],
+        treatmentSteps: diagnosisResult.treatmentSteps || diagnosisResult.immediateActions || [],
+        modernSolutions: diagnosisResult.modernSolutions || diagnosisResult.medicalSolutions || [],
+        medicalSolutions: diagnosisResult.medicalSolutions || diagnosisResult.modernSolutions || [],
+        naturalSolutions: diagnosisResult.naturalSolutions || diagnosisResult.desiSolutions || [],
+        desiSolutions: diagnosisResult.desiSolutions || diagnosisResult.naturalSolutions || [],
+        preventionTips: diagnosisResult.preventionTips || [],
+        whenToContactExpert: diagnosisResult.whenToContactExpert || diagnosisResult.whenToSeekExpertHelp || '',
+        whenToSeekExpertHelp: diagnosisResult.whenToSeekExpertHelp || diagnosisResult.whenToContactExpert || '',
+        confidence: typeof diagnosisResult.confidenceScore === 'number' ? diagnosisResult.confidenceScore : 0.85,
+        confidenceLevel: diagnosisResult.confidenceLevel || diagnosisResult.confidence || 'medium',
+        treatment: diagnosisResult.treatment || (diagnosisResult.immediateActions ? diagnosisResult.immediateActions.join('\n') : ''),
+        recoveryTips: diagnosisResult.recoveryTips || [],
+        noteIfUnsure: diagnosisResult.noteIfUnsure || '',
+        shareId: shareId,
+        isPublic: true,
+        translations: {},
+      });
 
-    await diagnosis.save();
-    console.log('💾 Diagnosis saved to database with shareId:', shareId);
+      savedDoc = await diagnosis.save();
+      console.log('💾 Diagnosis saved to database with shareId:', shareId);
 
-    // Trigger badge evaluation
-    badgeService.checkAndAwardBadges(req.user.id).catch(err => console.error('Badge check error:', err));
+      if (userId) {
+        // Trigger badge evaluation
+        badgeService.checkAndAwardBadges(userId).catch(err => console.error('Badge check error:', err));
+      }
+    } catch (saveErr) {
+      console.warn('⚠️ Could not save diagnosis record to DB (proceeding with result):', saveErr.message);
+    }
 
-    // 3. Update plant health status if plantId is provided
-    if (plantId && diagnosisResult.isPlant !== false) {
-      const plant = await Plant.findOne({ _id: plantId, userId: req.user.id });
-      if (plant) {
-        plant.health = diagnosisResult.isHealthy
-          ? 'healthy'
-          : (diagnosisResult.severityLevel === 'Severe' || diagnosisResult.confidenceScore > 0.7)
-          ? 'unhealthy'
-          : 'warning';
-        await plant.save();
-        console.log('🌱 Plant health updated:', plant.health);
+    // 3. Update plant health status if plantId is provided and user is authenticated
+    if (plantId && userId && diagnosisResult.isPlant !== false) {
+      try {
+        const plant = await Plant.findOne({ _id: plantId, userId: userId });
+        if (plant) {
+          plant.health = diagnosisResult.isHealthy
+            ? 'healthy'
+            : (diagnosisResult.severityLevel === 'Severe' || diagnosisResult.confidenceScore > 0.7)
+            ? 'unhealthy'
+            : 'warning';
+          await plant.save();
+          console.log('🌱 Plant health updated:', plant.health);
+        }
+      } catch (plantErr) {
+        console.warn('⚠️ Could not update plant health:', plantErr.message);
       }
     }
 
-    res.status(201).json({
+    const resPayload = {
+      id: savedDoc ? savedDoc._id : null,
+      _id: savedDoc ? savedDoc._id : null,
+      shareId: savedDoc ? savedDoc.shareId : shareId,
+      is_plant: diagnosisResult.isPlant !== false,
+      isPlant: diagnosisResult.isPlant !== false,
+      // Section 1: Diagnosis
+      plant_name: diagnosisResult.plantName || '',
+      plantName: diagnosisResult.plantName || '',
+      scientific_name: diagnosisResult.scientificName || '',
+      scientificName: diagnosisResult.scientificName || '',
+      is_healthy: Boolean(diagnosisResult.isHealthy),
+      isHealthy: Boolean(diagnosisResult.isHealthy),
+      disease: diagnosisResult.diseaseName || (diagnosisResult.isHealthy ? 'Healthy Plant' : 'Condition Detected'),
+      diseaseName: diagnosisResult.diseaseName || (diagnosisResult.isHealthy ? 'Healthy Plant' : 'Condition Detected'),
+      condition_name: diagnosisResult.diseaseName || (diagnosisResult.isHealthy ? 'Healthy Plant' : 'Condition Detected'),
+      short_explanation: diagnosisResult.shortExplanation || diagnosisResult.description || '',
+      shortExplanation: diagnosisResult.shortExplanation || diagnosisResult.description || '',
+      description: diagnosisResult.description || diagnosisResult.shortExplanation || '',
+      // Section 2: Observed Symptoms
+      observed_symptoms: diagnosisResult.observedSymptoms || diagnosisResult.symptoms || [],
+      observedSymptoms: diagnosisResult.observedSymptoms || diagnosisResult.symptoms || [],
+      symptoms: diagnosisResult.symptoms || diagnosisResult.observedSymptoms || [],
+      // Section 3: Possible Cause
+      possible_causes: diagnosisResult.possibleCauses || diagnosisResult.causes || [],
+      possibleCauses: diagnosisResult.possibleCauses || diagnosisResult.causes || [],
+      causes: diagnosisResult.causes || diagnosisResult.possibleCauses || [],
+      cause: diagnosisResult.cause || '',
+      // Section 4: Severity
+      severity_level: diagnosisResult.severityLevel || 'Moderate',
+      severityLevel: diagnosisResult.severityLevel || 'Moderate',
+      severity_percentage: typeof diagnosisResult.severityPercentage === 'number' ? diagnosisResult.severityPercentage : 50,
+      severityPercentage: typeof diagnosisResult.severityPercentage === 'number' ? diagnosisResult.severityPercentage : 50,
+      severity_description: diagnosisResult.severityDescription || '',
+      severityDescription: diagnosisResult.severityDescription || '',
+      // Section 5: Immediate Action
+      immediate_actions: diagnosisResult.immediateActions || diagnosisResult.treatmentSteps || [],
+      immediateActions: diagnosisResult.immediateActions || diagnosisResult.treatmentSteps || [],
+      treatment_steps: diagnosisResult.treatmentSteps || diagnosisResult.immediateActions || [],
+      treatmentSteps: diagnosisResult.treatmentSteps || diagnosisResult.immediateActions || [],
+      treatment: diagnosisResult.treatment || (diagnosisResult.immediateActions ? diagnosisResult.immediateActions.join('\n') : ''),
+      // Section 6: Modern Solution
+      modern_solutions: diagnosisResult.modernSolutions || diagnosisResult.medicalSolutions || [],
+      modernSolutions: diagnosisResult.modernSolutions || diagnosisResult.medicalSolutions || [],
+      medical_solutions: diagnosisResult.medicalSolutions || diagnosisResult.modernSolutions || [],
+      medicalSolutions: diagnosisResult.medicalSolutions || diagnosisResult.modernSolutions || [],
+      // Section 7: Natural Solution
+      natural_solutions: diagnosisResult.naturalSolutions || diagnosisResult.desiSolutions || [],
+      naturalSolutions: diagnosisResult.naturalSolutions || diagnosisResult.desiSolutions || [],
+      desi_solutions: diagnosisResult.desiSolutions || diagnosisResult.naturalSolutions || [],
+      desiSolutions: diagnosisResult.desiSolutions || diagnosisResult.naturalSolutions || [],
+      // Section 8: Prevention
+      prevention_tips: diagnosisResult.preventionTips || [],
+      preventionTips: diagnosisResult.preventionTips || [],
+      // Section 9: When to Contact Expert
+      when_to_seek_expert_help: diagnosisResult.whenToSeekExpertHelp || diagnosisResult.whenToContactExpert || '',
+      whenToSeekExpertHelp: diagnosisResult.whenToSeekExpertHelp || diagnosisResult.whenToContactExpert || '',
+      whenToContactExpert: diagnosisResult.whenToContactExpert || diagnosisResult.whenToSeekExpertHelp || '',
+      // Metadata
+      confidence: diagnosisResult.confidenceLevel || diagnosisResult.confidence || 'medium',
+      confidenceLevel: diagnosisResult.confidenceLevel || diagnosisResult.confidence || 'medium',
+      confidenceScore: diagnosisResult.confidenceScore || 0.85,
+      recovery_tips: diagnosisResult.recoveryTips || [],
+      recoveryTips: diagnosisResult.recoveryTips || [],
+      note_if_unsure: diagnosisResult.noteIfUnsure || '',
+      noteIfUnsure: diagnosisResult.noteIfUnsure || '',
+      imageUrl: finalImageUrl.length > 5000 ? '' : finalImageUrl,
+      isPublic: true,
+      tipsError: tipsError,
+    };
+
+    res.status(200).json({
       success: true,
-      diagnosis: {
-        id: diagnosis._id,
-        _id: diagnosis._id,
-        shareId: diagnosis.shareId,
-        isPlant: diagnosis.isPlant,
-        // Section 1: Diagnosis
-        plantName: diagnosis.plantName,
-        scientificName: diagnosis.scientificName,
-        isHealthy: diagnosis.isHealthy,
-        disease: diagnosis.diseaseName,
-        diseaseName: diagnosis.diseaseName,
-        condition_name: diagnosis.diseaseName,
-        shortExplanation: diagnosis.shortExplanation || diagnosis.description,
-        description: diagnosis.description || diagnosis.shortExplanation,
-        // Section 2: Observed Symptoms
-        observedSymptoms: diagnosis.observedSymptoms,
-        symptoms: diagnosis.symptoms,
-        // Section 3: Possible Cause
-        possibleCauses: diagnosis.possibleCauses,
-        causes: diagnosis.causes,
-        cause: diagnosis.cause,
-        // Section 4: Severity
-        severityLevel: diagnosis.severityLevel,
-        severityPercentage: diagnosis.severityPercentage,
-        severityDescription: diagnosis.severityDescription,
-        // Section 5: Immediate Action
-        immediateActions: diagnosis.immediateActions,
-        treatmentSteps: diagnosis.treatmentSteps,
-        treatment_steps: diagnosis.treatmentSteps,
-        treatment: diagnosis.treatment,
-        // Section 6: Modern Solution
-        modernSolutions: diagnosis.modernSolutions,
-        medicalSolutions: diagnosis.medicalSolutions,
-        medical_solutions: diagnosis.medicalSolutions,
-        // Section 7: Natural Solution
-        naturalSolutions: diagnosis.naturalSolutions,
-        desiSolutions: diagnosis.desiSolutions,
-        desi_solutions: diagnosis.desiSolutions,
-        // Section 8: Prevention
-        preventionTips: diagnosis.preventionTips,
-        prevention_tips: diagnosis.preventionTips,
-        // Section 9: When to Contact Expert
-        whenToContactExpert: diagnosis.whenToContactExpert,
-        whenToSeekExpertHelp: diagnosis.whenToSeekExpertHelp,
-        when_to_seek_expert_help: diagnosis.whenToSeekExpertHelp,
-        // Metadata
-        confidence: diagnosis.confidence,
-        confidenceLevel: diagnosis.confidenceLevel,
-        recoveryTips: diagnosis.recoveryTips,
-        noteIfUnsure: diagnosis.noteIfUnsure,
-        note_if_unsure: diagnosis.noteIfUnsure,
-        imageUrl: diagnosis.imageUrl,
-        isPublic: diagnosis.isPublic,
-        tipsError: tipsError,
-      },
+      diagnosis: resPayload,
+      ...resPayload
     });
   } catch (error) {
     console.error('❌ Diagnosis error:', error);

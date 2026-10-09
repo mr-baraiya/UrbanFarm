@@ -5,7 +5,7 @@ const DiagnosisSchema = new mongoose.Schema(
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: true,
+      required: false,
     },
     plantId: {
       type: mongoose.Schema.Types.ObjectId,

@@ -19,12 +19,17 @@ const marketRoutes = require('./marketRoutes');
 const iotRoutes = require('./iotRoutes');
 
 const { getAiAdvice } = require('../controllers/wateringController');
+const { diagnosePlant } = require('../controllers/diseaseController');
+const { optionalProtect } = require('../middleware/authMiddleware');
+const { uploadSingle, handleUploadError } = require('../middleware/uploadMiddleware');
+const { aiLimiter } = require('../middleware/rateLimiter');
 
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/gardens', gardenRoutes);
 router.use('/plants', plantRoutes);
 router.use('/disease', diseaseRoutes);
+router.post('/analyze', optionalProtect, aiLimiter, uploadSingle, handleUploadError, diagnosePlant);
 router.use('/crops', cropRoutes);
 router.use('/watering', wateringRoutes);
 router.post('/ai-advice', getAiAdvice);
