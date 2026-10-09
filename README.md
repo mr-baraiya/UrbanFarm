@@ -14,6 +14,17 @@
 
 ---
 
+## Meet the Team
+
+| Member | Role | Core Contributions & Responsibilities |
+|---|---|---|
+| **Saurabh Singh** | **Team Leader & Frontend/UI-UX Developer** | • Project Leadership & Sprint Coordination<br>• API Integration & Comprehensive Testing<br>• Frontend Component Development<br>• UI / UX Design & Responsive Layouts |
+| **Vishal Baraiya** | **Full Stack Developer & IoT Specialist** | • Entire Backend Architecture & Database Design<br>• Complete Frontend Engineering & State Management<br>• IoT Telemetry, Sensor Integration & Wokwi Simulation<br>• Cloudflare & Vercel Web Deployment & GitHub Management |
+| **Dhruvrajsinh Zala** | **Research, QA & Presentation Lead** | • Project Presentation (PPT) & Showcase Pitch<br>• Quality Assurance & Bug Fixing<br>• Domain & Agricultural Market Research<br>• Documentation & Workflow Analysis |
+| **Pujan Ajmera** | **AI / ML & Intelligence Specialist** | • AI / ML Model Selection & Integration<br>• Google Gemini 24/7 Krishi Chatbot Engine<br>• Plant.id Computer Vision Disease Diagnosis Pipeline<br>• Multilingual Agronomic Prompt Engineering |
+
+---
+
 ## Comprehensive Features List
 
 ### 1. AI Plant Disease Diagnosis & Leaf Scanner
@@ -239,17 +250,6 @@ UrbanFarm natively supports:
 - **Gujarati (`gu` - ગુજરાતી)**
 
 Language selection is preserved across user sessions in `localStorage` and automatically updates HTML `lang` attributes for optimal accessibility and SEO.
-
----
-
-## Meet the Team
-
-| Member | Role | Core Contributions & Responsibilities |
-|---|---|---|
-| **Saurabh Singh** ⭐ | **Team Leader & Frontend/UI-UX Developer** | • Project Leadership & Sprint Coordination<br>• API Integration & Comprehensive Testing<br>• Frontend Component Development<br>• UI / UX Design & Responsive Layouts |
-| **Vishal Baraiya** | **Full Stack Developer & IoT Specialist** | • Entire Backend Architecture & Database Design<br>• Complete Frontend Engineering & State Management<br>• IoT Telemetry, Sensor Integration & Wokwi Simulation<br>• Cloudflare & Vercel Web Deployment & GitHub Management |
-| **Dhruvrajsinh Zala** | **Research, QA & Presentation Lead** | • Project Presentation (PPT) & Showcase Pitch<br>• Quality Assurance & Bug Fixing<br>• Domain & Agricultural Market Research<br>• Documentation & Workflow Analysis |
-| **Pujan Ajmera** | **AI / ML & Intelligence Specialist** | • AI / ML Model Selection & Integration<br>• Google Gemini 24/7 Krishi Chatbot Engine<br>• Plant.id Computer Vision Disease Diagnosis Pipeline<br>• Multilingual Agronomic Prompt Engineering |
 
 ---
 
