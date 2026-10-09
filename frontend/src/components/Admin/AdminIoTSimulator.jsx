@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Cpu, Wifi, WifiOff, Sun, CloudRain, Flame, Activity, RefreshCw, CheckCircle2 } from 'lucide-react';
 import iotService from '../../services/iotService';
+import { getPlants } from '../../services/plantService';
 import { toast } from 'react-toastify';
 import './AdminIoTSimulator.css';
 
 const AdminIoTSimulator = () => {
   const { t } = useTranslation();
   const [devices, setDevices] = useState([]);
+  const [plants, setPlants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [simulating, setSimulating] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState('ESP32-TOMATO-01');
@@ -18,13 +20,15 @@ const AdminIoTSimulator = () => {
   const loadIoTData = async (isInitial = false) => {
     try {
       if (isInitial) setLoading(true);
-      const [devRes, sensorRes] = await Promise.all([
+      const [devRes, sensorRes, plantList] = await Promise.all([
         iotService.getDevices().catch(() => ({ devices: [] })),
-        iotService.getLatestPlantSensors(selectedPlant).catch(() => ({ reading: null }))
+        iotService.getLatestPlantSensors(selectedPlant).catch(() => ({ reading: null })),
+        getPlants().catch(() => [])
       ]);
 
       const devList = devRes?.devices || [];
       setDevices(devList);
+      setPlants(plantList || []);
       setLatestReading(sensorRes?.reading || null);
 
       const targetDev = devList.find(d => d.deviceId === selectedDevice) || sensorRes?.device;
@@ -35,6 +39,23 @@ const AdminIoTSimulator = () => {
       console.warn('Error loading admin IoT management:', err);
     } finally {
       if (isInitial) setLoading(false);
+    }
+  };
+
+  const handleDeviceChange = (devId) => {
+    setSelectedDevice(devId);
+    const targetDev = devices.find(d => d.deviceId === devId);
+    if (targetDev) {
+      if (targetDev.plantCustomId) {
+        setSelectedPlant(targetDev.plantCustomId);
+      } else if (targetDev.plantId?._id) {
+        setSelectedPlant(targetDev.plantId._id);
+      } else if (typeof targetDev.plantId === 'string') {
+        setSelectedPlant(targetDev.plantId);
+      }
+      if (targetDev.activeScenario) {
+        setActiveScenario(targetDev.activeScenario);
+      }
     }
   };
 
@@ -159,10 +180,22 @@ const AdminIoTSimulator = () => {
             <label className="admin-field-label">{t('iot.targetVirtualDevice')}</label>
             <select
               value={selectedDevice}
-              onChange={(e) => setSelectedDevice(e.target.value)}
+              onChange={(e) => handleDeviceChange(e.target.value)}
               className="admin-field-select"
             >
-              <option value="ESP32-TOMATO-01">ESP32-TOMATO-01 (Wokwi Virtual Node)</option>
+              {devices.length > 0 ? (
+                devices.map((d) => {
+                  const devLabel = d.deviceName || d.deviceType || 'Virtual Node';
+                  const statusLabel = d.status ? ` • ${d.status.toUpperCase()}` : '';
+                  return (
+                    <option key={d._id || d.deviceId} value={d.deviceId}>
+                      {d.deviceId} ({devLabel}{statusLabel})
+                    </option>
+                  );
+                })
+              ) : (
+                <option value="ESP32-TOMATO-01">ESP32-TOMATO-01 (Wokwi Virtual Node)</option>
+              )}
             </select>
           </div>
 
@@ -174,6 +207,13 @@ const AdminIoTSimulator = () => {
               className="admin-field-select"
             >
               <option value="tomato-01">tomato-01 (Tomato Plant)</option>
+              {plants
+                .filter((p) => p._id !== 'tomato-01')
+                .map((p) => (
+                  <option key={p._id} value={p._id}>
+                    {p.name} {p.variety ? `(${p.variety})` : ''}
+                  </option>
+                ))}
             </select>
           </div>
         </div>

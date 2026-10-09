@@ -1,10 +1,33 @@
 import api from './api';
 
+export const WOKWI_SENSOR_URL = 'https://wokwi.com/projects/477224732988505089';
+
+let lastOfflineLogTime = 0;
+export const notifySensorOfflineInConsole = (customMessage) => {
+  const now = Date.now();
+  // Log once every 10 seconds to avoid console spamming on rapid polling
+  if (now - lastOfflineLogTime > 10000) {
+    lastOfflineLogTime = now;
+    const msg = customMessage || `please on sensor on this link: ${WOKWI_SENSOR_URL}`;
+    console.warn(
+      `%c[IoT Sensor Offline]%c ${msg}`,
+      'background: #e63946; color: white; font-weight: bold; padding: 2px 6px; border-radius: 4px;',
+      'color: #e63946; font-weight: bold; margin-left: 6px;'
+    );
+    console.log(`please on sensor on this link: ${WOKWI_SENSOR_URL}`);
+  }
+};
+
 export const iotService = {
   // Get devices accessible to user/admin
   getDevices: async () => {
-    const res = await api.get('/iot/devices');
-    return res.data;
+    try {
+      const res = await api.get('/iot/devices');
+      return res.data;
+    } catch (err) {
+      notifySensorOfflineInConsole();
+      throw err;
+    }
   },
 
   // Get device details
@@ -15,8 +38,16 @@ export const iotService = {
 
   // Get latest plant sensor readings
   getLatestPlantSensors: async (plantId) => {
-    const res = await api.get(`/iot/plants/${plantId}/latest`);
-    return res.data;
+    try {
+      const res = await api.get(`/iot/plants/${plantId}/latest`);
+      if (res.data && (res.data.isOnline === false || !res.data.reading)) {
+        notifySensorOfflineInConsole();
+      }
+      return res.data;
+    } catch (err) {
+      notifySensorOfflineInConsole();
+      throw err;
+    }
   },
 
   // Get sensor history (1h, 24h, 7d)
@@ -27,8 +58,16 @@ export const iotService = {
 
   // Get status summary for a plant
   getPlantIoTStatus: async (plantId) => {
-    const res = await api.get(`/iot/plants/${plantId}/status`);
-    return res.data;
+    try {
+      const res = await api.get(`/iot/plants/${plantId}/status`);
+      if (res.data && (res.data.isOnline === false || !res.data.reading)) {
+        notifySensorOfflineInConsole();
+      }
+      return res.data;
+    } catch (err) {
+      notifySensorOfflineInConsole();
+      throw err;
+    }
   },
 
   // Register or link device

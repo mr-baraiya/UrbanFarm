@@ -842,6 +842,18 @@ const TomatoIoTHub = ({
 
   // Safe Actuation Trigger Flow
   const handleDispenseClick = (volume) => {
+    if (decision.recommendationMl === 0) {
+      setActionFeedback({
+        type: 'info',
+        text: L(
+          'જમીનમાં ભેજ શ્રેષ્ઠ શ્રેણીમાં છે (50%-70%). મૂળના રક્ષણ માટે વધારાનું પાણી આપવાની જરૂર નથી.',
+          'मिट्टी में नमी उत्तम स्तर पर है (50%-70%)। जड़ों की सुरक्षा के लिए अतिरिक्त पानी की आवश्यकता नहीं है।',
+          'Soil moisture is optimal (50%-70%). Extra watering is paused to protect root health.'
+        )
+      });
+      return;
+    }
+
     const dose = Number(volume);
     if (!dose || dose <= 0) return;
 
@@ -958,6 +970,7 @@ const TomatoIoTHub = ({
   const plantName = plant?.name || 'Tomato (Balcony Garden)';
   const plantVariety = plant?.variety || 'Sweet 100 Cherry & Roma';
   const selectedDay = scheduleList[selectedDayIndex] || scheduleList[0];
+  const isNoWaterNeeded = decision.recommendationMl === 0;
 
   const lastWateredDateDisplay = lastWateredLog.date === 'Today' || lastWateredLog.date === 'આજે' || lastWateredLog.date === 'आज'
     ? L('આજે', 'आज', 'Today')
@@ -1292,17 +1305,32 @@ const TomatoIoTHub = ({
               </div>
             </div>
 
+            {isNoWaterNeeded && (
+              <div className="controller-rest-notice">
+                <CheckCircle2 size={16} className="rest-notice-icon" />
+                <span>
+                  {L(
+                    'જમીનમાં ભેજ પૂરતો છે — મૂળના સારા શ્વસન માટે વધારાની સિંચાઈ બંધ રાખેલ છે.',
+                    'मिट्टी में नमी पर्याप्त है — जड़ों के अच्छे स्वास्थ्य के लिए अतिरिक्त सिंचाई लॉक है।',
+                    'Soil moisture is optimal — Extra watering is locked to prevent root rot.'
+                  )}
+                </span>
+              </div>
+            )}
+
             <div className="touch-dose-grid">
               {[
                 { ml: 100, label: L('હળવું પાણી (100 ml)', 'हल्की सिंचाई (100 ml)', 'Quick Sip (100ml)') },
                 { ml: 250, label: L('સામાન્ય ડ્રિપ (250 ml)', 'मानक ड्रिप (250 ml)', 'Standard Drip (250ml)') },
-                { ml: 500, label: L('ઊંડી સિંચાઈ (500 ml)', 'गहरी सिंचाई (500 ml)', 'Deep Soak (500ml)') }
+                { ml: 500, label: L('ઊંડી સિંચાઈ (500 ml)', 'ગહરી સિંચાઈ (500 ml)', 'Deep Soak (500ml)') }
               ].map((d) => (
                 <button
                   key={d.ml}
                   type="button"
-                  className={`dose-pill-btn ${selectedDose === d.ml ? 'active' : ''}`}
+                  disabled={isNoWaterNeeded || isPumping}
+                  className={`dose-pill-btn ${selectedDose === d.ml && !isNoWaterNeeded ? 'active' : ''}`}
                   onClick={() => {
+                    if (isNoWaterNeeded) return;
                     setSelectedDose(d.ml);
                     setCustomDose('');
                   }}
@@ -1317,7 +1345,12 @@ const TomatoIoTHub = ({
                 type="number"
                 min="20"
                 max={DAILY_MAX_SAFE_VOLUME_ML}
-                placeholder={L('અન્ય માત્રા ml (દા.ત. 350)', 'अन्य मात्रा ml (उदा. 350)', 'Custom ml (e.g. 350)')}
+                disabled={isNoWaterNeeded || isPumping}
+                placeholder={
+                  isNoWaterNeeded
+                    ? L('ભેજ પૂરતો છે — સિંચાઈ લોક છે', 'नमी पर्याप्त है — सिंचाई लॉक है', 'Moisture optimal — Watering locked')
+                    : L('અન્ય માત્રા ml (દા.ત. 350)', 'अन्य मात्रा ml (उदा. 350)', 'Custom ml (e.g. 350)')
+                }
                 value={customDose}
                 onChange={(e) => {
                   setCustomDose(e.target.value);
@@ -1329,14 +1362,16 @@ const TomatoIoTHub = ({
 
             <button
               type="button"
-              disabled={isPumping}
-              className="btn-main-dispense"
+              disabled={isPumping || isNoWaterNeeded}
+              className={`btn-main-dispense ${isNoWaterNeeded ? 'btn-no-water-needed' : ''}`}
               onClick={() => handleDispenseClick(customDose ? Number(customDose) : selectedDose)}
             >
-              <RiDropFill size={19} />
+              {isNoWaterNeeded ? <CheckCircle2 size={19} /> : <RiDropFill size={19} />}
               <span>
                 {isPumping
                   ? `${L('પાણી અપાઈ રહ્યું છે...', 'पानी दिया जा रहा है...', 'Dispensing...')} ${Math.round(pumpProgress)}%`
+                  : isNoWaterNeeded
+                  ? L('આજે પાણીની જરૂર નથી (ભેજ પૂરતો છે)', 'आज पानी की आवश्यकता नहीं है (नमी पर्याप्त है)', 'No Water Needed Today (Moisture Optimal)')
                   : `${L('હમણાં પાણી આપો', 'अभी पानी दें', 'Dispense Water Now')} (${customDose || selectedDose} ml)`}
               </span>
             </button>
@@ -1345,6 +1380,7 @@ const TomatoIoTHub = ({
               <button
                 type="button"
                 className="btn-manual-action"
+                disabled={isPumping}
                 onClick={handleWateredByHand}
               >
                 <CheckCircle2 size={15} />
@@ -1353,11 +1389,12 @@ const TomatoIoTHub = ({
 
               <button
                 type="button"
-                className="btn-manual-action btn-skip"
+                className={`btn-manual-action btn-skip ${isNoWaterNeeded ? 'active-skip' : ''}`}
+                disabled={isPumping}
                 onClick={handleSkipToday}
               >
                 <X size={15} />
-                <span>{L('આજે પાણી ન આપો', 'आज पानी छोड़ें', 'Skip Today')}</span>
+                <span>{isNoWaterNeeded ? L('સિંચાઈ મુલતવી છે', 'सिंचाई रोकी गई है', 'Rest Day') : L('આજે પાણી ન આપો', 'आज पानी छोड़ें', 'Skip Today')}</span>
               </button>
             </div>
 
