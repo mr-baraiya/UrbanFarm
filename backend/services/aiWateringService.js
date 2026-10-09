@@ -185,6 +185,320 @@ function generateRuleBasedSchedule(plant, weatherData, iotData) {
 }
 
 /**
+ * Precision IoT-driven Disease Prediction & Early Prevention Engine
+ * Correlates real-time sensor metrics (Moisture, Temp, Humidity, Light, Rain)
+ * to anticipate physiological disorders & fungal pathogens before symptoms manifest.
+ * "Prevention is better than cure" (નિવારણ એ ઉપચાર કરતાં શ્રેષ્ઠ છે / इलाज से रोकथाम बेहतर है)
+ */
+function predictDiseaseRisks(sensorData = {}, weather = {}, forecast = null, lang = 'gu') {
+  const moisture = Number(sensorData.soilMoisture ?? 40.6);
+  const plantTemp = Number(sensorData.temperature ?? 29.7);
+  const humidity = Number(sensorData.humidity ?? 46.4);
+  const outsideTemp = Math.round(weather?.main?.temp || 36);
+  const lightLux = Number(sensorData.light ?? 669);
+  const rainChance = Number(forecast?.list?.[0]?.pop ? Math.round(forecast.list[0].pop * 100) : 10);
+
+  const predictions = [];
+
+  // 1. Blossom End Rot (BER) / કેલ્શિયમની ખામી અને ફળનો સડો
+  // Triggered by low moisture (< 48%) or erratic watering + heat (>32°C) during flowering/fruiting
+  if (moisture < 48 || (outsideTemp >= 33 && moisture < 52)) {
+    const riskLevel = moisture < 38 ? 'High' : 'Medium';
+    const riskScore = moisture < 38 ? 88 : 64;
+    predictions.push({
+      id: 'blossom_end_rot',
+      name: lang === 'gu'
+        ? 'બ્લોસમ એન્ડ રોટ (ફળનો તળિયેથી સડો / કેલ્શિયમ ખામી)'
+        : lang === 'hi'
+        ? 'ब्लॉसम एंड रॉट (फल का नीचे से सड़ना / कैल्शियम की कमी)'
+        : 'Blossom End Rot (Distal Fruit Necrosis & Calcium Deficiency)',
+      riskLevel,
+      riskScore,
+      statusLabel: lang === 'gu' ? (riskLevel === 'High' ? 'ઉચ્ચ જોખમ' : 'સંભવિત જોખમ') : lang === 'hi' ? (riskLevel === 'High' ? 'उच्च जोखिम' : 'संभावित जोखिम') : (riskLevel === 'High' ? 'High Threat' : 'Potential Risk'),
+      triggerReason: lang === 'gu'
+        ? `જમીનમાં ઓછો ભેજ (${moisture.toFixed(1)}%) અને ${outsideTemp}°C ગરમીના કારણે મૂળિયાંમાંથી કેલ્શિયમનું વહન અટકે છે, જેનાથી ફળના તળિયા કાળા પડી સડી શકે છે.`
+        : lang === 'hi'
+        ? `मिट्टी में कम नमी (${moisture.toFixed(1)}%) और ${outsideTemp}°C गर्मी के कारण जड़ों से फल तक कैल्शियम का संचरण रुक जाता है, जिससे फल नीचे से काला पड़ सकता है।`
+        : `Low root-zone moisture (${moisture.toFixed(1)}%) combined with ${outsideTemp}°C ambient heat halts xylem calcium transpiration to developing tomato tips.`,
+      iotTriggerText: lang === 'gu'
+        ? `જમીનનો ભેજ (${moisture.toFixed(1)}% < 50% લક્ષ્ય)`
+        : lang === 'hi'
+        ? `मिट्टी की नमी (${moisture.toFixed(1)}% < 50% लक्ष्य)`
+        : `Soil Moisture (${moisture.toFixed(1)}% < 50% target)`,
+      prevention: lang === 'gu'
+        ? [
+            'સિંચાઈમાં એકસમાન 50-70% ભેજ જાળવી રાખો (ક્યારેય માટી સાવ સૂકી ન થવા દો).',
+            'કૂંડામાં 2 ઇંચ લાકડાનો વહેર, કોકોપીટ કે સૂકા પાંદડાનું મલ્ચિંગ કરો જેથી ભેજ જળવાય.',
+            'દર 15 દિવસે કૂંડામાં અડધી ચમચી ચૂનાનું પાણી (Calcium) અથવા બોનમીલ/ઈંડાના છોતરાંનો પાવડર ઉમેરો.'
+          ]
+        : lang === 'hi'
+        ? [
+            'सिंचाई में एकसमान 50-70% नमी बनाए रखें (मिट्टी को कभी एकदम सूखने न दें)।',
+            'गमले में 2 इंच सूखी घास या कोकोपीट की मल्चिंग करें ताकि नमी सुरक्षित रहे।',
+            'हर 15 दिन में गमले में आधा चम्मच बुझा हुआ चूना पानी (कैल्शियम) या बोनमील मिलाएं।'
+          ]
+        : [
+            'Maintain steady 50–70% root-zone moisture; avoid dramatic wet-to-bone-dry moisture swings.',
+            'Apply a 2-inch organic straw/cocopeat mulch layer over the container soil to conserve moisture.',
+            'Supplement root zone with diluted calcium nitrate, gypsum, or bone meal/eggshell tea bi-weekly.'
+          ],
+      cureTip: lang === 'gu'
+        ? 'અસરગ્રસ્ત કાળા થયેલાં ફળ તાત્કાલિક તોડી લો જેથી નવો ફાલ સ્વસ્થ વિકસે, અને સાંજે મૂળમાં હળવું કેલ્શિયમ ડ્રિપ આપો.'
+        : lang === 'hi'
+        ? 'प्रभावित काले फल तुरंत तोड़कर हटा दें ताकि नया फल स्वस्थ बने, और शाम को जड़ों में हल्का कैल्शियम घोल दें।'
+        : 'Prune away any fruits showing sunken black bases so the plant redirects calcium to new setting fruit; apply evening root calcium drip.'
+    });
+  }
+
+  // 2. Early Blight & Foliar Fungi (Alternaria solani / પાંદડાના કાળા ચકામા)
+  // Triggered by high humidity (> 65%) or warm humid microclimate
+  if (humidity >= 65 || (rainChance >= 40 && plantTemp >= 22)) {
+    const riskLevel = humidity >= 78 ? 'High' : 'Medium';
+    const riskScore = humidity >= 78 ? 82 : 60;
+    predictions.push({
+      id: 'early_blight',
+      name: lang === 'gu'
+        ? 'અર્લી બ્લાઇટ અને પાંદડાના કાળા ચકામા (ફૂગજન્ય રોગ)'
+        : lang === 'hi'
+        ? 'अगेती झुलसा व पत्ती धब्बा (फफूंद रोग)'
+        : 'Early Blight & Foliar Fungal Spot (Alternaria)',
+      riskLevel,
+      riskScore,
+      statusLabel: lang === 'gu' ? (riskLevel === 'High' ? 'ઉચ્ચ ફૂગ જોખમ' : 'સંભવિત ફૂગ જોખમ') : lang === 'hi' ? (riskLevel === 'High' ? 'उच्च फफूंद जोखिम' : 'संभावित फफूंद जोखिम') : (riskLevel === 'High' ? 'High Fungal Risk' : 'Fungal Spore Risk'),
+      triggerReason: lang === 'gu'
+        ? `હવામાં ઊંચો ભેજ (${humidity.toFixed(1)}%) અને ${plantTemp.toFixed(1)}°C તાપમાન ફૂગના બીજાણુઓ (Spores) ફેલાવા અને પાંદડા પર કાળા ગોળ ચકામા કરવા માટે અનુકૂળ છે.`
+        : lang === 'hi'
+        ? `हवा में अधिक नमी (${humidity.toFixed(1)}%) और ${plantTemp.toFixed(1)}°C तापमान फफूंद बीजाणुओं के अंकुरण और पत्तियों पर काले छल्लेदार धब्बों के अनुकूल है।`
+        : `High air humidity (${humidity.toFixed(1)}%) combined with ${plantTemp.toFixed(1)}°C creates a prime humid microclimate for Alternaria spore germination.`,
+      iotTriggerText: lang === 'gu'
+        ? `હવામાં ભેજ (${humidity.toFixed(1)}% > 65% જોખમ રેન્જ)`
+        : lang === 'hi'
+        ? `हवा में नमी (${humidity.toFixed(1)}% > 65% जोखिम स्तर)`
+        : `Air Humidity (${humidity.toFixed(1)}% > 65% threshold)`,
+      prevention: lang === 'gu'
+        ? [
+            'પાણી હંમેશા માત્ર મૂળમાં જ આપો — પાંદડા પર પાણી છાંટવાનું સદંતર ટાળો.',
+            'છોડના તળિયાના 15 સે.મી. સુધીના નીચેના જૂના પાંદડા કાપી નાખો જેથી હવા-ઉજાસ રહે અને માટીના છાંટા ન ઉડે.',
+            'દર 10 દિવસે સવારે ઓર્ગેનિક લીમડાનું તેલ (Neem Oil 5ml/L) અથવા બેકિંગ સોડા (3g/L) નો સાવચેતીરૂપ છંટકાવ કરો.'
+          ]
+        : lang === 'hi'
+        ? [
+            'पानी हमेशा केवल जड़ों में ड्रिप से दें — पत्तियों पर पानी छिड़कने से बचें।',
+            'पौधे के निचले 15 सेमी तक की पुरानी पत्तियों की छंटाई करें ताकि हवा का आवागमन बना रहे।',
+            'हर 10 दिन में सुबह ऑर्गेनिक नीम का तेल (5ml/L) या बेकिंग सोडा (3g/L) का बचाव स्प्रे करें।'
+          ]
+        : [
+            'Strictly apply water to root base via drip; never wet foliage or splash potting soil onto stems.',
+            'Prune off bottom 15–20 cm of lower foliage to maximize airflow and prevent soilborne splashback.',
+            'Apply preventative organic cold-pressed Neem oil (5ml/L) or baking soda spray (3g/L) every 10–14 days in early morning.'
+          ],
+      cureTip: lang === 'gu'
+        ? 'પીળા કે કાળા ગોળ ચકામાવાળા પાંદડા કાપીને કચરાપેટીમાં નાખી દો (ખાતરમાં ન નાખશો), અને ટ્રાઈકોડર્મા કે ઓર્ગેનિક ફૂગનાશકનો છંટકાવ કરો.'
+        : lang === 'hi'
+        ? 'काले छल्लेदार धब्बों वाली पत्तियों को काटकर फेंक दें (कम्पोस्ट में न डालें), और ट्राइकोडर्मा या जैविक फफूंदनाशक का स्प्रे करें।'
+        : 'Immediately snip and bag infected lower leaves with concentric spots (do not compost); spray organic bio-fungicide (Trichoderma or Copper).'
+    });
+  }
+
+  // 3. Root Rot & Soil Hypoxia (મૂળનો સડો અને ઓક્સિજનની ખામી / जड़ गलन)
+  // Triggered by moisture > 70% or overwatering
+  if (moisture >= 70) {
+    const riskLevel = moisture >= 78 ? 'High' : 'Medium';
+    const riskScore = moisture >= 78 ? 86 : 62;
+    predictions.push({
+      id: 'root_rot',
+      name: lang === 'gu'
+        ? 'મૂળનો સડો અને ઓક્સિજન અવરોધ (Root Rot & Hypoxia)'
+        : lang === 'hi'
+        ? 'जड़ गलन और ऑक्सीजन अवरोध (Root Rot & Hypoxia)'
+        : 'Root Rot & Soil Hypoxia (Pythium / Anaerobic Suffocation)',
+      riskLevel,
+      riskScore,
+      statusLabel: lang === 'gu' ? (riskLevel === 'High' ? 'જળબંબાકાર ચેતવણી' : 'વધુ પડતો ભેજ') : lang === 'hi' ? (riskLevel === 'High' ? 'अति-नमी चेतावनी' : 'अधिक नमी') : (riskLevel === 'High' ? 'Over-Saturation Alert' : 'Moisture Excess'),
+      triggerReason: lang === 'gu'
+        ? `જમીનમાં વધુ પડતો ભેજ (${moisture.toFixed(1)}%) છે, જેનાથી માટીમાંથી ઓક્સિજન ખલાસ થઈ મૂળ સડવા લાગે છે.`
+        : lang === 'hi'
+        ? `मिट्टी में अत्यधिक नमी (${moisture.toFixed(1)}%) है, जिससे जड़ों को ऑक्सीजन नहीं मिलती और जड़ सड़न शुरू हो जाती है।`
+        : `Root zone saturation (${moisture.toFixed(1)}%) displaces air pockets, suffocating feeder roots in anaerobic conditions.`,
+      iotTriggerText: lang === 'gu'
+        ? `જમીનનો ભેજ (${moisture.toFixed(1)}% > 70% મહત્તમ)`
+        : lang === 'hi'
+        ? `मिट्टी की नमी (${moisture.toFixed(1)}% > 70% अधिकतम)`
+        : `Soil Saturation (${moisture.toFixed(1)}% > 70% ceiling)`,
+      prevention: lang === 'gu'
+        ? [
+            'સિંચાઈ તુરંત રોકી દો અને માટી ઉપરથી 1 ઇંચ સુકાય ત્યાં સુધી પાણી ન આપો.',
+            'કૂંડાના તળિયાના ડ્રેનેજ હોલ તપાસો અને તળીયાની પ્લેટમાં ભરાયેલું વધારાનું પાણી ફેંકી દો.',
+            'કૂંડાની ઉપરની માટીને નાની ખુરપીથી હળવેથી ઢીલી કરો જેથી હવા અંદર ઉતરે.'
+          ]
+        : lang === 'hi'
+        ? [
+            'सिंचाई तुरंत रोकें और ऊपरी 1 इंच मिट्टी सूखने तक पानी न दें।',
+            'गमले के ड्रेनेज छेद की जांच करें और ड्रेन ट्रे से रुका हुआ पानी तुरंत निकालें।',
+            'गमले की ऊपरी मिट्टी की हल्की गुड़ाई करें ताकि जड़ों तक हवा पहुंच सके।'
+          ]
+        : [
+            'Pause all irrigation immediately until top 2 cm of potting mix is dry to the touch.',
+            'Ensure container bottom drainage holes are unobstructed and empty standing water from saucer.',
+            'Gently aerate top 1 inch of soil with a hand trowel to introduce atmospheric oxygen.'
+          ],
+      cureTip: lang === 'gu'
+        ? 'જો છોડ ઢીલો પડી જાય, તો માટીમાં ટ્રાઈકોડર્મા (Trichoderma viride) 5 ગ્રામ ઓગાળીને રેડો જેથી હાનિકારક ફૂગ નાશ પામે.'
+        : lang === 'hi'
+        ? 'यदि पौधा मुरझाए, तो मिट्टी में ट्राइकोडर्मा (5 ग्राम/लीटर) का घोल डालें ताकि सड़न पैदा करने वाले जीवाणु खत्म हों।'
+        : 'If wilting persists despite wet soil, drench root zone with bio-fungicide (Trichoderma viride) or 3% hydrogen peroxide (diluted 1:10).'
+    });
+  }
+
+  // 4. Heat Induced Flower Drop & Sunscald (તાપમાનથી ફૂલ ખરી પડવા / अत्यधिक गर्मी से फूल झड़ना)
+  // Triggered by temp >= 35°C or strong sun
+  if (outsideTemp >= 35 || plantTemp >= 35 || (plantTemp >= 32 && lightLux > 18000)) {
+    const riskLevel = outsideTemp >= 37 ? 'High' : 'Medium';
+    const riskScore = outsideTemp >= 37 ? 84 : 62;
+    predictions.push({
+      id: 'heat_flower_drop',
+      name: lang === 'gu'
+        ? 'ગરમીથી ફૂલ ખરી પડવા અને ફળ બળવું (Heat Stress & Blossom Drop)'
+        : lang === 'hi'
+        ? 'तेज धूप से फूल झड़ना व फल झुलसना (Heat Stress & Blossom Drop)'
+        : 'High Heat Flower Drop & Fruit Sunscald',
+      riskLevel,
+      riskScore,
+      statusLabel: lang === 'gu' ? (riskLevel === 'High' ? 'તીવ્ર લૂ/તાપમાન જોખમ' : 'મધ્યમ ગરમી તણાવ') : lang === 'hi' ? (riskLevel === 'High' ? 'अत्यधिक गर्मी चेतावनी' : 'मध्यम ताप तनाव') : (riskLevel === 'High' ? 'Severe Thermal Risk' : 'Moderate Heat Stress'),
+      triggerReason: lang === 'gu'
+        ? `બપોરનું તાપમાન ${outsideTemp}°C છે. 35°C થી વધુ તાપમાને ટામેટાના પરાગરજ (Pollen) સુકાઈ જતાં ફૂલ ફળમાં ફેરવાયા વગર ખરી પડે છે.`
+        : lang === 'hi'
+        ? `दोपहर का तापमान ${outsideTemp}°C है। 35°C से अधिक तापमान पर परागकण सूखने से फूल बिना फल बने गिर जाते हैं।`
+        : `Ambient temp (${outsideTemp}°C) exceeds 35°C, causing pollen desiccation and blossom drop before fruit setting.`,
+      iotTriggerText: lang === 'gu'
+        ? `તાપમાન (${outsideTemp}°C > 35°C થ્રેશોલ્ડ)`
+        : lang === 'hi'
+        ? `तापमान (${outsideTemp}°C > 35°C सीमा)`
+        : `Air Temp (${outsideTemp}°C > 35°C threshold)`,
+      prevention: lang === 'gu'
+        ? [
+            'બાલ્કનીમાં 50% ગ્રીન શેડ નેટ લગાવો જેથી બપોરનો તીવ્ર તડકો છોડને ન દાઝે.',
+            'ક્યારેય બપોરે પાણી ન આપો; સિંચાઈ માત્ર સાંજે 6:30 પછી અથવા વહેલી સવારે કરો.',
+            'છોડની આસપાસની ફ્લોરિંગ પર પાણી છાંટી ઠંડક જાળવો (છોડના ફૂલ પર પાણી ન છાંટવું).'
+          ]
+        : lang === 'hi'
+        ? [
+            'बालकनी में 50% ग्रीन शेड नेट लगाएं ताकि दोपहर की सीधी धूप से बचाव हो।',
+            'दोपहर में कभी पानी न दें; सिंचाई केवल शाम 6:30 के बाद या सुबह करें।',
+            'गमले के आसपास के फर्श पर पानी छिड़ककर ठंडक बनाए रखें।'
+          ]
+        : [
+            'Erect 50% green agro-shade netting to filter fierce midday UV radiation.',
+            'Avoid midday irrigation (prevents root scalding); water post 6:30 PM or pre-dawn.',
+            'Keep ambient balcony floor humidified by misting surrounding walls/flooring.'
+          ],
+      cureTip: lang === 'gu'
+        ? 'સવારે 7 થી 9 વાગ્યા વચ્ચે ફૂલની ડાળીઓને હળવેથી હલાવો જેથી કુદરતી પરાગનયન (Pollination) સરળતાથી થઈ જાય.'
+        : lang === 'hi'
+        ? 'सुबह 7 से 9 बजे के बीच फूलों के गुच्छों को हल्के से हिलाएं ताकि परागण (Pollination) ठीक से हो सके।'
+        : 'Gently vibrate flower trusses between 7–9 AM to assist vibration-based self-pollination before peak daily heat.'
+    });
+  }
+
+  // 5. Fruit Splitting / Cracking (ફળ ફાટવાનું જોખમ / फलों का फटना)
+  // Triggered by dry soil + sudden rain forecast or uneven irrigation
+  if ((moisture < 45 && rainChance >= 50) || (moisture < 35 && outsideTemp >= 32)) {
+    predictions.push({
+      id: 'fruit_splitting',
+      name: lang === 'gu'
+        ? 'ફળ ફાટવું અને તિરાડો પડવી (Fruit Cracking & Splitting)'
+        : lang === 'hi'
+        ? 'फलों का फटना व दरारें (Fruit Splitting / Cracking)'
+        : 'Fruit Cracking & Splitting (Osmotic Shock)',
+      riskLevel: 'Medium',
+      riskScore: 58,
+      statusLabel: lang === 'gu' ? 'મધ્યમ જોખમ' : lang === 'hi' ? 'मध्यम जोखिम' : 'Moderate Threat',
+      triggerReason: lang === 'gu'
+        ? `સૂકી જમીન (${moisture.toFixed(1)}%) પછી અચાનક વધુ પાણી કે વરસાદ (${rainChance}%) થી ટામેટાની છાલ ફાટી જઈ શકે છે.`
+        : lang === 'hi'
+        ? `सूखी मिट्टी (${moisture.toFixed(1)}%) के बाद अचानक अधिक पानी या बारिश (${rainChance}%) से फल की त्वचा फट सकती है।`
+        : `Dry soil (${moisture.toFixed(1)}%) followed by rapid water influx (${rainChance}% rain) causes pulp expansion faster than skin elasticity.`,
+      iotTriggerText: lang === 'gu'
+        ? `ભેજ અને વરસાદની વિસંગતતા (${moisture.toFixed(1)}% / ${rainChance}% rain)`
+        : lang === 'hi'
+        ? `नमी व बारिश का अंतर (${moisture.toFixed(1)}% / ${rainChance}% rain)`
+        : `Moisture & Rain Imbalance (${moisture.toFixed(1)}% / ${rainChance}% rain)`,
+      prevention: lang === 'gu'
+        ? [
+            'એકસાથે વધુ પાણી આપવાને બદલે ધીમી ડ્રિપ પદ્ધતિથી નિયમિત હળવું પાણી આપો.',
+            'પાકવા આવેલા લાલ-ગુલાબી ટામેટાં વરસાદ પહેલાં જ ઉતારી લો.',
+            'માટીમાં કાર્બનિક મલ્ચનું સ્તર રાખો જેથી પાણી અચાનક અંદર ન ઘૂસી જાય.'
+          ]
+        : lang === 'hi'
+        ? [
+            'एक साथ ज्यादा पानी देने के बजाय धीमी ड्रिप से नियमित हल्का पानी दें।',
+            'पकने वाले लाल-गुलाबी टमाटर बारिश आने से पहले ही तोड़ लें।',
+            'मिट्टी पर मल्चिंग रखें ताकि नमी का स्तर अचानक न बदले।'
+          ]
+        : [
+            'Administer measured, steady micro-drips instead of sudden large deluge waterings.',
+            'Harvest mature pink/blushing tomatoes early to finish ripening safely on kitchen counter before rain.',
+            'Maintain a thick mulch shield to buffer against sudden downpours.'
+          ],
+      cureTip: lang === 'gu'
+        ? 'તિરાડ પડેલા ટામેટાં તાત્કાલિક ઉતારીને રસોઈમાં વાપરી લો જેથી તેમાં કીડા કે ફૂગ ન બેસે.'
+        : lang === 'hi'
+        ? 'फटे हुए टमाटर तुरंत तोड़कर उपयोग करें ताकि उनमें फफूंद या कीड़े न लगें।'
+        : 'Immediately harvest any cracked fruit for immediate culinary use before fungal rot or vinegar flies colonize wounds.'
+    });
+  }
+
+  // 6. If no high risks are detected, provide baseline preventative health prediction
+  if (predictions.length === 0) {
+    predictions.push({
+      id: 'healthy_optimal',
+      name: lang === 'gu'
+        ? 'શ્રેષ્ઠ પાક સ્થિતિ (સક્રિય રોગ જોખમ મુક્ત)'
+        : lang === 'hi'
+        ? 'उत्तम फसल स्थिति (सक्रिय रोग मुक्त)'
+        : 'Optimal Crop Conditions (Disease Free Zone)',
+      riskLevel: 'Low',
+      riskScore: 15,
+      statusLabel: lang === 'gu' ? 'સ્વસ્થ / નિમ્ન જોખમ' : lang === 'hi' ? 'स्वस्थ / कम जोखिम' : 'Healthy / Low Risk',
+      triggerReason: lang === 'gu'
+        ? `બધા IoT સેન્સર પરિમાણો (ભેજ ${moisture.toFixed(1)}%, તાપમાન ${plantTemp.toFixed(1)}°C, હવામાં ભેજ ${humidity.toFixed(1)}%) શ્રેષ્ઠ મર્યાદામાં છે.`
+        : lang === 'hi'
+        ? `सभी IoT सेंसर पैरामीटर (नमी ${moisture.toFixed(1)}%, तापमान ${plantTemp.toFixed(1)}°C, हवा नमी ${humidity.toFixed(1)}%) इष्टतम सीमा में हैं।`
+        : `All IoT parameters (Moisture ${moisture.toFixed(1)}%, Temp ${plantTemp.toFixed(1)}°C, Humidity ${humidity.toFixed(1)}%) are within the ideal horticultural sweet spot.`,
+      iotTriggerText: lang === 'gu'
+        ? `બધા સેન્સર્સ સંતુલિત છે`
+        : lang === 'hi'
+        ? `सभी सेंसर संतुलित हैं`
+        : `All Telemetry Balanced`,
+      prevention: lang === 'gu'
+        ? [
+            '“નિવારણ એ ઉપચાર કરતાં શ્રેષ્ઠ છે” — હાલનું ડ્રિપ શેડ્યૂલ યથાવત રાખો.',
+            'દર અઠવાડિયે પાંદડાની નીચે અને ડાળીઓની કાળજીપૂર્વક તપાસ કરતા રહો.',
+            'છોડની આસપાસ ગલગોટા (Marigold) કે તુલસી વાવો જે કુદરતી કીટક નિયંત્રક તરીકે કામ કરે છે.'
+          ]
+        : lang === 'hi'
+        ? [
+            '“इलाज से रोकथाम बेहतर है” — वर्तमान ड्रिप शेड्यूल बनाए रखें।',
+            'हर हफ्ते पत्तियों के नीचे और शाखाओं का नियमित निरीक्षण करते रहें।',
+            'पौधे के पास गेंदा (Marigold) या तुलसी लगाएं जो कीटों को प्राकृतिक रूप से दूर रखते हैं।'
+          ]
+        : [
+            '“Prevention is better than cure” — maintain consistent automated drip schedule.',
+            'Inspect underside of leaves weekly for early signs of spider mites or aphid clusters.',
+            'Interplant companion marigold or basil to naturally deter pests and enhance tomato resilience.'
+          ],
+      cureTip: lang === 'gu'
+        ? 'પાંદડા હંમેશા સ્વચ્છ રાખો અને જરૂરિયાત મુજબ ઓર્ગેનિક વર્મીવોશ કે સીવીડ લિક્વિડનું પોષણ આપો.'
+        : lang === 'hi'
+        ? 'पत्तियों को साफ रखें और जरूरत अनुसार जैविक वर्मीवॉश या समुद्री शैवाल तरल का पोषण दें।'
+        : 'Keep foliage clean and supply monthly balanced seaweed liquid extract / vermicompost tea for sustained disease immunity.'
+    });
+  }
+
+  return predictions;
+}
+
+/**
  * P0 Unified AI Agronomy Decision Engine
  * Accepts live sensorData, weather, forecast, and language
  */
@@ -322,6 +636,9 @@ async function getAiAdvice(reqData = {}) {
     });
   }
 
+  // Pre-calculate IoT disease predictions
+  const predictedDiseases = predictDiseaseRisks(sensorData, weather, forecast, lang);
+
   const defaultAdvice = {
     headlineText: headline,
     recommendation_ml: recMl,
@@ -353,7 +670,8 @@ async function getAiAdvice(reqData = {}) {
       : lang === 'hi'
       ? `तेज गर्मी (${outsideTemp}°C) — दोपहर में पानी न दें। शाम 6:30 के बाद दें।`
       : `Extreme Heat (${outsideTemp}°C) — Avoid midday irrigation. Water in the evening after 6:30 PM.`,
-    schedule: defaultSchedule
+    schedule: defaultSchedule,
+    predictedDiseases
   };
 
   // Check if API key is present and not currently in rate-limit cooldown
@@ -369,12 +687,12 @@ async function getAiAdvice(reqData = {}) {
   ].filter(Boolean);
 
   const prompt = `
-You are an expert Agronomist and precision IoT irrigation engine for Indian farmers.
+You are an expert Agronomist and precision IoT irrigation & crop disease diagnostic AI.
 Respond ONLY with a valid JSON object matching the requested schema.
 
 LANGUAGE REQUIREMENT:
 The user selected language code "${lang}" (${lang === 'gu' ? 'GUJARATI' : lang === 'hi' ? 'HINDI' : 'ENGLISH'}).
-You MUST write all textual fields ("headlineText", "best_time", "explanation", "tips", "weatherAlert", "schedule[].dayLabel", "schedule[].reason") STRICTLY in fluent, natural ${lang === 'gu' ? 'Gujarati' : lang === 'hi' ? 'Hindi' : 'English'}.
+You MUST write all textual fields ("headlineText", "best_time", "explanation", "tips", "weatherAlert", "schedule[].dayLabel", "schedule[].reason", "predictedDiseases[].name", "predictedDiseases[].triggerReason", "predictedDiseases[].iotTriggerText", "predictedDiseases[].prevention", "predictedDiseases[].cureTip") STRICTLY in fluent, natural ${lang === 'gu' ? 'Gujarati' : lang === 'hi' ? 'Hindi' : 'English'}.
 Use standard digits (e.g. 250 ml).
 
 Plant & Telemetry:
@@ -385,12 +703,11 @@ Plant & Telemetry:
 - Outside Weather: ${outsideTemp}°C, Humidity: ${humidity}%, Wind: ${windSpeedKmh} km/h, Rain Chance: ${rainChance}%
 - Current Clock Hour: ${currentHour}:00
 
-Agronomic Rules:
-1. When ambient temp is high (>= 35°C) during flowering/fruiting, heat stress is High. Midday watering causes water scalding & fast evaporation. Recommend evening irrigation after 6:30 PM (or pre-dawn before 9 AM) to prevent blossom drop & calcium deficiency.
-2. If soil moisture >= 55% or rain chance >= 60%, recommendation_ml MUST be 0 (Rest day).
-3. If soil moisture < 48%, recommend 200ml to 250ml.
-4. Provide 2 concise actionable tips: (1) Blossom end rot / calcium regulation, (2) Heatwave shade net or mulching.
-5. Provide a 7-day schedule matching the real weather for Days 1–3 and agronomic estimates for Days 4–7.
+Agronomic & Disease Prediction Rules:
+1. Predict potential diseases that could occur based on current IoT telemetry (e.g., Blossom End Rot if moisture < 48% or temp > 33°C, Early Blight if humidity > 65%, Root Rot if moisture > 70%, Flower Drop if temp > 35°C, Fruit Splitting if dry soil + rain).
+2. "Prevention is better than cure": Provide concrete preventative steps (irrigation adjustments, organic neem spray, pruning lower leaves, calcium feed, mulching, green shade net) and resolution cure tips.
+3. If ambient temp is high (>= 35°C), heat stress is High. Recommend evening irrigation after 6:30 PM.
+4. If soil moisture >= 55% or rain chance >= 60%, recommendation_ml MUST be 0 (Rest day).
 
 JSON Schema:
 {
@@ -406,6 +723,19 @@ JSON Schema:
   "explanation": "string",
   "tips": ["string", "string"],
   "weatherAlert": "string",
+  "predictedDiseases": [
+    {
+      "id": "string",
+      "name": "string",
+      "riskLevel": "Low" | "Medium" | "High",
+      "riskScore": number,
+      "statusLabel": "string",
+      "triggerReason": "string",
+      "iotTriggerText": "string",
+      "prevention": ["string", "string", "string"],
+      "cureTip": "string"
+    }
+  ],
   "schedule": [
     {
       "dayIndex": number,
@@ -429,7 +759,7 @@ JSON Schema:
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
             temperature: 0.2,
-            maxOutputTokens: 2048,
+            maxOutputTokens: 2500,
             topK: 40,
             topP: 0.95,
           },
@@ -449,10 +779,15 @@ JSON Schema:
         const parsed = JSON.parse(jsonStr);
         if (parsed.headlineText && parsed.explanation) {
           const finalSchedule = (parsed.schedule && parsed.schedule.length >= 7) ? parsed.schedule : defaultSchedule;
+          const finalDiseases = (parsed.predictedDiseases && Array.isArray(parsed.predictedDiseases) && parsed.predictedDiseases.length > 0)
+            ? parsed.predictedDiseases
+            : predictedDiseases;
+
           const adviceResult = {
             ...defaultAdvice,
             ...parsed,
-            schedule: finalSchedule
+            schedule: finalSchedule,
+            predictedDiseases: finalDiseases
           };
           adviceCache.set(cacheKey, { timestamp: Date.now(), data: adviceResult });
           return adviceResult;
@@ -472,4 +807,4 @@ JSON Schema:
   return defaultAdvice;
 }
 
-module.exports = { generateSchedule, getAiAdvice };
+module.exports = { generateSchedule, getAiAdvice, predictDiseaseRisks };

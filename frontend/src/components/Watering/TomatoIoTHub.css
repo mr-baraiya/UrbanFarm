@@ -658,6 +658,396 @@
 }
 
 /* ============================================================
+   Predictive Disease Risk & Early Prevention Engine
+   ("Prevention is better than cure" / નિવારણ એ ઉપચાર કરતાં શ્રેષ્ઠ છે)
+   ============================================================ */
+.disease-predict-engine-block {
+  margin-top: 0.95rem;
+  padding-top: 0.95rem;
+  border-top: 1.5px dashed rgba(107, 144, 128, 0.28);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.disease-engine-header {
+  background: linear-gradient(135deg, rgba(45, 106, 79, 0.09) 0%, rgba(2, 132, 199, 0.07) 100%);
+  border: 1px solid rgba(45, 106, 79, 0.22);
+  border-radius: 12px;
+  padding: 0.65rem 0.85rem;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.engine-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+}
+
+.engine-icon-pulse {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 2px 4px rgba(45, 106, 79, 0.25));
+}
+
+.engine-title-texts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.disease-engine-title {
+  margin: 0;
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: #1b4332;
+  letter-spacing: -0.01em;
+  word-break: break-word;
+}
+
+.disease-engine-motto {
+  font-size: 0.78rem;
+  color: #2d6a4f;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.disease-engine-motto strong {
+  color: #1b4332;
+  font-weight: 700;
+}
+
+/* Disease Risk Tabs */
+.disease-risk-tabs-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.disease-risk-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 9px;
+  border: 1.5px solid;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: #ffffff;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.disease-risk-tab-btn.risk-high {
+  border-color: rgba(239, 68, 68, 0.32);
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.disease-risk-tab-btn.risk-med {
+  border-color: rgba(245, 158, 11, 0.35);
+  background: #fffdf8;
+  color: #92400e;
+}
+
+.disease-risk-tab-btn.risk-low {
+  border-color: rgba(34, 197, 94, 0.32);
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.disease-risk-tab-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+}
+
+.disease-risk-tab-btn.active {
+  font-weight: 700;
+  box-shadow: 0 3px 12px rgba(45, 106, 79, 0.15);
+  transform: translateY(-1px);
+}
+
+.disease-risk-tab-btn.risk-high.active {
+  background: #fee2e2;
+  border-color: #ef4444;
+}
+
+.disease-risk-tab-btn.risk-med.active {
+  background: #fef3c7;
+  border-color: #f59e0b;
+}
+
+.disease-risk-tab-btn.risk-low.active {
+  background: #dcfce7;
+  border-color: #22c55e;
+}
+
+.risk-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dot-red { background: #ef4444; box-shadow: 0 0 6px rgba(239, 68, 68, 0.5); }
+.dot-amber { background: #f59e0b; box-shadow: 0 0 6px rgba(245, 158, 11, 0.5); }
+.dot-green { background: #22c55e; box-shadow: 0 0 6px rgba(34, 197, 94, 0.5); }
+
+.disease-tab-name {
+  white-space: nowrap;
+}
+
+.risk-level-chip {
+  font-size: 0.7rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.05);
+  font-weight: 700;
+}
+
+/* Disease Detail Card */
+.disease-detail-card {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1.5px solid;
+  padding: 0.95rem 1.05rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  box-shadow: 0 3px 12px rgba(31, 58, 48, 0.04);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.disease-detail-card.card-risk-high {
+  border-color: rgba(239, 68, 68, 0.35);
+  border-left: 4px solid #ef4444;
+  background: linear-gradient(135deg, #ffffff 0%, #fffcfc 100%);
+}
+
+.disease-detail-card.card-risk-med {
+  border-color: rgba(245, 158, 11, 0.35);
+  border-left: 4px solid #f59e0b;
+  background: linear-gradient(135deg, #ffffff 0%, #fffdfa 100%);
+}
+
+.disease-detail-card.card-risk-low {
+  border-color: rgba(34, 197, 94, 0.35);
+  border-left: 4px solid #22c55e;
+  background: linear-gradient(135deg, #ffffff 0%, #f6fff8 100%);
+}
+
+.disease-detail-top {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  width: 100%;
+}
+
+.disease-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.active-disease-name {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #1f3a30;
+  letter-spacing: -0.01em;
+  word-break: break-word;
+}
+
+.risk-score-chip-wrap {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.severity-badge {
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.severity-badge.sev-high {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.severity-badge.sev-med {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.severity-badge.sev-low {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.iot-trigger-pill {
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(2, 132, 199, 0.08);
+  color: #0369a1;
+  border: 1px solid rgba(2, 132, 199, 0.22);
+  display: inline-flex;
+  align-items: center;
+}
+
+.disease-cause-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 10px;
+  padding: 0.55rem 0.75rem;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.cause-icon {
+  font-size: 0.95rem;
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+}
+
+.cause-text {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #78350f;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.cause-text strong {
+  color: #92400e;
+  font-weight: 700;
+}
+
+/* Prevention Action Box */
+.prevention-action-box {
+  background: rgba(45, 106, 79, 0.05);
+  border: 1px solid rgba(45, 106, 79, 0.18);
+  border-radius: 11px;
+  padding: 0.7rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.prevention-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #1b4332;
+}
+
+.prevention-heading h6 {
+  margin: 0;
+  font-size: 0.83rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  word-break: break-word;
+}
+
+.prevention-steps-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.prevention-step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  font-size: 0.81rem;
+  line-height: 1.42;
+  color: #2c4a3e;
+  word-break: break-word;
+}
+
+.step-check-bullet {
+  color: #15803d;
+  font-weight: 800;
+  font-size: 0.85rem;
+  margin-top: 0.05rem;
+  flex-shrink: 0;
+}
+
+/* Quick Cure / Resolution Box */
+.cure-resolution-box {
+  background: rgba(2, 132, 199, 0.05);
+  border: 1px solid rgba(2, 132, 199, 0.2);
+  border-radius: 11px;
+  padding: 0.7rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.cure-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #0369a1;
+}
+
+.cure-heading .cure-icon {
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.cure-heading h6 {
+  margin: 0;
+  font-size: 0.83rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  word-break: break-word;
+}
+
+.cure-text {
+  margin: 0;
+  font-size: 0.81rem;
+  line-height: 1.42;
+  color: #0c4a6e;
+  word-break: break-word;
+}
+
+/* ============================================================
    Weather & 3-Day Forecast Strip
    ============================================================ */
 .weather-forecast-strip-card {

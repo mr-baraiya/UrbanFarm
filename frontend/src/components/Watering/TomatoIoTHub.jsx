@@ -120,6 +120,7 @@ const TomatoIoTHub = ({
   // 3. Dynamic Gemini AI Advice State
   const [aiAdviceData, setAiAdviceData] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
+  const [activeDiseaseId, setActiveDiseaseId] = useState(null);
 
   // 4. Dynamic Sensor History & Statistics State
   const [historyReadings, setHistoryReadings] = useState([]);
@@ -667,10 +668,194 @@ const TomatoIoTHub = ({
   };
 
   // -------------------------------------------------------------
-  // P0: SINGLE UNIFIED DECISION ENGINE
+  // P0: SINGLE UNIFIED DECISION ENGINE (Irrigation + Disease Prediction)
   // -------------------------------------------------------------
   const decision = useMemo(() => {
+    const moisture = Number(sensorData.soilMoisture ?? 40.6);
+    const plantTemp = Number(sensorData.temperature ?? 29.7);
+    const humidity = Number(sensorData.humidity ?? 46.4);
+    const outsideTemp = Math.round(weather?.main?.temp || 36);
+    const rainChance = Number(forecast?.list?.[0]?.pop ? forecast.list[0].pop * 100 : 10);
+    const lightLux = Number(sensorData.light ?? 669);
+
+    // Build fallback botanical disease predictions based on live IoT sensor triggers
+    const defaultPredictions = [];
+
+    // 1. Blossom End Rot (BER) / કેલ્શિયમની ખામી અને ફળનો સડો
+    if (moisture < 48 || (outsideTemp >= 33 && moisture < 52)) {
+      const riskLevel = moisture < 38 ? 'High' : 'Medium';
+      const riskScore = moisture < 38 ? 88 : 64;
+      defaultPredictions.push({
+        id: 'blossom_end_rot',
+        name: L('બ્લોસમ એન્ડ રોટ (ફળનો તળિયેથી સડો / કેલ્શિયમ ખામી)', 'ब्लॉसम एंड रॉट (फल का नीचे से सड़ना / कैल्शियम कमी)', 'Blossom End Rot (Distal Fruit Necrosis & Calcium Deficiency)'),
+        riskLevel,
+        riskScore,
+        statusLabel: riskLevel === 'High' ? L('ઉચ્ચ જોખમ', 'उच्च जोखिम', 'High Threat') : L('સંભવિત જોખમ', 'संभावित जोखिम', 'Potential Risk'),
+        triggerReason: L(
+          `જમીનમાં ઓછો ભેજ (${moisture.toFixed(1)}%) અને ${outsideTemp}°C ગરમીના કારણે મૂળિયાંમાંથી કેલ્શિયમનું વહન અટકે છે, જેનાથી ફળના તળિયા કાળા પડી સડી શકે છે.`,
+          `मिट्टी में कम नमी (${moisture.toFixed(1)}%) और ${outsideTemp}°C गर्मी के कारण जड़ों से फल तक कैल्शियम संचरण बाधित होता है, जिससे फल नीचे से सड़ सकता है।`,
+          `Low root-zone moisture (${moisture.toFixed(1)}%) combined with ${outsideTemp}°C heat halts xylem calcium transport to developing tomato fruit tips.`
+        ),
+        iotTriggerText: L(`જમીનનો ભેજ (${moisture.toFixed(1)}% < 50% લક્ષ્ય)`, `मिट्टी की नमी (${moisture.toFixed(1)}% < 50% लक्ष्य)`, `Soil Moisture (${moisture.toFixed(1)}% < 50% target)`),
+        prevention: [
+          L('સિંચાઈમાં એકસમાન 50-70% ભેજ જાળવી રાખો (ક્યારેય માટી સાવ સૂકી ન થવા દો).', 'सिंचाई में एकसमान 50-70% नमी बनाए रखें (मिट्टी को कभी एकदम सूखने न दें)।', 'Maintain steady 50–70% root-zone moisture; avoid drastic dry-to-wet moisture swings.'),
+          L('કૂંડામાં 2 ઇંચ લાકડાનો વહેર, કોકોપીટ કે સૂકા પાંદડાનું મલ્ચિંગ કરો જેથી ભેજ જળવાય.', 'गमले में 2 इंच सूखी घास, कोकोपीट या पत्तियों की मल्चिंग करें ताकि नमी बनी रहे।', 'Apply a 2-inch organic mulch (straw/cocopeat) to buffer root zone temperature and conserve moisture.'),
+          L('દર 15 દિવસે કૂંડામાં અડધી ચમચી ચૂનાનું પાણી (Calcium) અથવા બોનમીલ/ઈંડાના છોતરાંનો પાવડર ઉમેરો.', 'हर 15 दिन में गमले में आधा चम्मच बुझा चूना पानी (कैल्शियम) या बोनमील मिलाएं।', 'Supplement with diluted calcium nitrate, gypsum, or bone meal/eggshell tea bi-weekly.')
+        ],
+        cureTip: L(
+          'અસરગ્રસ્ત કાળા થયેલાં ફળ તાત્કાલિક તોડી લો જેથી નવો ફાલ સ્વસ્થ વિકસે, અને સાંજે મૂળમાં હળવું કેલ્શિયમ ડ્રિપ આપો.',
+          'प्रभावित काले फल तुरंत तोड़कर हटा दें ताकि नया फल स्वस्थ बने, और शाम को जड़ों में हल्का कैल्शियम घोल दें।',
+          'Snip off affected fruits showing sunken black bases so the plant redirects calcium to new setting fruit; apply evening root calcium drip.'
+        )
+      });
+    }
+
+    // 2. Early Blight & Foliar Fungal Spot
+    if (humidity >= 65 || (rainChance >= 40 && plantTemp >= 22)) {
+      const riskLevel = humidity >= 78 ? 'High' : 'Medium';
+      const riskScore = humidity >= 78 ? 82 : 60;
+      defaultPredictions.push({
+        id: 'early_blight',
+        name: L('અર્લી બ્લાઇટ અને પાંદડાના કાળા ચકામા (ફૂગજન્ય રોગ)', 'अगेती झुलसा व पत्ती धब्बा (फफूंद रोग)', 'Early Blight & Foliar Fungal Spot (Alternaria)'),
+        riskLevel,
+        riskScore,
+        statusLabel: riskLevel === 'High' ? L('ઉચ્ચ ફૂગ જોખમ', 'उच्च फफूंद जोखिम', 'High Fungal Risk') : L('સંભવિત ફૂગ જોખમ', 'संभावित फफूंद जोखिम', 'Fungal Spore Risk'),
+        triggerReason: L(
+          `હવામાં ઊંચો ભેજ (${humidity.toFixed(1)}%) અને ${plantTemp.toFixed(1)}°C તાપમાન ફૂગના બીજાણુઓ (Spores) ફેલાવા અને પાંદડા પર કાળા ગોળ ચકામા કરવા માટે અનુકૂળ છે.`,
+          `हवा में अधिक नमी (${humidity.toFixed(1)}%) और ${plantTemp.toFixed(1)}°C तापमान फफूंद बीजाणुओं के अंकुरण और पत्तियों पर काले छल्लेदार धब्बों के अनुकूल है।`,
+          `High air humidity (${humidity.toFixed(1)}%) combined with ${plantTemp.toFixed(1)}°C creates an ideal microclimate for fungal spore germination.`
+        ),
+        iotTriggerText: L(`હવામાં ભેજ (${humidity.toFixed(1)}% > 65% જોખમ રેન્જ)`, `हवा में नमी (${humidity.toFixed(1)}% > 65% जोखिम स्तर)`, `Air Humidity (${humidity.toFixed(1)}% > 65% threshold)`),
+        prevention: [
+          L('પાણી હંમેશા માત્ર મૂળમાં જ આપો — પાંદડા પર પાણી છાંટવાનું સદંતર ટાળો.', 'पानी हमेशा केवल जड़ों में ड्रिप से दें — पत्तियों पर पानी छिड़कने से बचें।', 'Strictly apply water to root base via drip; never wet foliage or splash potting soil onto leaves.'),
+          L('છોડના તળિયાના 15 સે.મી. સુધીના નીચેના જૂના પાંદડા કાપી નાખો જેથી હવા-ઉજાસ રહે અને માટીના છાંટા ન ઉડે.', 'पौधे के निचले 15 सेमी तक की पुरानी पत्तियों की छंटाई करें ताकि हवा का आवागमन बना रहे।', 'Prune off bottom 15–20 cm of lower foliage to maximize air ventilation and prevent soil splashback.'),
+          L('દર 10 દિવસે સવારે ઓર્ગેનિક લીમડાનું તેલ (Neem Oil 5ml/L) અથવા બેકિંગ સોડા (3g/L) નો સાવચેતીરૂપ છંટકાવ કરો.', 'हर 10 दिन में सुबह ऑर्गेनिक नीम का तेल (5ml/L) या बेकिंग सोडा (3g/L) का बचाव स्प्रे करें।', 'Apply preventative organic cold-pressed Neem oil (5ml/L) or baking soda spray (3g/L) every 10–14 days in early morning.')
+        ],
+        cureTip: L(
+          'પીળા કે કાળા ગોળ ચકામાવાળા પાંદડા કાપીને કચરાપેટીમાં નાખી દો (ખાતરમાં ન નાખશો), અને ટ્રાઈકોડર્મા કે ઓર્ગેનિક ફૂગનાશકનો છંટકાવ કરો.',
+          'काले छल्लेदार धब्बों वाली पत्तियों को काटकर फेंक दें (कम्पोस्ट में न डालें), और ट्राइकोडर्मा या जैविक फफूंदनाशक का स्प्रे करें।',
+          'Immediately snip and bag infected lower leaves with concentric spots (do not compost); spray organic bio-fungicide (Trichoderma or Copper).'
+        )
+      });
+    }
+
+    // 3. Root Rot & Soil Hypoxia
+    if (moisture >= 70) {
+      const riskLevel = moisture >= 78 ? 'High' : 'Medium';
+      const riskScore = moisture >= 78 ? 86 : 62;
+      defaultPredictions.push({
+        id: 'root_rot',
+        name: L('મૂળનો સડો અને ઓક્સિજન અવરોધ (Root Rot & Hypoxia)', 'जड़ गलन और ऑक्सीजन अवरोध (Root Rot & Hypoxia)', 'Root Rot & Soil Hypoxia (Pythium / Anaerobic Suffocation)'),
+        riskLevel,
+        riskScore,
+        statusLabel: riskLevel === 'High' ? L('જળબંબાકાર ચેતવણી', 'अति-नमी चेतावनी', 'Over-Saturation Alert') : L('વધુ પડતો ભેજ', 'अधिक नमी', 'Moisture Excess'),
+        triggerReason: L(
+          `જમીનમાં વધુ પડતો ભેજ (${moisture.toFixed(1)}%) છે, જેનાથી માટીમાંથી ઓક્સિજન ખલાસ થઈ મૂળ સડવા લાગે છે.`,
+          `मिट्टी में अत्यधिक नमी (${moisture.toFixed(1)}%) है, जिससे जड़ों को ऑक्सीजन नहीं मिलती और जड़ सड़न शुरू हो जाती है।`,
+          `Root zone saturation (${moisture.toFixed(1)}%) displaces air pockets, suffocating feeder roots in anaerobic conditions.`
+        ),
+        iotTriggerText: L(`જમીનનો ભેજ (${moisture.toFixed(1)}% > 70% મહત્તમ)`, `मिट्टी की नमी (${moisture.toFixed(1)}% > 70% अधिकतम)`, `Soil Saturation (${moisture.toFixed(1)}% > 70% ceiling)`),
+        prevention: [
+          L('સિંચાઈ તુરંત રોકી દો અને માટી ઉપરથી 1 ઇંચ સુકાય ત્યાં સુધી પાણી ન આપો.', 'सिंचाई तुरंत रोकें और ऊपरी 1 इंच मिट्टी सूखने तक पानी न दें।', 'Pause all irrigation immediately until top 2 cm of potting mix is dry to the touch.'),
+          L('કૂંડાના તળિયાના ડ્રેનેજ હોલ તપાસો અને તળીયાની પ્લેટમાં ભરાયેલું વધારાનું પાણી ફેંકી દો.', 'गमले के ड्रेनेज छेद की जांच करें और ड्रेन ट्रे से रुका हुआ पानी तुरंत निकालें।', 'Ensure container bottom drainage holes are unobstructed and empty standing water from saucer.'),
+          L('કૂંડાની ઉપરની માટીને નાની ખુરપીથી હળવેથી ઢીલી કરો જેથી હવા અંદર ઉતરે.', 'गमले की ऊपरी मिट्टी की हल्की गुड़ाई करें ताकि जड़ों तक हवा पहुंच सके।', 'Gently aerate top 1 inch of soil with a hand trowel to introduce atmospheric oxygen.')
+        ],
+        cureTip: L(
+          'જો છોડ ઢીલો પડી જાય, તો માટીમાં ટ્રાઈકોડર્મા (Trichoderma viride) 5 ગ્રામ ઓગાળીને રેડો જેથી હાનિકારક ફૂગ નાશ પામે.',
+          'यदि पौधा मुरझाए, तो मिट्टी में ट्राइकोडर्मा (5 ग्राम/लीटर) का घोल डालें ताकि सड़न पैदा करने वाले जीवाणु खत्म हों।',
+          'If wilting persists despite wet soil, drench root zone with bio-fungicide (Trichoderma viride) or 3% hydrogen peroxide (diluted 1:10).'
+        )
+      });
+    }
+
+    // 4. Heat Induced Flower Drop & Sunscald
+    if (outsideTemp >= 35 || plantTemp >= 35 || (plantTemp >= 32 && lightLux > 18000)) {
+      const riskLevel = outsideTemp >= 37 ? 'High' : 'Medium';
+      const riskScore = outsideTemp >= 37 ? 84 : 62;
+      defaultPredictions.push({
+        id: 'heat_flower_drop',
+        name: L('ગરમીથી ફૂલ ખરી પડવા અને ફળ બળવું (Heat Stress & Blossom Drop)', 'तेज धूप से फूल झड़ना व फल झुलसना (Heat Stress & Blossom Drop)', 'High Heat Flower Drop & Fruit Sunscald'),
+        riskLevel,
+        riskScore,
+        statusLabel: riskLevel === 'High' ? L('તીવ્ર લૂ/તાપમાન જોખમ', 'अत्यधिक गर्मी चेतावनी', 'Severe Thermal Risk') : L('મધ્યમ ગરમી તણાવ', 'मध्यम ताप तनाव', 'Moderate Heat Stress'),
+        triggerReason: L(
+          `બપોરનું તાપમાન ${outsideTemp}°C છે. 35°C થી વધુ તાપમાને ટામેટાના પરાગરજ (Pollen) સુકાઈ જતાં ફૂલ ફળમાં ફેરવાયા વગર ખરી પડે છે.`,
+          `दोपहर का तापमान ${outsideTemp}°C है। 35°C से अधिक तापमान पर परागकण सूखने से फूल बिना फल बने गिर जाते हैं।`,
+          `Ambient temp (${outsideTemp}°C) exceeds 35°C, causing pollen desiccation and blossom drop before fruit setting.`
+        ),
+        iotTriggerText: L(`તાપમાન (${outsideTemp}°C > 35°C થ્રેશોલ્ડ)`, `तापमान (${outsideTemp}°C > 35°C सीमा)`, `Air Temp (${outsideTemp}°C > 35°C threshold)`),
+        prevention: [
+          L('બાલ્કનીમાં 50% ગ્રીન શેડ નેટ લગાવો જેથી બપોરનો તીવ્ર તડકો છોડને ન દાઝે.', 'बालकनी में 50% ग्रीन शेड नेट लगाएं ताकि दोपहर की सीधी धूप से बचाव हो।', 'Erect 50% green agro-shade netting to filter fierce midday UV radiation.'),
+          L('ક્યારેય બપોરે પાણી ન આપો; સિંચાઈ માત્ર સાંજે 6:30 પછી અથવા વહેલી સવારે કરો.', 'दोपहर में कभी पानी न दें; सिंचाई केवल शाम 6:30 के बाद या सुबह करें।', 'Avoid midday irrigation (prevents root scalding); water post 6:30 PM or pre-dawn.'),
+          L('છોડની આસપાસની ફ્લોરિંગ પર પાણી છાંટી ઠંડક જાળવો (છોડના ફૂલ પર પાણી ન છાંટવું).', 'गमले के आसपास के फर्श पर पानी छिड़ककर ठंडक बनाए रखें।', 'Keep ambient balcony floor humidified by misting surrounding walls/flooring.')
+        ],
+        cureTip: L(
+          'સવારે 7 થી 9 વાગ્યા વચ્ચે ફૂલની ડાળીઓને હળવેથી હલાવો જેથી કુદરતી પરાગનયન (Pollination) સરળતાથી થઈ જાય.',
+          'सुबह 7 से 9 बजे के बीच फूलों के गुच्छों को हल्के से हिलाएं ताकि परागण (Pollination) ठीक से हो सके।',
+          'Gently vibrate flower trusses between 7–9 AM to assist vibration-based self-pollination before peak daily heat.'
+        )
+      });
+    }
+
+    // 5. Fruit Splitting / Cracking
+    if ((moisture < 45 && rainChance >= 50) || (moisture < 35 && outsideTemp >= 32)) {
+      defaultPredictions.push({
+        id: 'fruit_splitting',
+        name: L('ફળ ફાટવું અને તિરાડો પડવી (Fruit Cracking & Splitting)', 'फलों का फटना व दरारें (Fruit Splitting / Cracking)', 'Fruit Cracking & Splitting (Osmotic Shock)'),
+        riskLevel: 'Medium',
+        riskScore: 58,
+        statusLabel: L('મધ્યમ જોખમ', 'मध्यम जोखिम', 'Moderate Threat'),
+        triggerReason: L(
+          `સૂકી જમીન (${moisture.toFixed(1)}%) પછી અચાનક વધુ પાણી કે વરસાદ (${rainChance}%) થી ટામેટાની છાલ ફાટી જઈ શકે છે.`,
+          `सूखी मिट्टी (${moisture.toFixed(1)}%) के बाद अचानक अधिक पानी या बारिश (${rainChance}%) से फल की त्वचा फट सकती है।`,
+          `Dry soil (${moisture.toFixed(1)}%) followed by rapid water influx (${rainChance}% rain) causes pulp expansion faster than skin elasticity.`
+        ),
+        iotTriggerText: L(`ભેજ અને વરસાદની વિસંગતતા (${moisture.toFixed(1)}% / ${rainChance}% rain)`, `नमी व बारिश का अंतर (${moisture.toFixed(1)}% / ${rainChance}% rain)`, `Moisture & Rain Imbalance (${moisture.toFixed(1)}% / ${rainChance}% rain)`),
+        prevention: [
+          L('એકસાથે વધુ પાણી આપવાને બદલે ધીમી ડ્રિપ પદ્ધતિથી નિયમિત હળવું પાણી આપો.', 'एक साथ ज्यादा पानी देने के बजाय धीमी ड्रिप से नियमित हल्का पानी दें।', 'Administer measured, steady micro-drips instead of sudden large deluge waterings.'),
+          L('પાકવા આવેલા લાલ-ગુલાબી ટામેટાં વરસાદ પહેલાં જ ઉતારી લો.', 'पकने वाले लाल-गुलाबी टमाटर बारिश आने से पहले ही तोड़ लें।', 'Harvest mature pink/blushing tomatoes early to finish ripening safely on kitchen counter before rain.'),
+          L('માટીમાં કાર્બનિક મલ્ચનું સ્તર રાખો જેથી પાણી અચાનક અંદર ન ઘૂસી જાય.', 'मिट्टी पर मल्चिंग रखें ताकि नमी का स्तर अचानक न बदले।', 'Maintain a thick mulch shield to buffer against sudden downpours.')
+        ],
+        cureTip: L(
+          'તિરાડ પડેલા ટામેટાં તાત્કાલિક ઉતારીને રસોઈમાં વાપરી લો જેથી તેમાં કીડા કે ફૂગ ન બેસે.',
+          'फटे हुए टमाटर तुरंत तोड़कर उपयोग करें ताकि उनमें फफूंद या कीड़े न लगें।',
+          'Immediately harvest any cracked fruit for immediate culinary use before fungal rot or vinegar flies colonize wounds.'
+        )
+      });
+    }
+
+    // 6. Healthy baseline
+    if (defaultPredictions.length === 0) {
+      defaultPredictions.push({
+        id: 'healthy_optimal',
+        name: L('શ્રેષ્ઠ પાક સ્થિતિ (સક્રિય રોગ જોખમ મુક્ત)', 'उत्तम फसल स्थिति (सक्रिय रोग मुक्त)', 'Optimal Crop Conditions (Disease Free Zone)'),
+        riskLevel: 'Low',
+        riskScore: 15,
+        statusLabel: L('સ્વસ્થ / નિમ્ન જોખમ', 'स्वस्थ / कम जोखिम', 'Healthy / Low Risk'),
+        triggerReason: L(
+          `બધા IoT સેન્સર પરિમાણો (ભેજ ${moisture.toFixed(1)}%, તાપમાન ${plantTemp.toFixed(1)}°C, હવામાં ભેજ ${humidity.toFixed(1)}%) શ્રેષ્ઠ મર્યાદામાં છે.`,
+          `सभी IoT सेंसर पैरामीटर (नमी ${moisture.toFixed(1)}%, तापमान ${plantTemp.toFixed(1)}°C, हवा नमी ${humidity.toFixed(1)}%) इष्टतम सीमा में हैं।`,
+          `All IoT parameters (Moisture ${moisture.toFixed(1)}%, Temp ${plantTemp.toFixed(1)}°C, Humidity ${humidity.toFixed(1)}%) are within the ideal horticultural sweet spot.`
+        ),
+        iotTriggerText: L(`બધા સેન્સર્સ સંતુલિત છે`, `सभी सेंसर संतुलित हैं`, `All Telemetry Balanced`),
+        prevention: [
+          L('“નિવારણ એ ઉપચાર કરતાં શ્રેષ્ઠ છે” — હાલનું ડ્રિપ શેડ્યૂલ યથાવત રાખો.', '“इलाज से रोकथाम बेहतर है” — वर्तमान ड्रिप शेड्यूल बनाए रखें।', '“Prevention is better than cure” — maintain consistent automated drip schedule.'),
+          L('દર અઠવાડિયે પાંદડાની નીચે અને ડાળીઓની કાળજીપૂર્વક તપાસ કરતા રહો.', 'हर हफ्ते पत्तियों के नीचे और शाखाओं का नियमित निरीक्षण करते रहें।', 'Inspect underside of leaves weekly for early signs of spider mites or aphid clusters.'),
+          L('છોડની આસપાસ ગલગોટા (Marigold) કે તુલસી વાવો જે કુદરતી કીટક નિયંત્રક તરીકે કામ કરે છે.', 'पौधे के पास गेंदा (Marigold) या तुलसी लगाएं जो कीटों को प्राकृतिक रूप से दूर रखते हैं।', 'Interplant companion marigold or basil to naturally deter pests and enhance tomato resilience.')
+        ],
+        cureTip: L(
+          'પાંદડા હંમેશા સ્વચ્છ રાખો અને જરૂરિયાત મુજબ ઓર્ગેનિક વર્મીવોશ કે સીવીડ લિક્વિડનું પોષણ આપો.',
+          'पत्तियों को साफ रखें और जरूरत अनुसार जैविक वर्मीवॉश या समुद्री शैवाल तरल का पोषण दें।',
+          'Keep foliage clean and supply monthly balanced seaweed liquid extract / vermicompost tea for sustained disease immunity.'
+        )
+      });
+    }
+
     if (aiAdviceData && aiAdviceData.language === currentLang && aiAdviceData.headlineText) {
+      const finalPredictedDiseases = (aiAdviceData.predictedDiseases && Array.isArray(aiAdviceData.predictedDiseases) && aiAdviceData.predictedDiseases.length > 0)
+        ? aiAdviceData.predictedDiseases
+        : defaultPredictions;
+
       return {
         recommendationMl: Number(aiAdviceData.recommendation_ml ?? 250),
         timingLabel: aiAdviceData.best_time || L('આજે સાંજે 6:30 પછી', 'आज शाम 6:30 के बाद', 'This evening after 6:30 PM'),
@@ -684,18 +869,14 @@ const TomatoIoTHub = ({
         nextHours: Number(aiAdviceData.next_watering_hours ?? 1),
         heatStressLevel: aiAdviceData.stress?.heat || 'High',
         waterStressLevel: aiAdviceData.stress?.water || 'Medium',
-        plantHealthScore: Number(aiAdviceData.plant_health_score ?? 82)
+        plantHealthScore: Number(aiAdviceData.plant_health_score ?? 82),
+        predictedDiseases: finalPredictedDiseases
       };
     }
 
     const now = new Date();
     const currentHour = now.getHours();
-    const moisture = sensorData.soilMoisture;
-    const plantTemp = sensorData.temperature;
-    const outsideTemp = Math.round(weather?.main?.temp || 36);
-    const rainChance = Number(forecast?.list?.[0]?.pop ? forecast.list[0].pop * 100 : 10);
     const isExtremeHeat = outsideTemp >= 35 || plantTemp >= 35;
-
     const isMoistureOptimal = moisture >= 55 && moisture <= 70;
     const isMoistureWet = moisture > 70;
     const isRainHigh = rainChance >= 60;
@@ -747,7 +928,8 @@ const TomatoIoTHub = ({
       nextHours,
       heatStressLevel,
       waterStressLevel,
-      plantHealthScore: isExtremeHeat && moisture < 40 ? 74 : moisture < 45 ? 82 : 92
+      plantHealthScore: isExtremeHeat && moisture < 40 ? 74 : moisture < 45 ? 82 : 92,
+      predictedDiseases: defaultPredictions
     };
   }, [sensorData, weather, forecast, aiAdviceData, L]);
 
@@ -1149,7 +1331,7 @@ const TomatoIoTHub = ({
             </div>
           </div>
 
-          {/* SECTION 5: AI Suggestion Card */}
+          {/* SECTION 5: AI Suggestion Card & IoT Disease Prediction Engine */}
           <section className="ai-suggestion-card">
             <div className="ai-card-heading">
               <div className="ai-header-left">
@@ -1175,6 +1357,107 @@ const TomatoIoTHub = ({
                 </div>
               ))}
             </div>
+
+            {/* PREDICTIVE DISEASE ENGINE & EARLY PREVENTION ("Prevention is better than cure") */}
+            {decision.predictedDiseases && decision.predictedDiseases.length > 0 && (
+              <div className="disease-predict-engine-block">
+                <div className="disease-engine-header">
+                  <div className="engine-title-wrap">
+                    <span className="engine-icon-pulse">🛡️</span>
+                    <div className="engine-title-texts">
+                      <h4 className="disease-engine-title">
+                        {L('IoT રોગ આગાહી અને અગમચેતી સલાહ', 'IoT रोग पूर्वानुमान एवं अग्रिम रोकथाम', 'IoT Disease Prediction & Prevention')}
+                      </h4>
+                      <span className="disease-engine-motto">
+                        💡 <strong>{L('“નિવારણ એ ઉપચાર કરતાં શ્રેષ્ઠ છે”', '“इलाज से रोकथाम बेहतर है”', '“Prevention is better than cure”')}</strong> — {L('સેન્સર ડેટા આધારે સંભવિત રોગોનો પૂર્વ-ઉકેલ', 'सेंसर डेटा आधारित संभावित रोगों की पूर्व-रोकथाम', 'Early risk diagnosis & preventative remedies')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Disease Risk Tabs if more than 1 disease */}
+                <div className="disease-risk-tabs-row">
+                  {decision.predictedDiseases.map((dItem) => {
+                    const isCurrent = (activeDiseaseId || decision.predictedDiseases[0]?.id) === dItem.id;
+                    const isHigh = dItem.riskLevel === 'High';
+                    const isMed = dItem.riskLevel === 'Medium';
+                    return (
+                      <button
+                        key={dItem.id}
+                        type="button"
+                        className={`disease-risk-tab-btn ${isCurrent ? 'active' : ''} ${isHigh ? 'risk-high' : isMed ? 'risk-med' : 'risk-low'}`}
+                        onClick={() => setActiveDiseaseId(dItem.id)}
+                      >
+                        <span className={`risk-dot ${isHigh ? 'dot-red' : isMed ? 'dot-amber' : 'dot-green'}`}></span>
+                        <span className="disease-tab-name">{dItem.name.split('(')[0].trim()}</span>
+                        <span className="risk-level-chip">{dItem.statusLabel}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Active Disease Card Details */}
+                {(() => {
+                  const curDisease = decision.predictedDiseases.find(d => d.id === (activeDiseaseId || decision.predictedDiseases[0]?.id)) || decision.predictedDiseases[0];
+                  if (!curDisease) return null;
+                  const isHigh = curDisease.riskLevel === 'High';
+                  const isMed = curDisease.riskLevel === 'Medium';
+
+                  return (
+                    <div className={`disease-detail-card ${isHigh ? 'card-risk-high' : isMed ? 'card-risk-med' : 'card-risk-low'}`}>
+                      <div className="disease-detail-top">
+                        <div className="disease-title-row">
+                          <h5 className="active-disease-name">{curDisease.name}</h5>
+                          <div className="risk-score-chip-wrap">
+                            <span className={`severity-badge ${isHigh ? 'sev-high' : isMed ? 'sev-med' : 'sev-low'}`}>
+                              {curDisease.statusLabel} ({curDisease.riskScore}% {L('જોખમ સ્તર', 'जोखिम स्तर', 'Risk')})
+                            </span>
+                            <span className="iot-trigger-pill">
+                              📡 {curDisease.iotTriggerText}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="disease-cause-alert">
+                          <span className="cause-icon">⚠️</span>
+                          <p className="cause-text">
+                            <strong>{L('શા માટે થઈ શકે છે (IoT કારણ)', 'क्यों हो सकता है (IoT कारण)', 'Why this could occur (IoT Trigger)')}: </strong>
+                            {curDisease.triggerReason}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Prevention Section */}
+                      <div className="prevention-action-box">
+                        <div className="prevention-heading">
+                          <RiShieldCheckLine size={16} />
+                          <h6>{L('અગમચેતી પૂર્વ-બચાવનાં પગલાં (રોગ આવતાં પહેલાં)', 'अग्रिम रोकथाम के उपाय (लक्षण आने से पहले)', 'Early Prevention Steps (Before Symptoms Appear)')}</h6>
+                        </div>
+                        <ul className="prevention-steps-list">
+                          {curDisease.prevention.map((step, sIdx) => (
+                            <li key={sIdx} className="prevention-step-item">
+                              <span className="step-check-bullet">✓</span>
+                              <span>{step}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Quick Cure / Resolution Box */}
+                      {curDisease.cureTip && (
+                        <div className="cure-resolution-box">
+                          <div className="cure-heading">
+                            <span className="cure-icon">💊</span>
+                            <h6>{L('લક્ષણો દેખાય તો તાત્કાલિક ઉકેલ / ઉપચાર', 'लक्षण दिखने पर त्वरित समाधान / उपचार', 'Immediate Resolution & Cure (If Symptoms Spotted)')}</h6>
+                          </div>
+                          <p className="cure-text">{curDisease.cureTip}</p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
           </section>
 
           {/* MOVED TO LEFT COLUMN: ESP32 Hardware & Node Details Accordion */}
