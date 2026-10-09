@@ -1,8 +1,30 @@
+.plant-modal-overlay {
+  z-index: 1200 !important;
+  background: rgba(15, 23, 42, 0.7) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
 .plant-form.modal-content {
   max-width: 520px;
   max-height: 88vh;
   overflow-y: auto;
-  padding: 1.25rem 1.5rem;
+  padding: 1.35rem 1.6rem;
+  border-radius: 20px;
+  border: 1.5px solid rgba(107, 144, 128, 0.28);
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.35);
+  animation: plantModalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes plantModalPop {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .plant-form .form-header {

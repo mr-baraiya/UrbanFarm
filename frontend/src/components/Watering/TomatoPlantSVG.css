@@ -1,0 +1,589 @@
+/* ============================================================
+   TomatoPlantSVG.css - Lightweight Interactive SVG Tomato Plant
+   Theme: UrbanFarm Natural Botanical & Glassmorphism
+   ============================================================ */
+
+.tomato-svg-card {
+  position: relative;
+  width: 100%;
+  background: radial-gradient(circle at 50% 35%, rgba(240, 253, 244, 0.75) 0%, rgba(255, 255, 255, 0.98) 75%);
+  border-radius: 16px;
+  border: 1.5px solid rgba(107, 144, 128, 0.22);
+  box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.8), 0 4px 20px rgba(31, 58, 48, 0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* 1. Header Toolbar */
+.plant-svg-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  padding: 0.75rem 1.1rem;
+  background: rgba(255, 255, 255, 0.88);
+  border-bottom: 1px solid rgba(107, 144, 128, 0.16);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 10;
+}
+
+.toolbar-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.28rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: 1px solid;
+}
+
+.toolbar-status-badge.status-healthy {
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #15803d;
+}
+
+.toolbar-status-badge.status-watering {
+  background: #e0f2fe;
+  border-color: #7dd3fc;
+  color: #0369a1;
+  animation: pulseWateringBadge 1.5s infinite alternate;
+}
+
+.toolbar-status-badge.status-moderate {
+  background: #fffdf0;
+  border-color: #fde047;
+  color: #a16207;
+}
+
+.toolbar-status-badge.status-dry {
+  background: #fffbeb;
+  border-color: #fcd34d;
+  color: #b45309;
+}
+
+.toolbar-status-badge.status-wet {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+  color: #0284c7;
+}
+
+@keyframes pulseWateringBadge {
+  0% {
+    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.4);
+  }
+
+  100% {
+    box-shadow: 0 0 0 6px rgba(56, 189, 248, 0);
+  }
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.status-dot.pulse {
+  animation: dotPulse 1.8s infinite;
+}
+
+@keyframes dotPulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+
+  50% {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+}
+
+.toolbar-hint {
+  font-size: 0.8rem;
+  color: #52796f;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* 2. Plant Viewport & SVG Container */
+.plant-svg-viewport {
+  position: relative;
+  width: 100%;
+  height: 380px;
+  min-height: 340px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  touch-action: pan-y;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 60%, rgba(216, 243, 220, 0.4) 0%, rgba(255, 255, 255, 0) 70%);
+}
+
+.plant-main-svg {
+  width: 100%;
+  height: 100%;
+  max-width: 440px;
+  overflow: visible;
+  filter: drop-shadow(0 6px 14px rgba(31, 58, 48, 0.08));
+}
+
+/* 3. Hotspots Overlay & Pins */
+.hotspots-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.hotspot-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  z-index: 15;
+}
+
+.hotspot-trigger-btn {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15), 0 0 0 2.5px rgba(45, 106, 79, 0.2);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hotspot-trigger-btn:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22), 0 0 0 4px rgba(45, 106, 79, 0.35);
+}
+
+.hotspot-trigger-btn.active {
+  transform: scale(1.2);
+  box-shadow: 0 0 0 4px #2d6a4f, 0 6px 20px rgba(45, 106, 79, 0.4);
+}
+
+.hotspot-trigger-btn.spot-moisture {
+  color: #0284c7;
+  border-color: #38bdf8;
+}
+
+.hotspot-trigger-btn.spot-temperature {
+  color: #ea580c;
+  border-color: #fb923c;
+}
+
+.hotspot-trigger-btn.spot-light {
+  color: #ca8a04;
+  border-color: #facc15;
+}
+
+.hotspot-pulse-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  animation: hotspotPing 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+@keyframes hotspotPing {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+
+  80%,
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* 4. Dedicated Non-Blocking Sensor Inspector Dock (Corner Placed) */
+.sensor-inspector-dock {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 220px;
+  max-width: calc(100% - 24px);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(107, 144, 128, 0.28);
+  border-radius: 14px;
+  padding: 0.85rem 0.95rem;
+  box-shadow: 0 12px 30px rgba(31, 58, 48, 0.14), inset 0 1px 2px rgba(255, 255, 255, 0.9);
+  z-index: 25;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  box-sizing: border-box;
+}
+
+.inspector-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.inspector-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.inspector-sensor-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1f3a30;
+  text-transform: capitalize;
+  letter-spacing: 0.01em;
+}
+
+.inspector-btn-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #64748b;
+  padding: 2px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.inspector-btn-close:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #1e293b;
+}
+
+.inspector-metrics-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  margin-top: 0.1rem;
+}
+
+.inspector-big-val {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #1f3a30;
+  letter-spacing: -0.01em;
+}
+
+.inspector-status-badge {
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.inspector-status-badge.tag-green {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.inspector-status-badge.tag-amber {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.inspector-status-badge.tag-red {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.inspector-footer-info {
+  border-top: 1px solid rgba(107, 144, 128, 0.15);
+  padding-top: 0.4rem;
+  margin-top: 0.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.inspector-target-range {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #059669;
+}
+
+.inspector-agronomy-tip {
+  font-size: 0.72rem;
+  color: #64748b;
+  line-height: 1.35;
+  margin: 0;
+}
+
+/* 5. Footer Mini Stats */
+.plant-svg-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0.65rem 1rem;
+  background: rgba(255, 255, 255, 0.92);
+  border-top: 1px solid rgba(107, 144, 128, 0.16);
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  z-index: 10;
+}
+
+.footer-stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #1f3a30;
+  cursor: pointer;
+  padding: 0.3rem 0.65rem;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.footer-stat-chip:hover {
+  background: #f0fdf4;
+  color: #2d6a4f;
+  border-color: rgba(74, 222, 128, 0.3);
+}
+
+.footer-stat-chip.active-chip {
+  background: #ecfdf5;
+  color: #065f46;
+  border-color: #6ee7b7;
+  box-shadow: 0 1px 3px rgba(16, 185, 129, 0.15);
+}
+
+.footer-stat-chip strong {
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .plant-svg-viewport {
+    height: 320px;
+    min-height: 280px;
+  }
+
+  .plant-svg-toolbar {
+    padding: 0.55rem 0.75rem;
+    gap: 0.4rem;
+  }
+
+  .toolbar-status-badge {
+    font-size: 0.76rem;
+    padding: 0.22rem 0.6rem;
+  }
+
+  .toolbar-hint {
+    display: none;
+  }
+
+  .sensor-inspector-dock {
+    width: calc(100% - 16px);
+    max-width: 240px;
+    top: 8px;
+    right: 8px;
+    padding: 0.65rem 0.75rem;
+  }
+
+  .hotspot-trigger-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .plant-svg-footer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 0.45rem 0.5rem;
+    gap: 0.35rem;
+  }
+
+  .footer-stat-chip {
+    padding: 0.28rem 0.2rem;
+    font-size: 0.72rem;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.12rem;
+    text-align: center;
+    white-space: nowrap;
+    border-radius: 6px;
+    background: rgba(240, 253, 244, 0.6);
+  }
+
+  .footer-stat-chip span {
+    font-size: 0.7rem;
+    line-height: 1.1;
+  }
+}
+
+@media (max-width: 380px) {
+  .plant-svg-viewport {
+    height: 290px;
+    min-height: 260px;
+  }
+
+  .hotspot-trigger-btn {
+    width: 28px;
+    height: 28px;
+  }
+
+  .footer-stat-chip {
+    font-size: 0.68rem;
+  }
+}
+
+/* 6. Dark Mode Support */
+:root.dark .tomato-svg-card,
+[data-theme='dark'] .tomato-svg-card,
+body.dark-theme .tomato-svg-card {
+  background: radial-gradient(circle at 50% 35%, rgba(20, 40, 32, 0.92) 0%, rgba(15, 23, 42, 0.98) 75%);
+  border-color: rgba(74, 222, 128, 0.18);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.05), 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+:root.dark .plant-svg-toolbar,
+[data-theme='dark'] .plant-svg-toolbar,
+body.dark-theme .plant-svg-toolbar {
+  background: rgba(15, 23, 42, 0.88);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+:root.dark .toolbar-hint,
+[data-theme='dark'] .toolbar-hint,
+body.dark-theme .toolbar-hint {
+  color: #94a3b8;
+}
+
+:root.dark .plant-svg-viewport,
+[data-theme='dark'] .plant-svg-viewport,
+body.dark-theme .plant-svg-viewport {
+  background: radial-gradient(ellipse at 50% 60%, rgba(20, 83, 45, 0.25) 0%, rgba(15, 23, 42, 0) 70%);
+}
+
+:root.dark .hotspot-trigger-btn,
+[data-theme='dark'] .hotspot-trigger-btn,
+body.dark-theme .hotspot-trigger-btn {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4), 0 0 0 2.5px rgba(74, 222, 128, 0.2);
+}
+
+:root.dark .hotspot-trigger-btn:hover,
+[data-theme='dark'] .hotspot-trigger-btn:hover,
+body.dark-theme .hotspot-trigger-btn:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 0 4px rgba(74, 222, 128, 0.35);
+}
+
+:root.dark .hotspot-trigger-btn.active,
+[data-theme='dark'] .hotspot-trigger-btn.active,
+body.dark-theme .hotspot-trigger-btn.active {
+  box-shadow: 0 0 0 4px #4ade80, 0 6px 20px rgba(74, 222, 128, 0.4);
+}
+
+:root.dark .sensor-inspector-dock,
+[data-theme='dark'] .sensor-inspector-dock,
+body.dark-theme .sensor-inspector-dock {
+  background: rgba(15, 23, 42, 0.94);
+  border-color: rgba(74, 222, 128, 0.25);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(255, 255, 255, 0.06);
+}
+
+:root.dark .inspector-sensor-title,
+[data-theme='dark'] .inspector-sensor-title,
+body.dark-theme .inspector-sensor-title {
+  color: #e2e8f0;
+}
+
+:root.dark .inspector-btn-close,
+[data-theme='dark'] .inspector-btn-close,
+body.dark-theme .inspector-btn-close {
+  color: #94a3b8;
+}
+
+:root.dark .inspector-btn-close:hover,
+[data-theme='dark'] .inspector-btn-close:hover,
+body.dark-theme .inspector-btn-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+:root.dark .inspector-big-val,
+[data-theme='dark'] .inspector-big-val,
+body.dark-theme .inspector-big-val {
+  color: #f8fafc;
+}
+
+:root.dark .inspector-target-range,
+[data-theme='dark'] .inspector-target-range,
+body.dark-theme .inspector-target-range {
+  color: #86efac;
+}
+
+:root.dark .inspector-agronomy-tip,
+[data-theme='dark'] .inspector-agronomy-tip,
+body.dark-theme .inspector-agronomy-tip {
+  color: #94a3b8;
+}
+
+:root.dark .inspector-footer-info,
+[data-theme='dark'] .inspector-footer-info,
+body.dark-theme .inspector-footer-info {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+:root.dark .plant-svg-footer,
+[data-theme='dark'] .plant-svg-footer,
+body.dark-theme .plant-svg-footer {
+  background: rgba(15, 23, 42, 0.92);
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+:root.dark .footer-stat-chip,
+[data-theme='dark'] .footer-stat-chip,
+body.dark-theme .footer-stat-chip {
+  color: #e2e8f0;
+}
+
+:root.dark .footer-stat-chip:hover,
+[data-theme='dark'] .footer-stat-chip:hover,
+body.dark-theme .footer-stat-chip:hover {
+  background: rgba(30, 41, 59, 0.9);
+  color: #86efac;
+}
+
+:root.dark .footer-stat-chip.active-chip,
+[data-theme='dark'] .footer-stat-chip.active-chip,
+body.dark-theme .footer-stat-chip.active-chip {
+  background: rgba(6, 78, 59, 0.5);
+  color: #86efac;
+  border-color: #059669;
+}

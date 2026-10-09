@@ -154,7 +154,7 @@ const PlantForm = ({ onClose, plant, gardens: propGardens, selectedGardenId, onS
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay plant-modal-overlay" onClick={onClose}>
       <div className="modal-content plant-form" onClick={(e) => e.stopPropagation()}>
         <div className="form-header">
           <h3>

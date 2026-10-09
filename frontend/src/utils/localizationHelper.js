@@ -44,6 +44,15 @@ const PLANT_DICTIONARY = [
   },
   {
     keywords: [
+      'sweet 100 cherry & roma', 'sweet 100 cherry and roma', 'sweet 100 cherry', 'roma tomato', 'sweet 100 & roma',
+      'સ્વીટ 100 ચેરી અને રોમા', 'સ્વીટ 100 ચેરી & રોમા', 'स्वीट 100 चेरी और रोमा'
+    ],
+    gu: 'સ્વીટ 100 ચેરી & રોમા ટામેટા',
+    hi: 'स्वीट 100 चेरी और रोमा टमाटर',
+    en: 'Sweet 100 Cherry & Roma'
+  },
+  {
+    keywords: [
       'bush tomato (determinate varieties)', 'bush tomato (determinate)', 'bush tomato', 'bush tomatoes',
       'ઝાડવા ટામેટા', 'ઝાડવાં ટામેટા', 'झाड़ी टमाटर', 'झाड़ीदार टमाटर'
     ],

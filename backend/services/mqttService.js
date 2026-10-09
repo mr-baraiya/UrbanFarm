@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const mqtt = require('mqtt');
 const iotService = require('./iotService');
 
@@ -9,9 +11,9 @@ let client = null;
 function initMQTT() {
   const brokerUrl = process.env.MQTT_BROKER_URL || 'mqtt://broker.emqx.io:1883';
   const options = {
-    clientId: `UrbanFarmBackend_${Math.random().toString(16).substring(2, 8)}`,
+    clientId: process.env.MQTT_CLIENT_ID || `UrbanFarmBackend_${Math.random().toString(16).substring(2, 8)}`,
     clean: true,
-    connectTimeout: 4000,
+    connectTimeout: 8000,
     reconnectPeriod: 10000,
   };
 
@@ -22,7 +24,29 @@ function initMQTT() {
     options.password = process.env.MQTT_PASSWORD;
   }
 
+  // Load CA certificate for TLS connections (mqtts:// or port 8883)
+  const configuredCaPath = process.env.MQTT_CA_CERT_PATH;
+  const candidatePaths = [
+    configuredCaPath ? path.resolve(process.cwd(), configuredCaPath) : null,
+    path.join(__dirname, '../cert/emqxsl-ca.crt'),
+    path.join(__dirname, '../certs/emqxsl-ca.crt')
+  ].filter(Boolean);
+
+  for (const certPath of candidatePaths) {
+    if (fs.existsSync(certPath)) {
+      try {
+        options.ca = [fs.readFileSync(certPath)];
+        options.rejectUnauthorized = true;
+        console.log(`🔒 Loaded EMQX CA certificate from ${certPath}`);
+        break;
+      } catch (err) {
+        console.warn('⚠️ Could not load CA cert:', err.message);
+      }
+    }
+  }
+
   console.log(`📡 Connecting to MQTT Broker at ${brokerUrl}...`);
+
 
   try {
     client = mqtt.connect(brokerUrl, options);

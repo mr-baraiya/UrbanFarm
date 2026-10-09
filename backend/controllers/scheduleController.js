@@ -165,19 +165,6 @@ exports.completeTask = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Task not found' });
     }
 
-    // ⛔ Block completing future tasks ahead of time
-    if (existingTask.dueDate && !existingTask.completed) {
-      const taskDate = new Date(existingTask.dueDate);
-      const todayEnd = new Date();
-      todayEnd.setHours(23, 59, 59, 999);
-
-      if (taskDate > todayEnd) {
-        return res.status(400).json({
-          success: false,
-          message: 'Future tasks scheduled for tomorrow or later cannot be completed ahead of time'
-        });
-      }
-    }
 
     const task = await ScheduleTask.findOneAndUpdate(
       { _id: req.params.id, userId: req.user.id },

@@ -1,324 +1,80 @@
+/* ============================================================
+   WateringTab.css - UrbanFarm Precision Irrigation Page
+   ============================================================ */
+
 .watering-tab {
-  padding: 2.25rem 2.5rem 3rem;
-  max-width: 1200px;
+  padding: 1.75rem 2rem 3rem;
+  max-width: 1280px;
   margin: 0 auto;
   background: var(--surface-primary, #ffffff);
-  border-radius: var(--radius-lg, 24px);
-  border: 1px solid var(--border-light, rgba(107, 144, 128, 0.22));
-  box-shadow: 0 12px 40px rgba(31, 58, 48, 0.06);
-  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+  border-radius: 24px;
+  border: 1px solid rgba(107, 144, 128, 0.22);
+  box-shadow: 0 12px 40px rgba(31, 58, 48, 0.05);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
 }
 
 .watering-tab:hover {
-  box-shadow: 0 6px 28px rgba(44, 36, 33, 0.04);
+  box-shadow: 0 16px 48px rgba(31, 58, 48, 0.08);
 }
 
-.watering-tab h2 {
-  color: var(--text-main, #2c2421);
-  margin-bottom: 0.3rem;
-  font-size: 1.6rem;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  display: flex;
+/* Page Header Matching UrbanFarm Design System */
+.watering-page-header,
+.crop-page-header {
+  margin-bottom: 1.5rem;
+}
+
+.watering-header-badge,
+.crop-header-badge {
+  display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-}
-
-.watering-tab .header-icon {
-  color: var(--sage, #2c5e3b);
-}
-
-.watering-tab .subtitle {
-  color: var(--text-muted, #7c6f66);
-  margin-bottom: 1.5rem;
-  font-size: 1rem;
-  line-height: 1.5;
-}
-
-/* Top Section Controls Stack */
-.watering-top-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-/* Plant Selector & Generate Section */
-.watering-generate-section {
-  background: var(--bg-primary, #fbf9f7);
-  padding: 1.15rem 1.4rem;
-  border-radius: var(--radius-md, 14px);
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
-}
-
-.plant-selector {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 1rem;
-}
-
-.plant-selector label {
-  font-weight: 600;
-  color: var(--text-main, #2c2421);
-  font-size: 0.95rem;
-}
-
-.plant-selector select {
-  flex: 1;
-  padding: 0.55rem 1.2rem;
-  border-radius: var(--radius-md, 12px);
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
-  background: var(--surface-primary, #ffffff);
-  color: var(--text-main, #2c2421);
-  font-size: 0.92rem;
-  font-weight: 500;
-  min-width: 180px;
-  cursor: pointer;
-  transition: var(--transition-smooth, all 0.3s cubic-bezier(0.16, 1, 0.3, 1));
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237c6f66' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 12px;
-  padding-right: 2.5rem;
-}
-
-.plant-selector select:focus {
-  outline: none;
-  border-color: var(--sage, #2c5e3b);
-  box-shadow: 0 0 0 3px rgba(44, 94, 59, 0.12);
-}
-
-.plant-selector-skeleton {
-  flex: 1;
-  padding: 0.5rem 1.2rem;
-  border-radius: var(--radius-md, 12px);
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
-  background: var(--surface-primary, #ffffff);
-  color: var(--text-muted, #7c6f66);
-  font-size: 0.9rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.plant-selector .btn-primary {
-  background: var(--sage, #2c5e3b);
-  border: 1px solid var(--sage, #2c5e3b);
-  padding: 0.55rem 1.4rem;
-  border-radius: var(--radius-md, 10px);
-  font-weight: 600;
-  color: #ffffff;
-  cursor: pointer;
-  transition: var(--transition-smooth, all 0.2s cubic-bezier(0.16, 1, 0.3, 1));
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.plant-selector .btn-primary:hover:not(:disabled) {
-  background: #234c2e;
-  border-color: #234c2e;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(44, 94, 59, 0.2);
-}
-
-/* Quick Adjust Controls */
-.bulk-controls {
-  background: var(--bg-primary, #fbf9f7);
-  padding: 0.85rem 1.25rem;
-  border-radius: var(--radius-md, 14px);
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.controls-label {
-  font-weight: 600;
-  color: var(--text-main, #2c2421);
-  font-size: 0.88rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-.controls-label svg {
-  color: var(--sage, #2c5e3b);
-}
-
-.control-btn {
-  padding: 0.35rem 1rem;
-  border-radius: 30px;
-  font-size: 0.82rem;
-  cursor: pointer;
-  transition: var(--transition-smooth, all 0.2s cubic-bezier(0.16, 1, 0.3, 1));
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  background: var(--surface-primary, #ffffff);
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.5));
-  color: var(--text-main, #2c2421);
-}
-
-.control-btn:hover {
-  border-color: var(--sage, #2c5e3b);
-  color: var(--sage, #2c5e3b);
-  background: rgba(44, 94, 59, 0.04);
-  transform: translateY(-1px);
-}
-
-/* Equal Height 2-Column Layout */
-.watering-layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  align-items: stretch;
-}
-
-@media (max-width: 1024px) {
-  .watering-layout {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-}
-
-.watering-left,
-.watering-right {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 540px;
-}
-
-/* Schedule and History Detail Containers */
-.watering-schedule-section,
-.watering-history-detail,
-.no-schedule-box {
-  background: var(--bg-primary, #fbf9f7);
-  padding: 1.5rem;
-  border-radius: var(--radius-md, 16px);
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.02);
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  height: 100%;
-}
-
-.no-schedule-box {
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-.history-detail-header-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  padding-bottom: 0.65rem;
-  border-bottom: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
-  gap: 0.5rem;
-}
-
-.history-badge-tag {
+  padding: 0.35rem 0.85rem;
   font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--sage, #2c5e3b);
-  background: rgba(44, 94, 59, 0.08);
-  border: 1px solid rgba(44, 94, 59, 0.2);
-  padding: 0.25rem 0.75rem;
-  border-radius: 6px;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #1f3a30;
+  background: #cce3de;
+  border-radius: 999px;
+  margin-bottom: 0.6rem;
 }
 
-.btn-close-history {
-  background: var(--surface-primary, #ffffff);
-  border: 1px solid rgba(44, 94, 59, 0.3);
-  padding: 0.35rem 0.95rem;
-  border-radius: var(--radius-md, 10px);
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--sage, #2c5e3b);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  transition: var(--transition-smooth, all 0.2s cubic-bezier(0.16, 1, 0.3, 1));
+.header-badge-icon {
+  color: #2d6a4f;
 }
 
-.btn-close-history:hover {
-  background: rgba(44, 94, 59, 0.06);
-  border-color: var(--sage, #2c5e3b);
-  transform: translateY(-1px);
+.watering-tab h2,
+.crop-page-header h2 {
+  color: #1f3a30;
+  margin: 0 0 0.4rem 0;
+  font-size: 1.85rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
-.watering-right {
-  background: var(--bg-primary, #fbf9f7);
-  padding: 1.5rem;
-  border-radius: var(--radius-md, 16px);
-  border: 1px solid var(--border-light, rgba(220, 210, 200, 0.4));
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.02);
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  height: 100%;
+.watering-tab .subtitle,
+.crop-page-header .subtitle {
+  color: #52796f;
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.55;
+  max-width: 800px;
 }
 
-.watering-right::-webkit-scrollbar {
-  width: 5px;
-}
-
-.watering-right::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.watering-right::-webkit-scrollbar-thumb {
-  background: rgba(107, 144, 128, 0.3);
-  border-radius: 10px;
-}
-
-/* Responsive */
 @media (max-width: 768px) {
   .watering-tab {
-    padding: 1.25rem 1.25rem 2rem;
-    border-radius: var(--radius-md, 16px);
+    padding: 1.25rem 1rem 2.5rem;
+    border-radius: 16px;
   }
 
-  .watering-generate-section,
-  .watering-schedule-section,
-  .watering-history-detail,
-  .watering-right,
-  .no-schedule-box {
-    padding: 1rem;
-    min-height: auto;
-  }
-}
-
-@media (max-width: 480px) {
-  .plant-selector {
-    flex-direction: column;
-    align-items: stretch;
+  .watering-tab h2,
+  .crop-page-header h2 {
+    font-size: 1.4rem;
   }
 
-  .plant-selector select {
-    min-width: unset;
-  }
-
-  .bulk-controls {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-  }
-
-  .control-btn {
-    text-align: center;
-    justify-content: center;
+  .watering-tab .subtitle,
+  .crop-page-header .subtitle {
+    font-size: 0.9rem;
   }
 }

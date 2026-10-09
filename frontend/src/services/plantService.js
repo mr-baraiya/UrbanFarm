@@ -141,9 +141,9 @@ export const deleteCropRecommendation = async (id) => {
 };
 
 // Watering
-export const generateWateringSchedule = async (plantId) => {
-  const res = await api.post('/watering/generate', { plantId });
-  return res.data.schedule;
+export const generateWateringSchedule = async (plantId, iotData = null, weatherData = null) => {
+  const res = await api.post('/watering/generate', { plantId, iotData, weatherData });
+  return res.data;
 };
 
 export const getWateringSchedules = async () => {

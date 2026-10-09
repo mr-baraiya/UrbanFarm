@@ -1,0 +1,495 @@
+/* TomatoPlant3D.css - Responsive 3D Canvas & Hotspot Controls */
+
+.tomato-3d-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.94) 0%, rgba(246, 255, 248, 0.92) 100%);
+  border: 1px solid var(--border, rgba(107, 144, 128, 0.28));
+  border-radius: var(--radius-md, 14px);
+  box-shadow: var(--shadow-soft, 0 8px 24px rgba(31, 58, 48, 0.08));
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--space-3, 24px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* 1. Header Toolbar */
+.plant-3d-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.75);
+  border-bottom: 1px solid rgba(107, 144, 128, 0.16);
+  flex-wrap: wrap;
+  gap: 8px;
+  z-index: 10;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.live-3d-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(45, 106, 79, 0.1);
+  color: var(--ink, #1f3a30);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid rgba(45, 106, 79, 0.2);
+}
+
+.pulsing-emerald-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: pulseEmerald 2s infinite;
+}
+
+@keyframes pulseEmerald {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.watering-live-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #7dd3fc;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  animation: dripGlow 1.5s infinite alternate;
+}
+
+@keyframes dripGlow {
+  0% { box-shadow: 0 0 4px rgba(56, 189, 248, 0.4); }
+  100% { box-shadow: 0 0 12px rgba(56, 189, 248, 0.8); }
+}
+
+.drop-spin {
+  animation: dropBob 1s infinite ease-in-out alternate;
+}
+
+@keyframes dropBob {
+  from { transform: translateY(-2px); }
+  to { transform: translateY(2px); }
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-tool-icon, .btn-healthy-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm, 6px);
+  border: 1px solid var(--border, rgba(107, 144, 128, 0.28));
+  background: var(--cream, #f6fff8);
+  color: var(--ink, #1f3a30);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition, 200ms ease-out);
+}
+
+.btn-tool-icon:hover {
+  background: var(--mist, #cce3de);
+  border-color: var(--sage, #6b9080);
+}
+
+.btn-healthy-toggle.active {
+  background: #2d6a4f;
+  color: #ffffff;
+  border-color: #1b4332;
+  box-shadow: 0 2px 8px rgba(45, 106, 79, 0.3);
+}
+
+.btn-healthy-toggle:hover:not(.active) {
+  background: #d8f3dc;
+  border-color: #52b788;
+}
+
+/* 2. 3D Canvas Container */
+.canvas-3d-container {
+  position: relative;
+  width: 100%;
+  height: 360px;
+  min-height: 340px;
+  background: radial-gradient(circle at center 40%, rgba(234, 244, 244, 0.6) 0%, rgba(204, 227, 222, 0.25) 100%);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  overflow: hidden;
+}
+
+.canvas-3d-container.is-dragging {
+  cursor: grabbing;
+}
+
+.three-mount-viewport {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+}
+
+.three-mount-viewport canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  outline: none;
+}
+
+/* 3. Accessible Hotspots (48px targets) */
+.hotspots-overlay-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.plant-hotspot-btn {
+  position: absolute;
+  pointer-events: auto;
+  min-height: 48px;
+  min-width: 48px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 6px 8px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1.5px solid rgba(107, 144, 128, 0.35);
+  box-shadow: 0 4px 14px rgba(31, 58, 48, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+  color: var(--ink, #1f3a30);
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 5;
+}
+
+.plant-hotspot-btn:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 8px 20px rgba(31, 58, 48, 0.18);
+  border-color: var(--sage, #6b9080);
+}
+
+.plant-hotspot-btn:active {
+  transform: scale(0.97);
+}
+
+.hotspot-icon-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hotspot-label-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  line-height: 1.25;
+}
+
+.spot-title {
+  font-size: 0.78rem;
+  color: var(--text-secondary, #385b4d);
+  font-weight: 500;
+}
+
+.spot-title strong {
+  color: var(--ink, #1f3a30);
+  font-weight: 700;
+}
+
+.spot-status-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Hotspot Color Schemes & Positions */
+/* 1. Soil (Moisture) - Bottom Left near Pot */
+.hotspot-soil {
+  bottom: 24px;
+  left: 18px;
+}
+.hotspot-soil .hotspot-icon-circle {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+/* 2. Leaf (Temperature) - Middle Left */
+.hotspot-leaf {
+  top: 90px;
+  left: 16px;
+}
+.hotspot-leaf .hotspot-icon-circle {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+/* 3. Blossom (Humidity) - Top Right */
+.hotspot-flower {
+  top: 36px;
+  right: 18px;
+}
+.hotspot-flower .hotspot-icon-circle {
+  background: #fdf2f8;
+  color: #db2777;
+}
+
+/* 4. Fruit (Sunlight) - Middle Right */
+.hotspot-fruit {
+  bottom: 60px;
+  right: 18px;
+}
+.hotspot-fruit .hotspot-icon-circle {
+  background: #ffedd5;
+  color: #ea580c;
+}
+
+/* Status Indicators on Hotspots (Never rely on color alone) */
+.spot-status-badge.status-good {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.spot-status-badge.status-warn {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.spot-status-badge.status-bad {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.spot-status-badge.status-wet {
+  background: #e0e7ff;
+  color: #4338ca;
+}
+
+/* 4. Drag & Rotate Hint */
+.plant-drag-hint {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(31, 58, 48, 0.7);
+  color: #ffffff;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+  white-space: nowrap;
+}
+
+/* 5. Fallback 2D Mode */
+.tomato-3d-card.fallback-mode {
+  padding: 14px;
+}
+
+.fallback-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.fallback-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #b45309;
+  background: #fffbeb;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #fde68a;
+}
+
+.static-plant-display-wrap {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  border-radius: var(--radius-sm, 6px);
+  overflow: hidden;
+  background: #1f3a30;
+}
+
+.static-plant-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: filter 0.3s ease;
+}
+
+.static-plant-photo.watering-glow {
+  filter: brightness(1.08) drop-shadow(0 0 10px rgba(56, 189, 248, 0.5));
+}
+
+.active-drip-indicator {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(14, 165, 233, 0.9);
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+}
+
+.drip-drop-icon {
+  animation: dropBob 0.8s infinite alternate;
+}
+
+/* 6. Plant 3D Skeleton Loader */
+.plant-3d-skeleton-card {
+  width: 100%;
+  height: 410px;
+  background: #ffffff;
+  border: 1px solid var(--border, rgba(107, 144, 128, 0.28));
+  border-radius: var(--radius-md, 14px);
+  margin-bottom: var(--space-3, 24px);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: var(--shadow-soft, 0 8px 24px rgba(31, 58, 48, 0.08));
+}
+
+.skeleton-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.skeleton-chip {
+  width: 120px;
+  height: 28px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, #f0fdf4 25%, #dcfce7 50%, #f0fdf4 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-btn {
+  width: 140px;
+  height: 32px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-canvas-area {
+  flex: 1;
+  border-radius: var(--radius-sm, 6px);
+  background: linear-gradient(90deg, #eaf4f4 25%, #cce3de 50%, #eaf4f4 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.skeleton-loading-text {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--sage, #6b9080);
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* 7. Mobile Responsive Design */
+@media (max-width: 640px) {
+  .canvas-3d-container {
+    height: 330px;
+    min-height: 320px;
+  }
+
+  .plant-hotspot-btn {
+    padding: 5px 8px;
+    font-size: 0.72rem;
+  }
+
+  .spot-title {
+    font-size: 0.72rem;
+  }
+
+  .hotspot-soil {
+    bottom: 20px;
+    left: 10px;
+  }
+
+  .hotspot-leaf {
+    top: 70px;
+    left: 10px;
+  }
+
+  .hotspot-flower {
+    top: 24px;
+    right: 10px;
+  }
+
+  .hotspot-fruit {
+    bottom: 40px;
+    right: 10px;
+  }
+
+  .plant-drag-hint {
+    display: none;
+  }
+}

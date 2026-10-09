@@ -7,12 +7,42 @@ const mqttService = require('../services/mqttService');
 // Helper to check valid Mongo ObjectId
 const isValidObjectId = (id) => typeof id === 'string' && /^[0-9a-fA-F]{24}$/.test(id);
 
+// @desc    Ingest sensor reading from hardware / Wokwi simulator via HTTP
+// @route   POST /api/iot/reading or POST /api/iot/sensors
+exports.ingestSensorReading = async (req, res, next) => {
+  try {
+    const payload = req.body || {};
+    const readingData = {
+      deviceId: payload.deviceId || payload.device_id || 'ESP32-TOMATO-01',
+      plantId: payload.plantId || payload.plant_id || 'tomato-01',
+      temperature: payload.temperature ?? payload.temp ?? 28.5,
+      humidity: payload.humidity ?? payload.hum ?? 55.0,
+      soilMoisture: payload.soilMoisture ?? payload.moisture ?? payload.soil_moisture ?? 45.0,
+      light: payload.light ?? payload.lux ?? 650,
+      timestamp: payload.timestamp || new Date().toISOString()
+    };
+
+    const reading = await iotService.processSensorReading(readingData);
+    if (!reading) {
+      return res.status(400).json({ success: false, message: 'Invalid sensor reading payload' });
+    }
+
+    res.status(201).json({
+      success: true,
+      message: 'Sensor reading ingested successfully from Wokwi/ESP32',
+      reading
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Get IoT devices (User gets their devices, Admin gets all)
 // @route   GET /api/iot/devices
 exports.getDevices = async (req, res, next) => {
   try {
     let query = {};
-    if (req.user.role !== 'admin') {
+    if (req.user && req.user.role !== 'admin') {
       const userPlants = await Plant.find({ userId: req.user.id }).select('_id');
       const plantIds = userPlants.map(p => p._id);
       query = {
@@ -48,7 +78,7 @@ exports.getDeviceById = async (req, res, next) => {
     }
 
     // Auth check for non-admin
-    if (req.user.role !== 'admin' && String(device.userId) !== String(req.user.id)) {
+    if (req.user && req.user.role !== 'admin' && String(device.userId) !== String(req.user.id)) {
       if (device.plantId && String(device.plantId.userId) !== String(req.user.id)) {
         return res.status(403).json({ success: false, message: 'Not authorized to view this device' });
       }
@@ -66,7 +96,7 @@ exports.getLatestPlantSensors = async (req, res, next) => {
   try {
     const { plantId } = req.params;
 
-    if (req.user.role !== 'admin' && isValidObjectId(plantId)) {
+    if (req.user && req.user.role !== 'admin' && isValidObjectId(plantId)) {
       const plant = await Plant.findById(plantId);
       if (plant && String(plant.userId) !== String(req.user.id)) {
         return res.status(403).json({ success: false, message: 'Not authorized to access sensor data for this plant' });
@@ -81,6 +111,7 @@ exports.getLatestPlantSensors = async (req, res, next) => {
     res.status(200).json({
       success: true,
       reading: result.reading,
+      sensors: result.reading,
       isOnline: result.isOnline,
       lastSeen: result.lastSeen,
       device: device || null
@@ -97,7 +128,7 @@ exports.getPlantSensorHistory = async (req, res, next) => {
     const { plantId } = req.params;
     const { range = '24h' } = req.query;
 
-    if (req.user.role !== 'admin' && isValidObjectId(plantId)) {
+    if (req.user && req.user.role !== 'admin' && isValidObjectId(plantId)) {
       const plant = await Plant.findById(plantId);
       if (plant && String(plant.userId) !== String(req.user.id)) {
         return res.status(403).json({ success: false, message: 'Not authorized to access sensor history for this plant' });
@@ -223,6 +254,36 @@ exports.simulateScenario = async (req, res, next) => {
   }
 };
 
+// @desc    Trigger remote IoT water pump / actuator
+// @route   POST /api/iot/plants/:plantId/pump
+// @route   POST /api/iot/pump
+exports.triggerPump = async (req, res, next) => {
+  try {
+    const plantId = req.params.plantId || req.body.plantId || 'tomato-01';
+    const { amountMl = 250, durationSec = 3 } = req.body;
+
+    const result = await iotService.triggerPump(plantId, amountMl, durationSec);
+
+    // Publish MQTT actuator topic
+    const topic = `urbanfarm/${plantId}/actuators/pump`;
+    mqttService.publishMessage(topic, {
+      action: 'PUMP_ON',
+      amountMl: Number(amountMl),
+      durationSec: Number(durationSec),
+      triggeredBy: req.user?.email || 'user',
+      timestamp: new Date().toISOString()
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `💧 Smart pump activated successfully for ${plantId}! Dispensed ${amountMl}ml.`,
+      result
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Delete/Unlink IoT Device
 // @route   DELETE /api/iot/devices/:deviceId
 exports.deleteDevice = async (req, res, next) => {
@@ -240,3 +301,4 @@ exports.deleteDevice = async (req, res, next) => {
     next(error);
   }
 };
+

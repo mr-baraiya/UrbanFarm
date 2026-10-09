@@ -227,19 +227,25 @@ export const getPlantImage = (plant) => {
   if (plant?.imageUrl && typeof plant.imageUrl === 'string' && plant.imageUrl.trim().length > 0) {
     return plant.imageUrl;
   }
+  if (plant?.image && typeof plant.image === 'string' && plant.image.trim().length > 0) {
+    return plant.image;
+  }
+  if (plant?.photo && typeof plant.photo === 'string' && plant.photo.trim().length > 0) {
+    return plant.photo;
+  }
   
   const name = (plant?.name || '').toLowerCase();
   const variety = (plant?.variety || '').toLowerCase();
   const search = `${name} ${variety}`;
 
-  if (search.includes('pepper') || search.includes('capsicum') || search.includes('chilli') || search.includes('chili')) {
+  if (search.includes('pepper') || search.includes('capsicum') || search.includes('chilli') || search.includes('chili') || search.includes('મરચા') || search.includes('मिर्च')) {
     return 'https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=600&auto=format&fit=crop&q=80';
   }
-  if (search.includes('mint') || search.includes('spearmint') || search.includes('pudina')) {
+  if (search.includes('mint') || search.includes('spearmint') || search.includes('pudina') || search.includes('ફુદીનો') || search.includes('पुदीना')) {
     return 'https://images.unsplash.com/photo-1628556270448-4d4e4148e1b1?w=600&auto=format&fit=crop&q=80';
   }
-  if (search.includes('tomato')) {
-    return 'https://images.unsplash.com/photo-1592841200221-a6898f307baa?w=600&auto=format&fit=crop&q=80';
+  if (search.includes('tomato') || search.includes('ટામેટા') || search.includes('ટમેટા') || search.includes('टमाटर') || search.includes('roma') || search.includes('cherry')) {
+    return '/demo/priya_tomato_plant.jpg';
   }
   if (search.includes('basil') || search.includes('tulsi')) {
     return 'https://images.unsplash.com/photo-1608686207856-001b95cf60ca?w=600&auto=format&fit=crop&q=80';

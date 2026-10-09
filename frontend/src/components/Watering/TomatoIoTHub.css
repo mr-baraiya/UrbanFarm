@@ -1,0 +1,1844 @@
+/* ============================================================
+   Tomato IoT Hub - UrbanFarm Design System Synchronized Stylesheet
+   Theme: Mint / Emerald Glassmorphism & Forest Greens
+   Matching CropRecommendation, DiagnoseTab & DashboardTab
+   ============================================================ */
+
+.farmer-iot-hub {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #1f3a30;
+}
+
+/* ============================================================
+   Top Bar: Telemetry Refresh & Status
+   ============================================================ */
+.hub-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  background: linear-gradient(135deg, #ffffff 0%, #fbfdfb 100%);
+  padding: 0.85rem 1.35rem;
+  border-radius: 16px;
+  border: 1.5px solid rgba(107, 144, 128, 0.22);
+  box-shadow: 0 4px 18px rgba(31, 58, 48, 0.04);
+}
+
+.btn-hub-refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 40px;
+  padding: 0.45rem 1.15rem;
+  border-radius: 10px;
+  border: 1px solid rgba(45, 106, 79, 0.25);
+  background: rgba(45, 106, 79, 0.08);
+  color: #2d6a4f;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-hub-refresh:hover:not(:disabled) {
+  background: #2d6a4f;
+  color: #ffffff;
+  border-color: #2d6a4f;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(45, 106, 79, 0.2);
+}
+
+.btn-hub-refresh:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-hub-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.refresh-icon-spin.spinning,
+.spinning {
+  animation: hubSpin 0.9s linear infinite;
+}
+
+@keyframes hubSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.single-status-line {
+  font-size: 0.88rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+/* ============================================================
+   2-Column Responsive Layout
+   ============================================================ */
+.watering-hub-layout,
+.watering-hub-two-col-layout {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 1.75rem;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .watering-hub-layout,
+  .watering-hub-two-col-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.watering-hub-col-left,
+.watering-hub-col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+/* ============================================================
+   Plant Specimen Header Card & Skeleton
+   ============================================================ */
+.plant-specimen-header-card {
+  background: linear-gradient(135deg, #ffffff 0%, #fbfdfb 100%);
+  border: 1.5px solid rgba(107, 144, 128, 0.22);
+  border-radius: 18px;
+  padding: 1.4rem;
+  box-shadow: 0 4px 20px rgba(31, 58, 48, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.specimen-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.specimen-badge-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.garden-tag-pill {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #2d6a4f;
+  background: rgba(45, 106, 79, 0.08);
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.flowering-chip {
+  color: #0284c7;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: #e0f2fe;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+}
+
+.plant-title-text {
+  margin: 0.2rem 0 0 0;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #1f3a30;
+  letter-spacing: -0.01em;
+}
+
+.plant-variety-text {
+  margin: 0;
+  font-size: 0.92rem;
+  color: #52796f;
+  font-weight: 500;
+}
+
+/* 3D Skeleton Loader */
+.plant-3d-skeleton-card {
+  min-height: 280px;
+  background: #f8fafc;
+  border-radius: 14px;
+  border: 1px dashed rgba(107, 144, 128, 0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+.skeleton-loading-text {
+  color: #52796f;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+/* ============================================================
+   Decision Hero Banner
+   ============================================================ */
+.hub-decision-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  padding: 1.35rem 1.6rem;
+  border-radius: 18px;
+  border: 1.5px solid;
+  box-shadow: 0 4px 20px rgba(31, 58, 48, 0.05);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hub-decision-hero.hero-water-needed {
+  background: linear-gradient(135deg, #fffdf8 0%, #fef8ee 100%);
+  border-color: rgba(245, 158, 11, 0.35);
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.08);
+}
+
+.hub-decision-hero.hero-optimal {
+  background: linear-gradient(135deg, #f0fdf4 0%, #f6fff8 100%);
+  border-color: #a7f3d0;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.08);
+}
+
+.decision-hero-main {
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+  flex: 1;
+  min-width: 240px;
+}
+
+.decision-hero-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.hero-water-needed .decision-hero-icon {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.hero-optimal .decision-hero-icon {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.decision-hero-texts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.decision-hero-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.hero-water-needed .decision-hero-title { color: #92400e; }
+.hero-optimal .decision-hero-title { color: #14532d; }
+
+.decision-hero-subtitle {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.hero-water-needed .decision-hero-subtitle { color: #b45309; }
+.hero-optimal .decision-hero-subtitle { color: #15803d; }
+
+.decision-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn-hero-dispense {
+  min-height: 44px;
+  padding: 0.55rem 1.35rem;
+  background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.94rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(45, 106, 79, 0.3);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-hero-dispense:hover:not(:disabled) {
+  background: linear-gradient(135deg, #367d5e 0%, #22543d 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(45, 106, 79, 0.4);
+}
+
+.btn-hero-dispense:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Action Feedback Banner */
+.action-feedback-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1.25rem;
+  border-radius: 14px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  border: 1.5px solid;
+}
+
+.feedback-text-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.action-feedback-banner.success {
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #15803d;
+}
+
+.action-feedback-banner.error {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
+.action-feedback-banner.info {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+  color: #0369a1;
+}
+
+.btn-close-feedback {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.btn-close-feedback:hover {
+  opacity: 1;
+}
+
+/* ============================================================
+   Sensor Matrix Grid (4 Gauges)
+   ============================================================ */
+.sensor-matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.15rem;
+}
+
+@media (max-width: 580px) {
+  .sensor-matrix-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gauge-box {
+  background: #ffffff;
+  border: 1.5px solid rgba(107, 144, 128, 0.22);
+  border-radius: 16px;
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  box-shadow: 0 2px 10px rgba(31, 58, 48, 0.03);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gauge-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(31, 58, 48, 0.07);
+  border-color: #2d6a4f;
+}
+
+.gauge-box.status-green {
+  border-color: rgba(45, 106, 79, 0.28);
+  background: linear-gradient(135deg, #ffffff 0%, #f6fff8 100%);
+}
+
+.gauge-box.status-amber {
+  border-color: rgba(245, 158, 11, 0.35);
+  background: linear-gradient(135deg, #ffffff 0%, #fffdf8 100%);
+}
+
+.gauge-box.status-red {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%);
+}
+
+.gauge-icon-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-moisture { background: #e0f2fe; color: #0284c7; }
+.icon-temp { background: #fef3c7; color: #d97706; }
+.icon-humidity { background: #dcfce7; color: #16a34a; }
+.icon-sun { background: #fef9c3; color: #ca8a04; }
+
+.gauge-label {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #52796f;
+}
+
+.gauge-big-num {
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: #1f3a30;
+  letter-spacing: -0.02em;
+}
+
+/* Moisture Target Bar */
+.moisture-target-bar-wrap {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: rgba(107, 144, 128, 0.18);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0.25rem 0;
+}
+
+.target-optimal-zone {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: rgba(45, 106, 79, 0.35);
+  border-left: 1.5px solid #2d6a4f;
+  border-right: 1.5px solid #2d6a4f;
+}
+
+.moisture-current-marker {
+  position: absolute;
+  top: 0;
+  width: 6px;
+  height: 100%;
+  background: #0284c7;
+  border-radius: 2px;
+  transform: translateX(-50%);
+}
+
+.gauge-sub-info {
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #52796f;
+}
+
+.tag-optimal { color: #2d6a4f; display: inline-flex; align-items: center; gap: 0.3rem; }
+.tag-warning { color: #d97706; display: inline-flex; align-items: center; gap: 0.3rem; }
+
+.dual-location-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.loc-plant, .loc-outside {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.loc-plant { color: #2d6a4f; }
+.loc-outside { color: #b45309; }
+
+.light-status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #92400e;
+  font-weight: 600;
+}
+
+.gauge-status-svg {
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   AI Suggestion & Crop Health Card
+   ============================================================ */
+.ai-suggestion-card {
+  background: linear-gradient(135deg, #ffffff 0%, #fbfdfb 100%);
+  border: 1.5px solid rgba(107, 144, 128, 0.22);
+  border-left: 5px solid #2d6a4f;
+  border-radius: 18px;
+  padding: 1.6rem;
+  box-shadow: 0 4px 20px rgba(31, 58, 48, 0.04);
+}
+
+.ai-card-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(107, 144, 128, 0.18);
+}
+
+.ai-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #2d6a4f;
+}
+
+.ai-header-left h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1f3a30;
+  letter-spacing: -0.01em;
+}
+
+.sparkle-icon {
+  color: #2d6a4f;
+}
+
+.health-score-badge {
+  background: #cce3de;
+  color: #1f3a30;
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.health-score-badge strong {
+  color: #2d6a4f;
+  font-weight: 700;
+}
+
+.ai-explanation-paragraph {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  font-weight: 500;
+  margin: 0 0 1.15rem 0;
+  color: #2c4a3e;
+}
+
+.agronomy-tips-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.agronomy-tip-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #2c4a3e;
+  background: #f6fff8;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(107, 144, 128, 0.2);
+}
+
+.tip-icon-bullet {
+  color: #2d6a4f;
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   Weather & 3-Day Forecast Strip
+   ============================================================ */
+.weather-forecast-strip-card {
+  background: linear-gradient(135deg, #ffffff 0%, #fbfdfb 100%);
+  border: 1.5px solid rgba(107, 144, 128, 0.22);
+  border-radius: 18px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(31, 58, 48, 0.04);
+}
+
+.weather-strip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.15rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(107, 144, 128, 0.18);
+}
+
+.weather-strip-title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.weather-title-icon {
+  color: #2d6a4f;
+}
+
+.weather-strip-title h4 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1f3a30;
+  letter-spacing: -0.01em;
+}
+
+.weather-metric-chips {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.weather-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(45, 106, 79, 0.08);
+  border: 1px solid rgba(45, 106, 79, 0.2);
+  padding: 0.35rem 0.75rem;
+  border-radius: 10px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #2d6a4f;
+}
+
+.weather-chip.rain-chip {
+  background: #e0f2fe;
+  border-color: #bae6fd;
+  color: #0369a1;
+}
+
+.three-day-forecast-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.85rem;
+}
+
+.forecast-mini-card {
+  background: #ffffff;
+  border: 1.5px solid rgba(107, 144, 128, 0.2);
+  border-radius: 14px;
+  padding: 0.9rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.forecast-mini-card:hover {
+  border-color: #2d6a4f;
+  transform: translateY(-1px);
+}
+
+.forecast-day-name {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #1f3a30;
+}
+
+.forecast-weather-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+}
+
+.forecast-temp-val {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1f3a30;
+}
+
+.forecast-rain-prob {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #0284c7;
+}
+
+.weather-heat-alert-bar {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fffbeb;
+  border: 1.5px solid #fde68a;
+  color: #92400e;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* ============================================================
+   Water Actuator & Drip Irrigation Control Card
+   ============================================================ */
+.water-actuator-control-card {
+  background: linear-gradient(135deg, #ffffff 0%, #fbfdfb 100%);
+  border: 1.5px solid rgba(107, 144, 128, 0.22);
+  border-radius: 18px;
+  padding: 1.6rem;
+  box-shadow: 0 4px 20px rgba(31, 58, 48, 0.04);
+}
+
+.actuator-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(107, 144, 128, 0.18);
+}
+
+.actuator-title-box {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+.actuator-title-box h3 {
+  margin: 0;
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: #1f3a30;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.drop-icon {
+  color: #2d6a4f;
+  flex-shrink: 0;
+}
+
+.tank-level-chip {
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.tank-level-chip.tank-good {
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #15803d;
+}
+
+.tank-level-chip.tank-low {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+.daily-usage-tracker-bar {
+  background: #f8fafc;
+  border: 1.5px solid rgba(107, 144, 128, 0.2);
+  border-radius: 14px;
+  padding: 0.95rem 1.15rem;
+  margin-bottom: 1.25rem;
+}
+
+.usage-text-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.86rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  color: #1f3a30;
+}
+
+.usage-progress-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(107, 144, 128, 0.18);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.usage-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2d6a4f, #1b4332);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.touch-dose-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.dose-pill-btn {
+  min-height: 46px;
+  background: #ffffff;
+  border: 1.5px solid rgba(107, 144, 128, 0.28);
+  border-radius: 12px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: #1f3a30;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0.4rem 0.6rem;
+  text-align: center;
+}
+
+.dose-pill-btn:hover {
+  border-color: #2d6a4f;
+  background: #f0fdf4;
+}
+
+.dose-pill-btn.active {
+  background: #cce3de;
+  border-color: #2d6a4f;
+  color: #1f3a30;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(45, 106, 79, 0.15);
+}
+
+.custom-dose-wrap {
+  margin-bottom: 1rem;
+}
+
+.custom-dose-input {
+  width: 100%;
+  min-height: 44px;
+  border: 1.5px solid rgba(107, 144, 128, 0.28);
+  border-radius: 12px;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.92rem;
+  font-weight: 500;
+  box-sizing: border-box;
+  color: #1f3a30;
+  background: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.custom-dose-input:focus {
+  outline: none;
+  border-color: #2d6a4f;
+  box-shadow: 0 0 0 3.5px rgba(45, 106, 79, 0.12);
+}
+
+.btn-main-dispense {
+  width: 100%;
+  min-height: 48px;
+  background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(45, 106, 79, 0.3);
+  margin-bottom: 1rem;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-main-dispense:hover:not(:disabled) {
+  background: linear-gradient(135deg, #367d5e 0%, #22543d 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(45, 106, 79, 0.4);
+}
+
+.btn-main-dispense:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.manual-actions-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.btn-manual-action {
+  min-height: 42px;
+  background: #ffffff;
+  border: 1.5px solid rgba(107, 144, 128, 0.28);
+  border-radius: 12px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  color: #1f3a30;
+  transition: all 0.2s ease;
+  padding: 0.4rem 0.6rem;
+  text-align: center;
+}
+
+.btn-manual-action:hover {
+  background: #f0fdf4;
+  border-color: #2d6a4f;
+  color: #2d6a4f;
+}
+
+.btn-manual-action.btn-skip {
+  color: #52796f;
+}
+
+.btn-manual-action.btn-skip:hover {
+  background: #f8fafc;
+  border-color: #64748b;
+  color: #334155;
+}
+
+/* Auto-Drip Toggle */
+.auto-drip-toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  background: #f8fafc;
+  border: 1.5px solid rgba(107, 144, 128, 0.2);
+  border-radius: 14px;
+  padding: 0.95rem 1.15rem;
+}
+
+.toggle-label-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.toggle-title {
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: #1f3a30;
+}
+
+.toggle-desc {
+  font-size: 0.82rem;
+  color: #52796f;
+  line-height: 1.4;
+}
+
+/* iOS Switch */
+.ios-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.ios-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.ios-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #cbd5e1;
+  transition: 0.3s;
+  border-radius: 26px;
+}
+
+.ios-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.ios-switch input:checked + .ios-slider {
+  background-color: #2d6a4f;
+}
+
+.ios-switch input:checked + .ios-slider:before {
+  transform: translateX(22px);
+}
+
+/* ============================================================
+   7-Day AI Irrigation Schedule Card
+   ============================================================ */
+.schedule-plan-card,
+.seven-day-plan-card {
+  background: linear-gradient(135deg, #ffffff 0%, #fbfdfb 100%);
+  border: 1.5px solid rgba(107, 144, 128, 0.22);
+  border-radius: 18px;
+  padding: 1.6rem;
+  box-shadow: 0 4px 20px rgba(31, 58, 48, 0.04);
+}
+
+.schedule-card-header,
+.plan-header-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.15rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(107, 144, 128, 0.18);
+}
+
+.schedule-card-title,
+.plan-title-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cal-icon {
+  color: #2d6a4f;
+}
+
+.schedule-card-title h3,
+.plan-title-box h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1f3a30;
+  letter-spacing: -0.01em;
+}
+
+.schedule-day-tabs-row,
+.seven-days-strip {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.45rem;
+  margin-bottom: 1.15rem;
+  overflow-x: auto;
+}
+
+.day-tab-pill,
+.day-strip-btn {
+  min-height: 60px;
+  padding: 0.45rem 0.2rem;
+  border-radius: 12px;
+  border: 1.5px solid rgba(107, 144, 128, 0.25);
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.day-tab-pill:hover,
+.day-strip-btn:hover {
+  background: #f0fdf4;
+  border-color: #2d6a4f;
+}
+
+.day-tab-pill.active,
+.day-strip-btn.active {
+  background: #cce3de;
+  border-color: #2d6a4f;
+  box-shadow: 0 2px 8px rgba(45, 106, 79, 0.15);
+}
+
+.tab-day-label,
+.day-btn-name {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #1f3a30;
+}
+
+.tab-amount-tag,
+.day-btn-vol {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 6px;
+}
+
+.tab-water-needed {
+  color: #15803d;
+  background: #dcfce7;
+}
+
+.tab-rest-day {
+  color: #64748b;
+  background: #f1f5f9;
+}
+
+.selected-day-detail-panel,
+.day-showcase-box {
+  background: linear-gradient(135deg, #f6fff8 0%, #ffffff 100%);
+  border: 1.5px solid rgba(107, 144, 128, 0.22);
+  border-radius: 14px;
+  padding: 1.25rem 1.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.detail-header-row,
+.showcase-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.detail-date-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.05rem;
+  color: #1f3a30;
+}
+
+.forecast-verified-badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #2d6a4f;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(45, 106, 79, 0.1);
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+}
+
+.detail-amount-chip {
+  font-size: 1.15rem;
+  font-weight: 700;
+  padding: 0.3rem 0.85rem;
+  border-radius: 10px;
+}
+
+.detail-amount-chip.chip-water {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+.detail-amount-chip.chip-rest {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.detail-metric-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.metric-tiny-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #52796f;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.metric-value-text {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1f3a30;
+}
+
+.detail-reason-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  background: #ffffff;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(107, 144, 128, 0.18);
+}
+
+.reason-bullet-icon {
+  font-size: 1rem;
+}
+
+.reason-text {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: #2c4a3e;
+}
+
+/* ============================================================
+   Sensor Trends & Historical Sparklines
+   ============================================================ */
+.sensor-trends-card {
+  background: linear-gradient(135deg, #ffffff 0%, #fbfdfb 100%);
+  border: 1.5px solid rgba(107, 144, 128, 0.22);
+  border-radius: 18px;
+  padding: 1.6rem;
+  box-shadow: 0 4px 20px rgba(31, 58, 48, 0.04);
+}
+
+.trends-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.15rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(107, 144, 128, 0.18);
+}
+
+.trends-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #2d6a4f;
+}
+
+.trends-title-wrap h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1f3a30;
+  letter-spacing: -0.01em;
+}
+
+.trends-range-toggle {
+  display: inline-flex;
+  background: #f1f5f9;
+  padding: 0.2rem;
+  border-radius: 10px;
+  gap: 0.2rem;
+}
+
+.btn-range-pill {
+  padding: 0.3rem 0.85rem;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-range-pill.active {
+  background: #2d6a4f;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(45, 106, 79, 0.25);
+}
+
+.history-loading-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 2rem;
+  color: #52796f;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.mini-sparkline-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.sparkline-metric-tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.spark-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 10px;
+  border: 1.5px solid rgba(107, 144, 128, 0.25);
+  background: #ffffff;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #52796f;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.spark-tab:hover {
+  border-color: #2d6a4f;
+  color: #2d6a4f;
+}
+
+.spark-tab.active-moisture {
+  background: #e0f2fe;
+  border-color: #0284c7;
+  color: #0284c7;
+}
+
+.spark-tab.active-temp {
+  background: #fef3c7;
+  border-color: #d97706;
+  color: #d97706;
+}
+
+.spark-tab.active-humidity {
+  background: #dcfce7;
+  border-color: #16a34a;
+  color: #16a34a;
+}
+
+.sparkline-stats-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.stat-pill {
+  font-size: 0.78rem;
+  color: #52796f;
+  background: #f8fafc;
+  padding: 0.25rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid rgba(107, 144, 128, 0.15);
+}
+
+.stat-pill strong {
+  color: #1f3a30;
+}
+
+.history-chart-wrapper {
+  position: relative;
+  width: 100%;
+  background: radial-gradient(circle at 50% 20%, rgba(240, 253, 244, 0.4) 0%, #ffffff 80%);
+  border-radius: 14px;
+  border: 1.5px solid rgba(107, 144, 128, 0.2);
+  padding: 0.75rem 0.85rem 0.5rem;
+  box-sizing: border-box;
+}
+
+.history-svg-chart {
+  width: 100%;
+  height: 145px;
+  min-height: 130px;
+  overflow: visible;
+  display: block;
+}
+
+.chart-axis-text {
+  font-size: 10px;
+  fill: #64748b;
+  font-weight: 500;
+  font-family: inherit;
+}
+
+.chart-target-text {
+  font-size: 9.5px;
+  fill: #15803d;
+  font-weight: 600;
+  font-family: inherit;
+}
+
+.chart-tooltip-box {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  background: rgba(15, 23, 42, 0.92);
+  color: #ffffff;
+  padding: 0.35rem 0.65rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+  z-index: 10;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.chart-tooltip-box::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 4px;
+  border-style: solid;
+  border-color: rgba(15, 23, 42, 0.92) transparent transparent transparent;
+}
+
+/* Dark mode chart overrides */
+:root.dark .history-chart-wrapper,
+[data-theme='dark'] .history-chart-wrapper,
+body.dark-theme .history-chart-wrapper {
+  background: radial-gradient(circle at 50% 20%, rgba(20, 83, 45, 0.15) 0%, rgba(15, 23, 42, 0.95) 80%);
+  border-color: rgba(74, 222, 128, 0.2);
+}
+
+:root.dark .chart-axis-text,
+[data-theme='dark'] .chart-axis-text,
+body.dark-theme .chart-axis-text {
+  fill: #94a3b8;
+}
+
+:root.dark .chart-target-text,
+[data-theme='dark'] .chart-target-text,
+body.dark-theme .chart-target-text {
+  fill: #86efac;
+}
+
+/* ============================================================
+   ESP32 Hardware Node Details Card
+   ============================================================ */
+.device-info-card {
+  background: linear-gradient(135deg, #ffffff 0%, #fbfdfb 100%);
+  border: 1.5px solid rgba(107, 144, 128, 0.22);
+  border-radius: 18px;
+  padding: 1.35rem 1.6rem;
+  box-shadow: 0 4px 20px rgba(31, 58, 48, 0.04);
+}
+
+.device-info-accordion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.device-title-left {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.device-title-left h4 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1f3a30;
+}
+
+.pulse-chip-iot {
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: #dcfce7;
+  color: #15803d;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid #86efac;
+}
+
+.btn-toggle-info {
+  background: transparent;
+  border: none;
+  color: #52796f;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.device-details-body {
+  margin-top: 1.15rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(107, 144, 128, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+  color: #52796f;
+}
+
+.info-row strong {
+  color: #1f3a30;
+  font-weight: 600;
+}
+
+/* ============================================================
+   Safety Confirmation Modal
+   ============================================================ */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1.5rem;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.confirm-modal-box {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 1.8rem;
+  width: 100%;
+  max-width: 440px;
+  border: 1.5px solid rgba(107, 144, 128, 0.25);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.confirm-modal-box h3 {
+  margin: 0 0 0.6rem 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f3a30;
+}
+
+.confirm-modal-prompt {
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: #2c4a3e;
+  margin: 0 0 1.5rem 0;
+}
+
+.confirm-btn-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+}
+
+.btn-modal-cancel {
+  min-height: 44px;
+  background: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 12px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.btn-modal-cancel:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.btn-modal-proceed {
+  min-height: 44px;
+  background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%);
+  border: none;
+  border-radius: 12px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  box-shadow: 0 4px 12px rgba(45, 106, 79, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-modal-proceed:hover {
+  background: linear-gradient(135deg, #367d5e 0%, #22543d 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(45, 106, 79, 0.35);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.94); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* ============================================================
+   Mobile Responsive Optimizations (<= 768px & <= 480px)
+   ============================================================ */
+@media (max-width: 768px) {
+  .farmer-iot-hub {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    padding-bottom: 2.5rem;
+  }
+
+  .hub-top-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .btn-hub-refresh {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .single-status-line {
+    justify-content: center;
+    font-size: 0.8rem;
+    flex-wrap: wrap;
+  }
+
+  .watering-hub-two-col-layout {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .plant-specimen-header-card {
+    padding: 1rem;
+    border-radius: 16px;
+  }
+
+  .specimen-badge-row {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .garden-tag-pill,
+  .flowering-chip {
+    font-size: 0.78rem;
+    padding: 0.22rem 0.55rem;
+    max-width: 100%;
+  }
+
+  .hero-decision-card {
+    padding: 1.15rem 1rem;
+    border-radius: 16px;
+  }
+
+  .hero-decision-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .btn-hero-dispense {
+    width: 100%;
+    justify-content: center;
+    padding: 0.75rem 1rem;
+  }
+
+  .sensor-matrix-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .gauge-box {
+    padding: 0.85rem 0.75rem;
+    border-radius: 12px;
+  }
+
+  .gauge-big-num {
+    font-size: 1.3rem;
+  }
+
+  .ai-suggestion-card,
+  .device-info-card,
+  .weather-forecast-strip-card,
+  .water-actuator-control-card,
+  .schedule-plan-card,
+  .sensor-trends-card {
+    padding: 1.1rem 1rem;
+    border-radius: 16px;
+  }
+
+  .touch-dose-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.4rem;
+  }
+
+  .dose-pill-btn {
+    font-size: 0.76rem;
+    padding: 0.5rem 0.25rem;
+    text-align: center;
+  }
+
+  .schedule-day-tabs-row {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+    gap: 0.4rem;
+  }
+
+  .schedule-day-tabs-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .day-tab-pill {
+    flex-shrink: 0;
+    min-width: 62px;
+    padding: 0.45rem 0.35rem;
+  }
+
+  .three-day-forecast-row {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.4rem;
+  }
+
+  .forecast-mini-card {
+    padding: 0.6rem 0.35rem;
+  }
+
+  .forecast-temp-val {
+    font-size: 1rem;
+  }
+
+  .manual-actions-row {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  .btn-manual-action {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .trends-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .trends-range-toggle {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .sensor-matrix-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gauge-box {
+    padding: 0.75rem 0.7rem;
+  }
+
+  .plant-title-text {
+    font-size: 1.25rem;
+  }
+
+  .plant-variety-text {
+    font-size: 0.85rem;
+  }
+
+  .hero-headline-text {
+    font-size: 1.05rem;
+  }
+
+  .actuator-title-box h3,
+  .schedule-card-title h3,
+  .ai-card-heading h3 {
+    font-size: 1rem;
+  }
+
+  .usage-text-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    font-size: 0.78rem;
+  }
+
+  .confirm-modal-box {
+    padding: 1.25rem;
+    border-radius: 16px;
+  }
+}

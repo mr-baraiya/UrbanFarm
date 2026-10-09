@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Droplets, CloudRain, Sun, Thermometer, CheckCircle2, ShieldAlert, Cpu } from 'lucide-react';
+import { Droplets, CloudRain, Sun, Thermometer, CheckCircle2, ShieldAlert, Cpu, Sparkles } from 'lucide-react';
 import iotService from '../../services/iotService';
 import './SmartWateringBanner.css';
 
@@ -25,7 +25,6 @@ const SmartWateringBanner = ({ plant, weather }) => {
     };
 
     fetchIoT(true);
-    const interval = setInterval(() => fetchIoT(false), 5000);
 
     const handleCustomUpdate = (e) => {
       if (e.detail?.reading) {
@@ -35,7 +34,6 @@ const SmartWateringBanner = ({ plant, weather }) => {
     window.addEventListener('iot-data-updated', handleCustomUpdate);
 
     return () => {
-      clearInterval(interval);
       window.removeEventListener('iot-data-updated', handleCustomUpdate);
     };
   }, [plant]);
@@ -125,14 +123,18 @@ const SmartWateringBanner = ({ plant, weather }) => {
 
         <div className="smart-metric-card">
           <span className="smart-metric-label">{t('iot.rainForecast')}</span>
-          <span className="smart-metric-value text-sm">
-            {rec.isRainExpected ? `🌧️ ${t('iot.expected')}` : `☀️ ${t('iot.clear')}`}
+          <span className="smart-metric-value text-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+            {rec.isRainExpected ? (
+              <><CloudRain size={16} style={{ color: '#0284c7' }} /> {t('iot.expected')}</>
+            ) : (
+              <><Sun size={16} style={{ color: '#eab308' }} /> {t('iot.clear')}</>
+            )}
           </span>
         </div>
       </div>
 
       <div className="smart-reason-box">
-        💡 <span>{rec.reason}</span>
+        <Sparkles size={16} style={{ color: 'var(--accent, #3fa88a)', flexShrink: 0, marginTop: '2px' }} /> <span>{rec.reason}</span>
       </div>
     </div>
   );

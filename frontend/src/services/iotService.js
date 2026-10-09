@@ -43,6 +43,18 @@ export const iotService = {
     return res.data;
   },
 
+  // Trigger smart water pump actuator
+  triggerPump: async (plantId = 'tomato-01', amountMl = 250, durationSec = 3) => {
+    const res = await api.post(`/iot/plants/${plantId}/pump`, { amountMl, durationSec });
+    return res.data;
+  },
+
+  // Get dynamic AI watering advice and 7-day schedule
+  getAiAdvice: async (payload) => {
+    const res = await api.post('/watering/ai-advice', payload);
+    return res.data;
+  },
+
   // Unlink/delete device
   deleteDevice: async (deviceId) => {
     const res = await api.delete(`/iot/devices/${deviceId}`);

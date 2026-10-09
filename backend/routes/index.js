@@ -18,6 +18,8 @@ const chatbotRoutes = require('./chatbotRoutes');
 const marketRoutes = require('./marketRoutes');
 const iotRoutes = require('./iotRoutes');
 
+const { getAiAdvice } = require('../controllers/wateringController');
+
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/gardens', gardenRoutes);
@@ -25,6 +27,7 @@ router.use('/plants', plantRoutes);
 router.use('/disease', diseaseRoutes);
 router.use('/crops', cropRoutes);
 router.use('/watering', wateringRoutes);
+router.post('/ai-advice', getAiAdvice);
 router.use('/schedule', scheduleRoutes);
 router.use('/community', communityRoutes);
 router.use('/admin', adminRoutes);

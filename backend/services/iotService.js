@@ -184,46 +184,47 @@ async function getSensorHistory(plantIdKey, timeRange = '24h') {
  * Generate realistic simulated reading for Admin Simulator
  */
 async function generateSimulation(scenario = 'NORMAL', deviceId = 'ESP32-TOMATO-01', plantId = 'tomato-01') {
-  const latest = await SensorReading.findOne({ deviceId }).sort({ timestamp: -1 });
+  const noise = (Math.random() - 0.5) * 0.6;
 
-  let temp = latest ? latest.temperature : 28.0;
-  let hum = latest ? latest.humidity : 60.0;
-  let soil = latest ? latest.soilMoisture : 45.0;
-  let light = latest ? latest.light : 800;
-
-  const noise = (Math.random() - 0.5) * 0.4;
+  let temp = 25.0;
+  let hum = 55.0;
+  let soil = 58.0;
+  let light = 750;
 
   switch (scenario.toUpperCase()) {
     case 'NORMAL':
-      soil = Math.max(25, soil - (0.2 + noise));
-      temp = Math.min(32, Math.max(22, temp + noise));
-      hum = Math.min(75, Math.max(45, hum + noise));
-      light = Math.min(1200, Math.max(400, light + Math.round(noise * 50)));
+      soil = Math.max(50, Math.min(68, Math.round((58.5 + noise * 4) * 10) / 10));
+      temp = Math.max(22, Math.min(28, Math.round((25.2 + noise * 2) * 10) / 10));
+      hum = Math.max(48, Math.min(65, Math.round((56.0 + noise * 4) * 10) / 10));
+      light = Math.round(720 + noise * 60);
       break;
 
     case 'DRY_SOIL':
-      soil = Math.max(10, soil - (2.5 + noise));
-      temp = Math.min(36, temp + (0.5 + Math.abs(noise)));
-      hum = Math.max(25, hum - (1.0 + Math.abs(noise)));
-      light = Math.min(1400, light + 30);
+      soil = Math.max(15, Math.min(36, Math.round((28.5 + noise * 3) * 10) / 10));
+      temp = Math.max(30, Math.min(36, Math.round((33.2 + noise * 2) * 10) / 10));
+      hum = Math.max(22, Math.min(38, Math.round((30.0 + noise * 3) * 10) / 10));
+      light = Math.round(1250 + noise * 60);
       break;
 
     case 'RAIN':
-      soil = Math.min(95, soil + (5.0 + Math.abs(noise)));
-      hum = Math.min(92, hum + (3.0 + Math.abs(noise)));
-      temp = Math.max(20, temp - (0.8 + Math.abs(noise)));
-      light = Math.max(200, light - 100);
+      soil = Math.max(75, Math.min(92, Math.round((82.5 + noise * 3) * 10) / 10));
+      hum = Math.max(80, Math.min(96, Math.round((88.0 + noise * 3) * 10) / 10));
+      temp = Math.max(18, Math.min(24, Math.round((21.0 + noise * 2) * 10) / 10));
+      light = Math.round(280 + noise * 40);
       break;
 
     case 'HEAT_WAVE':
-      temp = Math.min(42, temp + (1.2 + Math.abs(noise)));
-      temp = Math.min(42, temp + (1.2 + Math.abs(noise)));
-      soil = Math.max(12, soil - (3.0 + Math.abs(noise)));
-      hum = Math.max(20, hum - (2.5 + Math.abs(noise)));
-      light = Math.min(1500, light + 150);
+      temp = Math.max(37, Math.min(43, Math.round((38.8 + noise * 2) * 10) / 10));
+      soil = Math.max(20, Math.min(38, Math.round((33.5 + noise * 3) * 10) / 10));
+      hum = Math.max(15, Math.min(28, Math.round((22.0 + noise * 3) * 10) / 10));
+      light = Math.round(1450 + noise * 50);
       break;
 
     default:
+      soil = 55.0;
+      temp = 25.0;
+      hum = 55.0;
+      light = 700;
       break;
   }
 
@@ -237,7 +238,11 @@ async function generateSimulation(scenario = 'NORMAL', deviceId = 'ESP32-TOMATO-
     timestamp: new Date().toISOString(),
   };
 
-  await IoTDevice.findOneAndUpdate({ deviceId }, { activeScenario: scenario });
+  await IoTDevice.findOneAndUpdate(
+    { deviceId },
+    { activeScenario: scenario, status: 'online', lastSeen: new Date() },
+    { upsert: true }
+  );
 
   return await processSensorReading(payload);
 }
@@ -257,10 +262,54 @@ async function checkDeviceStatus() {
   }
 }
 
+/**
+ * Trigger remote water pump actuator (increases soil moisture & creates reading)
+ */
+async function triggerPump(plantIdKey = 'tomato-01', amountMl = 250, durationSec = 3) {
+  const { reading } = await getLatestReading(plantIdKey);
+  const currentSoil = reading ? reading.soilMoisture : 35;
+  const currentTemp = reading ? reading.temperature : 28.0;
+  const currentHum = reading ? reading.humidity : 55.0;
+  const currentLight = reading ? reading.light : 800;
+
+  // Calculate moisture increase based on volume (e.g. 100ml -> +10%, 250ml -> +22%, 500ml -> +35%)
+  const boost = Math.min(40, Math.max(8, Math.round((Number(amountMl) / 10) * 0.9)));
+  const newSoil = Math.min(88, Math.max(10, Math.round((currentSoil + boost) * 10) / 10));
+  const newTemp = Math.max(18, Math.round((currentTemp - 0.4) * 10) / 10);
+  const newHum = Math.min(95, Math.round((currentHum + 5) * 10) / 10);
+
+  const deviceId = 'ESP32-TOMATO-01';
+  const plantId = String(plantIdKey || 'tomato-01');
+
+  const payload = {
+    deviceId,
+    plantId,
+    temperature: newTemp,
+    humidity: newHum,
+    soilMoisture: newSoil,
+    light: currentLight,
+    timestamp: new Date().toISOString(),
+  };
+
+  const newReading = await processSensorReading(payload);
+
+  return {
+    success: true,
+    amountMl: Number(amountMl),
+    durationSec: Number(durationSec),
+    previousMoisture: currentSoil,
+    newMoisture: newSoil,
+    reading: newReading,
+    timestamp: new Date().toISOString()
+  };
+}
+
 module.exports = {
   processSensorReading,
   getLatestReading,
   getSensorHistory,
   generateSimulation,
   checkDeviceStatus,
+  triggerPump,
 };
+
