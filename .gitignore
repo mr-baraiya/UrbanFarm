@@ -74,4 +74,5 @@ build/
 *.pyc
 *.apk
 *.aab
-releases/
+releases/
+review/
