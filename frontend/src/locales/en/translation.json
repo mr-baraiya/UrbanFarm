@@ -231,6 +231,7 @@
     "demo": "Live Preview",
     "rewards": "Rewards",
     "marketPrices": "Market Prices",
+    "downloadApp": "Download App",
     "contact": "Contact",
     "faq": "FAQ",
     "signIn": "Sign In",
@@ -381,7 +382,17 @@
     "testimonial3Role": "Community Bed Lead, Seattle",
     "ctaTitle": "Ready to Transform Your Urban Space?",
     "ctaSubtitle": "Start your urban farming journey today with AI leaf diagnostics, smart irrigation schedules, and a vibrant community.",
-    "joinNow": "Create Your Free Account"
+    "joinNow": "Create Your Free Account",
+    "tryOurAppBtn": "Try Our App (APK)",
+    "appPromoTag": "OFFICIAL ANDROID APP",
+    "appPromoTitle": "Take UrbanFarm Everywhere — Try Our Mobile App",
+    "appPromoSub": "Diagnose sick plant leaves right in the garden with camera AI, connect IoT soil sensors, and check daily mandi prices on the go.",
+    "appPromoFeat1": "Instant Camera AI Leaf Diagnosis with Organic Remedies",
+    "appPromoFeat2": "Offline Garden & Field Tracking Mode",
+    "appPromoFeat3": "Live APMC Mandi Rates & Weather Telemetry",
+    "appPromoBtn": "Download Android APK",
+    "appPromoVideoBtn": "Watch Video Tutorial",
+    "appPromoSizeBadge": "v1.0.0 • ~55.5 MB • 100% Free"
   },
   "about": {
     "title": "About UrbanFarm",
@@ -548,7 +559,7 @@
     "emailLabelTitle": "Email Us",
     "phoneLabelTitle": "Call Us",
     "headquartersTitle": "Headquarters",
-    "headquartersVal": "ABC Society, Random Nagar",
+    "headquartersVal": "Rajkot, Gujarat, India (Online Digital Platform)",
     "hoursTitle": "Operating Hours",
     "hoursVal": "Monday – Friday: 9:00 AM – 6:00 PM EST",
     "guaranteeTitle": "Active Support Guarantee",
@@ -572,7 +583,7 @@
     "sendingMsg": "Sending Message...",
     "successMsg": "Thank you! Your message has been sent successfully.",
     "addressTitle": "Location",
-    "addressVal": "ABC Society, Random Nagar",
+    "addressVal": "Rajkot, Gujarat, India (Online Platform)",
     "emailTitle": "Email",
     "emailVal": "vvbaraiya32@gmail.com",
     "phoneTitle": "Phone",
@@ -2397,6 +2408,130 @@
         ]
       }
     ]
+  },
+  "downloadPage": {
+    "metaTitle": "Download UrbanFarm Android Mobile App - APK Direct Download",
+    "metaDesc": "Download official UrbanFarm Android APK. Real-time AI crop disease detection, smart IoT watering, live mandi market prices, and urban gardening guidance on your phone.",
+    "heroTag": "OFFICIAL ANDROID RELEASE",
+    "heroTitlePrefix": "Smart Urban Farming",
+    "heroTitleHighlight": "In Your Pocket",
+    "heroSubtitle": "Diagnose crop diseases instantly with AI, monitor IoT soil sensors, check real-time mandi prices, and get tailored urban farming advice anywhere, anytime.",
+    "downloadBtn": "Download APK (v1.0.0)",
+    "fileSizeBadge": "Direct Download • ~55.5 MB",
+    "watchGuideBtn": "Watch Video Guide",
+    "trustVerified": "100% Virus-Free & Safe",
+    "trustAndroid": "Android 8.0 & Above",
+    "trustFree": "100% Free & Open",
+    "qrTitle": "Scan with Smartphone",
+    "qrSubtitle": "Instant download on mobile device",
+    "copyLink": "Copy",
+    "copied": "Copied!",
+    "videoTag": "STEP-BY-STEP TUTORIAL",
+    "videoHeadingPrefix": "How to Install &",
+    "videoHeadingHighlight": "Use UrbanFarm",
+    "videoSub": "Watch our quick interactive video guide to learn how to install the APK and get started with smart plant management in minutes.",
+    "officialWalkthrough": "Official Video Tutorial",
+    "videoCardTitle": "Complete App Walkthrough & Setup Guide",
+    "videoCardDesc": "Learn how to navigate the AI Disease scanner, record crop growth, connect IoT soil sensors, and view real-time market trends directly on your phone.",
+    "stepsHeading": "4 Easy Installation Steps",
+    "startDownloadNow": "Start Download Now",
+    "steps": [
+      {
+        "num": "01",
+        "title": "Download APK",
+        "desc": "Click the \"Download APK\" button to save the installation file directly onto your Android device.",
+        "tip": "File size is ~55.5 MB and takes just a few seconds."
+      },
+      {
+        "num": "02",
+        "title": "Allow Unknown Sources",
+        "desc": "When prompted by your browser or Android OS, tap Settings and toggle \"Allow from this source\".",
+        "tip": "Standard Android security prompt for direct APK installations."
+      },
+      {
+        "num": "03",
+        "title": "Install & Launch",
+        "desc": "Tap \"Install\" on the package installer window. Once installed, tap \"Open\" to launch UrbanFarm.",
+        "tip": "No root access or complex permissions required."
+      },
+      {
+        "num": "04",
+        "title": "Scan, Grow & Track",
+        "desc": "Sign in or explore as a guest. Start scanning crops, monitoring soil moisture, and checking mandi prices!",
+        "tip": "Works seamlessly online and in offline mode."
+      }
+    ],
+    "featuresTag": "DESIGNED FOR GROWERS",
+    "featuresHeadingPrefix": "Powerful Features on",
+    "featuresHeadingHighlight": "Every Android Device",
+    "featuresSub": "Everything you need to monitor, heal, and optimize your urban plants from seed to harvest in one lightweight mobile app.",
+    "features": [
+      {
+        "title": "Instant AI Plant Doctor",
+        "desc": "Scan diseased leaves with your phone camera for instant diagnosis and eco-friendly remedies."
+      },
+      {
+        "title": "Available in Multiple Languages",
+        "desc": "Seamlessly switch between English, ગુજરાતી, and हिन्दी for an effortless, native farming experience."
+      },
+      {
+        "title": "Voice-Based Audio Reports",
+        "desc": "Listen to AI crop disease diagnosis and organic remedy recommendations in clear spoken audio."
+      },
+      {
+        "title": "Garden & Plant Care Logs",
+        "desc": "Schedule fertilization, harvest dates, and track crop growth milestones."
+      },
+      {
+        "title": "Instant Push Notifications",
+        "desc": "Timely reminders for watering, frost warnings, and community answers."
+      },
+      {
+        "title": "Download PDF Diagnosis Reports",
+        "desc": "Export and save comprehensive plant health reports, organic treatment prescriptions, and crop analytics as printable PDF files."
+      }
+    ],
+    "specsHeading": "Package Information & Specifications",
+    "specsSubtitle": "Official release details, cryptographic checksum, and compatibility data.",
+    "viewGitHubRelease": "GitHub Releases",
+    "specVersion": "App Version",
+    "specPackage": "Package Name",
+    "specSize": "Download Size",
+    "specAndroid": "Minimum OS",
+    "specUpdated": "Release Date",
+    "specLicense": "License",
+    "securityNotice": "All builds are automatically signed and verified. You can cross-check file hashes on the official GitHub Release page.",
+    "faqTag": "FREQUENTLY ASKED QUESTIONS",
+    "faqHeadingPrefix": "Got Questions About",
+    "faqHeadingHighlight": "Mobile Installation?",
+    "faqSub": "Everything you need to know about installing, permissions, updates, and safety.",
+    "faqs": [
+      {
+        "q": "Is it safe to download and install this APK?",
+        "a": "Yes, absolutely! The UrbanFarm APK is built directly from our open-source verified codebase and contains zero ads, spyware, or malware. It passes all standard Android integrity checks."
+      },
+      {
+        "q": "Why does Android show \"File might be harmful\" or \"Unknown Sources\"?",
+        "a": "Android displays this warning by default for any app downloaded outside the Google Play Store. Simply tap \"Download anyway\" and enable \"Allow from this source\" in your settings to proceed."
+      },
+      {
+        "q": "What are the minimum system requirements?",
+        "a": "UrbanFarm requires Android 8.0 (Oreo) or later, a minimum of 2GB RAM, and ~100MB of free storage. A functioning camera is recommended for AI plant leaf scanning."
+      },
+      {
+        "q": "How do I update the app when a new release is published?",
+        "a": "You can visit this download page at any time to download the latest APK, or click update notifications inside the mobile app. Installing over an existing version preserves all your data."
+      },
+      {
+        "q": "Can I use the app without an active internet connection?",
+        "a": "Yes! Core features such as saved plant profiles, offline diagnosis guides, care calendars, and garden notes work completely offline."
+      }
+    ],
+    "bottomTag": "READY TO TRANSFORM YOUR HARVEST?",
+    "bottomTitle": "Download UrbanFarm Today & Grow Smarter",
+    "bottomSub": "Join hundreds of urban gardeners diagnosing crops, saving water, and growing healthier food with AI.",
+    "downloadApkNow": "Download APK (v1.0.0)",
+    "tryLivePreview": "Try Web Live Preview"
   },
   "marketPricesPage": {
     "heroTag": "GOVERNMENT OF INDIA / AGMARKNET API",

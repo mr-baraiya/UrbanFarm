@@ -10,6 +10,11 @@ import {
   FaCheckCircle,
   FaQuoteLeft,
   FaStar,
+  FaAndroid,
+  FaDownload,
+  FaPlay,
+  FaQrcode,
+  FaMobileAlt,
 } from 'react-icons/fa';
 import { Sparkles, Microscope } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
@@ -96,13 +101,21 @@ const LandingPage = () => {
           </p>
           <div className="hero-cta-group">
             {user ? (
-              <Link to={user.role === 'admin' ? '/admin' : '/app'} className="landing-btn landing-btn-primary">
-                {t('navigation.openDashboard')} <FaArrowRight />
-              </Link>
+              <>
+                <Link to={user.role === 'admin' ? '/admin' : '/app'} className="landing-btn landing-btn-primary">
+                  {t('navigation.openDashboard')} <FaArrowRight />
+                </Link>
+                <Link to="/download" className="landing-btn landing-btn-accent">
+                  <FaAndroid /> {t('landing.tryOurAppBtn', 'Try Our App (APK)')}
+                </Link>
+              </>
             ) : (
               <>
                 <Link to="/register" className="landing-btn landing-btn-primary">
                   {t('landing.getStarted')} <FaArrowRight />
+                </Link>
+                <Link to="/download" className="landing-btn landing-btn-accent">
+                  <FaAndroid /> {t('landing.tryOurAppBtn', 'Try Our App (APK)')}
                 </Link>
                 <Link to="/features" className="landing-btn landing-btn-secondary">
                   {t('landing.exploreFeatures')}
@@ -312,6 +325,99 @@ const LandingPage = () => {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      </section>
+
+      {/* Dedicated Mobile App Download Showcase Section */}
+      <section className="landing-app-promo-section">
+        <div className="landing-container">
+          <div className="app-promo-card">
+            <div className="app-promo-grid">
+              <div className="app-promo-content">
+                <span className="section-tag app-tag">
+                  <FaAndroid className="android-icon" /> {t('landing.appPromoTag', 'OFFICIAL ANDROID APP')}
+                </span>
+                <h2 className="app-promo-title">
+                  {t('landing.appPromoTitle', 'Take UrbanFarm Everywhere — Try Our Mobile App')}
+                </h2>
+                <p className="app-promo-sub">
+                  {t('landing.appPromoSub', 'Diagnose sick plant leaves right in the garden with camera AI, connect IoT soil sensors, and check daily mandi prices on the go.')}
+                </p>
+
+                <ul className="app-promo-features">
+                  <li>
+                    <FaCheckCircle className="check-icon" />
+                    <span>{t('landing.appPromoFeat1', 'Instant Camera AI Leaf Diagnosis with Organic Remedies')}</span>
+                  </li>
+                  <li>
+                    <FaCheckCircle className="check-icon" />
+                    <span>{t('landing.appPromoFeat2', 'Offline Garden & Field Tracking Mode')}</span>
+                  </li>
+                  <li>
+                    <FaCheckCircle className="check-icon" />
+                    <span>{t('landing.appPromoFeat3', 'Live APMC Mandi Rates & Weather Telemetry')}</span>
+                  </li>
+                </ul>
+
+                <div className="app-promo-btn-group">
+                  <Link to="/download" className="landing-btn landing-btn-primary">
+                    <FaDownload /> {t('landing.appPromoBtn', 'Download Android APK')}
+                  </Link>
+                  <Link to="/download#how-to-use" className="landing-btn landing-btn-secondary">
+                    <FaPlay /> {t('landing.appPromoVideoBtn', 'Watch Video Tutorial')}
+                  </Link>
+                </div>
+
+                <div className="app-promo-badge-info">
+                  <span className="app-size-badge">{t('landing.appPromoSizeBadge', 'v1.0.0 • ~55.5 MB • 100% Free')}</span>
+                </div>
+              </div>
+
+              <div className="app-promo-visual">
+                <div className="app-phone-mockup">
+                  <div className="phone-screen">
+                    <div className="phone-top-bar">
+                      <span className="phone-camera-dot"></span>
+                      <span className="phone-time">10:00</span>
+                      <FaAndroid className="phone-brand" />
+                    </div>
+                    <div className="phone-content-preview">
+                      <div className="phone-app-header">
+                        <FaLeaf className="leaf-icon" />
+                        <strong>UrbanFarm Mobile</strong>
+                      </div>
+                      <div className="phone-scanner-box">
+                        <div className="scanner-target">
+                          <Microscope size={28} className="scanner-icon" />
+                          <span>AI Leaf Scanner</span>
+                        </div>
+                        <div className="scanner-laser"></div>
+                      </div>
+                      <div className="phone-quick-stats">
+                        <div className="p-stat">
+                          <small>Scan Match</small>
+                          <strong>98.4%</strong>
+                        </div>
+                        <div className="p-stat">
+                          <small>Remedy</small>
+                          <strong className="green-text">Organic</strong>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* QR Floating Badge */}
+                  <Link to="/download" className="phone-qr-badge" title="Scan or Click to Download APK">
+                    <FaQrcode className="qr-badge-icon" />
+                    <div className="qr-badge-text">
+                      <small>Instant Scan</small>
+                      <strong>Get APK</strong>
+                    </div>
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

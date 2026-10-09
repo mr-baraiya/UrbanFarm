@@ -42,7 +42,7 @@ const GuestFooter = () => {
         </div>
 
         {/* Quick Links Column */}
-        <div className="footer-col">
+        <div className="footer-col links-col">
           <h4>{t('navigation.home')}</h4>
           <ul className="footer-links">
             <li><Link to="/">{t('navigation.home')}</Link></li>
@@ -51,13 +51,14 @@ const GuestFooter = () => {
             <li><Link to="/live-preview">{t('navigation.demo')}</Link></li>
             <li><Link to="/rewards">{t('navigation.rewards')}</Link></li>
             <li><Link to="/market-prices">{t('navigation.marketPrices')}</Link></li>
+            <li><Link to="/download">{t('navigation.downloadApp')}</Link></li>
             <li><Link to="/faq">{t('navigation.faq')}</Link></li>
             <li><Link to="/contact">{t('navigation.contact')}</Link></li>
           </ul>
         </div>
 
         {/* Account & Platform Links Column */}
-        <div className="footer-col">
+        <div className="footer-col links-col">
           <h4>{t('navigation.openDashboard')}</h4>
           <ul className="footer-links">
             <li><Link to="/login">{t('navigation.signIn')}</Link></li>
@@ -73,15 +74,15 @@ const GuestFooter = () => {
           <h4>{t('contact.title')}</h4>
           <ul className="footer-contact-list">
             <li>
-              <FaEnvelope className="icon" />
+              <span className="contact-icon-wrap"><FaEnvelope className="icon" /></span>
               <span>{t('contact.emailVal')}</span>
             </li>
             <li>
-              <FaPhone className="icon" />
+              <span className="contact-icon-wrap"><FaPhone className="icon" /></span>
               <span>{t('contact.phoneVal')}</span>
             </li>
             <li>
-              <FaMapMarkerAlt className="icon" />
+              <span className="contact-icon-wrap"><FaMapMarkerAlt className="icon" /></span>
               <span>{t('contact.addressVal')}</span>
             </li>
           </ul>

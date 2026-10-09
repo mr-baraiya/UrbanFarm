@@ -9,8 +9,10 @@
 | **Frontend** | [https://urbanfarm.baraiyavishalbhai32.workers.dev](https://urbanfarm.baraiyavishalbhai32.workers.dev) |
 | **Backend API** | [https://urbanfarm-server.vercel.app](https://urbanfarm-server.vercel.app) |
 | **Health Check** | [https://urbanfarm-server.vercel.app/health](https://urbanfarm-server.vercel.app/health) |
+| **Android APK (Direct Download)** | [https://github.com/mr-baraiya/UrbanFarm/releases/download/v1.0.0/Vaidha.apk](https://github.com/mr-baraiya/UrbanFarm/releases/download/v1.0.0/Vaidha.apk) |
+| **App Download & Tutorial Page** | [https://urbanfarm.baraiyavishalbhai32.workers.dev/download](https://urbanfarm.baraiyavishalbhai32.workers.dev/download) |
 
-> **Frontend** hosted on **Cloudflare Workers** · **Backend** hosted on **Vercel Serverless**
+> **Frontend** hosted on **Cloudflare Workers** · **Backend** hosted on **Vercel Serverless** · **Mobile APK** hosted on **GitHub Releases**
 
 ---
 

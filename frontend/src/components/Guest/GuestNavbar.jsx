@@ -48,6 +48,9 @@ const GuestNavbar = () => {
           <NavLink to="/market-prices" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`}>
             {t('navigation.marketPrices')}
           </NavLink>
+          <NavLink to="/download" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`}>
+            {t('navigation.downloadApp')}
+          </NavLink>
           <NavLink to="/contact" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`}>
             {t('navigation.contact')}
           </NavLink>
@@ -127,6 +130,9 @@ const GuestNavbar = () => {
               </NavLink>
               <NavLink to="/market-prices" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`} onClick={closeMenu}>
                 {t('navigation.marketPrices')}
+              </NavLink>
+              <NavLink to="/download" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`} onClick={closeMenu}>
+                {t('navigation.downloadApp')}
               </NavLink>
               <NavLink to="/contact" className={({ isActive }) => `guest-nav-item ${isActive ? 'active' : ''}`} onClick={closeMenu}>
                 {t('navigation.contact')}

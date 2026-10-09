@@ -264,10 +264,9 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  padding: 0.4rem 0.25rem;
-  background: var(--mist, rgba(142, 168, 157, 0.1));
-  border-radius: var(--radius-sm, 10px);
-  border: 1px solid var(--border, #e2e8f0);
+  padding: 0.35rem 0;
+  background: transparent;
+  border: none;
   box-sizing: border-box;
 }
 

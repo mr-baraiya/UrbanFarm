@@ -14,6 +14,7 @@ import FaqPage from "./pages/Guest/FaqPage";
 import DemoPage from "./pages/Guest/DemoPage";
 import RewardsPage from "./pages/Guest/RewardsPage";
 import MarketPricesPage from "./pages/Guest/MarketPricesPage";
+import DownloadPage from "./pages/Guest/DownloadPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -73,6 +74,9 @@ function App() {
           <Route path="/live-preview" element={<DemoPage />} />
           <Route path="/rewards" element={<RewardsPage />} />
           <Route path="/market-prices" element={<MarketPricesPage />} />
+          <Route path="/download" element={<DownloadPage />} />
+          <Route path="/app-download" element={<DownloadPage />} />
+          <Route path="/apk" element={<DownloadPage />} />
         </Route>
 
         {/* Public Plant Detail Routes (Accessible with or without login) */}
