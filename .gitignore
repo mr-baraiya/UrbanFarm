@@ -57,3 +57,5 @@ build/
 *.pkl
 *.pth
 *.pyc
+*.apk
+releases/
