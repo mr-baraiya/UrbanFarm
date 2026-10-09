@@ -25,10 +25,25 @@ build/
 
 # Environment variables
 .env
+.env.*
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+!.env.example
+!*/.env.example
+
+# Flutter & Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+android/local.properties
+android/key.properties
+*.keystore
+*.jks
 
 # IDE
 .vscode/
@@ -58,4 +73,5 @@ build/
 *.pth
 *.pyc
 *.apk
+*.aab
 releases/

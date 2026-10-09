@@ -39,7 +39,7 @@ import {
 import SEO from '../../components/SEO/SEO';
 import './DownloadPage.css';
 
-const DEFAULT_APK_URL = 'https://github.com/mr-baraiya/UrbanFarm/releases/download/v1.0.0/Vaidha.apk';
+const DEFAULT_APK_URL = 'https://vefhgdcr08rayqdq.public.blob.vercel-storage.com/Vaidha.apk';
 
 const DownloadPage = () => {
   const { t, i18n } = useTranslation();

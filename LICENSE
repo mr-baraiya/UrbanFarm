@@ -1,21 +1,30 @@
-MIT License
+Proprietary License — All Rights Reserved
 
-Copyright (c) 2026 Vishal Baraiya
+Copyright (c) 2026 Vishal Baraiya (UrbanFarm). All Rights Reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom it comes to habits,
-subject to the following conditions:
+CONFIDENTIAL & PROPRIETARY
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+This source code, software, documentation, architecture, design assets, UI/UX components, and related materials (collectively, the "Software") are the exclusive proprietary property and copyrighted works of Vishal Baraiya and the UrbanFarm project contributors.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+TERMS AND CONDITIONS:
+
+1. NO COPYING OR REPRODUCTION:
+   No person, organization, or entity may copy, clone, reproduce, duplicate, scrape, screenshot for cloning, mirror, fork for reproduction, or republish any part of this Software, in whole or in part, in any form or by any means, without prior explicit written permission from the copyright owner.
+
+2. NO DERIVATIVE WORKS OR REFERENCE USAGE:
+   You may NOT use this Software or any portion of its source code, architecture, algorithms, workflows, database schemas, UI/UX designs, or concepts as a reference, template, boilerplate, inspiration for reproduction, benchmark, or foundation to create, train AI models on, build, or assist in the creation of any competing, derivative, or similar product, application, library, service, or platform.
+
+3. NO DISTRIBUTION OR REDISTRIBUTION:
+   You may NOT distribute, redistribute, publish, transmit, sublicense, lease, rent, sell, assign, or make available this Software or its source code to any third party, whether for commercial, educational, or non-commercial purposes.
+
+4. NO REVERSE ENGINEERING:
+   Decompilation, disassembly, extraction, reverse engineering, or attempts to discover or copy the underlying algorithms, business logic, prompts, or models of this Software are strictly prohibited.
+
+5. VIEWING & EVALUATION ONLY:
+   Access to view this repository on GitHub is granted solely for personal inspection and evaluation purposes. This access does NOT convey or transfer any rights, licenses, titles, or interest in or to the intellectual property of the Software.
+
+VIOLATION & LEGAL REMEDIES:
+Unauthorized use, copying, reproduction, distribution, or referencing of this Software constitutes copyright infringement and a violation of intellectual property laws, subjecting the infringer to legal action, takedown notices, and civil or criminal liability under applicable domestic and international copyright laws.
+
+DISCLAIMER:
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE.

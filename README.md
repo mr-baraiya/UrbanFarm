@@ -9,10 +9,10 @@
 | **Frontend** | [https://urbanfarm.baraiyavishalbhai32.workers.dev](https://urbanfarm.baraiyavishalbhai32.workers.dev) |
 | **Backend API** | [https://urbanfarm-server.vercel.app](https://urbanfarm-server.vercel.app) |
 | **Health Check** | [https://urbanfarm-server.vercel.app/health](https://urbanfarm-server.vercel.app/health) |
-| **Android APK (Direct Download)** | [https://github.com/mr-baraiya/UrbanFarm/releases/download/v1.0.0/Vaidha.apk](https://github.com/mr-baraiya/UrbanFarm/releases/download/v1.0.0/Vaidha.apk) |
+| **Android APK (Direct Download)** | [https://vefhgdcr08rayqdq.public.blob.vercel-storage.com/Vaidha.apk](https://vefhgdcr08rayqdq.public.blob.vercel-storage.com/Vaidha.apk) |
 | **App Download & Tutorial Page** | [https://urbanfarm.baraiyavishalbhai32.workers.dev/download](https://urbanfarm.baraiyavishalbhai32.workers.dev/download) |
 
-> **Frontend** hosted on **Cloudflare Workers** · **Backend** hosted on **Vercel Serverless** · **Mobile APK** hosted on **GitHub Releases**
+> **Frontend** hosted on **Cloudflare Workers** · **Backend** hosted on **Vercel Serverless** · **Mobile APK** hosted on **Vercel Blob Storage**
 
 ---
 
@@ -145,6 +145,18 @@ UrbanFarm/
 │   ├── vite.config.js
 │   ├── package.json
 │   └── index.html
+├── vaidha/             # Vaidha AI Plant Doctor Flutter Mobile App
+│   ├── assets/images/  # App logo and static assets
+│   ├── l10n/           # Trilingual string translations (EN, HI, GU)
+│   ├── models/         # Analysis and diagnosis data models
+│   ├── providers/      # Global state and camera controllers
+│   ├── screens/        # UI screens (Home, Result, Preview, Settings, Tips)
+│   ├── services/       # Gemini AI Vision & PDF prescription services
+│   ├── widgets/        # Reusable UI components & TTS voice player
+│   ├── .env.example    # Mobile environment configuration template
+│   ├── config.dart     # Dynamic app configuration loader
+│   ├── pubspec.yaml    # Flutter dependencies & assets config
+│   └── README.md       # Mobile app documentation & build guide
 ├── scripts/
 │   └── seedData.js     # Database seeder
 ├── .gitignore
@@ -159,6 +171,7 @@ UrbanFarm/
 - **Node.js** v18+
 - **npm** v9+
 - **MongoDB Atlas** database URI (or local MongoDB instance)
+- **Flutter SDK** v3.10+ (for `vaidha` mobile app compilation)
 
 ### 1. Clone & Install Dependencies
 
@@ -208,7 +221,16 @@ FRONTEND_URL=http://localhost:5173
 VITE_API_URL=http://localhost:5000/api
 ```
 
-### 3. Run Development Servers
+#### Mobile App Configuration (`vaidha/.env`)
+```env
+# Direct standalone Gemini Vision AI Key
+GEMINI_API_KEY=your_gemini_api_key
+
+# Backend URL (Optional)
+API_BASE_URL=https://urbanfarm-server.vercel.app
+```
+
+### 3. Build & Run
 
 ```bash
 # Terminal 1 — Backend (Runs on http://localhost:5000)
@@ -218,6 +240,10 @@ npm run dev
 # Terminal 2 — Frontend (Runs on http://localhost:5173 or http://localhost:3000)
 cd frontend
 npm run dev
+
+# Vaidha Mobile App — Build APK without running
+cd vaidha
+flutter build apk --release --dart-define-from-file=.env
 ```
 
 ---
@@ -257,4 +283,6 @@ Language selection is preserved across user sessions in `localStorage` and autom
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is **Proprietary & All Rights Reserved** (Copyright © 2026 Vishal Baraiya / UrbanFarm).
+
+Unauthorized copying, cloning, modification, distribution, derivative creation, or reference usage is strictly prohibited. See the full [LICENSE](LICENSE) file for legal terms.
