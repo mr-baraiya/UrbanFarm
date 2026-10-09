@@ -8,7 +8,6 @@ import {
   FaPause,
   FaVolumeMute,
   FaVolumeUp,
-  FaExpand,
   FaRedo,
   FaShieldAlt,
   FaMobileAlt,
@@ -78,15 +77,6 @@ const DownloadPage = () => {
     if (!videoRef.current) return;
     videoRef.current.currentTime = 0;
     videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
-  };
-
-  const handleFullscreen = () => {
-    if (!videoRef.current) return;
-    if (videoRef.current.requestFullscreen) {
-      videoRef.current.requestFullscreen();
-    } else if (videoRef.current.webkitRequestFullscreen) {
-      videoRef.current.webkitRequestFullscreen();
-    }
   };
 
   const handleCopyDownloadLink = async () => {
@@ -335,6 +325,7 @@ const DownloadPage = () => {
                   src="/how_to_use_app.mp4"
                   className="dl-video-element"
                   playsInline
+                  controlsList="nofullscreen nodownload noremoteplayback"
                   onPlay={() => setIsPlaying(true)}
                   onPause={() => setIsPlaying(false)}
                   onEnded={() => setIsPlaying(false)}
@@ -366,14 +357,6 @@ const DownloadPage = () => {
                     aria-label="Restart Video"
                   >
                     <FaRedo />
-                  </button>
-                  <button
-                    type="button"
-                    className="dl-control-btn"
-                    onClick={handleFullscreen}
-                    aria-label="Fullscreen"
-                  >
-                    <FaExpand />
                   </button>
                 </div>
               </div>
