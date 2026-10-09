@@ -66,6 +66,13 @@ const TomatoIoTHub = ({
     return enText;
   }, [currentLang]);
 
+  const cleanEmoji = useCallback((text) => {
+    if (!text) return '';
+    return String(text)
+      .replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}]/gu, '')
+      .trim();
+  }, []);
+
   const formatLocalizedTime = useCallback((timeStr) => {
     if (!timeStr) return L('સાંજે 6:30', 'शाम 6:30', 'Evening 6:30 PM');
     const s = String(timeStr).toLowerCase();
@@ -1363,13 +1370,12 @@ const TomatoIoTHub = ({
               <div className="disease-predict-engine-block">
                 <div className="disease-engine-header">
                   <div className="engine-title-wrap">
-                    <span className="engine-icon-pulse">🛡️</span>
                     <div className="engine-title-texts">
                       <h4 className="disease-engine-title">
                         {L('IoT રોગ આગાહી અને અગમચેતી સલાહ', 'IoT रोग पूर्वानुमान एवं अग्रिम रोकथाम', 'IoT Disease Prediction & Prevention')}
                       </h4>
                       <span className="disease-engine-motto">
-                        💡 <strong>{L('“નિવારણ એ ઉપચાર કરતાં શ્રેષ્ઠ છે”', '“इलाज से रोकथाम बेहतर है”', '“Prevention is better than cure”')}</strong> — {L('સેન્સર ડેટા આધારે સંભવિત રોગોનો પૂર્વ-ઉકેલ', 'सेंसर डेटा आधारित संभावित रोगों की पूर्व-रोकथाम', 'Early risk diagnosis & preventative remedies')}
+                        <strong>{L('“નિવારણ એ ઉપચાર કરતાં શ્રેષ્ઠ છે”', '“इलाज से रोकथाम बेहतर है”', '“Prevention is better than cure”')}</strong> — {L('સેન્સર ડેટા આધારે સંભવિત રોગોનો પૂર્વ-ઉકેલ', 'सेंसर डेटा आधारित संभावित रोगों की पूर्व-रोकथाम', 'Early risk diagnosis & preventative remedies')}
                       </span>
                     </div>
                   </div>
@@ -1389,8 +1395,8 @@ const TomatoIoTHub = ({
                         onClick={() => setActiveDiseaseId(dItem.id)}
                       >
                         <span className={`risk-dot ${isHigh ? 'dot-red' : isMed ? 'dot-amber' : 'dot-green'}`}></span>
-                        <span className="disease-tab-name">{dItem.name.split('(')[0].trim()}</span>
-                        <span className="risk-level-chip">{dItem.statusLabel}</span>
+                        <span className="disease-tab-name">{cleanEmoji(dItem.name).split('(')[0].trim()}</span>
+                        <span className="risk-level-chip">{cleanEmoji(dItem.statusLabel)}</span>
                       </button>
                     );
                   })}
@@ -1407,22 +1413,21 @@ const TomatoIoTHub = ({
                     <div className={`disease-detail-card ${isHigh ? 'card-risk-high' : isMed ? 'card-risk-med' : 'card-risk-low'}`}>
                       <div className="disease-detail-top">
                         <div className="disease-title-row">
-                          <h5 className="active-disease-name">{curDisease.name}</h5>
+                          <h5 className="active-disease-name">{cleanEmoji(curDisease.name)}</h5>
                           <div className="risk-score-chip-wrap">
                             <span className={`severity-badge ${isHigh ? 'sev-high' : isMed ? 'sev-med' : 'sev-low'}`}>
-                              {curDisease.statusLabel} ({curDisease.riskScore}% {L('જોખમ સ્તર', 'जोखिम स्तर', 'Risk')})
+                              {cleanEmoji(curDisease.statusLabel)} ({curDisease.riskScore}% {L('જોખમ સ્તર', 'जोखिम स्तर', 'Risk')})
                             </span>
                             <span className="iot-trigger-pill">
-                              📡 {curDisease.iotTriggerText}
+                              {cleanEmoji(curDisease.iotTriggerText)}
                             </span>
                           </div>
                         </div>
 
                         <div className="disease-cause-alert">
-                          <span className="cause-icon">⚠️</span>
                           <p className="cause-text">
                             <strong>{L('શા માટે થઈ શકે છે (IoT કારણ)', 'क्यों हो सकता है (IoT कारण)', 'Why this could occur (IoT Trigger)')}: </strong>
-                            {curDisease.triggerReason}
+                            {cleanEmoji(curDisease.triggerReason)}
                           </p>
                         </div>
                       </div>
@@ -1437,7 +1442,7 @@ const TomatoIoTHub = ({
                           {curDisease.prevention.map((step, sIdx) => (
                             <li key={sIdx} className="prevention-step-item">
                               <span className="step-check-bullet">✓</span>
-                              <span>{step}</span>
+                              <span>{cleanEmoji(step)}</span>
                             </li>
                           ))}
                         </ul>
@@ -1447,67 +1452,14 @@ const TomatoIoTHub = ({
                       {curDisease.cureTip && (
                         <div className="cure-resolution-box">
                           <div className="cure-heading">
-                            <span className="cure-icon">💊</span>
                             <h6>{L('લક્ષણો દેખાય તો તાત્કાલિક ઉકેલ / ઉપચાર', 'लक्षण दिखने पर त्वरित समाधान / उपचार', 'Immediate Resolution & Cure (If Symptoms Spotted)')}</h6>
                           </div>
-                          <p className="cure-text">{curDisease.cureTip}</p>
+                          <p className="cure-text">{cleanEmoji(curDisease.cureTip)}</p>
                         </div>
                       )}
                     </div>
                   );
                 })()}
-              </div>
-            )}
-          </section>
-
-          {/* MOVED TO LEFT COLUMN: ESP32 Hardware & Node Details Accordion */}
-          <section className="device-info-card">
-            <div
-              className="device-info-accordion-header"
-              onClick={() => setShowDeviceInfo(!showDeviceInfo)}
-            >
-              <div className="device-title-left">
-                {isOnline ? <Wifi size={17} style={{ color: '#15803d' }} /> : <WifiOff size={17} style={{ color: '#b91c1c' }} />}
-                <h4>{L('ESP32 હાર્ડવેર અને નોડ વિગતો', 'ESP32 हार्डवेयर और नोड विवरण', 'ESP32 Node & Hardware Details')}</h4>
-                <span className="pulse-chip-iot">{isOnline ? L('ઑનલાઇન', 'ऑनलाइन', 'Online') : L('ઑફલાઇન', 'ऑफलाइन', 'Offline')}</span>
-              </div>
-              <button
-                type="button"
-                className="btn-toggle-info"
-                aria-label="Toggle details"
-              >
-                {showDeviceInfo ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-              </button>
-            </div>
-
-            {showDeviceInfo && (
-              <div className="device-details-body">
-                <div className="info-row">
-                  <span>{L('ડિવાઇસ મોડેલ', 'डिवाइस मॉडल', 'Device Model')}:</span>
-                  <strong>ESP32-TOMATO-01</strong>
-                </div>
-                <div className="info-row">
-                  <span>{L('કનેક્શન', 'कनेक्शन', 'Connection')}:</span>
-                  <strong style={{ color: isOnline ? '#15803d' : '#b91c1c' }}>
-                    {isOnline ? L('ઑનલાઇન (Wi-Fi 88% • -64 dBm)', 'ऑनलाइन (Wi-Fi 88% • -64 dBm)', 'Online (Wi-Fi 88% • -64 dBm)') : L('ઑફલાઇન', 'ऑफलाइन', 'Offline')}
-                  </strong>
-                </div>
-                <div className="info-row">
-                  <span>{L('પ્રોટોકોલ', 'प्रोटोकॉल', 'Protocol')}:</span>
-                  <strong>MQTT TLS 8883 (Secure Encrypted)</strong>
-                </div>
-                <div className="info-row">
-                  <span>{L('સેન્સર હાર્ડવેર', 'સંવેદક હાર્ડવેર', 'Sensor Hardware')}:</span>
-                  <strong>Capacitive Soil v1.2 & DHT22</strong>
-                </div>
-                <div className="info-row">
-                  <span>{L('પંપ / વાલ્વ', 'पंप / वाल्व', 'Valve Actuator')}:</span>
-                  <strong>12V Solenoid Submersible Pump</strong>
-                </div>
-                <div className="info-row">
-                  <span>{L('છેલ્લું સિંક', 'अंतिम सिंक', 'Last Telemetry Sync')}:</span>
-                  <strong>{new Date(sensorData.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</strong>
-                </div>
               </div>
             )}
           </section>
@@ -1761,8 +1713,7 @@ const TomatoIoTHub = ({
                 </div>
 
                 <div className="detail-reason-box">
-                  <span className="reason-bullet-icon">💡</span>
-                  <p className="reason-text">{selectedDay.reason}</p>
+                  <p className="reason-text">{cleanEmoji(selectedDay.reason)}</p>
                 </div>
               </div>
             )}
@@ -1801,6 +1752,58 @@ const TomatoIoTHub = ({
               </div>
             ) : (
               renderMiniSparkline()
+            )}
+          </section>
+
+          {/* ESP32 Hardware & Node Details Accordion */}
+          <section className="device-info-card">
+            <div
+              className="device-info-accordion-header"
+              onClick={() => setShowDeviceInfo(!showDeviceInfo)}
+            >
+              <div className="device-title-left">
+                {isOnline ? <Wifi size={17} style={{ color: '#15803d' }} /> : <WifiOff size={17} style={{ color: '#b91c1c' }} />}
+                <h4>{L('ESP32 હાર્ડવેર અને નોડ વિગતો', 'ESP32 हार्डवेयर और नोड विवरण', 'ESP32 Node & Hardware Details')}</h4>
+                <span className="pulse-chip-iot">{isOnline ? L('ઑનલાઇન', 'ऑनलाइन', 'Online') : L('ઑફલાઇન', 'ऑफलाइन', 'Offline')}</span>
+              </div>
+              <button
+                type="button"
+                className="btn-toggle-info"
+                aria-label="Toggle details"
+              >
+                {showDeviceInfo ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </button>
+            </div>
+
+            {showDeviceInfo && (
+              <div className="device-details-body">
+                <div className="info-row">
+                  <span>{L('ડિવાઇસ મોડેલ', 'डिवाइस मॉडल', 'Device Model')}:</span>
+                  <strong>ESP32-TOMATO-01</strong>
+                </div>
+                <div className="info-row">
+                  <span>{L('કનેક્શન', 'कनेक्शन', 'Connection')}:</span>
+                  <strong style={{ color: isOnline ? '#15803d' : '#b91c1c' }}>
+                    {isOnline ? L('ઑનલાઇન (Wi-Fi 88% • -64 dBm)', 'ऑनलाइन (Wi-Fi 88% • -64 dBm)', 'Online (Wi-Fi 88% • -64 dBm)') : L('ઑફલાઇન', 'ऑफलाइन', 'Offline')}
+                  </strong>
+                </div>
+                <div className="info-row">
+                  <span>{L('પ્રોટોકોલ', 'प्रोटोकॉल', 'Protocol')}:</span>
+                  <strong>MQTT TLS 8883 (Secure Encrypted)</strong>
+                </div>
+                <div className="info-row">
+                  <span>{L('સેન્સર હાર્ડવેર', 'સંવેદક હાર્ડવેર', 'Sensor Hardware')}:</span>
+                  <strong>Capacitive Soil v1.2 & DHT22</strong>
+                </div>
+                <div className="info-row">
+                  <span>{L('પંપ / વાલ્વ', 'पंप / वाल्व', 'Valve Actuator')}:</span>
+                  <strong>12V Solenoid Submersible Pump</strong>
+                </div>
+                <div className="info-row">
+                  <span>{L('છેલ્લું સિંક', 'अंतिम सिंक', 'Last Telemetry Sync')}:</span>
+                  <strong>{new Date(sensorData.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</strong>
+                </div>
+              </div>
             )}
           </section>
 

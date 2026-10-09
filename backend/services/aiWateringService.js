@@ -708,6 +708,7 @@ Agronomic & Disease Prediction Rules:
 2. "Prevention is better than cure": Provide concrete preventative steps (irrigation adjustments, organic neem spray, pruning lower leaves, calcium feed, mulching, green shade net) and resolution cure tips.
 3. If ambient temp is high (>= 35°C), heat stress is High. Recommend evening irrigation after 6:30 PM.
 4. If soil moisture >= 55% or rain chance >= 60%, recommendation_ml MUST be 0 (Rest day).
+5. DO NOT include any emojis or emoji icons (such as 🛡️, 💡, 🧪, ⚠️, 💊, 🌿, etc.) anywhere in any field.
 
 JSON Schema:
 {
@@ -750,6 +751,8 @@ JSON Schema:
 }
 `;
 
+  const stripEmojis = (str) => typeof str === 'string' ? str.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}]/gu, '').trim() : str;
+
   for (const model of candidateModels) {
     try {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${aiConfig.gemini.apiKey}`;
@@ -778,14 +781,33 @@ JSON Schema:
         jsonStr = jsonStr.substring(startIdx, endIdx + 1);
         const parsed = JSON.parse(jsonStr);
         if (parsed.headlineText && parsed.explanation) {
-          const finalSchedule = (parsed.schedule && parsed.schedule.length >= 7) ? parsed.schedule : defaultSchedule;
-          const finalDiseases = (parsed.predictedDiseases && Array.isArray(parsed.predictedDiseases) && parsed.predictedDiseases.length > 0)
+          const finalSchedule = (parsed.schedule && parsed.schedule.length >= 7) ? parsed.schedule.map(s => ({
+            ...s,
+            dayLabel: stripEmojis(s.dayLabel),
+            reason: stripEmojis(s.reason)
+          })) : defaultSchedule;
+
+          const rawDiseases = (parsed.predictedDiseases && Array.isArray(parsed.predictedDiseases) && parsed.predictedDiseases.length > 0)
             ? parsed.predictedDiseases
             : predictedDiseases;
+
+          const finalDiseases = rawDiseases.map(d => ({
+            ...d,
+            name: stripEmojis(d.name),
+            statusLabel: stripEmojis(d.statusLabel),
+            triggerReason: stripEmojis(d.triggerReason),
+            iotTriggerText: stripEmojis(d.iotTriggerText),
+            prevention: Array.isArray(d.prevention) ? d.prevention.map(p => stripEmojis(p)) : [],
+            cureTip: stripEmojis(d.cureTip)
+          }));
 
           const adviceResult = {
             ...defaultAdvice,
             ...parsed,
+            headlineText: stripEmojis(parsed.headlineText),
+            explanation: stripEmojis(parsed.explanation),
+            tips: Array.isArray(parsed.tips) ? parsed.tips.map(t => stripEmojis(t)) : defaultAdvice.tips,
+            weatherAlert: stripEmojis(parsed.weatherAlert),
             schedule: finalSchedule,
             predictedDiseases: finalDiseases
           };

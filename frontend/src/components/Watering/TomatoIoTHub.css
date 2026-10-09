@@ -630,21 +630,20 @@
 .agronomy-tips-list {
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 0.45rem;
   width: 100%;
 }
 
 .agronomy-tip-item {
   display: flex;
   align-items: flex-start;
-  gap: 0.6rem;
-  font-size: 0.84rem;
-  line-height: 1.45;
+  gap: 0.55rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
   color: #2c4a3e;
-  background: #f6fff8;
-  padding: 0.65rem 0.85rem;
-  border-radius: 10px;
-  border: 1px solid rgba(107, 144, 128, 0.2);
+  background: transparent;
+  padding: 0.15rem 0;
+  border: none;
   box-sizing: border-box;
   width: 100%;
   word-break: break-word;
@@ -653,7 +652,7 @@
 
 .tip-icon-bullet {
   color: #2d6a4f;
-  margin-top: 0.1rem;
+  margin-top: 0.15rem;
   flex-shrink: 0;
 }
 
@@ -673,10 +672,9 @@
 }
 
 .disease-engine-header {
-  background: linear-gradient(135deg, rgba(45, 106, 79, 0.09) 0%, rgba(2, 132, 199, 0.07) 100%);
-  border: 1px solid rgba(45, 106, 79, 0.22);
-  border-radius: 12px;
-  padding: 0.65rem 0.85rem;
+  background: transparent;
+  border: none;
+  padding: 0;
   box-sizing: border-box;
   width: 100%;
 }
@@ -689,12 +687,7 @@
 }
 
 .engine-icon-pulse {
-  font-size: 1.25rem;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  filter: drop-shadow(0 2px 4px rgba(45, 106, 79, 0.25));
+  display: none;
 }
 
 .engine-title-texts {
@@ -714,9 +707,9 @@
 }
 
 .disease-engine-motto {
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   color: #2d6a4f;
-  line-height: 1.35;
+  line-height: 1.4;
   word-break: break-word;
 }
 
@@ -923,39 +916,35 @@
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
-  background: rgba(245, 158, 11, 0.08);
-  border: 1px solid rgba(245, 158, 11, 0.25);
-  border-radius: 10px;
-  padding: 0.55rem 0.75rem;
+  background: transparent;
+  border: none;
+  padding: 0.15rem 0;
   box-sizing: border-box;
   width: 100%;
 }
 
 .cause-icon {
-  font-size: 0.95rem;
-  flex-shrink: 0;
-  margin-top: 0.05rem;
+  display: none;
 }
 
 .cause-text {
   margin: 0;
-  font-size: 0.82rem;
-  color: #78350f;
-  line-height: 1.45;
+  font-size: 0.84rem;
+  color: #334e44;
+  line-height: 1.5;
   word-break: break-word;
 }
 
 .cause-text strong {
-  color: #92400e;
+  color: #1b4332;
   font-weight: 700;
 }
 
 /* Prevention Action Box */
 .prevention-action-box {
-  background: rgba(45, 106, 79, 0.05);
-  border: 1px solid rgba(45, 106, 79, 0.18);
-  border-radius: 11px;
-  padding: 0.7rem 0.85rem;
+  background: transparent;
+  border: none;
+  padding: 0.2rem 0;
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
@@ -966,14 +955,15 @@
 .prevention-heading {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.45rem;
   color: #1b4332;
 }
 
 .prevention-heading h6 {
   margin: 0;
-  font-size: 0.83rem;
+  font-size: 0.86rem;
   font-weight: 700;
+  color: #1b4332;
   letter-spacing: -0.01em;
   word-break: break-word;
 }
@@ -984,16 +974,16 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.35rem;
   width: 100%;
 }
 
 .prevention-step-item {
   display: flex;
   align-items: flex-start;
-  gap: 0.45rem;
-  font-size: 0.81rem;
-  line-height: 1.42;
+  gap: 0.5rem;
+  font-size: 0.83rem;
+  line-height: 1.45;
   color: #2c4a3e;
   word-break: break-word;
 }
@@ -1008,10 +998,9 @@
 
 /* Quick Cure / Resolution Box */
 .cure-resolution-box {
-  background: rgba(2, 132, 199, 0.05);
-  border: 1px solid rgba(2, 132, 199, 0.2);
-  border-radius: 11px;
-  padding: 0.7rem 0.85rem;
+  background: transparent;
+  border: none;
+  padding: 0.2rem 0;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
@@ -1023,27 +1012,27 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  color: #0369a1;
+  color: #1b4332;
 }
 
 .cure-heading .cure-icon {
-  font-size: 0.9rem;
-  flex-shrink: 0;
+  display: none;
 }
 
 .cure-heading h6 {
   margin: 0;
-  font-size: 0.83rem;
+  font-size: 0.86rem;
   font-weight: 700;
+  color: #1b4332;
   letter-spacing: -0.01em;
   word-break: break-word;
 }
 
 .cure-text {
   margin: 0;
-  font-size: 0.81rem;
-  line-height: 1.42;
-  color: #0c4a6e;
+  font-size: 0.83rem;
+  line-height: 1.45;
+  color: #2c4a3e;
   word-break: break-word;
 }
 
