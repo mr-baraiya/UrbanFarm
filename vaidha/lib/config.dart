@@ -5,6 +5,9 @@ import 'package:flutter/foundation.dart'
 /// AI diagnoses are routed through the secure UrbanFarm backend,
 /// eliminating the need to expose Google Gemini API keys in the mobile app bundle.
 class AppConfig {
+  /// Default live production backend server URL
+  static const String defaultProductionUrl = 'https://urbanfarm-server.vercel.app';
+
   /// Optional Gemini API key override for standalone offline testing only.
   /// Not required for normal production or backend-connected operation.
   static const String geminiApiKey = String.fromEnvironment(
@@ -16,24 +19,26 @@ class AppConfig {
   static const String _envBaseUrl = String.fromEnvironment('API_BASE_URL');
 
   /// Resolves the active UrbanFarm Backend Base URL:
-  /// - If explicitly set via environment, uses that URL (trimmed)
-  /// - On Android Emulator: routes to `http://10.0.2.2:5000` (host machine localhost)
-  /// - On Web / Desktop: routes to `http://localhost:5000`
+  /// - If explicitly set via environment, uses that URL
+  /// - Default production fallback: https://urbanfarm-server.vercel.app
+  /// Automatically strips trailing slashes and '/api' suffix so endpoint routing is always clean.
   static String get apiBaseUrl {
-    if (_envBaseUrl.isNotEmpty) {
-      final clean = _envBaseUrl.trim();
-      return clean.endsWith('/') ? clean.substring(0, clean.length - 1) : clean;
+    String url = _envBaseUrl.trim();
+    if (url.isEmpty) {
+      url = defaultProductionUrl;
     }
 
-    if (kIsWeb) {
-      return 'http://localhost:5000';
+    // Strip trailing slashes
+    while (url.endsWith('/')) {
+      url = url.substring(0, url.length - 1);
     }
 
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:5000';
+    // If url ends with /api, strip it so we don't produce double /api/api/...
+    if (url.endsWith('/api')) {
+      url = url.substring(0, url.length - 4);
     }
 
-    return 'http://localhost:5000';
+    return url;
   }
 
   /// Network request timeout (40 seconds for AI vision pathology processing)
