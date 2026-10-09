@@ -2435,6 +2435,7 @@
     "videoCardDesc": "Learn how to navigate the AI Disease scanner, record crop growth, connect IoT soil sensors, and view real-time market trends directly on your phone.",
     "stepsHeading": "4 Easy Installation Steps",
     "startDownloadNow": "Start Download Now",
+    "tipPrefix": "Tip:",
     "steps": [
       {
         "num": "01",
