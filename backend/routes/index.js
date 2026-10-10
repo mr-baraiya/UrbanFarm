@@ -17,6 +17,7 @@ const contactRoutes = require('./contactRoutes');
 const chatbotRoutes = require('./chatbotRoutes');
 const marketRoutes = require('./marketRoutes');
 const iotRoutes = require('./iotRoutes');
+const surplusRoutes = require('./surplusRoutes');
 
 const { getAiAdvice } = require('../controllers/wateringController');
 const { diagnosePlant } = require('../controllers/diseaseController');
@@ -42,5 +43,6 @@ router.use('/contact', contactRoutes);
 router.use('/chat', chatbotRoutes);
 router.use('/market', marketRoutes);
 router.use('/iot', iotRoutes);
+router.use('/surplus', surplusRoutes);
 
 module.exports = router;

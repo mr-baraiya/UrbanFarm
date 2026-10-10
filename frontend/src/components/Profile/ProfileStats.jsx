@@ -98,7 +98,6 @@ const ProfileStats = ({ stats = {} }) => {
     <div className="profile-stats-row">
       {statItems.map((stat) => (
         <div key={stat.key} className={`stat-pill-card ${stat.theme}`}>
-          <div className="stat-card-top-accent" />
           <div className="stat-icon-wrapper">
             <div className="stat-icon-circle">
               {stat.icon}

@@ -19,12 +19,18 @@ import PostCard from './PostCard';
 import PostForm, { PostComposer } from './PostForm';
 import CommunityFilters from './CommunityFilters';
 import Leaderboard, { LeaderboardRightRail } from './Leaderboard';
+import { motion, AnimatePresence } from 'framer-motion';
+import SurplusMarketplace from './SurplusMarketplace';
+import { RiShoppingBag3Line, RiChat3Line } from 'react-icons/ri';
 import './CommunityTab.css';
+
 
 const CommunityTab = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState('feed'); // 'feed' | 'surplus'
   const [posts, setPosts] = useState([]);
+
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
@@ -266,7 +272,7 @@ const CommunityTab = () => {
       <div className="community-header">
         <div className="header-left">
           <h2>
-            <RiTeamLine className="header-icon" /> {t('community.socialHeader', 'UrbanFarm Social')}
+            <RiTeamLine className="header-icon" /> {t('community.socialHeader', 'UrbanFarm Community')}
           </h2>
           {userLevel && (
             <span className="user-level">
@@ -281,100 +287,162 @@ const CommunityTab = () => {
           >
             <RiTrophyLine style={{ color: '#d97706' }} /> {t('community.leaderboardBtn', 'Leaderboard')}
           </button>
+          {activeTab === 'feed' && (
+            <button 
+              className="btn-primary create-post-btn" 
+              onClick={() => handleOpenComposer()}
+            >
+              <RiAddLine /> {t('community.sharePostBtn', 'Share Post')}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Smooth Segmented Control Toggle Switch */}
+      <div className="community-segmented-toggle-wrapper">
+        <div className="community-segmented-toggle">
           <button 
-            className="btn-primary create-post-btn" 
-            onClick={() => handleOpenComposer()}
+            className={`segmented-tab-btn ${activeTab === 'feed' ? 'active' : ''}`}
+            onClick={() => setActiveTab('feed')}
           >
-            <RiAddLine /> {t('community.sharePostBtn', 'Share Post')}
+            {activeTab === 'feed' && (
+              <motion.div 
+                layoutId="activeCommunityTabPill" 
+                className="segmented-active-pill" 
+                transition={{ type: "spring", stiffness: 450, damping: 32 }}
+              />
+            )}
+            <span className="segmented-tab-text">
+              <RiTeamLine /> {t('community.tabFeed', 'Social Feed & Q&A')}
+            </span>
+          </button>
+
+          <button 
+            className={`segmented-tab-btn ${activeTab === 'surplus' ? 'active' : ''}`}
+            onClick={() => setActiveTab('surplus')}
+          >
+            {activeTab === 'surplus' && (
+              <motion.div 
+                layoutId="activeCommunityTabPill" 
+                className="segmented-active-pill" 
+                transition={{ type: "spring", stiffness: 450, damping: 32 }}
+              />
+            )}
+            <span className="segmented-tab-text">
+              <RiShoppingBag3Line className="surplus-icon-color" /> {t('community.tabSurplus', 'Surplus Exchange')}
+              <span className="segmented-badge-hot">{t('community.localTrade', 'LOCAL TRADE')}</span>
+            </span>
           </button>
         </div>
       </div>
 
-      {/* Main Community Feed Container */}
-      <div className="community-feed-container">
-        {/* Side-by-Side Top Urban Farmers & Community Activity Row */}
-        <LeaderboardRightRail 
-          leaderboard={leaderboard} 
-          posts={posts}
-          onOpenLeaderboard={() => setShowLeaderboard(true)}
-        />
+      {/* Smooth Animated View Transition */}
+      <AnimatePresence mode="wait">
+        {activeTab === 'surplus' ? (
+          <motion.div
+            key="surplus-view"
+            initial={{ opacity: 0, y: 12, scale: 0.995 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.995 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+          >
+            <SurplusMarketplace user={user} addNotification={addNotification} />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="feed-view"
+            initial={{ opacity: 0, y: 12, scale: 0.995 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.995 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="community-feed-container"
+          >
+            {/* Side-by-Side Top Urban Farmers & Community Activity Row */}
+            <LeaderboardRightRail 
+              leaderboard={leaderboard} 
+              posts={posts}
+              onOpenLeaderboard={() => setShowLeaderboard(true)}
+            />
 
-        {/* Post Composer Banner */}
-        <PostComposer 
-          user={user} 
-          onOpenComposer={handleOpenComposer} 
-        />
+            {/* Post Composer Banner */}
+            <PostComposer 
+              user={user} 
+              onOpenComposer={handleOpenComposer} 
+            />
 
-        {/* Filters */}
-        <CommunityFilters
-          filterType={filterType}
-          onFilterTypeChange={setFilterType}
-          filterRegion={filterRegion}
-          onFilterRegionChange={setFilterRegion}
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          posts={posts}
-          user={user}
-        />
+            {/* Filters */}
+            <CommunityFilters
+              filterType={filterType}
+              onFilterTypeChange={setFilterType}
+              filterRegion={filterRegion}
+              onFilterRegionChange={setFilterRegion}
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              posts={posts}
+              user={user}
+            />
 
-        {/* Posts Feed */}
-        <div className="posts-feed">
-          {filteredPosts.length === 0 ? (
-            <div className="empty-feed">
-              <span className="empty-icon">
-                <TbPlant2 style={{ color: 'var(--primary, #6b9080)' }} />
-              </span>
-              <h3>{t('community.noPosts', 'No posts yet')}</h3>
-              <p>{t('community.noPostsSub', 'Be the first to share your urban farming journey!')}</p>
-              <button 
-                className="btn-primary" 
-                onClick={() => handleOpenComposer()}
-              >
-                <RiAddLine /> {t('community.shareFirstPost', 'Share Your First Post')}
-              </button>
-            </div>
-          ) : (
-            <>
-              {currentPosts.map((post) => (
-                <PostCard
-                  key={post._id}
-                  post={post}
-                  user={user}
-                  onLike={handleLike}
-                  onAddComment={handleAddComment}
-                  onEditPost={(p) => setEditingPost(p)}
-                  onDeletePost={promptDeletePost}
-                  onDeleteComment={handleDeleteComment}
-                  userLevel={userLevel}
-                />
-              ))}
-
-              {/* Restyled Pagination Bar */}
-              {totalPages > 1 && (
-                <div className="pagination-bar">
-                  <button 
-                    className="pagination-btn" 
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                  >
-                    <RiArrowLeftSLine /> {t('community.prev', 'Prev')}
-                  </button>
-                  <span className="pagination-indicator">
-                    {t('community.pageOf', 'Page {{current}} of {{total}}', { current: currentPage, total: totalPages })}
+            {/* Posts Feed */}
+            <div className="posts-feed">
+              {filteredPosts.length === 0 ? (
+                <div className="empty-feed">
+                  <span className="empty-icon">
+                    <TbPlant2 style={{ color: 'var(--primary, #6b9080)' }} />
                   </span>
+                  <h3>{t('community.noPosts', 'No posts yet')}</h3>
+                  <p>{t('community.noPostsSub', 'Be the first to share your urban farming journey!')}</p>
                   <button 
-                    className="pagination-btn" 
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    className="btn-primary" 
+                    onClick={() => handleOpenComposer()}
                   >
-                    {t('community.next', 'Next')} <RiArrowRightSLine />
+                    <RiAddLine /> {t('community.shareFirstPost', 'Share Your First Post')}
                   </button>
                 </div>
+              ) : (
+                <>
+                  {currentPosts.map((post) => (
+                    <PostCard
+                      key={post._id}
+                      post={post}
+                      user={user}
+                      onLike={handleLike}
+                      onAddComment={handleAddComment}
+                      onEditPost={(p) => setEditingPost(p)}
+                      onDeletePost={promptDeletePost}
+                      onDeleteComment={handleDeleteComment}
+                      userLevel={userLevel}
+                    />
+                  ))}
+
+                  {/* Restyled Pagination Bar */}
+                  {totalPages > 1 && (
+                    <div className="pagination-bar">
+                      <button 
+                        className="pagination-btn" 
+                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      >
+                        <RiArrowLeftSLine /> {t('community.prev', 'Prev')}
+                      </button>
+                      <span className="pagination-indicator">
+                        {t('community.pageOf', 'Page {{current}} of {{total}}', { current: currentPage, total: totalPages })}
+                      </span>
+                      <button 
+                        className="pagination-btn" 
+                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      >
+                        {t('community.next', 'Next')} <RiArrowRightSLine />
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
-            </>
-          )}
-        </div>
-      </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
 
       {/* Leaderboard Modal */}
       {showLeaderboard && (

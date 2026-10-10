@@ -372,11 +372,7 @@ if (!process.env.VERCEL) {
 
     server.on('error', (err) => {
       if (err.code === 'EADDRINUSE') {
-        console.error(`❌ Port ${PORT} is currently in use by another process. Retrying in 1 second...`);
-        setTimeout(() => {
-          server.close();
-          app.listen(PORT);
-        }, 1000);
+        console.error(`❌ Port ${PORT} is currently in use by another process. Please terminate existing node/server processes using port ${PORT}.`);
       } else {
         console.error('Server error:', err);
       }

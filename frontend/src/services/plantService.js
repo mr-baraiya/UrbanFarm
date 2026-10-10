@@ -272,3 +272,70 @@ export const getForecast = async (city) => {
   const res = await api.get('/weather/forecast', { params: { city } });
   return res.data;
 };
+
+// Surplus Harvest Marketplace & 1-on-1 Neighbor Chat
+export const getSurplusListings = async (params) => {
+  try {
+    const res = await api.get('/surplus', { params });
+    return res.data.listings;
+  } catch (err) {
+    console.warn('API getSurplusListings fallback:', err);
+    return null;
+  }
+};
+
+export const createSurplusListing = async (data) => {
+  const res = await api.post('/surplus', data, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return res.data.listing;
+};
+
+export const updateSurplusListingStatus = async (id, status) => {
+  const res = await api.patch(`/surplus/${id}/status`, { status });
+  return res.data.listing;
+};
+
+export const deleteSurplusListing = async (id) => {
+  const res = await api.delete(`/surplus/${id}`);
+  return res.data;
+};
+
+export const submitSurplusRequest = async (listingId, dealReceipt) => {
+  const res = await api.post(`/surplus/${listingId}/requests`, dealReceipt);
+  return res.data;
+};
+
+export const updateSurplusRequestStatus = async (listingId, dealId, status) => {
+  const res = await api.patch(`/surplus/${listingId}/requests/${dealId}`, { status });
+  return res.data.listing;
+};
+
+export const getSurplusChats = async () => {
+  try {
+    const res = await api.get('/surplus/chats');
+    return res.data.chats;
+  } catch (err) {
+    console.warn('API getSurplusChats fallback:', err);
+    return null;
+  }
+};
+
+export const getOrCreateSurplusChat = async (listingId, sellerId) => {
+  const res = await api.post('/surplus/chats', { listingId, sellerId });
+  return res.data.chat;
+};
+
+export const sendSurplusChatMessage = async (chatId, text) => {
+  const res = await api.post(`/surplus/chats/${chatId}/messages`, { text });
+  return res.data.chat;
+};
+
+export const getSurplusChatById = async (chatId) => {
+  try {
+    const res = await api.get(`/surplus/chats/${chatId}`);
+    return res.data.chat;
+  } catch (err) {
+    return null;
+  }
+};

@@ -1,4 +1,13 @@
 const mongoose = require('mongoose');
+const dns = require('dns');
+
+// Configure custom DNS servers to reliably resolve MongoDB +srv records on local Windows networks
+try {
+  dns.setServers(['8.8.8.8', '1.1.1.1', '8.8.4.4']);
+} catch (e) {
+  console.warn('⚠️ Could not set custom DNS servers:', e.message);
+}
+
 
 /**
  * Serverless-optimized MongoDB connection with caching for Vercel & local development
