@@ -7,7 +7,7 @@
 | Component | URL |
 |---|---|
 | **Frontend** | [https://urbanfarm.baraiyavishalbhai32.workers.dev](https://urbanfarm.baraiyavishalbhai32.workers.dev) |
-| **Backend API** | [https://urbanfarm-server.vercel.app](https://urbanfarm-server.vercel.app) |
+| **Backend Server** | [https://urbanfarm-server.vercel.app](https://urbanfarm-server.vercel.app) |
 | **Health Check** | [https://urbanfarm-server.vercel.app/health](https://urbanfarm-server.vercel.app/health) |
 | **Android APK (Direct Download)** | [https://vefhgdcr08rayqdq.public.blob.vercel-storage.com/Vaidha.apk](https://vefhgdcr08rayqdq.public.blob.vercel-storage.com/Vaidha.apk) |
 | **App Download & Tutorial Page** | [https://urbanfarm.baraiyavishalbhai32.workers.dev/download](https://urbanfarm.baraiyavishalbhai32.workers.dev/download) |
