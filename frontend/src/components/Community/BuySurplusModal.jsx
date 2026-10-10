@@ -16,7 +16,16 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-const BuySurplusModal = ({ listing, user, onClose, onConfirmDeal, onUpdateStatus, onDeleteListing }) => {
+const BuySurplusModal = ({ 
+  listing, 
+  user, 
+  onClose, 
+  onConfirmDeal, 
+  onUpdateStatus, 
+  onAcceptRequest,
+  onDeclineRequest,
+  onDeleteListing 
+}) => {
   const { t } = useTranslation();
   const [selectedQty, setSelectedQty] = useState('Full Quantity (' + (listing?.quantity || '1 kg') + ')');
   const [paymentMethod, setPaymentMethod] = useState(
@@ -175,7 +184,14 @@ const BuySurplusModal = ({ listing, user, onClose, onConfirmDeal, onUpdateStatus
                           type="button"
                           className="btn-status-option active-sold"
                           style={{ flex: 1, padding: '0.5rem', fontSize: '0.8rem' }}
-                          onClick={() => handleStatusChange('sold')}
+                          onClick={() => {
+                            if (onAcceptRequest) {
+                              onAcceptRequest(req);
+                            } else {
+                              handleStatusChange('sold');
+                            }
+                            onClose();
+                          }}
                         >
                           <CheckCheck size={14} /> {t('surplus.acceptMarkSold', 'Accept & Mark Sold')}
                         </button>
@@ -183,7 +199,14 @@ const BuySurplusModal = ({ listing, user, onClose, onConfirmDeal, onUpdateStatus
                           type="button"
                           className="btn-status-option"
                           style={{ padding: '0.5rem', fontSize: '0.8rem', color: '#dc2626', borderColor: '#fca5a5' }}
-                          onClick={() => handleStatusChange('available')}
+                          onClick={() => {
+                            if (onDeclineRequest) {
+                              onDeclineRequest(req);
+                            } else {
+                              handleStatusChange('available');
+                            }
+                            onClose();
+                          }}
                         >
                           <X size={14} /> {t('surplus.decline', 'Decline')}
                         </button>

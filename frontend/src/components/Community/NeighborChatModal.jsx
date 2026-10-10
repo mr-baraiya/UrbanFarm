@@ -8,7 +8,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { getSurplusChatById } from '../../services/plantService';
+import { getSurplusChatById, updateSurplusRequestStatus } from '../../services/plantService';
 
 const QUICK_PROMPTS = [
   "Hi! Is this surplus item still available for pickup today?",
@@ -310,8 +310,17 @@ const NeighborChatModal = ({ listing, chatThread, user, onClose, onSendMessage, 
                                 gap: '0.3rem',
                                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                               }}
-                              onClick={() => {
+                              onClick={async () => {
                                 if (msg.dealReceipt) msg.dealReceipt.status = 'accepted';
+                                const targetListingId = listing?._id || listing?.id || msg.dealReceipt?.listingId;
+                                const targetDealId = msg.dealReceipt?.dealId;
+                                if (targetListingId && targetDealId) {
+                                  try {
+                                    await updateSurplusRequestStatus(targetListingId, targetDealId, 'accepted');
+                                  } catch (e) {
+                                    console.warn('API accept in chat failed:', e);
+                                  }
+                                }
                                 handleStatusChange('sold');
                                 handleSend(t('surplus.msgAccepted', '✅ I have accepted your request! The item is now marked as sold.'));
                               }}
@@ -334,8 +343,17 @@ const NeighborChatModal = ({ listing, chatThread, user, onClose, onSendMessage, 
                                 alignItems: 'center',
                                 gap: '0.3rem'
                               }}
-                              onClick={() => {
+                              onClick={async () => {
                                 if (msg.dealReceipt) msg.dealReceipt.status = 'declined';
+                                const targetListingId = listing?._id || listing?.id || msg.dealReceipt?.listingId;
+                                const targetDealId = msg.dealReceipt?.dealId;
+                                if (targetListingId && targetDealId) {
+                                  try {
+                                    await updateSurplusRequestStatus(targetListingId, targetDealId, 'declined');
+                                  } catch (e) {
+                                    console.warn('API decline in chat failed:', e);
+                                  }
+                                }
                                 handleStatusChange('available');
                                 handleSend(t('surplus.msgDeclined', '❌ Sorry, I cannot accept this request at this time.'));
                               }}

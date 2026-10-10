@@ -210,8 +210,11 @@ exports.updateSurplusRequestStatus = async (req, res, next) => {
 
     if (status === 'accepted') {
       listing.status = 'sold';
-    } else if (status === 'declined') {
-      listing.status = 'available';
+    } else if (status === 'declined' || status === 'rejected') {
+      const remainingPending = (listing.pendingRequests || []).some(
+        (r) => r.dealId !== dealId && (r.status === 'pending_approval' || (!r.status && r.status !== 'declined' && r.status !== 'rejected'))
+      );
+      listing.status = remainingPending ? 'requested' : 'available';
     }
 
     await listing.save();
