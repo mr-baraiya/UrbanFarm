@@ -274,33 +274,31 @@ const SurplusMarketplace = ({ user, addNotification }) => {
 
       if (apiListings && apiListings.length > 0) {
         combinedListings = apiListings.map((apiItem) => {
-          const matchingLocal = localListings.find(
-            (l) => (l._id && apiItem._id && l._id.toString() === apiItem._id.toString()) || l.title === apiItem.title
-          );
-          const localReqs = matchingLocal?.pendingRequests || [];
           const apiReqs = apiItem.pendingRequests || [];
+          const hasActivePending = apiReqs.some(
+            (r) => r.status === 'pending_approval' || (!r.status && r.status !== 'declined' && r.status !== 'rejected')
+          );
+          const isSold = apiItem.status === 'sold' || apiReqs.some((r) => r.status === 'accepted');
 
-          // Deduplicate requests by dealId
-          const reqMap = new Map();
-          [...apiReqs, ...localReqs].forEach((r) => {
-            if (r.dealId) reqMap.set(r.dealId, r);
-          });
-
-          const mergedReqs = Array.from(reqMap.values());
           return {
             ...apiItem,
-            status: mergedReqs.some((r) => r.status === 'accepted')
+            status: isSold
               ? 'sold'
-              : mergedReqs.some((r) => r.status === 'pending_approval' || !r.status)
+              : hasActivePending
               ? 'requested'
-              : apiItem.status,
-            pendingRequests: mergedReqs,
+              : (apiItem.status === 'reserved' ? 'reserved' : 'available'),
+            pendingRequests: apiReqs,
           };
         });
 
-        // Also append any items created locally that aren't on server yet
+        // Only append local demo items if they are local-only and not on server
         localListings.forEach((localItem) => {
-          if (!combinedListings.some((m) => m._id?.toString() === localItem._id?.toString())) {
+          if (
+            localItem._id &&
+            typeof localItem._id === 'string' &&
+            localItem._id.startsWith('surplus_demo_') &&
+            !combinedListings.some((m) => m._id?.toString() === localItem._id?.toString())
+          ) {
             combinedListings.push(localItem);
           }
         });
@@ -501,6 +499,25 @@ const SurplusMarketplace = ({ user, addNotification }) => {
 
       setListings(updatedListings);
       localStorage.setItem('urbanfarm_surplus_listings', JSON.stringify(updatedListings));
+
+      // Also update any chat threads containing this dealReceipt so chat messages immediately show declined
+      const savedChats = localStorage.getItem('urbanfarm_surplus_chats');
+      if (savedChats) {
+        try {
+          const parsedChats = JSON.parse(savedChats);
+          const updatedChats = parsedChats.map((c) => {
+            const nextMsgs = (c.messages || []).map((m) => {
+              if (m.dealReceipt?.dealId === req.dealId) {
+                return { ...m, dealReceipt: { ...m.dealReceipt, status: 'declined' } };
+              }
+              return m;
+            });
+            return { ...c, messages: nextMsgs };
+          });
+          setUserChats(updatedChats);
+          localStorage.setItem('urbanfarm_surplus_chats', JSON.stringify(updatedChats));
+        } catch (e) {}
+      }
 
       if (addNotification) {
         addNotification(`Declined request #${req.dealId}. Item remains available on website.`, 'info');
@@ -782,7 +799,7 @@ const SurplusMarketplace = ({ user, addNotification }) => {
             className={`cat-pill ${selectedCategory === 'all' ? 'active' : ''}`}
             onClick={() => setSelectedCategory('all')}
           >
-            {t('surplus.allHarvest', 'All Harvest')} ({listings.length})
+            {t('surplus.allHarvest', 'All Harvest')} ({listings.filter((i) => i.status !== 'sold' && i.status !== 'accepted').length})
           </button>
           <button 
             className={`cat-pill ${selectedCategory === 'fruits' ? 'active' : ''}`}
@@ -954,9 +971,29 @@ const SurplusMarketplace = ({ user, addNotification }) => {
               (item._id && typeof item._id === 'string' && item._id.startsWith('surplus_'))
             );
             
-            const hasSentReq = (item.pendingRequests || []).some(
-              (r) => (r.buyerName || '').toString().trim().toLowerCase() === currentUserName.toLowerCase() && r.status !== 'declined'
+            // Filter out any requests that have been declined or rejected
+            const activeItemRequests = (item.pendingRequests || []).filter(
+              (r) => r.status === 'pending_approval' || (!r.status && r.status !== 'declined' && r.status !== 'rejected')
             );
+
+            // User has an active, un-declined pending request they sent
+            const hasPendingSentReq = (item.pendingRequests || []).some((r) => {
+              const isMatchBuyer =
+                (r.buyerId && cId && r.buyerId.toString() === cId) ||
+                ((r.buyerName || '').toString().trim().toLowerCase() === cName);
+              const isPending = r.status === 'pending_approval' || (!r.status && r.status !== 'declined' && r.status !== 'rejected');
+              return isMatchBuyer && isPending;
+            });
+
+            // Effective status: if item has no active pending requests and is not sold/reserved, it is available
+            const effectiveStatus = 
+              item.status === 'sold' || item.status === 'accepted'
+                ? 'sold'
+                : item.status === 'reserved'
+                ? 'reserved'
+                : activeItemRequests.length > 0
+                ? 'requested'
+                : 'available';
 
             const formatPriceBadge = (l) => {
               if (l.priceType === 'free') return t('surplus.freeGiftBadge', 'FREE GIFT');
@@ -1011,14 +1048,14 @@ const SurplusMarketplace = ({ user, addNotification }) => {
                   </span>
 
                   {/* Status Badge */}
-                  <span className={`floating-status-badge ${item.status}`}>
-                    {item.status === 'available'
+                  <span className={`floating-status-badge ${effectiveStatus}`}>
+                    {effectiveStatus === 'available'
                       ? t('surplus.statusAvailable', 'Available')
-                      : item.status === 'reserved'
+                      : effectiveStatus === 'reserved'
                       ? t('surplus.statusReserved', 'Reserved')
-                      : item.status === 'requested'
+                      : effectiveStatus === 'requested'
                       ? t('surplus.statusRequested', 'Request Pending')
-                      : item.status === 'sold' || item.status === 'accepted'
+                      : effectiveStatus === 'sold' || effectiveStatus === 'accepted'
                       ? t('surplus.statusSold', 'Sold')
                       : t('surplus.statusAvailable', 'Available')}
                   </span>
@@ -1057,23 +1094,23 @@ const SurplusMarketplace = ({ user, addNotification }) => {
                   <div className="card-dual-actions">
                     {isOwner ? (
                       <button 
-                        className={`btn-action-buy ${item.pendingRequests?.length > 0 ? 'has-pending-req' : ''}`}
-                        disabled={item.status === 'sold'}
+                        className={`btn-action-buy ${activeItemRequests.length > 0 ? 'has-pending-req' : ''}`}
+                        disabled={effectiveStatus === 'sold'}
                         onClick={() => setActiveBuyListing(item)}
                       >
-                        {item.pendingRequests && item.pendingRequests.length > 0 ? (
+                        {activeItemRequests.length > 0 ? (
                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
                             <Settings size={15} />
                             {t('surplus.manageItem', 'Manage Item')}
                             <span style={{ background: '#ef4444', color: '#ffffff', fontSize: '0.72rem', padding: '0.1rem 0.45rem', borderRadius: '10px', fontWeight: '700', lineHeight: 1 }}>
-                              {item.pendingRequests.length} {t('surplus.newReq', 'New Request')}
+                              {activeItemRequests.length} {t('surplus.newReq', 'New Request')}
                             </span>
                           </span>
                         ) : (
                           <><Settings size={15} /> {t('surplus.manageItem', 'Manage Item')}</>
                         )}
                       </button>
-                    ) : hasSentReq ? (
+                    ) : hasPendingSentReq ? (
                       <button 
                         className="btn-action-buy"
                         style={{ background: '#f0fdf4', color: '#15803d', border: '1px solid #86efac', cursor: 'default' }}
@@ -1084,7 +1121,7 @@ const SurplusMarketplace = ({ user, addNotification }) => {
                     ) : (
                       <button 
                         className="btn-action-buy"
-                        disabled={item.status === 'sold'}
+                        disabled={effectiveStatus === 'sold'}
                         onClick={() => setActiveBuyListing(item)}
                       >
                         {item.priceType === 'free' ? (
@@ -1127,6 +1164,8 @@ const SurplusMarketplace = ({ user, addNotification }) => {
           onClose={() => setActiveBuyListing(null)}
           onConfirmDeal={handleConfirmDeal}
           onUpdateStatus={handleUpdateStatus}
+          onAcceptRequest={handleAcceptSellerRequest}
+          onDeclineRequest={handleDeclineSellerRequest}
           onDeleteListing={handleDeleteListing}
         />
       )}
